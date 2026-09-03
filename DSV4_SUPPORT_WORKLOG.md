@@ -440,3 +440,56 @@ QAT/IAA 压缩与 DSA 传输全程关闭（`IAXL_KV_COMPRESSION=0`，CPU raw 拷
 ### 11.8 H20 现状（本节测完）
 - `iaxl.dsv4`(kvshrink, TP4) 在跑持卡；`lmcache.dsv4` 已停。
 - 测量脚本：容器内 `/tmp/measure_kv.sh`、`/tmp/measure_kv2.sh`（增量）、`/tmp/persist_du.sh`（dump+du）。
+
+---
+
+## 12. 优化实现：C4A 压缩器状态窗口化（2026-09-03，已实测验证）
+
+> 落地 §11.7 优化点里最大的那个（C4A state 占 88%）。**dsv4-dev 分支 commit `a8b0adb`**
+> （只改 `kvshrink/kvshrink_connector.py`）。
+
+### 12.1 原理（vLLM 代码证据）
+- DSv4 C4A 压缩器每到 4-token 边界只读**最近 `(1+overlap)*compress_ratio = (1+1)*4 = 8` 个 token**
+  的 partial state 做 softmax 加权（[compressor.py:216](../vllm-0.23.0/vllm/models/deepseek_v4/compressor.py)
+  `self.overlap = compress_ratio==4`；[fused_compress_quant_cache.py:169](../vllm-0.23.0/vllm/models/deepseek_v4/common/ops/fused_compress_quant_cache.py)
+  `start = position - (1+OVERLAP)*COMPRESS_RATIO + 1`）。
+- 边界压缩完后其压缩输出已写进主 MLA cache，那些旧 partial state **之后永不再读**。
+- 所以 offload 只需存每个 256-hash-block **末尾 8 个 token-state**（= 末尾 2 个 block_size-4 子块），
+  其余 248 个是死数据。**GPU 侧和 vLLM prefix caching 不受影响**（纯 offload 层优化）。
+
+### 12.2 实现
+- 模块级 env `KVSHRINK_C4A_STATE_WINDOW_TOKENS`（默认 8，设 0 关闭=旧全量行为）。
+- 注册时识别 C4A state 组：`ratio == block_size//4 == 64` 且 keys 都是 `compressor.state_cache`
+  → `_dsv4_c4a_state_groups`。
+- `_dsv4_group_slots`（store 的 `put` 与 load 的 `get` **共用**，天然对称）对这些组只发末尾
+  `w = ceil(window/4) = 2` 个子块的 `(block_index, "{hash}_{r}")`（r ∈ [62,64)）。label 里的 `r`
+  编码子块位置，reload 时自动放回同一相对 slot。
+
+### 12.3 实测验证（H20 TP4，windowing ON）
+- 启动日志：`C4A state windowing ON: storing last 8 token-states per hash-block for groups [3]
+  (ratio 64 -> 2 sub-blocks kept)`。
+- 正确性：cold/warm 输出**逐字一致**，`externally-cached tokens: 768`（windowed C4A state 回读正常），零错误。
+- **footprint（每 token / 单 rank）：244,093 B → 35,692 B，↓ 6.84×**（C4A state 从 88%→~3%，
+  27,411,600 B/rank ÷ 768 tok = 35,692）。
+- GSM8K（200 题，fp8）：w1_cold=98.0%，w2_warm=99.0%——都在 98–99% 噪声带内、warm≥cold →
+  **窗口化回读无精度损失**。
+- 1.5T(TP8) 容量：0.28 MB/token → **~5–6M token**（原 ~0.9M，↑ ~6.4×）。
+
+### 12.4 ⚠️ 踩坑：stale root 缓存导致的"假崩溃"（重要教训）
+- 现象：改完 windowing 后首个请求 worker `died unexpectedly` 于 `copy_chunks_batch`，exit 137。
+  一度误判为 GPU/驱动坏（dmesg 有 `NVRM refcntRequestReference_IMPL Failed`）、白折腾了
+  fabricmanager 重启 + gpu-reset（都被监控 agent 占用挡下）。
+- **真因**：`_data/kvcache` 是 root 拥有（容器以 root 跑），我用 ubuntu `rm -rf` **一直 Permission denied
+  但没注意** → 每次都加载早上残留的旧缓存。测试 prompt 首个 256-block 与旧缓存 hash 撞车 →
+  scheduler 以为命中 → 去 stale/损坏缓存 load → `[KVClip] cache miss on unzip (will retry)` 死循环 → worker 死。
+- **隔离验证**：`git stash` 换回已提交版本**同样崩** → 与代码无关；用 **Qwen3-0.6B TP2** 小模型
+  （不同 model → 不同缓存子目录，无 stale 撞车）跑 iaxl connector：`externally-cached tokens: 800`、
+  零错误 → **环境/驱动/iaxl 传输全正常**。
+- **修法**：从**容器内**（root）`rm -rf /_data/kvcache` 清 stale 缓存（宿主机 ubuntu 无权限）。
+- **教训**：① 清缓存必须确认 `rm` 真成功（root-owned 要容器内删）；② worker "died unexpectedly"
+  别只看二级信息，要抓一级错误（这里是 `cache miss on unzip` 死循环）；③ 别被旧 dmesg NVRM 带偏——
+  其他容器能跑就说明驱动没坏。
+
+### 12.5 H20 现状
+- `iaxl.dsv4`(kvshrink TP4, windowing ON) 在跑持卡。测试脚本 `/tmp/test_kvshrink_8010.sh`、
+  GSM8K `/tmp/gsm8k_win.sh`（w1_cold/w2_warm）。清缓存：`docker exec iaxl.dsv4 rm -rf /_data/kvcache`。
