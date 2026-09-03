@@ -317,3 +317,66 @@ QAT/IAA 压缩与 DSA 传输全程关闭（`IAXL_KV_COMPRESSION=0`，CPU raw 拷
 - `dsv4-dev`：干净的 PR 分支（上述 5 个文件）。
 - `dsv4-h20-dev-backup`：**备份分支**，含全部工作成果（5 个 PR 文件 + Dockerfile.dev + run_h20 + 本日志），
   **不入 .so，不 merge 主分支**。
+
+---
+
+## 10. 对照：LMCache 0.5.3 对 DSv4 的支持（2026-09-03，H20 实测）
+
+> 背景：评估现成的 `/home/pese/qiuyu/LMCache_v0.5.3` 是否已支持 DSv4 KV offload，
+> 以决定是否还需要 kvshrink 自研。**结论：LMCache 0.5.3 原生支持，无需改代码。**
+
+### 10.1 结论
+- LMCache 0.5.3 **原生支持 DSv4 KV cache offloading**，有官方 recipe
+  `docs/source/recipes/deepseek_v4_flash.rst`（状态 "Validated with LMCache"）。
+- **只支持多进程 `LMCacheMPConnector`**；in-process 的 built-in `LMCacheConnectorV1` **不支持**（见 10.4）。
+
+### 10.2 H20 部署（MEASURED）
+- 复用 `vllm-iaxl-dev` 镜像（vLLM 0.23.0 / torch 2.11.0+cu130 / py3.12）；镜像预装 lmcache 0.4.6，
+  容器内 `pip install lmcache==0.5.3`（torch/vLLM 不变）。
+- 容器 `lmcache.dsv4`（常驻），端口 8011，TP8。按官方 recipe：
+  1. `lmcache server --l1-size-gb 100 --eviction-policy LRU`（L1 CPU cache；默认 localhost:5555，
+     connector 默认 `tcp://localhost:5555`，无需额外配）。
+  2. `vllm serve /ssd/hf_models/DeepSeek-V4-Flash --tensor-parallel-size 8 --enable-expert-parallel
+     --kv-cache-dtype fp8_ds_mla --trust-remote-code --tokenizer-mode deepseek_v4
+     --no-enable-prefix-caching
+     --kv-transfer-config '{"kv_connector":"LMCacheMPConnector","kv_role":"kv_both"}'`。
+- 全部 recipe flag 被接受，`Application startup complete`。
+
+### 10.3 offloading 实测（MEASURED，prefix caching 关，回读只能来自 LMCache）
+- 注册：`Wrapping 167 KV cache tensors for IPC`；server 解析出 **8 个 hybrid group**，含 C4A(`bs=4`,fp32)、
+  C128A(`bs=8`,fp32) compressor state；识别 slot compression（`group0: compressed tpb=256/spb=64` → ratio 4）。
+- 单请求：req1 cold `Stored 768 tokens in 0.008s`；req2 warm `Retrieved 768 tokens` ×8（每 TP rank 一次）；
+  输出逐字一致。
+- GSM8K（200 题，`fp8_ds_mla`，parallel=50）：
+
+  | 轮次 | 缓存 | Accuracy | Stored(ops/tok) | Retrieved(ops/tok) |
+  |------|------|----------|-----------------|--------------------|
+  | lm1_cold | 冷 | 98.5% | 245 / 64000 | 1560 / 399360 |
+  | lm2_warm | 暖 | 98.0% | 34 / 8704 | 1600 / 819200 |
+
+  列义：Stored/Retrieved 的 ops 数偏大是因为跨 8 个 TP rank + 按 chunk 计数；warm 回读量翻倍、store 近乎归零。
+  cold 98.5% / warm 98.0% 差 0.5%（1 题）落在运行间噪声带内 → **offload 回读无实质精度损失**。
+
+### 10.4 为何 DSv4 只能用多进程 `LMCacheMPConnector`（不能用 in-process built-in）
+- `LMCacheMPConnector`：`class LMCacheMPConnector(KVConnectorBase_V1, SupportsHMA)`，有
+  `request_finished_all_groups` → **是 HMA connector**。
+- `LMCacheConnectorV1`（in-process）：`class LMCacheConnectorV1Dynamic(KVConnectorBase_V1)`，
+  **不继承 SupportsHMA** → 不是 HMA connector。
+- DSv4 强制 hybrid allocator（`--disable-hybrid-kv-cache-manager` 会失败，CuTe 需 C128/block_size=8）；
+  hybrid allocator 下 vLLM 只把「按 group 分片的 block_ids」路由给 `SupportsHMA` 的 connector。
+  官方 HMA 设计文档也明确 HMA 只做在 MP connector 里。
+
+### 10.5 与 kvshrink 的架构差异（为何 kvshrink 需要 `--enforce-eager` 而 LMCache 不需要）
+- **kvshrink**：`dsv4_patch.py` monkey-patch `DeepseekV4Attention.attention_impl`，在**每层** attention
+  前后插 host 端 `wait_for_layer_load` / `save_kv_layer` 回调（逐层 load/compute 重叠）。cudagraph replay
+  只在 GPU 重放 kernel、不跑 host Python → 逐层回调失效 → **必须 `--enforce-eager`**（放弃 cudagraph）。
+- **LMCache MP**：不往每层塞回调；启动时把 167 个 KV tensor 注册成 IPC（`multi_layer_block_kv_transfer
+  mode: ptr`），由独立进程在**请求/step 边界**按指针整块搬 KV，**不嵌入 forward 图** → cudagraph 可保留，
+  **不需要 `--enforce-eager`**（实测 LMCache 未加该 flag 正常跑）。
+- 取舍：kvshrink 逐层流水重叠但丢 cudagraph；LMCache 保 cudagraph 但传输粒度更粗（边界整块搬）。
+
+### 10.6 H20 现状
+- `iaxl.dsv4` 已停（按用户要求不再拉回）。`lmcache.dsv4` 在跑（端口 8011，持 8 卡）。
+- 测试脚本：容器内 `/tmp/run_lmcache_dsv4.sh`（起 server+serve）、`/tmp/test_lmcache_dsv4.sh`（2× 长 prompt）。
+  LMCache 日志：容器内 `/_data/lmcache_logs/{server,vllm}.log`（宿主机
+  `/data/qiuyu/intel-accel-for-llm-0901/_data/lmcache_logs/`）。
