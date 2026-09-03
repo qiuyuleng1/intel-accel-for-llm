@@ -20,6 +20,9 @@ RUN echo "install idxd-config" \
     && rm -rf /idxd-config
 
 COPY requirements.txt /tmp/requirements.txt
-RUN python3 -m pip install --no-cache-dir -r /tmp/requirements.txt \
+# PIP_INDEX_URL is configurable so builds behind slow/blocked PyPI (e.g. in CN)
+# can point at a mirror, e.g. --build-arg PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
+ARG PIP_INDEX_URL=https://pypi.org/simple/
+RUN python3 -m pip install --no-cache-dir -i "${PIP_INDEX_URL}" -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt
 
