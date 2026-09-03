@@ -380,3 +380,63 @@ QAT/IAA 压缩与 DSA 传输全程关闭（`IAXL_KV_COMPRESSION=0`，CPU raw 拷
 - 测试脚本：容器内 `/tmp/run_lmcache_dsv4.sh`（起 server+serve）、`/tmp/test_lmcache_dsv4.sh`（2× 长 prompt）。
   LMCache 日志：容器内 `/_data/lmcache_logs/{server,vllm}.log`（宿主机
   `/data/qiuyu/intel-accel-for-llm-0901/_data/lmcache_logs/`）。
+
+---
+
+## 11. kvshrink DSv4 每 token KV 占用实测 + 优化空间（2026-09-03，H20 TP4）
+
+> 现状：kvshrink 对 DSv4 未做优化（SWA 全存、C4A 状态 fp32 全存、TP 下每 rank 全量复制）。
+> 本节实测每 token 存了多大、估算 1.5T 容量、并列出优化点。**暂不优化，仅记录。**
+
+### 11.1 dump / 观测接口
+- iaxl KVStore 暴露管理 HTTP（端口 `IAXL_API_WORKER_BASE_PORT`(默认 18800)+rank）：
+  - `GET /v1/cache/status` → `current_bytes`(DDR 已存字节)、`cache_entries`、`puts`、`group_count`。
+  - `POST /v1/cache/persist {"count":N}` → 把 block dump 到磁盘，返回 `persisted`、`bytes_written`；
+    落盘 `_data/kvcache/raw/<model>_rank{r}/chunks/…/model.layers.X.attn[.swa_cache|.indexer.k_cache|
+    .compressor.state_cache|.indexer.compressor.state_cache].bin`。
+
+### 11.2 测量方法（三口径交叉验证，全部一致）
+1. 清空缓存冷启动 → 发已知长度 prompt（max_tokens=1）→ 读各 rank `current_bytes`。
+2. 增量法：req1 2801 tok(存 2560) → 624,879,520 B/rank；req1+2 累计存 7680 tok → 1,874,638,560 B/rank。
+   斜率恒定 = **244,093 B/token/rank**（624,879,520/2560 == 1,874,638,560/7680，无固定开销）。
+3. persist 交叉验证：每 rank `bytes_written=1,874,638,560`（== current_bytes），`du` 磁盘 2.1G/rank。
+
+### 11.3 结果：每 token KV 大小（147 storable caches，已丢 20 个 C128A）
+- **单 rank：244,093 B/token ≈ 238 KiB/token**。
+- **TP4 全部 rank 合计（实际 DDR 占用）：976,372 B/token ≈ 0.93 MiB/token**。
+
+### 11.4 拆解：244 KB 花在哪（几何推算，与实测总量精确对齐）
+| cache 类型 | 层数 | dtype | B/token/rank | 占比 |
+|-----------|------|-------|--------------|------|
+| C4A 压缩器状态 `(N,4,2048)` | 21 | **float32** | 172,032 | **70.5%** |
+| C4A 压缩器状态 `(N,4,512)` | 21 | **float32** | 43,008 | **17.6%** |
+| SWA 滑窗（2 子组） | 43 | uint8 | ~25,000 | ~10% |
+| indexer.k + MLA latent | 43 | uint8 | ~4,000 | ~2% |
+| C128A `(N,8,1024)` | 20 | — | 0（已丢） | — |
+→ **C4A 压缩器状态 fp32 全存 = ~88%**，是绝对大头；真正的注意力 KV(MLA+indexer) 只 ~2%。
+
+### 11.5 TP 复制（实测：逐字节相同，非分片）
+- 5 类 cache 文件（`.attn`/`.compressor.state_cache`/`.swa_cache`/`.indexer.k_cache`）跨 4 rank
+  **md5 完全相同** → DSv4 的 KV cache 在 TP 下**每 rank 逐字节复制**，不是分片。
+- 原因：DSv4 用 **MLA**——KV 存的是所有 head 共享的**压缩 latent**（+indexer/compressor 状态也是
+  head-共享量），每 rank 都需完整一份 → vLLM 复制之。**TP 分的是权重+计算，不是 KV cache**
+  （与 MHA/GQA 按 head 分片相反；MLA 的 KV cache 不随 TP 缩小）。
+- 含义：GPU 侧复制省不掉；但 **DDR offload 层存 N 份是真冗余，可 dedup 成 1 份**（数据本就相同）。
+
+### 11.6 1.5T 内存容量估算
+| 场景 | B/token | 1.5 TiB(1.649e12) | 1.5 TB(1.5e12) |
+|------|---------|-------------------|----------------|
+| TP4（当前实测，4 份副本） | 976,372 | ≈ 1.69 M tok | ≈ 1.54 M tok |
+| TP8（8 份副本） | 1,952,744 | ≈ 0.84 M tok | ≈ 0.77 M tok |
+| 理想去冗余（DDR 存 1 份） | 244,093 | ≈ 6.76 M tok | ≈ 6.14 M tok |
+
+### 11.7 优化空间（TODO，暂不做）
+1. **C4A 状态 fp32 → fp8**：占 88%，直接省 3/4（单 rank 244KB→~83KB），容量约 ×3。
+2. **SWA 只存窗口**：现全存(~10%)，滑窗理论只需窗口长度。
+3. **DDR 去 TP 复制**：存 1 份、reload 广播 → TP4 省 4×、TP8 省 8×（GPU 侧不受影响，已验证数据相同）。
+4. C128A 状态已丢（未存），保留 C4A 是为精度（见 §8.1 Bug3）——若上 fp8 可兼顾精度与容量。
+- 三项叠加，1.5TiB 容量有望从 ~1.7M tok 提升到千万 token 量级。
+
+### 11.8 H20 现状（本节测完）
+- `iaxl.dsv4`(kvshrink, TP4) 在跑持卡；`lmcache.dsv4` 已停。
+- 测量脚本：容器内 `/tmp/measure_kv.sh`、`/tmp/measure_kv2.sh`（增量）、`/tmp/persist_du.sh`（dump+du）。
