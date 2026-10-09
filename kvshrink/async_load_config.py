@@ -3,6 +3,7 @@
 
 """Configuration policy for KVShrink asynchronous KV loading."""
 
+import enum
 import logging
 import os
 from collections.abc import Mapping
@@ -10,6 +11,58 @@ from dataclasses import dataclass
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+
+class AsyncLoadScheme(enum.IntEnum):
+    """Async KV-load submission scheme (doc/design/async-load-priority.zh-CN.md)."""
+
+    # Submit all layers of an async request at once (original behavior).
+    BASELINE = 0
+    # Scheme 1: submit the first N layers, submit the rest after promotion.
+    SPLIT_SUBMIT = 1
+    # Scheme 2: three mutable queue priorities, raised on promotion.
+    MUTABLE_PRIORITY = 2
+    # Scheme 3: scheme 1 plus two fixed priorities, top level ordered by layer.
+    SPLIT_FIXED_PRIORITY = 3
+
+
+IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset({AsyncLoadScheme.BASELINE})
+
+
+def parse_async_load_scheme(value: str) -> AsyncLoadScheme:
+    """Parse ``KVSHRINK_ASYNC_LOAD_SCHEME``.
+
+    Raises:
+        ValueError: the value is not an integer scheme id, or the scheme is
+            not implemented yet.
+    """
+    try:
+        scheme = AsyncLoadScheme(int(value))
+    except ValueError as error:
+        raise ValueError(
+            "KVSHRINK_ASYNC_LOAD_SCHEME must be one of "
+            f"{[int(s) for s in AsyncLoadScheme]}, got {value!r}"
+        ) from error
+    if scheme not in IMPLEMENTED_ASYNC_LOAD_SCHEMES:
+        raise ValueError(
+            f"KVSHRINK_ASYNC_LOAD_SCHEME={int(scheme)} ({scheme.name}) is not "
+            "implemented yet"
+        )
+    return scheme
+
+
+def load_async_load_scheme_from_env(
+    environ: Mapping[str, str] | None = None,
+) -> AsyncLoadScheme:
+    """Load ``KVSHRINK_ASYNC_LOAD_SCHEME`` exported by ``setvars.sh``."""
+    source = os.environ if environ is None else environ
+    value = source.get("KVSHRINK_ASYNC_LOAD_SCHEME")
+    if not value:
+        raise ValueError(
+            "KVSHRINK_ASYNC_LOAD_SCHEME must be set; source setvars.sh before "
+            "starting vLLM"
+        )
+    return parse_async_load_scheme(value)
 
 
 @dataclass(frozen=True)

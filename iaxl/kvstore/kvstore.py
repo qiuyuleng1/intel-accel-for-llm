@@ -147,6 +147,11 @@ class KVStoreLocal:
             mgmt_register(
                 "GET", "/v1/cache/metrics", lambda params, s=self: s.metrics(params)
             )
+            mgmt_register(
+                "GET",
+                "/v1/cache/queue_trace",
+                lambda params, s=self: s.queue_trace(params),
+            )
         self._mgmt_server = start_mgmt_server(
             role=role, rank=self.rank, num_workers=self.tp_size
         )
@@ -300,6 +305,30 @@ class KVStoreLocal:
             metrics_reset()
 
         result = metrics_read()
+        result["rank"] = self.rank
+        return result
+
+    def queue_trace(self, params: Optional[dict] = None) -> dict:
+        """Return and clear per-task timings of a C++ TaskQueue.
+
+        Args:
+            params: optional ``queue`` (``OMP-Main`` default, ``H2D``, ``D2H``) and
+                ``enable`` (``1``/``0``). ``enable`` is applied after draining, so
+                ``enable=1`` also discards events left from an earlier session.
+
+        Returns:
+            ``{"queue", "enabled", "dropped", "events", "rank"}``; see
+            ``torch_ext.task_queue_trace_drain`` for the event fields.
+        """
+        from ..torch_ext import task_queue_trace_drain, task_queue_trace_set_enabled
+
+        params = params or {}
+        queue = str(params.get("queue", "OMP-Main"))
+        result = task_queue_trace_drain(queue)
+        if "enable" in params:
+            enable = str(params["enable"]).lower() in ("1", "true", "yes", "on")
+            task_queue_trace_set_enabled(queue, enable)
+            result["enabled"] = enable
         result["rank"] = self.rank
         return result
 

@@ -31,7 +31,10 @@ from iaxl import KVStore, generate_block_hashs, setup_root_logger
 from iaxl.envs import envs as iaxl_envs
 from iaxl.utils.affinity import bind_cpu_affinity, bind_intel_accel
 
-from .async_load_config import load_async_load_layer_config_from_env
+from .async_load_config import (
+    load_async_load_layer_config_from_env,
+    load_async_load_scheme_from_env,
+)
 
 setup_root_logger(show_pid_tid=False)
 logger = logging.getLogger(__name__)
@@ -155,6 +158,13 @@ class KVShrinkConnector(KVConnectorBase_V1):
 
         self._async_load_layer_config = load_async_load_layer_config_from_env(
             num_layers=self.num_layers,
+        )
+        self._async_load_scheme = load_async_load_scheme_from_env()
+        logger.info(
+            "KVShrink async load scheme: %d (%s), role=%s",
+            self._async_load_scheme,
+            self._async_load_scheme.name,
+            role.name,
         )
 
         if role == KVConnectorRole.SCHEDULER:

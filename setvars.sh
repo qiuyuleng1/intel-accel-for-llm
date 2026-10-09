@@ -1,5 +1,5 @@
 export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.23.0"}
-export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev"}
+export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev-qiuyu"}
 export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
 
 TOP_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -18,7 +18,7 @@ export NVIDIA_RUNTIME=${NVIDIA_RUNTIME:-}     # Set to "none" to skip the nvidia
 
 # ---- Feature switches -------------------------------------------------------
 export IAXL_KV_COMPRESSION=${IAXL_KV_COMPRESSION:-1} # Enable DEFLATE compression (0/1)
-export IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-1} # Enable QAT compression workers (0/1)
+export IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-0} # Enable QAT compression workers (0/1)
 export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-0} # Enable IAA (QPL) compression workers (0/1)
 export IAXL_CPU_ZIP_ENABLE=${IAXL_CPU_ZIP_ENABLE:-1} # Enable CPU compression workers (0/1)
 export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-0}   # Use Intel DSA + GDRCopy transfers (0/1)
@@ -28,10 +28,11 @@ export KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=${KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED
 export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=${KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS:--1}       # -1=wait all layers, N=start prefill after first N layers (used when DYNAMIC=0)
 export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=${KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC:-1} # 0=fixed LAYERS, 1=select layers from DYNAMIC_MAP per request concurrency
 export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP="${KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP:-0-3:0,4-6:4,7-:8}" # Contiguous START-END:LAYERS rules from 0; 0 layers means sync and the final range is open-ended
+export KVSHRINK_ASYNC_LOAD_SCHEME=${KVSHRINK_ASYNC_LOAD_SCHEME:-0} # Async load submit scheme: 0=baseline (see doc/design/async-load-priority.zh-CN.md)
 
 # ---- vLLM ------------------------------------------------------------------
-export MODEL="${MODEL:-Qwen/Qwen3-32B}" # Hugging Face model ID or local model path
-export TP_SIZE="${TP_SIZE:-2}"            # Tensor-parallel worker count
+export MODEL="${MODEL:-/home/pese/model-space/Qwen3-32B}" # Hugging Face model ID or local model path
+export TP_SIZE="${TP_SIZE:-1}"            # Tensor-parallel worker count
 export DP_SIZE="${DP_SIZE:-1}"            # Data-parallel group count
 # Total workers = one per (dp, tp) pair; CPU/QAT/DSA specs are indexed per worker.
 NUM_WORKERS=$((TP_SIZE * DP_SIZE))
@@ -74,7 +75,8 @@ printf '%s\n' \
     "  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=$KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED" \
     "  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=$KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS" \
     "  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=$KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC" \
-    "  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=$KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP"
+    "  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=$KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP" \
+    "  KVSHRINK_ASYNC_LOAD_SCHEME=$KVSHRINK_ASYNC_LOAD_SCHEME"
 
 # ---- Cache / compression ----------------------------------------------------
 export IAXL_KV_LOSSY_TRUNC=${IAXL_KV_LOSSY_TRUNC:-0}                     # Lossy LSB truncation: 'auto', 0 (off), or N bits
@@ -167,7 +169,7 @@ export http_proxy="${http_proxy:-}"
 export https_proxy=$http_proxy
 
 # docker
-CONTAINER_NAME=iaxl.vllm
+CONTAINER_NAME=iaxl.vllm.qiuyu
 ENV_VARS=(
     no_proxy
     http_proxy

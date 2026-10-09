@@ -33,9 +33,19 @@ static inline uint64_t metrics_sum_tensor_bytes(const std::vector<torch::Tensor>
     return total;
 }
 
+// TaskQueue trace label: "<kind>|<description>|<tensor_key>". description is the
+// Context name (the caller's request id, empty for merged sync loads).
+static inline std::string trace_label(TaskQueue &queue, const char *kind, const Context &ctx,
+                                      const std::string &tensor_key) {
+    if (!queue.trace_enabled())
+        return {};
+    return std::string(kind) + "|" + ctx.name() + "|" + tensor_key;
+}
+
 struct UnzipFromMemWork : std::enable_shared_from_this<UnzipFromMemWork> {
     Context *ctx;
     kv_pool::Mem *mem;
+    std::string tensor_key;
     std::vector<std::string> chunk_labels;
     std::vector<int64_t> chunk_indices;
     std::vector<torch::Tensor> cpu_tensors;
@@ -75,7 +85,8 @@ struct UnzipFromMemWork : std::enable_shared_from_this<UnzipFromMemWork> {
                                         "unzip_from_mem retry: unexpected asynchronous exception");
                                 }
                             },
-                            TaskQueue::PRIORITY_LOW);
+                            TaskQueue::PRIORITY_LOW,
+                            trace_label(omp_queue(), "unzip_retry", *ctx, tensor_key));
                         return;
                     }
 
@@ -152,7 +163,7 @@ void Context::zip_to_mem(kv_pool::Mem &mem, const std::string &label, const std:
                 IAXL_CHECK(false, "zip_to_mem: unexpected asynchronous exception");
             }
         },
-        TaskQueue::PRIORITY_LOW);
+        TaskQueue::PRIORITY_LOW, trace_label(omp_queue(), "zip", *this, tensor_key));
 }
 
 void Context::unzip_from_mem(kv_pool::Mem &mem, const std::string &label,
@@ -173,6 +184,7 @@ void Context::unzip_from_mem(kv_pool::Mem &mem, const std::string &label,
     auto work = std::make_shared<UnzipFromMemWork>();
     work->ctx = this;
     work->mem = &mem;
+    work->tensor_key = tensor_key;
     work->chunk_labels = std::move(full_chunk_labels);
     work->chunk_indices = chunk_indices;
     work->cpu_tensors = cpu_tensors;
@@ -186,7 +198,7 @@ void Context::unzip_from_mem(kv_pool::Mem &mem, const std::string &label,
                 IAXL_CHECK(false, "unzip_from_mem: unexpected asynchronous exception");
             }
         },
-        TaskQueue::PRIORITY_HIGH);
+        TaskQueue::PRIORITY_HIGH, trace_label(omp_queue(), "unzip", *this, tensor_key));
 }
 
 void Context::zip_wait() {

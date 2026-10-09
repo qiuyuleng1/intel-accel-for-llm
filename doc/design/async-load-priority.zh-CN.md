@@ -259,10 +259,89 @@ P0 的任务来源:
 2. 方案二的 priority / sort_key 透传(第 3~6 项)与方案三完全相同;做完方案三后,方案二只剩"可变 cell + `set_priority` + promote 时提权"这一块增量。
 3. 全部挂在 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关下;方案二和三共存于同一份 `TaskQueue`(可变 cell 对方案三而言就是"从不改"),一次编译跑四组对比。
 
-## 9. 待办
+## 9. 验收标准与最小测试
 
-- [ ] 公共:`TaskQueue` 任务计时 + 暴露指标
-- [ ] 公共:`KVSHRINK_ASYNC_LOAD_SCHEME` 开关
+本节区分两类内容:
+
+- **验收标准**:某个方案算“做完”的定义。
+- **最小测试**:不追求完整 benchmark,只用于快速证明“这个方案的核心机制确实生效”。
+
+### 9.1 公共验收前提(三个方案都适用)
+
+无论哪个方案,都先满足以下前提,否则不能进入性能对比:
+
+| 项 | 验收标准 | 简单测试 |
+|---|---|---|
+| 运行时切换 | `KVSHRINK_ASYNC_LOAD_SCHEME=0/1/2/3` 能切到四种实现,不需改代码重编 | 同一二进制下分别启动 4 次,日志打印当前 scheme 值和生效路径 |
+| 可观测性 | 能记录每个 unzip 任务的 `enqueue_ts`、`start_ts`、`end_ts`;至少能按请求 ID、layer、priority 追踪 | 构造 1 个 async 请求,检查日志或 metrics 中能看到完整三元时间戳 |
+| 功能正确性 | async load 不改变模型输出;cache hit 前后生成文本一致 | 固定 seed、`temperature=0`,同一请求跑“无命中”和“有命中”两次,逐字节比对输出 |
+| 无明显泄漏 | 请求 finish / abort 后,worker 侧与该请求相关的状态能清空 | 构造 1 个 promote 前 abort、1 个 promote 后 abort,检查 connector 内状态计数恢复为 0 |
+
+### 9.2 方案一验收标准(分批提交)
+
+方案一的核心不是“性能一定最好”,而是“**尾不再与头同时入队**”。
+
+| 维度 | 验收标准 | 简单测试 |
+|---|---|---|
+| 提交行为 | 首次 `start_load_kv()` 对每个 async 请求只提交前 N 层;尾(L−N 层)不在队列中 | 给 `KVStore.get()` 打日志,构造 1 个 async 请求,检查第一次只出现 `layer_names[:N]` |
+| promote 后补提交 | 请求被 promote 后,下一次 `start_load_kv()` 会补提交尾层 | 同一请求跑两步:第 1 步 promote,第 2 步检查出现 `layer_names[N:]` |
+| 任务合并正确 | 头和尾的 Task 能合并成同一个请求的完整 task 集,`wait_for_layer_load()` 到 layer N 时不 assert | 用 N=4 跑到 layer 4,确认无 `key not in get_results` / assert |
+| (a) 缓解生效 | 后到 async 请求 B 的头前面,不再有前面请求的整段 L 层尾 | 人工构造 A、B 两个 async 请求,打印任务入队顺序,确认 B0..B{N-1} 前面没有 A_N..A_{L-1} |
+| (b) 缓解生效 | 后到 sync 请求 C 的 layer 0 前面,最多只会被未 promote 请求的头和已 promote 请求的尾挡住,不会再被“未 promote 尾”挡住 | 先提交 async A,再提交 sync C,检查 C0 前面不存在 A_N..A_{L-1} 这种未 promote 尾 |
+| abort 清理 | promote 后但尾尚未提交时 abort,不会在下一 step 给死请求补提交尾 | 构造 promote 后 abort,下一 step 检查日志中无该 req_id 的尾提交 |
+
+方案一**不要求**解决 (c)。因此若队列仍出现 `[A4 ... A47 B4 ... B47]` 这种已 promote 请求间的按请求顺序,仍算通过。
+
+### 9.3 方案二验收标准(多级可变优先级)
+
+方案二的核心是“**任务可提权**”和“**P0 按 layer 排**”。
+
+| 维度 | 验收标准 | 简单测试 |
+|---|---|---|
+| 多级队列生效 | P0 / P1 / P2 任务进入队列后,worker 取任务顺序符合 `(priority, sort_key, seq)` | 写 1 个 gtest:手工 submit 若干假任务,断言执行顺序与预期一致 |
+| 可变优先级生效 | 任务入队后但尚未执行前,`set_priority(P0)` 能改变其出队顺序 | 写 1 个 gtest:先入队 A(P2)、B(P1),再把 A 提到 P0,断言 A 先执行 |
+| retry 保持优先级 | cache miss 重试后的 unzip 任务仍保留原 priority / sort_key | 人工触发一次 retry,检查重试前后日志中的 priority / sort_key 相同 |
+| (a) 缓解生效 | B 的头(P1)能越过 A 的未 promote 尾(P2) | 构造 A、B 两个 async 请求,查看队列执行顺序,确认 B0..B{N-1} 先于 A_N..A_{L-1} |
+| (b) 缓解生效 | sync 批(C 的 S0)作为 P0,能越过所有 P1/P2 | 先让队列中存在 async 任务,再提交 1 个 sync 批,检查 S0 最先执行 |
+| (c) 缓解生效 | 两个已 promote 请求 A、B 的尾进入 P0 后,按 layer 交错而不是按请求排 | 人工构造 A、B 都 promote,检查执行顺序为 `A4 B4 A5 B5 ...` 而非 `A4 A5 ... B4 ...` |
+| 线程安全/生命周期 | 不因 `Context` move、任务 finish、abort 导致悬空 cell 或 crash | 开启 ASAN/Debug 或至少跑多次并发压测,确认无 crash / double free / use-after-free |
+
+方案二验收的关键证据,不是 TTFT 下降本身,而是**队列顺序符合预期**。TTFT 只是后续 benchmark 指标。
+
+### 9.4 方案三验收标准(分批提交 + 固定优先级 + P0 按 layer 排)
+
+方案三是方案一和方案二的一部分组合。因此验收标准 = “方案一的分批提交成立” + “方案二里不依赖提权的那部分成立”。
+
+| 维度 | 验收标准 | 简单测试 |
+|---|---|---|
+| 头尾分批提交 | 同方案一:首次只提交头,promote 后补提交尾 | 复用方案一测试 |
+| 固定优先级生效 | sync 与已 promote 尾以 P0 提交;未 promote 头以 P1 提交 | 日志打印每个 unzip 任务的 priority,检查分类正确 |
+| P0 按 layer 排 | A、B 都 promote 后,尾的执行顺序为 `A4 B4 A5 B5 ...` | 复用方案二的 (c) 队列顺序测试 |
+| (a) 缓解生效 | 因为未 promote 尾根本不入队,B 头不会再被它挡住 | 构造 A、B 两个 async 请求,确认 B0..B{N-1} 前面不存在 A_N..A_{L-1} |
+| (b) 缓解生效 | sync 批 C 的 S0 作为 P0,能越过其他请求的头(P1) | 先排一些 P1,再提交 C,检查 S0 先执行 |
+| (c) 缓解生效 | 已 promote 请求尾之间按 layer 交错 | 同上 |
+| 流水线可运行 | 从 layer 0 算到 layer N 期间,队列能推进尾层加载,不会在 layer N 立即因为尾未提交而断流 | 跑 1 个 async 请求到 layer N,日志显示 layer N~N+1 的尾任务已在 layer 0~N-1 期间开始执行 |
+
+方案三**不要求**“尾一定完全不卡 forward”;它要求的是:尾已经在与前面层计算重叠地推进。是否会完全不卡,取决于“单层解压时间 ≤ 单层 prefill 计算时间”,这是性能结论,不是功能验收前提。
+
+### 9.5 推荐的最小测试集合
+
+为了尽快判断“今天做的东西有没有把核心机制做对”,建议最少保留下面 5 组测试。
+
+| 测试 | 目的 | 适用方案 |
+|---|---|---|
+| T1: 单请求 async,检查第一次只提交头/第二次补提交尾 | 验证分批提交状态机 | 方案一、方案三 |
+| T2: A(async) → B(async),打印任务入队/执行顺序 | 验证 (a) 是否缓解 | 三个方案都可跑,重点看方案一/二/三与原方案差异 |
+| T3: A(async) → C(sync),检查 C 的 S0 何时执行 | 验证 (b) 是否缓解 | 三个方案都可跑 |
+| T4: A、B 都 promote,检查执行顺序是否 `A4 B4 A5 B5 ...` | 验证 (c) 是否缓解 | 方案二、方案三 |
+| T5: promote 后 abort / finish,检查状态是否清空 | 验证状态机清理 | 方案一、方案三,方案二也建议跑 |
+
+若时间只够做最少的 smoke test,则顺序应为:T1 → T3 → T4 → T5。因为 T3/T4 最直接对应这次设计要解决的核心问题。
+
+## 10. 待办
+
+- [x] 公共:`TaskQueue` 任务计时 + 暴露指标
+- [x] 公共:`KVSHRINK_ASYNC_LOAD_SCHEME` 开关(目前只接受 0)
 - [ ] 公共:第 7 节两个测量,结果附到本文档
 - [ ] connector worker 侧状态重构:3 组 dict → per-request `AsyncLoadState`(先出字段设计)
 - [ ] 方案一实现
@@ -272,6 +351,44 @@ P0 的任务来源:
 - [ ] 性能测试:(a)(b)(c) 三个场景 × 四个方案(含原方案),排队延迟 + TTFT + GPU 空转时间对比
 - [ ] 现有问题:`_early_promoted_tasks` 搬入 `_active_promoted_tasks` 不判断请求是否在本 batch(单独评估是否修)
 
-## 10. 进度记录
+## 11. 进度记录
 
 - 2026-10-08:完成问题分析、三个方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。下一步:connector `AsyncLoadState` 字段设计 → 公共基础设施。
+- 2026-10-09:完成公共基础设施,并在原方案(scheme 0)上跑了 T2。
+
+### 11.1 公共基础设施
+
+- `TaskQueue`(`iaxl/csrc/include/task_queue.h`):开启后为每个任务记录 `label / priority / seq / enqueue_ns / start_ns / end_ns / high_depth / low_depth`,时钟为 steady_clock(= Python `time.monotonic_ns()`);关闭时只多一次原子读。上限 262144 条,超出计入 `dropped`。
+- 标签(`torch_ext/zip.cpp`):`<kind>|<description>|<tensor_key>`,kind ∈ {`unzip`, `unzip_retry`, `zip`};description 是 async 请求的 req_id,sync 合并批为空。
+- 读取:`GET /v1/cache/queue_trace?queue=OMP-Main&enable=1|0`(worker 端;controller 转发)。每次调用返回并清空已记录事件。
+- 单测:`iaxl/csrc/test/task_queue_test.cpp`(`make test-task-queue`),21 项通过;TSan 0 告警(需 `setarch $(uname -m) -R` 运行)。
+
+### 11.2 测试环境(本机配置,不进 PR)
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| 容器 | `iaxl.vllm.qiuyu`,镜像 `vllm-iaxl-dev-qiuyu` | 避开同机其他人的 `iaxl.vllm`;所有 GPU 可见,去掉 `--rm` |
+| 模型 / 并行 | Qwen3-32B 本地路径,TP=1 | |
+| GPU / CPU | `CUDA_VISIBLE_DEVICES=7`,`VLLM_CPU_OMP_THREADS_BIND=64-127` | GPU7 在 NUMA1;`auto_config.sh` 用 `nvidia-smi` 枚举 GPU,不认 `CUDA_VISIBLE_DEVICES`,需手动指定 CPU |
+| 压缩后端 | QAT=0,IAA=0,DSA=0,CPU zip 60 线程 | |
+| vLLM | `gpu-memory-utilization 0.95`,`max-model-len 32765`,prefix caching 关 | 0.8 时单卡 KV 只剩 3.6 GiB,起不来 |
+| 端口 | API 8010,controller 18710,worker 18810 | 容器是 host 网络,避开默认端口 |
+| async 配置 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0`,`..._LAYERS=4` | 固定 N=4,保证单请求也走 async |
+
+### 11.3 原方案(scheme 0)实测
+
+证据目录(本机,不提交):`_data/async-load-step1/`、`_data/async-load-baseline-T2/`,内含请求体、响应、trace、脚本。prompt 约 5.2k token(326 个 block),`temperature=0`、`seed=0`;所有命中请求的输出与未命中时逐字节一致,无乱码。
+
+单请求命中(64 层 unzip):单层执行 0.8 / 2.8 / 4.0 ms(min/中位/max),但排队时间 0.03 / 123 / 213 ms,入队时前面最多 60 个 HIGH——64 层一次性入队、单线程串行执行。
+
+T2:A、B 两个 async 命中请求,B 晚 d 毫秒发送。时间均相对 A 第 0 层入队时刻:
+
+| d | B0 入队 | B0 开始 | B0 排队 | B0 前面 A 的任务 | A 头(L0-3)完成 | A 尾(L63)完成 |
+|---|---|---|---|---|---|---|
+| 0 ms | 12.6 | 173.7 | 161 ms | 59 个(A5..A63) | — | 173.5 |
+| 20 ms | 188.6 | 188.6 | 0 | 0 | 9.3 | 181.3 |
+| 50 ms | 178.6 | 178.6 | 0 | 0 | 8.6 | 165.7 |
+| B 单独 | — | — | 0.03 ms | — | — | — |
+
+- d=0:A、B 在同一个 step 内提交,B 的头排在 A 的 59 层尾后面,等了 161 ms。**(a) 在队列层面被直接测到。**
+- d=20/50:B 在 A 尾全部完成后约 7~13 ms 才入队,队列里看不到 (a)。推断(未直接测量 step 时间):A 头在 ~9 ms 完成并被 promote,随后 A 的 prefill forward 在 `wait_for_layer_load` 里逐层等 A 自己的尾,这个 step 持续到 A 尾完成;B 只能在下一个 step 才被调度和提交。即 B 仍被延迟 ~170 ms,但阻塞发生在 **step 层面**(forward 等尾),不在队列层面。这意味着:只改队列顺序的方案无法缓解这种情况,需要在方案评估时单独考虑。验证方法:在 connector 的 `start_load_kv` / `wait_for_layer_load` 记录时间戳。
