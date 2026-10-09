@@ -33,6 +33,7 @@ from iaxl.envs import envs as iaxl_envs
 from iaxl.utils.affinity import bind_cpu_affinity, bind_intel_accel
 
 from .async_load_config import (
+    AsyncLoadScheme,
     load_async_load_layer_config_from_env,
     load_async_load_scheme_from_env,
 )
@@ -436,15 +437,34 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 description=",".join(sync_req_ids),
             )
 
-        # Submit asynchronous loads per request; they are polled across
-        # scheduler steps in get_finished().
+        # Asynchronous loads are polled across scheduler steps in get_finished().
+        if not async_reqs:
+            return
+        if self._async_load_scheme is AsyncLoadScheme.NAIVE:
+            # One get() per request: each request's layers are queued contiguously.
+            for req_id, request in async_reqs:
+                self._log_load_submit("async", [req_id], 0, len(self._layer_names))
+                self._pending_load_tasks[req_id] = self._store().get(
+                    block_indices=request.block_ids,
+                    block_hashs=request.block_hashes,
+                    description=req_id,
+                )
+                self._pending_load_layers[req_id] = request.async_load_layers
+            return
+
+        # batch_reqs_async_load_submit: like the sync path, one get() for all async
+        # requests of this step, so each layer is a single task covering all of them.
+        # Every request references the same Task dict; KVFlow.get_wait() skips tasks
+        # already waited on, so per-request promotion and cleanup stay unchanged.
+        async_req_ids = [req_id for req_id, _ in async_reqs]
+        self._log_load_submit("async", async_req_ids, 0, len(self._layer_names))
+        tasks = self._store().get(
+            block_indices=[b for _, r in async_reqs for b in r.block_ids],
+            block_hashs=[h for _, r in async_reqs for h in r.block_hashes],
+            description=",".join(async_req_ids),
+        )
         for req_id, request in async_reqs:
-            self._log_load_submit("async", [req_id], 0, len(self._layer_names))
-            self._pending_load_tasks[req_id] = self._store().get(
-                block_indices=request.block_ids,
-                block_hashs=request.block_hashes,
-                description=req_id,
-            )
+            self._pending_load_tasks[req_id] = tasks
             self._pending_load_layers[req_id] = request.async_load_layers
 
     def wait_for_layer_load(self, layer_name: str) -> None:
