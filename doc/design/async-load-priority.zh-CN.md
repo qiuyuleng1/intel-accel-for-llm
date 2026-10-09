@@ -105,7 +105,7 @@ for req_id, request in async_reqs:
 
 `KVFlow.get()` 对每层各提交一个任务,所以同一 step 的 A、B 在队列里是 `[A0 ... A47][B0 ... B47]`。后果:
 
-1. B 的头排在 A 的尾后面。实测见 §11.3 T2 d=0:B0 前面有 59 个 A 任务,等了 161 ms。
+1. B 的头排在 A 的尾后面。实测见 §11.3 `naive-s1`:step 2 提交的 7 个请求,首个任务依次等 6、128、243、359、472、587、701 ms,前面没有更早 step 的任务。
 2. A、B 都 promote 并进入同一 batch 时,forward 算 layer k 要等 A_k 和 B_k,B_k 排在 A_{k+1}..A_{L−1} 后面。
 
 根因:forward 按层消费(算 layer k 需要 batch 内所有请求的第 k 层),而这里按请求提交。
@@ -140,7 +140,7 @@ for req_id, request in async_reqs:
 
 ### 4.1 公共前提:`batch_reqs_async_load_submit`
 
-即已知问题 K1 的改法(§3)。它只决定同一 step 内多个 async 请求怎么排,与"头尾怎么提交、队列有没有优先级"无关,所以作为后三个方案的公共前提先做;`naive` 保持原样作为对照组。它单独也有可测的效果:T2 d=0 中 B 的 161 ms 排队(§11.3)应当消失。
+即已知问题 K1 的改法(§3)。它只决定同一 step 内多个 async 请求怎么排,与"头尾怎么提交、队列有没有优先级"无关,所以作为后三个方案的公共前提先做;`naive` 保持原样作为对照组。它单独也有可测的效果:§11.3 `naive-s1` step 2 中后几个请求数百毫秒的排队应当消失。
 
 ### 4.2 `split_async_load_submit`
 
@@ -202,7 +202,7 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 | C++ 改动 | — | 无 | 多级 + 可变优先级 + `set_priority` 绑定 + 按层排序 | 2 级 + 按层排序键;提交接口加 priority / layer 号参数 |
 | Python 改动 | — | worker 保存 async 请求元数据;promote 后按 batch 补提交尾 | `get()` 加 per-layer priority;promote 时提权 | `split_async_load_submit` 的改动 + `get()` 加 priority / layer 号参数 |
 
-结论:`split_async_load_submit` 单独能把 (a)(b) 从 L 层压到 N 层;`priority_3level` 解决 (a)(b) 但需可变优先级;`split_priority_2level` 解决 (a)(b) 且队列只需 2 级固定优先级,代价是尾没有提前量(本轮不评估,见 4.2)。P0 内按层号排序在公共前提之下作用变小(同一 step 内已按层排),只剩不同 step 提交的 P0 任务之间需要它,是否保留待实测。另外,§11.3 的推断显示 (a) 实际可能主要表现为 step 层面的阻塞(forward 等尾),只改队列顺序的方案对此无效,需先验证。
+结论:`split_async_load_submit` 单独能把 (a)(b) 从 L 层压到 N 层;`priority_3level` 解决 (a)(b) 但需可变优先级;`split_priority_2level` 解决 (a)(b) 且队列只需 2 级固定优先级,代价是尾没有提前量(本轮不评估,见 4.2)。P0 内按层号排序在公共前提之下作用变小(同一 step 内已按层排),只剩不同 step 提交的 P0 任务之间需要它,是否保留待实测。另外,§10 中"step 层面阻塞"的推断显示 (a) 实际可能主要表现为 forward 等尾,只改队列顺序的方案对此无效,需先验证。
 
 ## 6. 会不会让 async 请求排不上号?
 
@@ -229,11 +229,11 @@ P0 的任务来源:
 |---|---|---|---|
 | 输入长度 / 输出长度 | 4k / 128 | 4k / 128 | 8 × 4.1k 远小于 GPU7 的 KV 容量 66k token,不会触发抢占(connector 不支持抢占恢复) |
 | 命中率 | 95% | 95% | 每个请求 64 层 × 约 240 个 block,单个请求全部层解压约 115 ms |
-| 并发 / 请求数 | 8 / 16 | 8 / 16 | |
-| 请求速率 | 10 req/s | 10 req/s | 平均间隔 100 ms,小于单个请求的加载时间,且请求分散在不同 step |
+| 并发 / 请求数 | 8 / 16 | 8 / 32(待定) | |
+| 请求速率 | 10 req/s | 0.5 req/s(待定) | S1:平均间隔 100 ms,小于单个请求的加载时间,且请求分散在不同 step;S2:让在途数在 4 附近波动,见 7.3 |
 | warmup | 1 | 1 | 由 warmup 请求承担未命中、把前缀存进 DDR |
 
-实测修正(§11.4):速率为 inf 时前 8 个请求落在同一个 step,补进的请求在前面结束后(约 8 s)才到,队列早已空,覆盖不到 (a);warmup 为 0 时第 0 个测量请求是未命中,要做完整 prefill,其余请求在这个长 step 里到达并堆进下一个 step,同样覆盖不到 (a)。
+实测修正(§11.3):速率为 inf 时前 8 个请求落在同一个 step,补进的请求在前面结束后(约 8 s)才到,队列早已空,覆盖不到 (a);warmup 为 0 时第 0 个测量请求是未命中,要做完整 prefill,其余请求在这个长 step 里到达并堆进下一个 step,同样覆盖不到 (a)。
 
 ### 7.3 场景与环境变量
 
@@ -244,12 +244,12 @@ P0 的任务来源:
 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED` | 1 | 1 |
 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC` | 0 | 1 |
 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS` | 4 | -1(不使用) |
-| `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP` | 不使用 | `0-3:4,4-:0` |
+| `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP` | 不使用 | `0-3:0,4-:4` |
 | `KVSHRINK_ASYNC_LOAD_SCHEME` | 每次运行一个方案 | 同 S1 |
 
 - S1:每个命中请求都走 async,N=4。覆盖"同一 step 多个 async 请求"(K1)和"后到 async 请求碰上前面的尾"((a))。
-- S2:scheduler 在途请求数(`len(self._req_states)`,含当前请求)为 1~3 时走 async 且 N=4,≥4 时走 sync。请求以 10 req/s 到达时,前几个走 async,之后的走 sync,并在 async 的尾还在队列里时到达,即 (b)。
-- S2 的映射表与默认方向相反,是为了造出"sync 排在 async 尾后面"。按默认方向 `0-3:0,4-:4`,(b) 要求在一个请求的加载时间(约 115 ms)内在途数从 ≥4 降到 ≤3,实测 0.5 req/s 下 32 个请求一次都没出现(§11.4)。
+- S2:scheduler 在途请求数(`len(self._req_states)`,含当前请求)为 1~3 时走 sync,≥4 时走 async 且 N=4,与实际配置一致(低并发 sync,高并发 async)。
+- S2 覆盖 (b) 的难点(推断):async 请求 A 提交时除 A 外至少有 3 个在途请求;之后到达的 C 要走 sync,除 C 外最多 2 个在途(含 A)。即在 A 的尾还在队列里的约 115 ms 内,A 之外的 3 个请求至少要有 2 个结束。实测 0.5 req/s、32 个请求一次都没出现(§11.3)。S2 的负载参数待定,见 §10。
 
 ### 7.4 各方案的预期队列
 
@@ -405,7 +405,7 @@ P0 的任务来源:
 
 **公共基础设施(已完成)→ `batch_reqs_async_load_submit` → `split_async_load_submit` → `split_priority_2level` → `priority_3level`**,原因:
 
-1. `batch_reqs_async_load_submit` 是后三个方案的前提,改动小,收益已有实测依据(§11.3 T2 d=0)。
+1. `batch_reqs_async_load_submit` 是后三个方案的前提,改动小,收益已有实测依据(§11.3 `naive-s1` step 2)。
 2. `split_priority_2level` = split 的提交方式 + 一小块 C++,放在 `split_async_load_submit` 之后。
 3. `priority_3level` 的 priority / sort_key 透传(8.4 第 3~6 项)与 `split_priority_2level` 相同;做完后只剩"可变 cell + `set_priority` + promote 时提权"。
 4. 全部挂在 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关下;两种优先级共存于同一份 `TaskQueue`(可变 cell 对 `split_priority_2level` 而言就是"从不改"),一次编译跑五组对比(`naive` + 公共前提 + 三个方案)。
@@ -435,7 +435,7 @@ P0 的任务来源:
 | 提交行为 | 同一 step 的多个 async 请求,每层只提交一个任务,覆盖所有请求的 block | queue_trace 中该 step 的 unzip 任务数 = 层数,label 的 description 含全部 req_id |
 | promote 正确 | 各请求按自己的 N promote | 构造同一 step 的 A、B,检查两者都被 promote 且输出与未命中时逐字节一致 |
 | 结束 / abort | 同 batch 中一个请求结束或 abort,其余请求不受影响,状态清空 | A、B 同 batch,abort A,检查 B 输出正确、connector 状态计数归 0 |
-| 效果 | T2 d=0 场景下 B0 前面不再有 A 的尾 | 复跑 T2 d=0,对比 `naive` 的 161 ms |
+| 效果 | 同一 step 内多个 async 请求不再依次排队 | §7 S1 中 `steps_with_multiple_async_reqs` 的那些 step,各请求首个任务的等待不再随提交顺序递增;对比 §11.3 `naive-s1` step 2 的 6→701 ms |
 
 ### 9.3 `split_async_load_submit` 验收标准
 
@@ -507,8 +507,11 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] §7 准备:connector 加 `start_load_kv` submit log 和 `get_finished` promote log
 - [x] §7 准备:`tests/vllm-benchmark.sh` 参数改为可用环境变量覆盖(输入长度、命中率、并发、请求数、warmup、请求速率、seed),默认值不变
 - [x] §7 准备:判定脚本 `tests/async_load_queue_check.py` + 执行脚本 `tests/async-load-queue-test.sh`
-- [x] §7:在 `naive` 上跑 S1、S2,均 PASS(§11.4)
-- [ ] 公共:验证 §11.3 的 step 层面阻塞推断(在 connector `start_load_kv` / `wait_for_layer_load` 记时间戳)
+- [x] §7:`naive` 上 S1 PASS(§11.3)
+- [ ] §7:S2 在实际映射表 `0-3:0,4-:4` 下覆盖 (b)。待定做法:加长单请求加载时间(输入 8k)、加大请求数并让在途数在 3~4 附近;若仍为 0,则记录"实际映射表下 (b) 几乎不发生"并重新评估 (b) 的优先级
+- [ ] 公共:验证 step 层面阻塞推断(在 connector `start_load_kv` / `wait_for_layer_load` 记时间戳)。
+  - 推断:A promote 后,A 的 prefill forward 在 `wait_for_layer_load` 里逐层等 A 自己的尾,这个 step 一直持续到 A 的尾全部完成;期间到达的 B 只能在下一个 step 才被调度和提交。B 的延迟发生在 step 层面,队列里看不到,只改队列顺序的方案对它无效。
+  - 依据(早期两请求测试,B 比 A 晚 20 / 50 ms 发送;时间相对 A 第 0 层入队):A 前 4 层完成于 9.3 / 8.6 ms,A 最后一层完成于 181.3 / 165.7 ms,B 第 0 层入队于 188.6 / 178.6 ms。即 B 在 A 尾全部完成后 7~13 ms 才提交,尽管 B 早在 20 / 50 ms 就已发出。
 - [ ] `batch_reqs_async_load_submit`:实现(8.2)+ 9.2 验收 + §7 S1/S2 通过
 - [ ] `split_async_load_submit`:实现(8.3,含 worker 侧按请求保存 block 元数据)+ 9.3 验收 + §7 S1/S2 通过
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1/S2 通过
@@ -518,7 +521,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 ## 11. 进度记录
 
 - 2026-10-08:完成问题分析、方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。
-- 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1、S2 均 PASS(§11.4)。
+- 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b),参数待定(§11.3)。
 
 ### 11.1 公共基础设施
 
@@ -539,25 +542,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 | 端口 | API 8010,controller 18710,worker 18810 | 容器是 host 网络,避开默认端口 |
 | async 配置 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0`,`..._LAYERS=4` | 固定 N=4,保证单请求也走 async |
 
-### 11.3 `naive` 实测
-
-证据目录(本机,不提交):`_data/async-load-step1/`、`_data/async-load-baseline-T2/`,内含请求体、响应、trace、脚本。prompt 约 5.2k token(326 个 block),`temperature=0`、`seed=0`;所有命中请求的输出与未命中时逐字节一致,无乱码。
-
-单请求命中(64 层 unzip):单层执行 0.8 / 2.8 / 4.0 ms(min/中位/max),但排队时间 0.03 / 123 / 213 ms,入队时前面最多 60 个 HIGH——64 层一次性入队、单线程串行执行。
-
-T2:A、B 两个 async 命中请求,B 晚 d 毫秒发送。时间均相对 A 第 0 层入队时刻:
-
-| d | B0 入队 | B0 开始 | B0 排队 | B0 前面 A 的任务 | A 头(L0-3)完成 | A 尾(L63)完成 |
-|---|---|---|---|---|---|---|
-| 0 ms | 12.6 | 173.7 | 161 ms | 59 个(A5..A63) | — | 173.5 |
-| 20 ms | 188.6 | 188.6 | 0 | 0 | 9.3 | 181.3 |
-| 50 ms | 178.6 | 178.6 | 0 | 0 | 8.6 | 165.7 |
-| B 单独 | — | — | 0.03 ms | — | — | — |
-
-- d=0:A、B 在同一个 step 内提交,B 的头排在 A 的 59 层尾后面,等了 161 ms。这是**已知问题 K1**(同一 step 内逐请求提交),不是 (a)。
-- d=20/50:B 晚于 A 一个以上 step 到达,属于 (a) 的场景。B 在 A 尾全部完成后约 7~13 ms 才入队,队列里看不到 (a)。推断(未直接测量 step 时间):A 头在 ~9 ms 完成并被 promote,随后 A 的 prefill forward 在 `wait_for_layer_load` 里逐层等 A 自己的尾,这个 step 持续到 A 尾完成;B 只能在下一个 step 才被调度和提交。即 B 仍被延迟 ~170 ms,但阻塞发生在 **step 层面**(forward 等尾),不在队列层面。这意味着:只改队列顺序的方案无法缓解这种情况,需要在方案评估时单独考虑。验证方法:在 connector 的 `start_load_kv` / `wait_for_layer_load` 记录时间戳。
-
-### 11.4 §7 队列顺序验证:`naive`
+### 11.3 §7 队列顺序验证:`naive`
 
 证据目录(本机):`_data/queue-test/<运行名>/`,含 `bench.log`、`trace.json`、`vllm.log`(本次运行段)、`report.json`。
 
@@ -566,13 +551,12 @@ T2:A、B 两个 async 命中请求,B 晚 d 毫秒发送。时间均相对 A 第 
 | `naive-s1` | S1 | inf,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 无效:未覆盖 (a) |
 | `naive-s1-rate10` | S1 | 10 req/s,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 无效:未覆盖 (a) |
 | `naive-s1-rate10-w1` | S1 | 10 req/s,warmup 1 | 16 / 0 | 0 | 0 | 7 | — | **PASS** |
-| `naive-s2` | S2 | map `0-3:0,4-:4`,0.5 req/s | 22 / 10 | 0 | 0 | — | 0 | 无效:未覆盖 (b) |
-| `naive-s2-map-inv` | S2 | map `0-3:4,4-:0`,10 req/s | 5 / 11 | 0 | 0 | — | 1 | **PASS** |
+| `naive-s2` | S2 | map `0-3:0,4-:4`,0.5 req/s,32 个请求(实测峰值在途 7) | 22 / 10 | 0 | 0 | — | 0 | 无效:未覆盖 (b) |
+| `naive-s2-map-inv` | S2 | map `0-3:4,4-:0`,10 req/s | 5 / 11 | 0 | 0 | — | 1 | 不采纳:映射表与实际配置相反 |
 
 列说明:"命中 async / sync"为命中 DDR 的请求中走 async、sync 的个数;"结构错误""违序"见 7.6;"(a) 次数"= async 提交时队列里有更早 step 的 async 任务未执行的次数;"(b) 次数"= sync 批提交时队列里有更早 step 的 async 任务未执行的次数。
 
-PASS 两次的具体表现,与 7.4 中 `naive` 的预期一致:
+PASS 的具体表现,与 7.4 中 `naive` 的预期一致:
 
 - (a):step 677 提交的请求,首个任务前面有前一个请求的 59 个未 promote 尾,排队 172 ms;step 681 的请求前面有 240 个未 promote 尾 + 16 个头 + 11 个已 promote 尾,排队 518 ms。
-- (b):step 272 的 sync 批前面有 80 个 async 任务(60 个未 promote 尾、16 个已 promote 尾、4 个头),排队 152 ms。
-- K1:同一 step 内多个 async 请求依次排队,例如 `naive-s2-map-inv` 中 step 271 的两个 async 请求分别等 422 ms、540 ms。
+- K1(取自 `naive-s1`,该轮对 (a) 无效,但 K1 的观测有效):step 2 一次提交 7 个请求,首个任务依次等 6、128、243、359、472、587、701 ms,前面没有更早 step 的任务,等待全部来自同一 step 内排在前面的请求。
