@@ -13,40 +13,41 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-class AsyncLoadScheme(enum.IntEnum):
-    """Async KV-load submission scheme (doc/design/async-load-priority.zh-CN.md)."""
+class AsyncLoadScheme(str, enum.Enum):
+    """Async KV-load submission scheme (doc/design/async-load-priority.zh-CN.md §4.0)."""
 
-    # Submit all layers of an async request at once (original behavior).
-    BASELINE = 0
-    # Scheme 1: submit the first N layers, submit the rest after promotion.
-    SPLIT_SUBMIT = 1
-    # Scheme 2: three mutable queue priorities, raised on promotion.
-    MUTABLE_PRIORITY = 2
-    # Scheme 3: scheme 1 plus two fixed priorities, top level ordered by layer.
-    SPLIT_FIXED_PRIORITY = 3
+    # Each async request submits all layers with its own get() call.
+    NAIVE = "naive"
+    # Async requests of one step share one get() call, one task per layer.
+    BATCH_REQS_ASYNC_LOAD_SUBMIT = "batch_reqs_async_load_submit"
+    # Submit the first N layers, then the remaining layers after promotion.
+    SPLIT_ASYNC_LOAD_SUBMIT = "split_async_load_submit"
+    # Submit all layers with three mutable priorities, raised on promotion.
+    PRIORITY_3LEVEL = "priority_3level"
+    # Split submission with two fixed priorities; top level ordered by layer.
+    SPLIT_PRIORITY_2LEVEL = "split_priority_2level"
 
 
-IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset({AsyncLoadScheme.BASELINE})
+IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset({AsyncLoadScheme.NAIVE})
 
 
 def parse_async_load_scheme(value: str) -> AsyncLoadScheme:
     """Parse ``KVSHRINK_ASYNC_LOAD_SCHEME``.
 
     Raises:
-        ValueError: the value is not an integer scheme id, or the scheme is
-            not implemented yet.
+        ValueError: the value is not a scheme name, or the scheme is not
+            implemented yet.
     """
     try:
-        scheme = AsyncLoadScheme(int(value))
+        scheme = AsyncLoadScheme(value.strip())
     except ValueError as error:
         raise ValueError(
             "KVSHRINK_ASYNC_LOAD_SCHEME must be one of "
-            f"{[int(s) for s in AsyncLoadScheme]}, got {value!r}"
+            f"{[s.value for s in AsyncLoadScheme]}, got {value!r}"
         ) from error
     if scheme not in IMPLEMENTED_ASYNC_LOAD_SCHEMES:
         raise ValueError(
-            f"KVSHRINK_ASYNC_LOAD_SCHEME={int(scheme)} ({scheme.name}) is not "
-            "implemented yet"
+            f"KVSHRINK_ASYNC_LOAD_SCHEME={scheme.value} is not implemented yet"
         )
     return scheme
 

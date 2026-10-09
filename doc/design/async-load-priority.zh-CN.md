@@ -1,6 +1,6 @@
 # KVShrink 异步加载(async load)队列调度优化设计
 
-> 状态:讨论稿(2026-10-08)。开发分支 `perf/async-load-optimization-dev`,PR 分支 `perf/async-load-optimization`。
+> 状态:讨论稿(2026-10-09)。开发分支 `perf/async-load-optimization-dev`,PR 分支 `perf/async-load-optimization`。
 
 ## 术语
 
@@ -90,7 +90,7 @@ forward 等 S0,S0 前面是 A 的 44 层。
 
 ### 已知问题 K1:同一 step 提交的多个 async 请求按请求排,不按层排
 
-不属于 (a)(b) 这类难点:改法简单,与现有 sync 路径一致。单独记录,单独修。
+不属于 (a)(b) 这类难点:改法简单,与现有 sync 路径一致。改法命名为 `batch_reqs_async_load_submit`,作为所有方案的公共前提(§4.1)。
 
 **现象**:`start_load_kv()` 里 async 请求逐请求提交——
 
@@ -110,7 +110,7 @@ for req_id, request in async_reqs:
 
 根因:forward 按层消费(算 layer k 需要 batch 内所有请求的第 k 层),而这里按请求提交。
 
-**改法**:与 sync 相同,把本 step 所有 async 请求的 block 合并,调一次 `get()`,队列变为 `[L0(A+B) L1(A+B) ... L47(A+B)]`。A、B 前 N 层同时就绪、同时 promote,尾也按层排。
+**改法**(`batch_reqs_async_load_submit`):与 sync 相同,把本 step 所有 async 请求打成一个 batch,调一次 `get()`,队列变为 `[L0(A+B) L1(A+B) ... L47(A+B)]`。A、B 前 N 层同时就绪、同时 promote,尾也按层排。
 
 **改法的约束**(读代码得出,未实测):
 
@@ -120,21 +120,39 @@ for req_id, request in async_reqs:
 | 共用 Task | 各请求的 `_pending_load_tasks[req_id]` 指向同一组 Task;`KVFlow.get_wait()` 对已等过的任务(`ctx is None`)直接跳过,重复等待安全;各请求仍可按自己的 N 判断 promote |
 | abort / finish | 某个请求结束时等待的是整组任务(含其他请求的 block) |
 | 覆盖范围 | 只覆盖同一 step 提交的请求;不同 step 的请求仍按批次先后排,即 (a) |
-| 与方案一的关系 | 方案一 promote 后补提交尾时,同一 step 内补提交的尾也按同样方式合并 |
+| 与 `split_async_load_submit` 的关系 | promote 后补提交尾时,同一 step 内补提交的尾也按同样方式打成 batch |
 
-## 4. 候选方案
+## 4. 方案
 
-### 方案一:分批提交(Python 侧)
+### 4.0 命名
 
-首次 `start_load_kv()` 只提交前 N 层;promote 后,下一 step 的 `start_load_kv()` 再提交其余 L−N 层。
+| 名字 | 做法 | 前提 |
+|---|---|---|
+| `naive` | 现状:每个 async 请求单独调一次 `get()`,一次提交全部 L 层 | 对照组,不加前提 |
+| `batch_reqs_async_load_submit` | 同一 step 的 async 请求打成一个 batch,调一次 `get()`;每层一个任务,覆盖 batch 内所有请求的 block(与 sync 路径相同) | 本身就是公共前提 |
+| `split_async_load_submit` | async 请求先只提交头(前 N 层);promote 后,下一 step 再提交尾(后 L−N 层) | `batch_reqs_async_load_submit` |
+| `priority_3level` | 一次提交全部 L 层;队列加 3 级优先级(P0/P1/P2),promote 时把尾从 P2 调到 P0 | `batch_reqs_async_load_submit` |
+| `split_priority_2level` | 按 `split_async_load_submit` 分两次提交;队列加 2 级固定优先级(P0/P1):头用 P1,尾和 sync 用 P0,P0 内按层号排 | `batch_reqs_async_load_submit` |
 
-效果:队列里只剩两类解压任务——"未 promote 请求的头(各 N 层)"和"已 promote 请求的尾(各 L−N 层,forward 正在等)"。(a)(b) 中"被堵 L 层"缩为"被堵 N 层"。同一 step 内的合并提交见已知问题 K1。
+列说明:"名字"用于文档、代码和 `KVSHRINK_ASYNC_LOAD_SCHEME` 的取值;"做法"写的是与 `naive` 的区别;"前提"指该方案是否建立在 `batch_reqs_async_load_submit` 之上。
 
-代价:尾失去 promote 前的提前解压时间。forward 算 layer i 时队列同时解压 layer i+1、i+2…,是流水线;**不卡的条件是单层解压时间 ≤ 单层 prefill 计算时间**。该条件是否满足需测量(第 6 节)。
+`split_priority_2level` 不是 `split_async_load_submit` 与 `priority_3level` 的叠加:它沿用 split 的提交方式,但优先级是另一套 2 级固定方案,与 `priority_3level` 只共用"P0 内按层号排序"这一点(对比见 4.4)。
 
-### 方案二:队列多级可变优先级(C++ 侧)
+### 4.1 公共前提:`batch_reqs_async_load_submit`
 
-一次性提交 L 层不变;`TaskQueue` 改为多级且优先级可变:
+即已知问题 K1 的改法(§3)。它只决定同一 step 内多个 async 请求怎么排,与"头尾怎么提交、队列有没有优先级"无关,所以作为后三个方案的公共前提先做;`naive` 保持原样作为对照组。它单独也有可测的效果:T2 d=0 中 B 的 161 ms 排队(§11.3)应当消失。
+
+### 4.2 `split_async_load_submit`
+
+首次 `start_load_kv()` 只提交前 N 层;promote 后,下一 step 的 `start_load_kv()` 再提交其余 L−N 层。同一 step 内要补提交尾的多个请求,也打成 batch 逐层提交;各请求的 N 可能不同,所以按层循环,第 j 层只包含"第 j 层属于自己尾"的请求。
+
+效果:队列里只剩两类解压任务——"未 promote 请求的头(各 N 层)"和"已 promote 请求的尾(各 L−N 层,forward 正在等)"。(a)(b) 中"被堵 L 层"缩为"被堵 N 层"。
+
+代价:尾失去 promote 前的提前解压时间。forward 算 layer i 时队列同时解压 layer i+1、i+2…,是流水线;**不卡的条件是单层解压时间 ≤ 单层 prefill 计算时间**。本轮不测这一条件(目前是软件解压,换硬件加速和 GPU 后结论会变)。
+
+### 4.3 `priority_3level`
+
+一次性提交 L 层不变;`TaskQueue` 改为 3 级且优先级可变:
 
 | 级别 | 内容 | 级内排序 |
 |---|---|---|
@@ -148,9 +166,11 @@ P1 用 FIFO 而非按层交错是有意的:头的目标是让**某一个**请求
 
 P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若 P1、P2 合并,A 的 48 层(先提交)与 B 的头(后提交)同级 FIFO,(a) 复现。
 
-### 方案三:方案一 + 方案二叠加(推荐)
+与公共前提的关系:同一 batch 的请求共用尾任务。batch 内各请求 N 相同时它们同时 promote;N 不同时,第一个 promote 的请求会把整批的尾提到 P0,其余请求的尾随之提前,无害。
 
-用方案一的提交方式,尾在 promote 前不进队列 → 队列里不存在"未 promote 的尾"这一类任务 → **P2 不再需要,也不需要可变优先级**。promote 后尾直接以 P0 提交。队列只需:
+### 4.4 `split_priority_2level`
+
+按 `split_async_load_submit` 提交:尾在 promote 前不进队列,队列里不存在"未 promote 的尾"这类任务,因此**不需要 P2,也不需要改优先级**。promote 后尾直接以 P0 提交。队列只需:
 
 | 级别 | 内容 | 级内排序 |
 |---|---|---|
@@ -159,21 +179,30 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 
 优先级和 layer 号在提交时指定,之后不变。
 
+与 `priority_3level` 的区别:
+
+| | `priority_3level` | `split_priority_2level` |
+|---|---|---|
+| 优先级级数 | 3(P0/P1/P2) | 2(P0/P1) |
+| 优先级能否改 | 能:promote 时 `set_priority` | 不能:提交时定死 |
+| 尾在 promote 前预取(P2) | 有 | 无 |
+| P0 内按层号排序 | 是 | 是 |
+
 ## 5. 方案对比
 
-"(a)(b)" 两行写的是 B 的头 / C 的 layer 0 **前面最多有多少无关任务**。各方案均假设已按 K1 修正(同一 step 内合并提交)。
+"(a)(b)" 两行写的是 B 的头 / C 的 layer 0 **前面最多有多少无关任务**。`naive` 列是现状;其余三列都建立在 `batch_reqs_async_load_submit` 之上。
 
-| 维度 | 原方案 | 方案一 | 方案二 | 方案三 |
+| 维度 | `naive` | `split_async_load_submit` | `priority_3level` | `split_priority_2level` |
 |---|---|---|---|---|
-| **(a)** B 头前面的无关任务 | 前面每个 async 请求各 L 层 | 前面未 promote 请求各 **N** 层 + 已 promote 请求各 L−N 层(后者 forward 正在等,排前面合理) | 只等前面请求的头(P1)和 P0;所有未 promote 尾(P2)排 B 后面 | 同方案二 |
-| **(b)** C 的 layer 0 前面的无关任务 | 前面每个 async 请求各 L 层 | 前面未 promote 请求各 **N** 层 + 已 promote 请求各 L−N 层 | **0**:C 是 P0 且按层排,C0 到最前 | 同方案二 |
-| 尾的提前解压时间 | 有 | **无**,靠流水线 | 有(P2 利用队列空闲预取) | 无,同方案一 |
+| **(a)** B 头前面的无关任务 | 前面每个 async 请求各 L 层 | 前面未 promote 请求各 **N** 层 + 已 promote 请求各 L−N 层(后者 forward 正在等,排前面合理) | 只等前面请求的头(P1)和 P0;所有未 promote 尾(P2)排 B 后面 | 同 `priority_3level` |
+| **(b)** C 的 layer 0 前面的无关任务 | 前面每个 async 请求各 L 层 | 前面未 promote 请求各 **N** 层 + 已 promote 请求各 L−N 层 | **0**:C 是 P0 且按层排,C0 到最前 | 同 `priority_3level` |
+| 尾的提前解压时间 | 有 | **无**,靠流水线 | 有(P2 利用队列空闲预取) | 无,同 `split_async_load_submit` |
 | 尾不卡 forward 的条件 | 宽松 | 单层解压 ≤ 单层 prefill 计算 | 宽松 | 单层解压 ≤ 单层 prefill 计算 |
-| 队列优先级 | 2 级固定 | 2 级固定 | 3 级**可变** | 2 级固定 |
+| 队列优先级 | 2 级固定(HIGH/LOW) | 2 级固定(HIGH/LOW) | 3 级**可变** | 2 级固定 |
 | C++ 改动 | — | 无 | 多级 + 可变优先级 + `set_priority` 绑定 + 按层排序 | 2 级 + 按层排序键;提交接口加 priority / layer 号参数 |
-| Python 改动 | — | worker 保存 async 请求元数据;promote 后补提交尾 | `get()` 加 per-layer priority;promote 时提权 | 方案一改动 + `get()` 加 priority / layer 号参数 |
+| Python 改动 | — | worker 保存 async 请求元数据;promote 后按 batch 补提交尾 | `get()` 加 per-layer priority;promote 时提权 | `split_async_load_submit` 的改动 + `get()` 加 priority / layer 号参数 |
 
-结论:方案一单独能把 (a)(b) 从 L 层压到 N 层;方案二解决 (a)(b) 但需可变优先级;方案三解决 (a)(b) 且队列只需 2 级固定优先级。P0 按层排序在 K1 修正后作用变小(同一 step 内已按层排),只剩不同 step 提交的 P0 任务之间需要它,是否保留待实测。方案三唯一代价是尾没有提前量,是否可接受取决于第 7 节的测量。三个方案都实现并测性能,见第 8 节。
+结论:`split_async_load_submit` 单独能把 (a)(b) 从 L 层压到 N 层;`priority_3level` 解决 (a)(b) 但需可变优先级;`split_priority_2level` 解决 (a)(b) 且队列只需 2 级固定优先级,代价是尾没有提前量(本轮不评估,见 4.2)。P0 内按层号排序在公共前提之下作用变小(同一 step 内已按层排),只剩不同 step 提交的 P0 任务之间需要它,是否保留待实测。另外,§11.3 的推断显示 (a) 实际可能主要表现为 step 层面的阻塞(forward 等尾),只改队列顺序的方案对此无效,需先验证。
 
 ## 6. 会不会让 async 请求排不上号?
 
@@ -186,47 +215,144 @@ P0 的任务来源:
 
 会出现的是**短时延迟**:A 刚 promote,其 L−N 层尾进 P0,B 的头要等这些做完。这是有意取舍:A 的尾卡的是正在跑的 forward(整个 batch GPU 停转),B 的头卡的只是 B 一个请求的 TTFT。
 
-## 7. 动手前先测两个数
+## 7. 队列顺序验证测试
 
-1. 用 profiler(已有 `unzip_from_mem_work` scope)测**单个 (请求, 层) 任务的解压耗时**,对比**单层 prefill 计算耗时**和**一个 decode step 耗时**。
-   - 决定方案三是否可行(单层解压 ≤ 单层计算 → 可行;否则需保留 P2 预取,即退回方案二)。
-   - 若 48 层约 100~200 ms,(a)(b) 的排队延迟为百毫秒级,与 TTFT 同量级,值得改。
-2. 记录 **HIGH deque 积压长度随时间的曲线**,确认高并发时确实出现多请求排队。
+### 7.1 目的
+
+只验证一件事:**OMP-Main 单线程队列的提交结构和执行顺序,是否与各方案的预期一致**。不看 TTFT,也不测解压耗时与 prefill / decode 耗时的对比(目前是软件解压,以后会换硬件加速和更高端的 GPU,这些数字没有参考价值)。
+
+### 7.2 负载
+
+用 `tests/vllm-benchmark.sh`(`vllm bench serve`,random 数据集)产生请求,由 `tests/async-load-queue-test.sh s1|s2 <输出目录>` 串起来(开 trace → 跑 benchmark → 取 trace 和本次 log → evict DDR → 判定)。该数据集一次运行内所有请求共用同一个前缀(长度 = 输入长度 × 命中率)。
+
+| 参数 | S1 | S2 | 说明 |
+|---|---|---|---|
+| 输入长度 / 输出长度 | 4k / 128 | 4k / 128 | 8 × 4.1k 远小于 GPU7 的 KV 容量 66k token,不会触发抢占(connector 不支持抢占恢复) |
+| 命中率 | 95% | 95% | 每个请求 64 层 × 约 240 个 block,单个请求全部层解压约 115 ms |
+| 并发 / 请求数 | 8 / 16 | 8 / 16 | |
+| 请求速率 | 10 req/s | 10 req/s | 平均间隔 100 ms,小于单个请求的加载时间,且请求分散在不同 step |
+| warmup | 1 | 1 | 由 warmup 请求承担未命中、把前缀存进 DDR |
+
+实测修正(§11.4):速率为 inf 时前 8 个请求落在同一个 step,补进的请求在前面结束后(约 8 s)才到,队列早已空,覆盖不到 (a);warmup 为 0 时第 0 个测量请求是未命中,要做完整 prefill,其余请求在这个长 step 里到达并堆进下一个 step,同样覆盖不到 (a)。
+
+### 7.3 场景与环境变量
+
+启动 vLLM 时用 `export` 覆盖,不改 `setvars.sh` 默认值。
+
+| 变量 | S1:全部 async | S2:sync 与 async 混合 |
+|---|---|---|
+| `KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED` | 1 | 1 |
+| `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC` | 0 | 1 |
+| `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS` | 4 | -1(不使用) |
+| `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP` | 不使用 | `0-3:4,4-:0` |
+| `KVSHRINK_ASYNC_LOAD_SCHEME` | 每次运行一个方案 | 同 S1 |
+
+- S1:每个命中请求都走 async,N=4。覆盖"同一 step 多个 async 请求"(K1)和"后到 async 请求碰上前面的尾"((a))。
+- S2:scheduler 在途请求数(`len(self._req_states)`,含当前请求)为 1~3 时走 async 且 N=4,≥4 时走 sync。请求以 10 req/s 到达时,前几个走 async,之后的走 sync,并在 async 的尾还在队列里时到达,即 (b)。
+- S2 的映射表与默认方向相反,是为了造出"sync 排在 async 尾后面"。按默认方向 `0-3:0,4-:4`,(b) 要求在一个请求的加载时间(约 115 ms)内在途数从 ≥4 降到 ≤3,实测 0.5 req/s 下 32 个请求一次都没出现(§11.4)。
+
+### 7.4 各方案的预期队列
+
+记号:`Rk_j` = 请求 k 第 j 层的解压任务;`Lj(R1..R8)` = 一个覆盖 R1~R8 的第 j 层任务;`S` = sync 批;L = 64,N = 4。
+
+**S1:R1~R8 同一 step 到达**
+
+| 方案 | 队列 |
+|---|---|
+| `naive` | `[R1_0..R1_63][R2_0..R2_63]…[R8_0..R8_63]`,512 个任务;R8_0 排第 449 位 |
+| `batch_reqs_async_load_submit` | `[L0(R1..R8)]…[L63(R1..R8)]`,64 个任务;8 个请求在 L3 完成后同时 promote |
+| `split_async_load_submit` | 本 step `[L0..L3(R1..R8)]`,4 个任务;promote 后下一个 step `[L4..L63(R1..R8)]`,60 个任务 |
+| `priority_3level` | 同 batch,64 个任务;L0~L3 为 P1,L4~L63 为 P2,promote 后提到 P0 |
+| `split_priority_2level` | 同 split;头为 P1,尾为 P0 |
+
+实际上 8 个请求不一定落在同一个 step;判定时以 7.5 的 step log 为准,对每个 step 套用上表。
+
+**S1:补进的请求 R9 到达时,R9_0 前面允许有什么**
+
+| 方案 | 允许排在 R9_0 前面的任务 |
+|---|---|
+| `naive` / `batch_reqs_async_load_submit` | 队列里所有尚未执行的任务(FIFO) |
+| `split_async_load_submit` | 更早提交的头 + 已 promote 请求的尾;**不能有未 promote 请求的尾** |
+| `priority_3level` | P0 + 更早提交的 P1;**不能有 P2** |
+| `split_priority_2level` | P0 + 更早提交的 P1 |
+
+**S2:sync 批 S 提交时,队列里仍有 async 任务((b))**
+
+| 方案 | 允许排在 S0 前面的任务 |
+|---|---|
+| `naive` / `batch_reqs_async_load_submit` | 队列里所有尚未执行的任务,包括未 promote 的尾 |
+| `split_async_load_submit` | 更早提交的头 + 已 promote 请求的尾 |
+| `priority_3level` / `split_priority_2level` | S0 是 P0 且层号为 0,只等正在执行的那一个任务 |
+
+### 7.5 要看的 log
+
+| log | 内容 | 状态 |
+|---|---|---|
+| `GET /v1/cache/queue_trace` | 每个解压任务的 `label=unzip\|<req_id 列表>\|<层名>`、`priority`、`seq`、`enqueue_ns / start_ns / end_ns`;按 `start_ns` 排序即实际执行顺序 | 已有 |
+| connector `get_num_new_matched_tokens` | 每个请求实际走 sync 还是 async、N 是多少 | 已有 |
+| connector `start_load_kv` | 每次 `get()` 一行:`async_load step=<k> t=<ns> submit kind=sync\|async reqs=<id,...> layers=<a>-<b>` | 已加 |
+| connector `get_finished` | `async_load step=<k> t=<ns> promote reqs=<id,...>` | 已加 |
+
+`t` 是 `time.monotonic_ns()`,与 trace 同一时钟。sync 批的 description 也改为逗号分隔的 req_id,trace 里每个任务都能对应到具体的 submit 行。
+
+`priority_3level` 的优先级会中途改变,做该方案时 trace 要记录执行时的优先级,而不是提交时的。
+
+### 7.6 判定
+
+判定脚本读取 7.5 的 log,对每次运行输出三项:
+
+1. **提交结构是否与 7.4 一致**:每个 step 的任务数、层范围、req_id 组成。例:`batch_reqs_async_load_submit` 同一 step 恰好 64 个任务且 label 含该 step 全部 async 请求;split 类方案中,任何请求在 promote 记录之前不得有 L4 及以上的任务。
+2. **违序数**:用 trace 重放队列,对每个任务检查它开始执行的那一刻,是否有"已入队、未开始、排序键更小"的任务。排序键:FIFO 类方案 `(HIGH/LOW, seq)`;优先级类方案 `(priority, 层号, seq)`。必须为 0。
+3. **场景覆盖数**:S1 中"R9 类请求到达时前面有尾"的次数;S2 中"sync 批提交时队列里有 async 任务"的次数。为 0 说明负载没有造出该场景,结论无效,需调整负载重跑。
+
+先在 `naive` 上跑 S1、S2,确认预期和判定脚本本身是对的,再用于其他方案。
 
 ## 8. 实现复杂度评估
 
-决定:**三个方案都实现,都测性能**。下面按"公共部分 + 各方案增量"拆分。
+决定:`naive` 作为对照组保持不动;`batch_reqs_async_load_submit` 作为公共前提先做;`split_async_load_submit`、`priority_3level`、`split_priority_2level` 都实现,都测性能。下面按"公共部分 + 各方案增量"拆分。
 
-### 8.1 公共基础设施(三个方案都依赖,先做)
+### 8.1 公共基础设施(已完成,见 §11.1)
 
 | 项 | 内容 | 为什么必须 |
 |---|---|---|
-| 队列可观测性 | `TaskQueue` 记录每个任务的入队 / 开始 / 结束时间,按 (priority, tensor_key, description) 打 profiler scope 或暴露到 `/v1/cache/metrics` | 没有它,(a)(b) 的"排队等待时间"无法测量,方案对比没有证据 |
-| 运行时开关 | 环境变量 `KVSHRINK_ASYNC_LOAD_SCHEME=0/1/2/3`(0 = 原方案) | 一次编译切换对比,避免每测一个方案重编一次扩展 |
-| 第 7 节的测量 | 单层解压 vs 单层 prefill 计算耗时 | 决定方案一/三的流水线是否会卡 |
+| 队列可观测性 | `TaskQueue` 记录每个任务的入队 / 开始 / 结束时间,按 (priority, tensor_key, description) 打标签,经 `GET /v1/cache/queue_trace` 读取 | 没有它,(a)(b) 的"排队等待时间"无法测量,方案对比没有证据 |
+| 运行时开关 | 环境变量 `KVSHRINK_ASYNC_LOAD_SCHEME=<4.0 中的名字>`(默认 `naive`;未实现的名字启动时报错) | 一次编译切换对比,避免每测一个方案重编一次扩展 |
+| 队列顺序验证(§7) | connector 的 step / promote log;`vllm-benchmark.sh` 参数可覆盖;判定脚本 | 各方案验收的证据 |
 
-规模:C++ ~60 行(队列计时)+ Python ~30 行。
+### 8.2 `batch_reqs_async_load_submit`(公共前提,纯 Python)
 
-### 8.2 方案一:分批提交(纯 Python)
-
-改动点全部在 `kvshrink/kvshrink_connector.py`:
+改动全在 `kvshrink/kvshrink_connector.py`:
 
 | # | 位置 | 改什么 |
 |---|---|---|
-| 1 | `start_load_kv()` async 提交处 | async 请求只调 `get(layer_names=self._layer_names[:N])`;把 `block_ids / hashes / N` 存进新 dict `_async_req_meta[req_id]` |
-| 2 | `get_finished()` promote 分支 | promote 后把 req_id 放进 `_tail_to_submit` |
-| 3 | `start_load_kv()` 开头 | 遍历 `_tail_to_submit`,调 `get(layer_names=self._layer_names[N:])`,把返回的 Task dict **合并**进该请求已有的 Task dict |
-| 4 | `wait_for_layer_load()` | 逻辑不改,但 `KVFlow.get_wait()` 有 `assert key in get_results`——第 3 步的合并不做,等 layer N 时直接 assert 挂 |
-| 5 | `get_finished()` deferred-finish 分支 | 请求在 promote 后、尾提交前被 abort:要清 `_async_req_meta` / `_tail_to_submit`,否则泄漏,且下一 step 会给已死请求提交尾 |
+| 1 | `start_load_kv()` async 提交处 | 把 `async_reqs` 的 block_ids / block_hashes 合并,调一次 `get()`;description 用逗号分隔的 req_id 列表,trace 里可以看出 batch 由哪些请求组成 |
+| 2 | 同上 | batch 内每个请求的 `_pending_load_tasks[req_id]` 指向这同一组 Task;`_pending_load_layers[req_id]` 仍按请求记录 N |
+| 3 | `get_finished()` promote 分支 | 不改:各请求按自己的 N 判断 promote;对同一组 Task 重复等待安全(`get_wait` 遇到 `ctx is None` 直接跳过) |
+| 4 | `get_finished()` deferred-finish 分支 | 不改:请求结束时等整组 Task 完成 |
+
+- 规模:~20 行 Python。复杂度:**低**。
+- 风险:同 batch 请求越多,单个请求的头越晚就绪;abort 一个请求时要等同 batch 其他请求的 block 也加载完(见 §3 K1 约束表)。
+
+### 8.3 `split_async_load_submit`(纯 Python)
+
+改动全在 `kvshrink/kvshrink_connector.py`:
+
+| # | 位置 | 改什么 |
+|---|---|---|
+| 1 | `start_load_kv()` async 提交处 | 按 batch 只提交头:按层循环,第 j 层只包含 N > j 的请求;同时保存每个请求的 block_ids / block_hashes / N |
+| 2 | `get_finished()` promote 分支 | promote 后把 req_id 加入"待补提交尾"集合 |
+| 3 | `start_load_kv()` 开头 | 对"待补提交尾"集合按层循环提交:第 j 层只包含 N ≤ j 的请求;返回的 Task **合并**进各请求已有的 Task dict |
+| 4 | `wait_for_layer_load()` | 逻辑不改,但 `KVFlow.get_wait()` 有 `assert key in get_results`——第 3 步不合并 Task dict,等 layer N 时直接 assert 挂 |
+| 5 | `get_finished()` deferred-finish 分支 | 请求在 promote 后、尾提交前被 abort:要从"待补提交尾"集合和保存的元数据里删掉,否则泄漏,且下一 step 会给已结束的请求提交尾 |
 
 `KVStore.get(layer_names=...)` 已支持子集,不需要动。
 
-- 规模:~80~120 行 Python,新增 2 组 worker 状态。
-- 风险 1:worker 状态从 3 组 dict(`_pending_load_tasks` / `_early_promoted_tasks` / `_active_promoted_tasks`)变成 5 组。**建议动手前先重构**:合并成一个 per-request 的 `AsyncLoadState`(字段:tasks, block_ids, block_hashes, head_layers, phase),这是后两个方案叠加的地基。
-- 风险 2(现有问题,顺带发现):`start_load_kv()` 只要本 step 有 forward(`attn_metadata is not None`)就把所有 `_early_promoted_tasks` 搬进 `_active_promoted_tasks`,**不管该请求是否真的被调度进了这个 batch**。若 scheduler 因 token 预算未排进来,这个 forward 会白等它的尾。方案一不改变这点,但测性能时它会混进来。
+- 规模:~100~140 行 Python。
+- 风险 1(为什么要新增 worker 状态):promote 后 `metadata.reqs_to_load` 不再含该请求(§2.3),worker 必须自己保存 block_ids / block_hashes / N。现有 3 个 dict(`_pending_load_tasks` / `_early_promoted_tasks` / `_active_promoted_tasks`)只存 Task,再各加 dict 会变成 5 个且要同步清理。实现时把这些按请求合并成一个结构(字段:tasks、block_ids、block_hashes、N、所处阶段),abort 时只删一处。这是本方案的实现细节,不是独立方案;`split_priority_2level` 复用它,`priority_3level` 不需要。
+- 风险 2(现有问题,顺带发现):`start_load_kv()` 只要本 step 有 forward(`attn_metadata is not None`)就把所有 `_early_promoted_tasks` 搬进 `_active_promoted_tasks`,**不管该请求是否真的被调度进了这个 batch**。若 scheduler 因 token 预算未排进来,这个 forward 会白等它的尾。本方案不改变这点,但测性能时它会混进来。
 - 复杂度:**低~中**。难点在状态清理,不在算法。
 
-### 8.3 方案二:多级可变优先级(C++ 为主)
+### 8.4 `priority_3level`(C++ 为主)
 
 | # | 文件 | 改什么 |
 |---|---|---|
@@ -242,43 +368,47 @@ P0 的任务来源:
 - 规模:C++ ~200~250 行(含重载兼容和重试路径),Python ~60 行,需重编扩展。
 - 风险 1:线程安全。`set_priority` 从 Python 线程改 atomic,worker 在锁内读;任务已在执行时改优先级无效但无害,契约要写清楚。
 - 风险 2:`Context` 的 move 构造 / 赋值要把 `prio_cell` 一起搬,漏了就是悬空。
-- 风险 3:`TaskQueue` 目前没有单测(`tests/` 下只有两个 shell 脚本),要新加 gtest 覆盖"提权后顺序正确"。
+- 风险 3:`TaskQueue` 的优先级排序和提权要新加单测(在 `iaxl/csrc/test/task_queue_test.cpp` 里扩展),覆盖"提权后顺序正确"。
+- 风险 4:公共前提下尾任务被同 batch 请求共用,提权作用于整批(见 4.3)。
 - 复杂度:**中~高**。难在可变优先级 cell 的生命周期(跟着 Context 走、重试复用、move 语义),不在排序本身。
 
-### 8.4 方案三:方案一的提交方式 + 2 级固定优先级 + P0 按层排
+### 8.5 `split_priority_2level`
 
-增量 = 方案一全部 + 方案二第 1、3、4、5、6 项的简化版:
+代码上 = `split_async_load_submit` 的全部改动 + `priority_3level` 第 1、3、4、5、6 项的简化版(复用其 priority / layer 号透传路径,不用其可变优先级):
 
-| 项 | 相对方案二的简化 |
+| 项 | 相对 `priority_3level` 的简化 |
 |---|---|
 | `TaskQueue` | 不需要可变 cell。3 个容器:P0 用 `std::multimap<(sort_key, seq), fn>`,P1 和 LOW(zip)各一个 deque。~50 行 |
 | `unzip_from_mem` | 加 `priority, sort_key` 两个参数即可,**不需要 `set_priority`**,`Context` 不加新成员,move 语义不动 |
 | 重试路径 | 重试时沿用原 priority / sort_key(局部捕获即可) |
-| connector | 方案一改动之上:首次提交头传 P1,补提交尾传 P0;sync 传 P0。promote 分支不调任何提权接口 |
+| connector | `split_async_load_submit` 改动之上:首次提交头传 P1,补提交尾传 P0;sync 传 P0。promote 分支不调任何提权接口 |
 
-- 规模:C++ ~80~100 行,Python = 方案一 + ~20 行。
-- 风险:继承方案一的状态管理风险;C++ 侧风险明显低于方案二。
+- 规模:C++ ~80~100 行,Python = `split_async_load_submit` + ~20 行。
+- 风险:继承 `split_async_load_submit` 的状态管理风险;C++ 侧风险明显低于 `priority_3level`。
 - 复杂度:**中**。
 
-### 8.5 汇总
+### 8.6 汇总
 
-| | 方案一 | 方案二 | 方案三 |
-|---|---|---|---|
-| C++ 行数(估) | 0 | 200~250 | 80~100 |
-| Python 行数(估) | 80~120 | ~60 | 100~140 |
-| 需重编扩展 | 否 | 是 | 是 |
-| 新增 worker 状态 | 2 组(建议重构合并) | 0 | 同方案一 |
-| 新增 C++ 接口 | 无 | `submit` 重载、`set_priority`、pybind 两处 | `submit` 重载、pybind 一处 |
-| 最难的点 | 状态清理(abort / deferred finish) | 可变优先级 cell 的生命周期 | 同方案一 |
-| 复杂度 | 低~中 | 中~高 | 中 |
+| | `batch_reqs_async_load_submit` | `split_async_load_submit` | `priority_3level` | `split_priority_2level` |
+|---|---|---|---|---|
+| C++ 行数(估) | 0 | 0 | 200~250 | 80~100 |
+| Python 行数(估) | ~20 | 100~140 | ~60 | 120~160 |
+| 需重编扩展 | 否 | 否 | 是 | 是 |
+| 新增 worker 状态 | 无(同 batch 共用 Task dict) | 每请求保存 block 元数据(合并成一个结构) | 无 | 同 `split_async_load_submit` |
+| 新增 C++ 接口 | 无 | 无 | `submit` 重载、`set_priority`、pybind 两处 | `submit` 重载、pybind 一处 |
+| 最难的点 | 共用 Task 时的结束 / abort 语义 | 状态清理(abort / deferred finish) | 可变优先级 cell 的生命周期 | 同 `split_async_load_submit` |
+| 复杂度 | 低 | 低~中 | 中~高 | 中 |
 
-### 8.6 实现顺序
+列说明:行数是相对 `naive` 的增量估算;后三列都不含 `batch_reqs_async_load_submit` 自身的改动。
 
-**公共基础设施 → connector 状态重构 → 方案一 → 方案三 → 方案二**,原因:
+### 8.7 实现顺序
 
-1. 方案三 = 方案一 + 一小块 C++,自然递进。
-2. 方案二的 priority / sort_key 透传(第 3~6 项)与方案三完全相同;做完方案三后,方案二只剩"可变 cell + `set_priority` + promote 时提权"这一块增量。
-3. 全部挂在 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关下;方案二和三共存于同一份 `TaskQueue`(可变 cell 对方案三而言就是"从不改"),一次编译跑四组对比。
+**公共基础设施(已完成)→ `batch_reqs_async_load_submit` → `split_async_load_submit` → `split_priority_2level` → `priority_3level`**,原因:
+
+1. `batch_reqs_async_load_submit` 是后三个方案的前提,改动小,收益已有实测依据(§11.3 T2 d=0)。
+2. `split_priority_2level` = split 的提交方式 + 一小块 C++,放在 `split_async_load_submit` 之后。
+3. `priority_3level` 的 priority / sort_key 透传(8.4 第 3~6 项)与 `split_priority_2level` 相同;做完后只剩"可变 cell + `set_priority` + promote 时提权"。
+4. 全部挂在 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关下;两种优先级共存于同一份 `TaskQueue`(可变 cell 对 `split_priority_2level` 而言就是"从不改"),一次编译跑五组对比(`naive` + 公共前提 + 三个方案)。
 
 ## 9. 验收标准与最小测试
 
@@ -287,20 +417,29 @@ P0 的任务来源:
 - **验收标准**:某个方案算“做完”的定义。
 - **最小测试**:不追求完整 benchmark,只用于快速证明“这个方案的核心机制确实生效”。
 
-### 9.1 公共验收前提(三个方案都适用)
+### 9.1 公共验收前提(所有方案都适用)
 
 无论哪个方案,都先满足以下前提,否则不能进入性能对比:
 
 | 项 | 验收标准 | 简单测试 |
 |---|---|---|
-| 运行时切换 | `KVSHRINK_ASYNC_LOAD_SCHEME=0/1/2/3` 能切到四种实现,不需改代码重编 | 同一二进制下分别启动 4 次,日志打印当前 scheme 值和生效路径 |
+| 运行时切换 | `KVSHRINK_ASYNC_LOAD_SCHEME=<名字>` 能切到 4.0 的五种实现,不需改代码重编 | 同一二进制下分别启动 5 次,日志打印当前 scheme 名字 |
 | 可观测性 | 能记录每个 unzip 任务的 `enqueue_ts`、`start_ts`、`end_ts`;至少能按请求 ID、layer、priority 追踪 | 构造 1 个 async 请求,检查日志或 metrics 中能看到完整三元时间戳 |
 | 功能正确性 | async load 不改变模型输出;cache hit 前后生成文本一致 | 固定 seed、`temperature=0`,同一请求跑“无命中”和“有命中”两次,逐字节比对输出 |
 | 无明显泄漏 | 请求 finish / abort 后,worker 侧与该请求相关的状态能清空 | 构造 1 个 promote 前 abort、1 个 promote 后 abort,检查 connector 内状态计数恢复为 0 |
 
-### 9.2 方案一验收标准(分批提交)
+### 9.2 `batch_reqs_async_load_submit` 验收标准(公共前提)
 
-方案一的核心不是“性能一定最好”,而是“**尾不再与头同时入队**”。
+| 维度 | 验收标准 | 简单测试 |
+|---|---|---|
+| 提交行为 | 同一 step 的多个 async 请求,每层只提交一个任务,覆盖所有请求的 block | queue_trace 中该 step 的 unzip 任务数 = 层数,label 的 description 含全部 req_id |
+| promote 正确 | 各请求按自己的 N promote | 构造同一 step 的 A、B,检查两者都被 promote 且输出与未命中时逐字节一致 |
+| 结束 / abort | 同 batch 中一个请求结束或 abort,其余请求不受影响,状态清空 | A、B 同 batch,abort A,检查 B 输出正确、connector 状态计数归 0 |
+| 效果 | T2 d=0 场景下 B0 前面不再有 A 的尾 | 复跑 T2 d=0,对比 `naive` 的 161 ms |
+
+### 9.3 `split_async_load_submit` 验收标准
+
+核心不是"性能一定最好",而是"**尾不再与头同时入队**"。
 
 | 维度 | 验收标准 | 简单测试 |
 |---|---|---|
@@ -311,76 +450,80 @@ P0 的任务来源:
 | (b) 缓解生效 | 后到 sync 请求 C 的 layer 0 前面,最多只会被未 promote 请求的头和已 promote 请求的尾挡住,不会再被“未 promote 尾”挡住 | 先提交 async A,再提交 sync C,检查 C0 前面不存在 A_N..A_{L-1} 这种未 promote 尾 |
 | abort 清理 | promote 后但尾尚未提交时 abort,不会在下一 step 给死请求补提交尾 | 构造 promote 后 abort,下一 step 检查日志中无该 req_id 的尾提交 |
 
-同一 step 内的合并提交属于 K1,单独验收(见 9.5 T4)。
+同一 step 内补提交的尾按 batch 提交,检查方法同 9.2 的"提交行为"。
 
-### 9.3 方案二验收标准(多级可变优先级)
+### 9.4 `priority_3level` 验收标准
 
-方案二的核心是“**任务可提权**”和“**P0 按 layer 排**”。
+核心是"**任务可提权**"和"**P0 按 layer 排**"。
 
 | 维度 | 验收标准 | 简单测试 |
 |---|---|---|
-| 多级队列生效 | P0 / P1 / P2 任务进入队列后,worker 取任务顺序符合 `(priority, sort_key, seq)` | 写 1 个 gtest:手工 submit 若干假任务,断言执行顺序与预期一致 |
-| 可变优先级生效 | 任务入队后但尚未执行前,`set_priority(P0)` 能改变其出队顺序 | 写 1 个 gtest:先入队 A(P2)、B(P1),再把 A 提到 P0,断言 A 先执行 |
+| 多级队列生效 | P0 / P1 / P2 任务进入队列后,worker 取任务顺序符合 `(priority, sort_key, seq)` | 在 `task_queue_test.cpp` 里加用例:手工 submit 若干假任务,断言执行顺序与预期一致 |
+| 可变优先级生效 | 任务入队后但尚未执行前,`set_priority(P0)` 能改变其出队顺序 | 同上加用例:先入队 A(P2)、B(P1),再把 A 提到 P0,断言 A 先执行 |
 | retry 保持优先级 | cache miss 重试后的 unzip 任务仍保留原 priority / sort_key | 人工触发一次 retry,检查重试前后日志中的 priority / sort_key 相同 |
 | (a) 缓解生效 | B 的头(P1)能越过 A 的未 promote 尾(P2) | 构造 A、B 两个 async 请求,查看队列执行顺序,确认 B0..B{N-1} 先于 A_N..A_{L-1} |
 | (b) 缓解生效 | sync 批(C 的 S0)作为 P0,能越过所有 P1/P2 | 先让队列中存在 async 任务,再提交 1 个 sync 批,检查 S0 最先执行 |
-| P0 按 layer 排 | 不同次提交进入 P0 的任务,按 layer 号交错执行而不是按提交批次排 | 写 1 个 gtest:分两批提交 P0 任务,断言执行顺序按 layer 号 |
+| P0 按 layer 排 | 不同次提交进入 P0 的任务,按 layer 号交错执行而不是按提交批次排 | 同上加用例:分两批提交 P0 任务,断言执行顺序按 layer 号 |
 | 线程安全/生命周期 | 不因 `Context` move、任务 finish、abort 导致悬空 cell 或 crash | 开启 ASAN/Debug 或至少跑多次并发压测,确认无 crash / double free / use-after-free |
 
-方案二验收的关键证据,不是 TTFT 下降本身,而是**队列顺序符合预期**。TTFT 只是后续 benchmark 指标。
+验收的关键证据,不是 TTFT 下降本身,而是**队列顺序符合预期**。TTFT 只是后续 benchmark 指标。
 
-### 9.4 方案三验收标准(分批提交 + 固定优先级 + P0 按 layer 排)
+### 9.5 `split_priority_2level` 验收标准
 
-方案三是方案一和方案二的一部分组合。因此验收标准 = “方案一的分批提交成立” + “方案二里不依赖提权的那部分成立”。
+验收 = `split_async_load_submit` 的提交行为成立 + 2 级固定优先级成立。
 
 | 维度 | 验收标准 | 简单测试 |
 |---|---|---|
-| 头尾分批提交 | 同方案一:首次只提交头,promote 后补提交尾 | 复用方案一测试 |
-| 固定优先级生效 | sync 与已 promote 尾以 P0 提交;未 promote 头以 P1 提交 | 日志打印每个 unzip 任务的 priority,检查分类正确 |
-| P0 按 layer 排 | 不同次提交进入 P0 的任务按 layer 号交错 | 复用方案二的 P0 排序 gtest |
+| 头尾分批提交 | 同 `split_async_load_submit`:首次只提交头,promote 后补提交尾 | 复用 9.3 的测试 |
+| 固定优先级生效 | sync 与已 promote 尾以 P0 提交;未 promote 头以 P1 提交 | queue_trace 中检查每个 unzip 任务的 priority |
+| P0 按 layer 排 | 不同次提交进入 P0 的任务按 layer 号交错 | 复用 9.4 的 P0 排序单测 |
 | (a) 缓解生效 | 因为未 promote 尾根本不入队,B 头不会再被它挡住 | 构造 A、B 两个 async 请求,确认 B0..B{N-1} 前面不存在 A_N..A_{L-1} |
 | (b) 缓解生效 | sync 批 C 的 S0 作为 P0,能越过其他请求的头(P1) | 先排一些 P1,再提交 C,检查 S0 先执行 |
 | 流水线可运行 | 从 layer 0 算到 layer N 期间,队列能推进尾层加载,不会在 layer N 立即因为尾未提交而断流 | 跑 1 个 async 请求到 layer N,日志显示 layer N~N+1 的尾任务已在 layer 0~N-1 期间开始执行 |
 
-方案三**不要求**“尾一定完全不卡 forward”;它要求的是:尾已经在与前面层计算重叠地推进。是否会完全不卡,取决于“单层解压时间 ≤ 单层 prefill 计算时间”,这是性能结论,不是功能验收前提。
+`split_priority_2level` **不要求**"尾一定完全不卡 forward";它要求的是:尾已经在与前面层计算重叠地推进。是否会完全不卡,取决于“单层解压时间 ≤ 单层 prefill 计算时间”,这是性能结论,不是功能验收前提。
 
-### 9.5 推荐的最小测试集合
+### 9.6 推荐的最小测试集合
 
-为了尽快判断“今天做的东西有没有把核心机制做对”,建议最少保留下面 5 组测试。
+为了尽快判断"做的东西有没有把核心机制做对",建议最少保留下面 5 组测试。
 
 | 测试 | 目的 | 适用方案 |
 |---|---|---|
-| T1: 单请求 async,检查第一次只提交头/第二次补提交尾 | 验证分批提交状态机 | 方案一、方案三 |
-| T2: A(async) → B(async),打印任务入队/执行顺序 | 验证 (a) 是否缓解 | 三个方案都可跑,重点看方案一/二/三与原方案差异 |
-| T3: A(async) → C(sync),检查 C 的 S0 何时执行 | 验证 (b) 是否缓解 | 三个方案都可跑 |
-| T4: 同一 step 到达的 A、B(async),检查队列是否为 `L0(A+B) L1(A+B) ...` | 验证 K1 修正 | 所有方案(K1 修正与方案无关) |
-| T5: promote 后 abort / finish,检查状态是否清空 | 验证状态机清理 | 方案一、方案三,方案二也建议跑 |
+| T1: 单请求 async,检查第一次只提交头/第二次补提交尾 | 验证分批提交状态机 | `split_async_load_submit`、`split_priority_2level` |
+| T2: A(async) → B(async),打印任务入队/执行顺序 | 验证 (a) 是否缓解 | 所有,对比 `naive` |
+| T3: A(async) → C(sync),检查 C 的 S0 何时执行 | 验证 (b) 是否缓解 | 所有,对比 `naive` |
+| T4: 同一 step 到达的 A、B(async),检查队列是否为 `L0(A+B) L1(A+B) ...` | 验证公共前提 | `batch_reqs_async_load_submit`(非 `naive` 的方案都依赖它) |
+| T5: promote 后 abort / finish,检查状态是否清空 | 验证状态清理 | `split_async_load_submit`、`split_priority_2level`,`priority_3level` 也建议跑 |
 
-若时间只够做最少的 smoke test,则顺序应为:T4 → T1 → T3 → T5。T4 改动最小、收益已有实测依据;T3 对应 (b),最严重。
+若时间只够做最少的 smoke test,顺序为:T4 → T1 → T3 → T5。T4 改动最小、收益已有实测依据;T3 对应 (b),最严重。
+
+T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后面补进的请求对应 T2),T3 由 S2 覆盖;T1、T5 是状态机测试,单独做。
 
 ## 10. 待办
 
-- [x] 公共:`TaskQueue` 任务计时 + 暴露指标
-- [x] 公共:`KVSHRINK_ASYNC_LOAD_SCHEME` 开关(目前只接受 0)
-- [ ] 公共:第 7 节两个测量,结果附到本文档
-- [ ] 已知问题 K1:同一 step 的 async 请求合并提交(Python,仿照 sync 路径)
-- [ ] connector worker 侧状态重构:3 组 dict → per-request `AsyncLoadState`(先出字段设计)
-- [ ] 方案一实现
-- [ ] 方案三:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入
-- [ ] 方案二:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;connector promote 时提权
-- [ ] gtest:`TaskQueue` 排序 / 提权正确性
-- [ ] 性能测试:(a)(b) 两个场景 × 四个方案(含原方案),排队延迟 + TTFT + GPU 空转时间对比
+- [x] 公共:`TaskQueue` 任务计时 + 暴露接口
+- [x] 公共:`KVSHRINK_ASYNC_LOAD_SCHEME` 开关
+- [x] 公共:开关取值改为 4.0 中的名字(目前只实现 `naive`)
+- [x] §7 准备:connector 加 `start_load_kv` submit log 和 `get_finished` promote log
+- [x] §7 准备:`tests/vllm-benchmark.sh` 参数改为可用环境变量覆盖(输入长度、命中率、并发、请求数、warmup、请求速率、seed),默认值不变
+- [x] §7 准备:判定脚本 `tests/async_load_queue_check.py` + 执行脚本 `tests/async-load-queue-test.sh`
+- [x] §7:在 `naive` 上跑 S1、S2,均 PASS(§11.4)
+- [ ] 公共:验证 §11.3 的 step 层面阻塞推断(在 connector `start_load_kv` / `wait_for_layer_load` 记时间戳)
+- [ ] `batch_reqs_async_load_submit`:实现(8.2)+ 9.2 验收 + §7 S1/S2 通过
+- [ ] `split_async_load_submit`:实现(8.3,含 worker 侧按请求保存 block 元数据)+ 9.3 验收 + §7 S1/S2 通过
+- [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1/S2 通过
+- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1/S2 通过
 - [ ] 现有问题:`_early_promoted_tasks` 搬入 `_active_promoted_tasks` 不判断请求是否在本 batch(单独评估是否修)
 
 ## 11. 进度记录
 
-- 2026-10-08:完成问题分析、三个方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。下一步:connector `AsyncLoadState` 字段设计 → 公共基础设施。
-- 2026-10-09:完成公共基础设施,并在原方案(scheme 0)上跑了 T2。
+- 2026-10-08:完成问题分析、方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。
+- 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1、S2 均 PASS(§11.4)。
 
 ### 11.1 公共基础设施
 
 - `TaskQueue`(`iaxl/csrc/include/task_queue.h`):开启后为每个任务记录 `label / priority / seq / enqueue_ns / start_ns / end_ns / high_depth / low_depth`,时钟为 steady_clock(= Python `time.monotonic_ns()`);关闭时只多一次原子读。上限 262144 条,超出计入 `dropped`。
-- 标签(`torch_ext/zip.cpp`):`<kind>|<description>|<tensor_key>`,kind ∈ {`unzip`, `unzip_retry`, `zip`};description 是 async 请求的 req_id,sync 合并批为空。
+- 标签(`torch_ext/zip.cpp`):`<kind>|<description>|<tensor_key>`,kind ∈ {`unzip`, `unzip_retry`, `zip`};description 是本次 `get()` 涉及的 req_id(逗号分隔;sync 批同样如此),put 为空。
 - 读取:`GET /v1/cache/queue_trace?queue=OMP-Main&enable=1|0`(worker 端;controller 转发)。每次调用返回并清空已记录事件。
 - 单测:`iaxl/csrc/test/task_queue_test.cpp`(`make test-task-queue`),21 项通过;TSan 0 告警(需 `setarch $(uname -m) -R` 运行)。
 
@@ -396,7 +539,7 @@ P0 的任务来源:
 | 端口 | API 8010,controller 18710,worker 18810 | 容器是 host 网络,避开默认端口 |
 | async 配置 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0`,`..._LAYERS=4` | 固定 N=4,保证单请求也走 async |
 
-### 11.3 原方案(scheme 0)实测
+### 11.3 `naive` 实测
 
 证据目录(本机,不提交):`_data/async-load-step1/`、`_data/async-load-baseline-T2/`,内含请求体、响应、trace、脚本。prompt 约 5.2k token(326 个 block),`temperature=0`、`seed=0`;所有命中请求的输出与未命中时逐字节一致,无乱码。
 
@@ -413,3 +556,23 @@ T2:A、B 两个 async 命中请求,B 晚 d 毫秒发送。时间均相对 A 第 
 
 - d=0:A、B 在同一个 step 内提交,B 的头排在 A 的 59 层尾后面,等了 161 ms。这是**已知问题 K1**(同一 step 内逐请求提交),不是 (a)。
 - d=20/50:B 晚于 A 一个以上 step 到达,属于 (a) 的场景。B 在 A 尾全部完成后约 7~13 ms 才入队,队列里看不到 (a)。推断(未直接测量 step 时间):A 头在 ~9 ms 完成并被 promote,随后 A 的 prefill forward 在 `wait_for_layer_load` 里逐层等 A 自己的尾,这个 step 持续到 A 尾完成;B 只能在下一个 step 才被调度和提交。即 B 仍被延迟 ~170 ms,但阻塞发生在 **step 层面**(forward 等尾),不在队列层面。这意味着:只改队列顺序的方案无法缓解这种情况,需要在方案评估时单独考虑。验证方法:在 connector 的 `start_load_kv` / `wait_for_layer_load` 记录时间戳。
+
+### 11.4 §7 队列顺序验证:`naive`
+
+证据目录(本机):`_data/queue-test/<运行名>/`,含 `bench.log`、`trace.json`、`vllm.log`(本次运行段)、`report.json`。
+
+| 运行名 | 场景 | 关键参数 | 命中 async / sync | 结构错误 | 违序 | (a) 次数 | (b) 次数 | 结论 |
+|---|---|---|---|---|---|---|---|---|
+| `naive-s1` | S1 | inf,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 无效:未覆盖 (a) |
+| `naive-s1-rate10` | S1 | 10 req/s,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 无效:未覆盖 (a) |
+| `naive-s1-rate10-w1` | S1 | 10 req/s,warmup 1 | 16 / 0 | 0 | 0 | 7 | — | **PASS** |
+| `naive-s2` | S2 | map `0-3:0,4-:4`,0.5 req/s | 22 / 10 | 0 | 0 | — | 0 | 无效:未覆盖 (b) |
+| `naive-s2-map-inv` | S2 | map `0-3:4,4-:0`,10 req/s | 5 / 11 | 0 | 0 | — | 1 | **PASS** |
+
+列说明:"命中 async / sync"为命中 DDR 的请求中走 async、sync 的个数;"结构错误""违序"见 7.6;"(a) 次数"= async 提交时队列里有更早 step 的 async 任务未执行的次数;"(b) 次数"= sync 批提交时队列里有更早 step 的 async 任务未执行的次数。
+
+PASS 两次的具体表现,与 7.4 中 `naive` 的预期一致:
+
+- (a):step 677 提交的请求,首个任务前面有前一个请求的 59 个未 promote 尾,排队 172 ms;step 681 的请求前面有 240 个未 promote 尾 + 16 个头 + 11 个已 promote 尾,排队 518 ms。
+- (b):step 272 的 sync 批前面有 80 个 async 任务(60 个未 promote 尾、16 个已 promote 尾、4 个头),排队 152 ms。
+- K1:同一 step 内多个 async 请求依次排队,例如 `naive-s2-map-inv` 中 step 271 的两个 async 请求分别等 422 ms、540 ms。
