@@ -122,6 +122,16 @@ for req_id, request in async_reqs:
 | 覆盖范围 | 只覆盖同一 step 提交的请求;不同 step 的请求仍按批次先后排,即 (a) |
 | 与 `split_async_load_submit` 的关系 | promote 后补提交尾时,同一 step 内补提交的尾也按同样方式打成 batch |
 
+### 已知问题 K2:promote 后的 forward 等尾,拖长 step,推迟后到请求的提交
+
+推断,未验证,不单独测试。
+
+**现象**(早期两请求测试,B 比 A 晚 20 / 50 ms 发送;时间相对 A 第 0 层入队):A 前 4 层完成于 9.3 / 8.6 ms,A 最后一层完成于 181.3 / 165.7 ms,B 第 0 层入队于 188.6 / 178.6 ms。B 在队列里没有等待,但提交本身被推迟了约 170 ms。
+
+**推断的原因**:`start_load_kv` 每个 step 只在开头调用一次。A 在约 9 ms promote 后,下一个 step 做 A 的 prefill forward,它在 `wait_for_layer_load` 里逐层等 A 自己的尾,这个 step 一直持续到 A 的尾全部完成;B 只能在下一个 step 才被调度和提交。
+
+**影响**:这段延迟发生在任务进队列之前,queue trace 看不到;本文的方案只改队列内顺序,对它无效。
+
 ## 4. 方案
 
 ### 4.0 命名
@@ -202,7 +212,7 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 | C++ 改动 | — | 无 | 多级 + 可变优先级 + `set_priority` 绑定 + 按层排序 | 2 级 + 按层排序键;提交接口加 priority / layer 号参数 |
 | Python 改动 | — | worker 保存 async 请求元数据;promote 后按 batch 补提交尾 | `get()` 加 per-layer priority;promote 时提权 | `split_async_load_submit` 的改动 + `get()` 加 priority / layer 号参数 |
 
-结论:`split_async_load_submit` 单独能把 (a)(b) 从 L 层压到 N 层;`priority_3level` 解决 (a)(b) 但需可变优先级;`split_priority_2level` 解决 (a)(b) 且队列只需 2 级固定优先级,代价是尾没有提前量(本轮不评估,见 4.2)。P0 内按层号排序在公共前提之下作用变小(同一 step 内已按层排),只剩不同 step 提交的 P0 任务之间需要它,是否保留待实测。另外,§10 中"step 层面阻塞"的推断显示 (a) 实际可能主要表现为 forward 等尾,只改队列顺序的方案对此无效,需先验证。
+结论:`split_async_load_submit` 单独能把 (a)(b) 从 L 层压到 N 层;`priority_3level` 解决 (a)(b) 但需可变优先级;`split_priority_2level` 解决 (a)(b) 且队列只需 2 级固定优先级,代价是尾没有提前量(本轮不评估,见 4.2)。P0 内按层号排序在公共前提之下作用变小(同一 step 内已按层排),只剩不同 step 提交的 P0 任务之间需要它,是否保留待实测。另外,已知问题 K2(§3)的延迟发生在任务进队列之前,本文方案对它无效。
 
 ## 6. 会不会让 async 请求排不上号?
 
@@ -229,8 +239,8 @@ P0 的任务来源:
 |---|---|---|---|
 | 输入长度 / 输出长度 | 4k / 128 | 4k / 128 | 8 × 4.1k 远小于 GPU7 的 KV 容量 66k token,不会触发抢占(connector 不支持抢占恢复) |
 | 命中率 | 95% | 95% | 每个请求 64 层 × 约 240 个 block,单个请求全部层解压约 115 ms |
-| 并发 / 请求数 | 8 / 16 | 8 / 32(待定) | |
-| 请求速率 | 10 req/s | 0.5 req/s(待定) | S1:平均间隔 100 ms,小于单个请求的加载时间,且请求分散在不同 step;S2:让在途数在 4 附近波动,见 7.3 |
+| 并发 / 请求数 | 8 / 16 | 8 / 32 | |
+| 请求速率 | 10 req/s | 0.5 req/s | S1:平均间隔 100 ms,小于单个请求的加载时间,且请求分散在不同 step;S2:让在途数在 4 附近波动,见 7.3 |
 | warmup | 1 | 1 | 由 warmup 请求承担未命中、把前缀存进 DDR |
 
 实测修正(§11.3):速率为 inf 时前 8 个请求落在同一个 step,补进的请求在前面结束后(约 8 s)才到,队列早已空,覆盖不到 (a);warmup 为 0 时第 0 个测量请求是未命中,要做完整 prefill,其余请求在这个长 step 里到达并堆进下一个 step,同样覆盖不到 (a)。
@@ -303,7 +313,17 @@ P0 的任务来源:
 
 1. **提交结构是否与 7.4 一致**:每个 step 的任务数、层范围、req_id 组成。例:`batch_reqs_async_load_submit` 同一 step 恰好 64 个任务且 label 含该 step 全部 async 请求;split 类方案中,任何请求在 promote 记录之前不得有 L4 及以上的任务。
 2. **违序数**:用 trace 重放队列,对每个任务检查它开始执行的那一刻,是否有"已入队、未开始、排序键更小"的任务。排序键:FIFO 类方案 `(HIGH/LOW, seq)`;优先级类方案 `(priority, 层号, seq)`。必须为 0。
-3. **场景覆盖数**:S1 中"R9 类请求到达时前面有尾"的次数;S2 中"sync 批提交时队列里有 async 任务"的次数。为 0 说明负载没有造出该场景,结论无效,需调整负载重跑。
+3. **场景覆盖数**:S1 中"R9 类请求到达时前面有尾"的次数;S2 中"sync 批提交时队列里有 async 任务"的次数。
+
+每次运行的结论只有三种:
+
+| 结论 | 条件 |
+|---|---|
+| PASS | 结构错误 0、违序 0、覆盖数 > 0 |
+| FAIL | 结构错误 > 0 或违序 > 0 |
+| 未覆盖 | 结构错误 0、违序 0,但覆盖数 = 0:队列行为没有错,只是负载没造出要测的场景 |
+
+每个方案 S1、S2 都要跑,无论之前的方案是否覆盖到。不同方案的提交方式不同,同一负载下造出的场景也可能不同。
 
 先在 `naive` 上跑 S1、S2,确认预期和判定脚本本身是对的,再用于其他方案。
 
@@ -507,21 +527,17 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] §7 准备:connector 加 `start_load_kv` submit log 和 `get_finished` promote log
 - [x] §7 准备:`tests/vllm-benchmark.sh` 参数改为可用环境变量覆盖(输入长度、命中率、并发、请求数、warmup、请求速率、seed),默认值不变
 - [x] §7 准备:判定脚本 `tests/async_load_queue_check.py` + 执行脚本 `tests/async-load-queue-test.sh`
-- [x] §7:`naive` 上 S1 PASS(§11.3)
-- [ ] §7:S2 在实际映射表 `0-3:0,4-:4` 下覆盖 (b)。待定做法:加长单请求加载时间(输入 8k)、加大请求数并让在途数在 3~4 附近;若仍为 0,则记录"实际映射表下 (b) 几乎不发生"并重新评估 (b) 的优先级
-- [ ] 公共:验证 step 层面阻塞推断(在 connector `start_load_kv` / `wait_for_layer_load` 记时间戳)。
-  - 推断:A promote 后,A 的 prefill forward 在 `wait_for_layer_load` 里逐层等 A 自己的尾,这个 step 一直持续到 A 的尾全部完成;期间到达的 B 只能在下一个 step 才被调度和提交。B 的延迟发生在 step 层面,队列里看不到,只改队列顺序的方案对它无效。
-  - 依据(早期两请求测试,B 比 A 晚 20 / 50 ms 发送;时间相对 A 第 0 层入队):A 前 4 层完成于 9.3 / 8.6 ms,A 最后一层完成于 181.3 / 165.7 ms,B 第 0 层入队于 188.6 / 178.6 ms。即 B 在 A 尾全部完成后 7~13 ms 才提交,尽管 B 早在 20 / 50 ms 就已发出。
-- [ ] `batch_reqs_async_load_submit`:实现(8.2)+ 9.2 验收 + §7 S1/S2 通过
-- [ ] `split_async_load_submit`:实现(8.3,含 worker 侧按请求保存 block 元数据)+ 9.3 验收 + §7 S1/S2 通过
-- [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1/S2 通过
-- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1/S2 通过
+- [x] §7:`naive` 上 S1 PASS;S2 未覆盖(§11.3)。S2 的负载暂不调整,后续每个方案照跑 S2。
+- [ ] `batch_reqs_async_load_submit`:实现(8.2)+ 9.2 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
+- [ ] `split_async_load_submit`:实现(8.3,含 worker 侧按请求保存 block 元数据)+ 9.3 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
+- [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
+- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] 现有问题:`_early_promoted_tasks` 搬入 `_active_promoted_tasks` 不判断请求是否在本 batch(单独评估是否修)
 
 ## 11. 进度记录
 
 - 2026-10-08:完成问题分析、方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。
-- 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b),参数待定(§11.3)。
+- 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b)(§11.3)。step 层面的延迟记为已知问题 K2,不单独测试。
 
 ### 11.1 公共基础设施
 
@@ -548,10 +564,10 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 
 | 运行名 | 场景 | 关键参数 | 命中 async / sync | 结构错误 | 违序 | (a) 次数 | (b) 次数 | 结论 |
 |---|---|---|---|---|---|---|---|---|
-| `naive-s1` | S1 | inf,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 无效:未覆盖 (a) |
-| `naive-s1-rate10` | S1 | 10 req/s,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 无效:未覆盖 (a) |
+| `naive-s1` | S1 | inf,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 未覆盖 |
+| `naive-s1-rate10` | S1 | 10 req/s,warmup 0 | 15 / 0 | 0 | 0 | 0 | — | 未覆盖 |
 | `naive-s1-rate10-w1` | S1 | 10 req/s,warmup 1 | 16 / 0 | 0 | 0 | 7 | — | **PASS** |
-| `naive-s2` | S2 | map `0-3:0,4-:4`,0.5 req/s,32 个请求(实测峰值在途 7) | 22 / 10 | 0 | 0 | — | 0 | 无效:未覆盖 (b) |
+| `naive-s2` | S2 | map `0-3:0,4-:4`,0.5 req/s,32 个请求(实测峰值在途 7) | 22 / 10 | 0 | 0 | — | 0 | 未覆盖 |
 | `naive-s2-map-inv` | S2 | map `0-3:4,4-:0`,10 req/s | 5 / 11 | 0 | 0 | — | 1 | 不采纳:映射表与实际配置相反 |
 
 列说明:"命中 async / sync"为命中 DDR 的请求中走 async、sync 的个数;"结构错误""违序"见 7.6;"(a) 次数"= async 提交时队列里有更早 step 的 async 任务未执行的次数;"(b) 次数"= sync 批提交时队列里有更早 step 的 async 任务未执行的次数。
