@@ -3,6 +3,7 @@
 
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -155,15 +156,16 @@ class KVShrinkConnector(KVConnectorBase_V1):
         self._early_promoted_tasks: dict[ReqId, dict[str, Any]] = {}
         # Early-promoted tasks active for the current forward pass.
         self._active_promoted_tasks: dict[ReqId, dict[str, Any]] = {}
+        # Worker-side step counter for the async_load submit/promote logs.
+        self._load_step = 0
 
         self._async_load_layer_config = load_async_load_layer_config_from_env(
             num_layers=self.num_layers,
         )
         self._async_load_scheme = load_async_load_scheme_from_env()
         logger.info(
-            "KVShrink async load scheme: %d (%s), role=%s",
-            self._async_load_scheme,
-            self._async_load_scheme.name,
+            "KVShrink async load scheme: %s, role=%s",
+            self._async_load_scheme.value,
             role.name,
         )
 
@@ -392,6 +394,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
         metadata = self._get_connector_metadata()
         if not isinstance(metadata, KVShrinkConnectorMetadata):
             raise TypeError("Unexpected connector metadata")
+        self._load_step += 1
 
         # A no-forward batch cannot consume promoted tasks layer by layer.
         if forward_context.attn_metadata is not None:
@@ -408,6 +411,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
 
         sync_block_ids: list[int] = []
         sync_block_hashes: list[str] = []
+        sync_req_ids: list[ReqId] = []
         async_reqs: list[tuple[ReqId, ReqMeta]] = []
         for req_id, request in metadata.reqs_to_load.requests.items():
             if len(request.block_ids) != len(request.block_hashes):
@@ -419,19 +423,23 @@ class KVShrinkConnector(KVConnectorBase_V1):
             else:
                 sync_block_ids.extend(request.block_ids)
                 sync_block_hashes.extend(request.block_hashes)
+                sync_req_ids.append(req_id)
 
         # Submit synchronous (blocking) loads first as a single merged batch so
         # they are enqueued ahead of the asynchronous loads for this pass.
         self._current_get_tasks = None
         if sync_block_ids:
+            self._log_load_submit("sync", sync_req_ids, 0, len(self._layer_names))
             self._current_get_tasks = self._store().get(
                 block_indices=sync_block_ids,
                 block_hashs=sync_block_hashes,
+                description=",".join(sync_req_ids),
             )
 
         # Submit asynchronous loads per request; they are polled across
         # scheduler steps in get_finished().
         for req_id, request in async_reqs:
+            self._log_load_submit("async", [req_id], 0, len(self._layer_names))
             self._pending_load_tasks[req_id] = self._store().get(
                 block_indices=request.block_ids,
                 block_hashs=request.block_hashes,
@@ -528,6 +536,14 @@ class KVShrinkConnector(KVConnectorBase_V1):
                     self._early_promoted_tasks[req_id] = tasks
                     finished_recving.add(req_id)
 
+        if finished_recving:
+            logger.info(
+                "async_load step=%d t=%d promote reqs=%s",
+                self._load_step,
+                time.monotonic_ns(),
+                ",".join(sorted(finished_recving)),
+            )
+
         self._deferred_finished_req_ids.update(finished_req_ids)
         completed: set[str] = set()
 
@@ -561,3 +577,17 @@ class KVShrinkConnector(KVConnectorBase_V1):
 
         self._deferred_finished_req_ids.difference_update(completed)
         return (completed or None), (finished_recving or None)
+
+    def _log_load_submit(
+        self, kind: str, req_ids: list[ReqId], first_layer: int, end_layer: int
+    ) -> None:
+        # One line per get() call; t uses the same clock as the TaskQueue trace.
+        logger.info(
+            "async_load step=%d t=%d submit kind=%s reqs=%s layers=%d-%d",
+            self._load_step,
+            time.monotonic_ns(),
+            kind,
+            ",".join(req_ids),
+            first_layer,
+            end_layer - 1,
+        )
