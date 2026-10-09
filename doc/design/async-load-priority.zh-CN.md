@@ -528,7 +528,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] §7 准备:`tests/vllm-benchmark.sh` 参数改为可用环境变量覆盖(输入长度、命中率、并发、请求数、warmup、请求速率、seed),默认值不变
 - [x] §7 准备:判定脚本 `tests/async_load_queue_check.py` + 执行脚本 `tests/async-load-queue-test.sh`
 - [x] §7:`naive` 上 S1 PASS;S2 未覆盖(§11.3)。S2 的负载暂不调整,后续每个方案照跑 S2。
-- [ ] `batch_reqs_async_load_submit`:实现(8.2)+ 9.2 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
+- [x] `batch_reqs_async_load_submit`:实现(8.2);§7 S1、S2 均无 FAIL(均为未覆盖);输出正确性通过;9.2 中"结束 / abort"未测(§11.4)
 - [ ] `split_async_load_submit`:实现(8.3,含 worker 侧按请求保存 block 元数据)+ 9.3 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
@@ -537,7 +537,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 ## 11. 进度记录
 
 - 2026-10-08:完成问题分析、方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。
-- 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b)(§11.3)。step 层面的延迟记为已知问题 K2,不单独测试。
+- 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b)(§11.3)。step 层面的延迟记为已知问题 K2,不单独测试。完成 `batch_reqs_async_load_submit`,S1、S2 无 FAIL,输出正确(§11.4)。
 
 ### 11.1 公共基础设施
 
@@ -576,3 +576,24 @@ PASS 的具体表现,与 7.4 中 `naive` 的预期一致:
 
 - (a):step 677 提交的请求,首个任务前面有前一个请求的 59 个未 promote 尾,排队 172 ms;step 681 的请求前面有 240 个未 promote 尾 + 16 个头 + 11 个已 promote 尾,排队 518 ms。
 - K1(取自 `naive-s1`,该轮对 (a) 无效,但 K1 的观测有效):step 2 一次提交 7 个请求,首个任务依次等 6、128、243、359、472、587、701 ms,前面没有更早 step 的任务,等待全部来自同一 step 内排在前面的请求。
+
+### 11.4 `batch_reqs_async_load_submit`
+
+代码:`start_load_kv()` 中,scheme 为 `batch_reqs_async_load_submit` 时把本 step 所有 async 请求的 block 合并,调一次 `get()`(description 为全部 req_id);每个请求的 `_pending_load_tasks[req_id]` 指向同一组 Task,promote / 结束逻辑不变。`naive` 路径保持原样。
+
+**§7 队列顺序验证**(判定脚本已支持 PASS / FAIL / UNCOVERED 三种结论):
+
+| 运行名 | 场景 | 命中 async / sync | 提交次数 | 结构错误 | 违序 | 含多个 async 请求的 step | (a) 次数 | (b) 次数 | 结论 |
+|---|---|---|---|---|---|---|---|---|---|
+| `batch-s1` | S1(10 req/s,warmup 1) | 16 / 0 | 10 | 0 | 0 | 4 | 0 | — | 未覆盖 |
+| `batch-s2` | S2(map `0-3:0,4-:4`,0.5 req/s,32 个请求,峰值在途 8) | 20 / 12 | 32 | 0 | 0 | 0 | — | 0 | 未覆盖 |
+
+列说明:"提交次数"= submit log 行数(每次 `get()` 一行);"含多个 async 请求的 step"= 同一 step 内 async 请求 ≥ 2 的 step 数;其余同 11.3。
+
+- K1 已消除:`batch-s1` 中 16 个请求只产生 10 次提交,4 个 step 各自把 2~3 个请求合成一次提交;每次提交的首个任务等待 0~3.5 ms,不再随提交顺序递增(对比 `naive-s1` step 2 的 6→701 ms)。
+- (a) 未覆盖:每次提交时队列里都没有更早 step 的任务。每次运行的请求到达时间是随机的(seed 取当前时间),本轮没造出;未分析是否与合并提交有关。
+- (b) 未覆盖,与 `naive-s2` 相同。
+
+**输出正确性**(`_data/queue-test/batch-correctness/`,含请求体、全部响应和 connector log):同一 prompt(4963 token)先发 1 次(未命中,`externally-cached tokens: 0`)作参考,再并发 4 次(均命中,`externally-cached tokens: 4960`,其中 3 个在 step 476 合并为一次提交并同时 promote);`temperature=0`、`seed=0`,4 个输出与参考逐字节一致,无 U+FFFD 或非法控制字符。
+
+**9.2 验收项状态**:提交行为 ✔(结构检查:每个 step 至多一次 async 提交);promote 正确 ✔(合并的 3 个请求同时 promote,输出正确);效果 ✔(见上);结束 / abort **未测**。

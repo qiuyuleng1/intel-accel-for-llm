@@ -9,8 +9,10 @@ Inputs (doc/design/async-load-priority.zh-CN.md section 7.5):
     ``async_load step=...`` lines of the same run
 
 Outputs (section 7.6): submission-structure errors, order inversions and
-scenario coverage counts. Exit code 0 only if structure errors == 0,
-inversions == 0 and the requested scenario was covered at least once.
+scenario coverage counts. Verdict and exit code:
+  PASS (0)      structure errors == 0, inversions == 0, scenario covered
+  FAIL (1)      structure errors > 0 or inversions > 0
+  UNCOVERED (2) no errors, but the load did not produce the scenario
 """
 
 import argparse
@@ -256,14 +258,20 @@ def main() -> int:
         "case_b_sync_behind_earlier_async": len(b_cases),
         "per_submission": cov,
     }
+    if errors or inversions:
+        verdict, code = "FAIL", 1
+    elif covered == 0:
+        verdict, code = "UNCOVERED", 2
+    else:
+        verdict, code = "PASS", 0
+    report["verdict"] = verdict
     with open(args.report, "w") as f:
         json.dump(report, f, indent=2)
 
-    ok = not errors and not inversions and covered > 0
     print(json.dumps({k: v for k, v in report.items()
                       if k not in ("per_submission", "inversion_samples")}, indent=2))
-    print("PASS" if ok else "FAIL")
-    return 0 if ok else 1
+    print(verdict)
+    return code
 
 
 if __name__ == "__main__":

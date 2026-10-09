@@ -28,7 +28,9 @@ class AsyncLoadScheme(str, enum.Enum):
     SPLIT_PRIORITY_2LEVEL = "split_priority_2level"
 
 
-IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset({AsyncLoadScheme.NAIVE})
+IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset(
+    {AsyncLoadScheme.NAIVE, AsyncLoadScheme.BATCH_REQS_ASYNC_LOAD_SUBMIT}
+)
 
 
 def parse_async_load_scheme(value: str) -> AsyncLoadScheme:
