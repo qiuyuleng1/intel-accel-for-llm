@@ -78,6 +78,8 @@ TESTS        += zip_compat_test
 TEST_TARGETS += test-zip-compat
 TESTS        += zip_throughput_test
 TEST_TARGETS += test-zip-throughput
+TESTS        += task_queue_test
+TEST_TARGETS += test-task-queue
 
 .PHONY: all test clean qat-userspace qpl-userspace $(TEST_TARGETS)
 
@@ -145,6 +147,13 @@ zip_throughput_test: test/zip_throughput_test.c $(LIBDIR)/libqat_zip.so $(LIBDIR
 
 test-zip-throughput: zip_throughput_test
 	(cd test && numactl --cpunodebind=0 --membind=0 ../zip_throughput_test $(ARGS))
+
+
+task_queue_test: test/task_queue_test.cpp $(INCDIR)/task_queue.h
+	$(CXX) $(CFLAGS) -std=c++17 -o $@ $< $(LDFLAGS)
+
+test-task-queue: task_queue_test
+	./task_queue_test
 
 
 qat-userspace: $(QATLIBS)

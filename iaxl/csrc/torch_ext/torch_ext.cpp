@@ -13,6 +13,16 @@ using namespace profiler;
 
 namespace py = pybind11;
 
+static TaskQueue &task_queue_by_name(const std::string &name) {
+    if (name == "OMP-Main")
+        return omp_queue();
+    if (name == "H2D")
+        return h2d_queue();
+    if (name == "D2H")
+        return d2h_queue();
+    throw std::invalid_argument("unknown TaskQueue '" + name + "' (expected OMP-Main, H2D, D2H)");
+}
+
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 
     py::enum_<GpuTransferDirection>(m, "GpuTransferDirection")
@@ -503,6 +513,54 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
             return d;
         },
         "Read accumulated compression/decompression throughput metrics (GB/s is decimal)");
+
+    m.def(
+        "task_queue_trace_set_enabled",
+        [](const std::string &queue, bool enable) {
+            task_queue_by_name(queue).set_trace_enabled(enable);
+        },
+        "Enable or disable per-task timing for a TaskQueue ('OMP-Main', 'H2D' or 'D2H').\n"
+        "Only tasks submitted after the call are affected.",
+        py::arg("queue") = "OMP-Main", py::arg("enable") = true);
+
+    m.def(
+        "task_queue_trace_drain",
+        [](const std::string &queue) {
+            TaskQueue &q = task_queue_by_name(queue);
+            std::vector<TaskTraceEvent> events;
+            uint64_t dropped;
+            {
+                py::gil_scoped_release release;
+                events = q.drain_trace();
+                dropped = q.trace_dropped();
+                q.reset_trace_dropped();
+            }
+            py::list py_events;
+            for (const auto &e : events) {
+                py::dict d;
+                d["label"] = e.label;
+                d["priority"] = e.priority;
+                d["seq"] = e.seq;
+                d["enqueue_ns"] = e.enqueue_ns;
+                d["start_ns"] = e.start_ns;
+                d["end_ns"] = e.end_ns;
+                d["high_depth"] = e.high_depth;
+                d["low_depth"] = e.low_depth;
+                py_events.append(d);
+            }
+            py::dict d;
+            d["queue"] = queue;
+            d["enabled"] = q.trace_enabled();
+            d["dropped"] = dropped;
+            d["events"] = py_events;
+            return d;
+        },
+        "Return and clear recorded task timings of a TaskQueue.\n"
+        "Each event: label ('<kind>|<description>|<tensor_key>' for OMP-Main zip tasks),\n"
+        "priority (0=HIGH, 1=LOW), seq (submit order), enqueue_ns/start_ns/end_ns\n"
+        "(steady_clock ns, same clock as time.monotonic_ns()), high_depth/low_depth\n"
+        "(tasks already waiting at submit). dropped counts events lost to the buffer cap.",
+        py::arg("queue") = "OMP-Main");
 
     m.def("rdma_init", &kv_xfer::rdma_init, py::arg("name"), py::arg("listen_port"),
           py::call_guard<py::gil_scoped_release>());

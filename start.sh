@@ -8,7 +8,6 @@ docker build -f docker/Dockerfile.dev -t "$IAXL_DEV_DOCKER_IMAGE" . \
 
 docker run \
     "${DOCKER_RUN_ARGS[@]}" \
-    --rm \
     --privileged \
     --pid host \
     --net host \
