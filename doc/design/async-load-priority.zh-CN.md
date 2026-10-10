@@ -132,6 +132,21 @@ for req_id, request in async_reqs:
 
 **影响**:这段延迟发生在任务进队列之前,queue trace 看不到;本文的方案只改队列内顺序,对它无效。
 
+### 已知问题 K3:已 promote 的请求在未被调度的 forward 里也被等待
+
+**现象**(读代码):`start_load_kv()` 只要本 step 有 forward(`attn_metadata is not None`),就把所有 `_early_promoted_tasks` 搬进 `_active_promoted_tasks`,不检查这些请求是否被调度进了本次 forward。之后 `wait_for_layer_load()` 每算一层都会等这些请求的这一层。
+
+**推断很常见**(未实测):vLLM 开了异步调度(日志 `Asynchronous scheduling is enabled`),scheduler 在 step k 执行时已经排好 step k+1;step k 里 promote 的请求往往到 step k+2 才被调度,但 connector 在 step k+1 就把它搬进 active。
+
+**影响**:不含该请求的 forward 白等它的尾。`split_async_load_submit` 下尾恰好在这个 step 开头才提交,forward 要从头等整段尾的解压,影响比 `naive` 更大。
+
+**改法**(对所有方案生效,在 `split_async_load_submit` 之前单独提交):
+
+1. scheduler 侧 `build_connector_meta()` 把 `scheduler_output.num_scheduled_tokens` 的 key(本 step 被调度的请求)放进 connector metadata。
+2. worker 侧 `start_load_kv()` 只把本 step 被调度的已 promote 请求搬进 active,其余留在 early,等它真正被调度的 step 再搬。
+
+安全性:请求只在被调度的那次 forward 里被等;在 split 下,它的尾在 promote 后的下一次 `start_load_kv()` 就已提交,不会晚于它被调度的那个 step,所以不会出现 `key not in get_results`。
+
 ## 4. 方案
 
 ### 4.0 命名
@@ -140,7 +155,7 @@ for req_id, request in async_reqs:
 |---|---|---|
 | `naive` | 现状:每个 async 请求单独调一次 `get()`,一次提交全部 L 层 | 对照组,不加前提 |
 | `batch_reqs_async_load_submit` | 同一 step 的 async 请求打成一个 batch,调一次 `get()`;每层一个任务,覆盖 batch 内所有请求的 block(与 sync 路径相同) | 本身就是公共前提 |
-| `split_async_load_submit` | async 请求先只提交头(前 N 层);promote 后,下一 step 再提交尾(后 L−N 层) | `batch_reqs_async_load_submit` |
+| `split_async_load_submit` | async 请求先只提交头(前 N 层);promote 后的下一次 `start_load_kv` 再提交尾(后 L−N 层) | `batch_reqs_async_load_submit` |
 | `priority_3level` | 一次提交全部 L 层;队列加 3 级优先级(P0/P1/P2),promote 时把尾从 P2 调到 P0 | `batch_reqs_async_load_submit` |
 | `split_priority_2level` | 按 `split_async_load_submit` 分两次提交;队列加 2 级固定优先级(P0/P1):头用 P1,尾和 sync 用 P0,P0 内按层号排 | `batch_reqs_async_load_submit` |
 
@@ -154,7 +169,23 @@ for req_id, request in async_reqs:
 
 ### 4.2 `split_async_load_submit`
 
-首次 `start_load_kv()` 只提交前 N 层;promote 后,下一 step 的 `start_load_kv()` 再提交其余 L−N 层。同一 step 内要补提交尾的多个请求,也打成 batch 逐层提交;各请求的 N 可能不同,所以按层循环,第 j 层只包含"第 j 层属于自己尾"的请求。
+新请求只提交头(前 N 层)。头可能要多个 step 才加载完:`get_finished()` 每个 step 用 `wait=False` 检查,前 N 层全部完成时 promote(上报 `finished_recving`),同时把请求加入"待补尾"集合。每次 `start_load_kv()` 都检查该集合,把其中所有请求(不论来自哪个 step)打成 batch 提交尾(第 N..L−1 层)。
+
+```
+start_load_kv
+  1. sync 批                     (不变)
+  2. 待补尾集合 → 打成 batch 提交尾
+  3. 本 step 新到的 async 请求 → 打成 batch 提交头
+forward
+get_finished
+  前 N 层完成的请求 → promote,并加入待补尾集合
+```
+
+步骤 2 在步骤 3 之前:刚 promote 的请求可能就在本 step 的 forward 里,forward 等的是它的尾;新请求的头不会被本次 forward 用到。
+
+尾一定在请求被 forward 用到之前提交:每个 step 的顺序是 `start_load_kv` → forward → `get_finished`,promote 发生在 `get_finished`,请求最早进入下一个 step 的 forward,而那个 step 的 `start_load_kv` 先执行;no-forward step 也会调用 `start_load_kv`。
+
+各请求的 N 可能不同(动态表),头和尾都按层分段:同一段内"需要这一层的请求集合"相同,每段调用一次 `get(layer_names=该段的层)`。头的第 j 层含 N > j 的请求,尾的第 j 层含 N ≤ j 的请求。N = −1(等全部层才完成)的请求把全部层当作头,没有尾。
 
 效果:队列里只剩两类解压任务——"未 promote 请求的头(各 N 层)"和"已 promote 请求的尾(各 L−N 层,forward 正在等)"。(a)(b) 中"被堵 L 层"缩为"被堵 N 层"。
 
@@ -355,21 +386,34 @@ P0 的任务来源:
 
 ### 8.3 `split_async_load_submit`(纯 Python)
 
-改动全在 `kvshrink/kvshrink_connector.py`:
+改动全在 `kvshrink/kvshrink_connector.py`。术语:"Task dict" = `self._store().get(...)` 的返回值 `Dict[层名, Task]`,`Task.ctx` 是该层解压任务的 C++ `Context`;connector 的 `_pending_load_tasks` / `_early_promoted_tasks` / `_active_promoted_tasks` 存的都是它。
 
 | # | 位置 | 改什么 |
 |---|---|---|
-| 1 | `start_load_kv()` async 提交处 | 按 batch 只提交头:按层循环,第 j 层只包含 N > j 的请求;同时保存每个请求的 block_ids / block_hashes / N |
-| 2 | `get_finished()` promote 分支 | promote 后把 req_id 加入"待补提交尾"集合 |
-| 3 | `start_load_kv()` 开头 | 对"待补提交尾"集合按层循环提交:第 j 层只包含 N ≤ j 的请求;返回的 Task **合并**进各请求已有的 Task dict |
-| 4 | `wait_for_layer_load()` | 逻辑不改,但 `KVFlow.get_wait()` 有 `assert key in get_results`——第 3 步不合并 Task dict,等 layer N 时直接 assert 挂 |
-| 5 | `get_finished()` deferred-finish 分支 | 请求在 promote 后、尾提交前被 abort:要从"待补提交尾"集合和保存的元数据里删掉,否则泄漏,且下一 step 会给已结束的请求提交尾 |
+| 1 | `start_load_kv()` 提交头 | 按 4.2 分段提交头。**每个请求存一份自己的 Task dict 副本**:`_pending_load_tasks[r] = dict(head_tasks)`(只复制"层名 → Task"映射,Task 对象仍共用,不重复提交);同时把请求的 block_ids / block_hashes / N 存进"加载元数据" |
+| 2 | `get_finished()` promote 分支 | 前 N 层完成时 promote(现有逻辑),同时把 req_id 加入"待补尾"集合 |
+| 3 | `start_load_kv()` 提交尾(在提交头之前) | 取出待补尾集合的全部请求,按 4.2 分段提交尾;把返回的 Task **原地 `update`** 进每个请求自己的 dict(此时该 dict 已被 `_early_promoted_tasks` 引用,原地更新后无需再搬) |
+| 4 | `wait_for_layer_load()` | 不改。`KVFlow.get_wait()` 有 `assert key in get_results`,第 3 步保证 forward 等第 N 层之前尾已并入 dict |
+| 5 | `get_finished()` 处理已结束请求 | 现有逻辑不变(等该请求 dict 内任务全部完成再清理);另外把它从"加载元数据"和"待补尾"集合删掉 |
 
-`KVStore.get(layer_names=...)` 已支持子集,不需要动。
+**为什么每个请求要自己的 dict**:同 batch 的请求可能 N 不同、promote 时刻不同。例:A 的 N=4,B 的 N=8,共用一个 dict = {L0..L7}(L4~L7 只含 B)。A 先 promote 并补尾(L4~L63 只含 A)后 `update`,B 原来的 L4~L7 被覆盖成只含 A 的任务,B 的 forward 等第 4~7 层时等的是 A 的任务,B 的数据可能还没加载完。各自一份 dict 就不会互相覆盖。
+
+**为什么共用 Task 对象没问题**:`get_wait` 等完一个 Task 会把 `ctx` 置为 `None` 并释放 `cpu_tensors`;另一个请求再等同一个 Task 时看到 `ctx is None` 直接跳过。该层任务覆盖 batch 内所有请求的 block,完成一次即对所有请求都完成。
+
+**新增状态**(采用方式 A:原有三个 dict 不动):"加载元数据"(每请求 block_ids / block_hashes / N;promote 后 `reqs_to_load` 里已没有该请求,补尾只能用它)和"待补尾"集合。`split_priority_2level` 复用,`priority_3level` 不需要。
+
+**abort / 提前结束**(`get_finished` 中 promote 循环在处理已结束请求的循环之前,同一次调用内):
+
+| abort 时刻 | 结果 |
+|---|---|
+| 头还在加载 | 头完成前每次都跳过;头完成的那次,先被 promote(进 early、进待补尾、进 `finished_recving`),同一次调用里又被清理(dict 只含头,已完成),从待补尾集合删掉,不会补尾 |
+| 已 promote、尾未提交 | dict 只含头且已完成,当次清理,不会补尾 |
+| 尾已提交 | dict 含全部层,等全部完成后才清理,保证解压不会写入已释放的 GPU block |
+
+第一种情况里,已 abort 的请求仍会出现在 `finished_recving`;这是 `naive` 就有的现有行为,不在本文范围内。
 
 - 规模:~100~140 行 Python。
-- 风险 1(为什么要新增 worker 状态):promote 后 `metadata.reqs_to_load` 不再含该请求(§2.3),worker 必须自己保存 block_ids / block_hashes / N。现有 3 个 dict(`_pending_load_tasks` / `_early_promoted_tasks` / `_active_promoted_tasks`)只存 Task,再各加 dict 会变成 5 个且要同步清理。实现时把这些按请求合并成一个结构(字段:tasks、block_ids、block_hashes、N、所处阶段),abort 时只删一处。这是本方案的实现细节,不是独立方案;`split_priority_2level` 复用它,`priority_3level` 不需要。
-- 风险 2(现有问题,顺带发现):`start_load_kv()` 只要本 step 有 forward(`attn_metadata is not None`)就把所有 `_early_promoted_tasks` 搬进 `_active_promoted_tasks`,**不管该请求是否真的被调度进了这个 batch**。若 scheduler 因 token 预算未排进来,这个 forward 会白等它的尾。本方案不改变这点,但测性能时它会混进来。
+- 前提:已知问题 K3 先修复(见 §3),否则尾提交的那个 step,不含该请求的 forward 会从头等整段尾。
 - 复杂度:**低~中**。难点在状态清理,不在算法。
 
 ### 8.4 `priority_3level`(C++ 为主)
@@ -414,7 +458,7 @@ P0 的任务来源:
 | C++ 行数(估) | 0 | 0 | 200~250 | 80~100 |
 | Python 行数(估) | ~20 | 100~140 | ~60 | 120~160 |
 | 需重编扩展 | 否 | 否 | 是 | 是 |
-| 新增 worker 状态 | 无(同 batch 共用 Task dict) | 每请求保存 block 元数据(合并成一个结构) | 无 | 同 `split_async_load_submit` |
+| 新增 worker 状态 | 无(同 batch 共用 Task dict) | 加载元数据 + 待补尾集合;每请求一份 Task dict 副本 | 无 | 同 `split_async_load_submit` |
 | 新增 C++ 接口 | 无 | 无 | `submit` 重载、`set_priority`、pybind 两处 | `submit` 重载、pybind 一处 |
 | 最难的点 | 共用 Task 时的结束 / abort 语义 | 状态清理(abort / deferred finish) | 可变优先级 cell 的生命周期 | 同 `split_async_load_submit` |
 | 复杂度 | 低 | 低~中 | 中~高 | 中 |
@@ -423,12 +467,13 @@ P0 的任务来源:
 
 ### 8.7 实现顺序
 
-**公共基础设施(已完成)→ `batch_reqs_async_load_submit` → `split_async_load_submit` → `split_priority_2level` → `priority_3level`**,原因:
+**公共基础设施(已完成)→ `batch_reqs_async_load_submit`(已完成)→ K3 修复 → `split_async_load_submit` → `split_priority_2level` → `priority_3level`**,原因:
 
 1. `batch_reqs_async_load_submit` 是后三个方案的前提,改动小,收益已有实测依据(§11.3 `naive-s1` step 2)。
-2. `split_priority_2level` = split 的提交方式 + 一小块 C++,放在 `split_async_load_submit` 之后。
-3. `priority_3level` 的 priority / sort_key 透传(8.4 第 3~6 项)与 `split_priority_2level` 相同;做完后只剩"可变 cell + `set_priority` + promote 时提权"。
-4. 全部挂在 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关下;两种优先级共存于同一份 `TaskQueue`(可变 cell 对 `split_priority_2level` 而言就是"从不改"),一次编译跑五组对比(`naive` + 公共前提 + 三个方案)。
+2. K3 不修,split 下不含该请求的 forward 会从头等整段尾;它对所有方案生效,单独提交。
+3. `split_priority_2level` = split 的提交方式 + 一小块 C++,放在 `split_async_load_submit` 之后。
+4. `priority_3level` 的 priority / sort_key 透传(8.4 第 3~6 项)与 `split_priority_2level` 相同;做完后只剩"可变 cell + `set_priority` + promote 时提权"。
+5. 全部挂在 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关下;两种优先级共存于同一份 `TaskQueue`(可变 cell 对 `split_priority_2level` 而言就是"从不改"),一次编译跑五组对比(`naive` + 公共前提 + 三个方案)。
 
 ## 9. 验收标准与最小测试
 
@@ -463,12 +508,13 @@ P0 的任务来源:
 
 | 维度 | 验收标准 | 简单测试 |
 |---|---|---|
-| 提交行为 | 首次 `start_load_kv()` 对每个 async 请求只提交前 N 层;尾(L−N 层)不在队列中 | 给 `KVStore.get()` 打日志,构造 1 个 async 请求,检查第一次只出现 `layer_names[:N]` |
-| promote 后补提交 | 请求被 promote 后,下一次 `start_load_kv()` 会补提交尾层 | 同一请求跑两步:第 1 步 promote,第 2 步检查出现 `layer_names[N:]` |
-| 任务合并正确 | 头和尾的 Task 能合并成同一个请求的完整 task 集,`wait_for_layer_load()` 到 layer N 时不 assert | 用 N=4 跑到 layer 4,确认无 `key not in get_results` / assert |
+| 提交行为 | 新请求只提交前 N 层;promote 前尾(L−N 层)不在队列中 | §7 判定脚本:每个请求头的层都 < N;任何时刻 trace 里没有未 promote 请求的尾 |
+| promote 后补提交 | 请求在某次 `get_finished()` promote 后,紧接着的下一次 `start_load_kv()` 提交尾 | 判定脚本:尾的 submit log 在该请求 promote log 之后的第一个 step;每个请求所有提交的层合起来恰好是 0..L−1 |
+| 提交顺序 | 同一 step 内尾先于新请求的头提交 | 判定脚本:同一 step 的 submit log 中尾在头之前 |
+| 任务合并正确 | 每个请求自己的 Task dict 在其 forward 等第 N 层前已含全部层,不出现 `key not in get_results` | S1/S2 运行无报错;输出正确性检查 |
 | (a) 缓解生效 | 后到 async 请求 B 的头前面,不再有前面请求的整段 L 层尾 | 人工构造 A、B 两个 async 请求,打印任务入队顺序,确认 B0..B{N-1} 前面没有 A_N..A_{L-1} |
 | (b) 缓解生效 | 后到 sync 请求 C 的 layer 0 前面,最多只会被未 promote 请求的头和已 promote 请求的尾挡住,不会再被“未 promote 尾”挡住 | 先提交 async A,再提交 sync C,检查 C0 前面不存在 A_N..A_{L-1} 这种未 promote 尾 |
-| abort 清理 | promote 后但尾尚未提交时 abort,不会在下一 step 给死请求补提交尾 | 构造 promote 后 abort,下一 step 检查日志中无该 req_id 的尾提交 |
+| abort 清理 | promote 后但尾尚未提交时 abort,不会给已结束的请求补提交尾 | **不测**:abort 需落在"promote 之后、补尾之前"的一个 step 内,难以稳定构造;靠代码审查(见 8.3 abort 表) |
 
 同一 step 内补提交的尾按 batch 提交,检查方法同 9.2 的"提交行为"。
 
@@ -529,10 +575,11 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] §7 准备:判定脚本 `tests/async_load_queue_check.py` + 执行脚本 `tests/async-load-queue-test.sh`
 - [x] §7:`naive` 上 S1 PASS;S2 未覆盖(§11.3)。S2 的负载暂不调整,后续每个方案照跑 S2。
 - [x] `batch_reqs_async_load_submit`:实现(8.2);§7 S1、S2 均无 FAIL(均为未覆盖);输出正确性通过;9.2 中"结束 / abort"未测(§11.4)
-- [ ] `split_async_load_submit`:实现(8.3,含 worker 侧按请求保存 block 元数据)+ 9.3 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
+- [ ] 已知问题 K3 修复(在 split 之前,单独提交):scheduler 把本 step 被调度的请求放进 connector metadata,worker 只把被调度的已 promote 请求搬进 active;验证:`naive`、`batch_reqs_async_load_submit` 各跑 §7 S1、S2 + 输出正确性检查
+- [ ] `split_async_load_submit`:按 4.2 / 8.3 实现(待补尾集合、分段提交、每请求 Task dict 副本、加载元数据、清理);判定脚本加 split 的结构检查(9.3);§7 S1、S2 都跑(结论不得为 FAIL)+ 输出正确性检查;abort 清理只做代码审查
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
-- [ ] 现有问题:`_early_promoted_tasks` 搬入 `_active_promoted_tasks` 不判断请求是否在本 batch(单独评估是否修)
+- [ ] 代码清理(以后做):`_early_promoted_tasks` 与 `_active_promoted_tasks` 合并为一个"已 promote" dict。promote 只发生在 forward 之后的 `get_finished`,forward 进行中不会新增;二者的区别只是"是否已进入某次 forward"。需在 K3 修复之后重新评估(K3 让"搬入 active"变为按请求是否被调度)
 
 ## 11. 进度记录
 
