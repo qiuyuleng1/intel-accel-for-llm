@@ -161,7 +161,7 @@ def check_structure(scheme, subs, req_info, events, errors):
         kinds = {s.kind for s in ss}
         want = {"async"} if info["async"] else {"sync"}
         if scheme == SPLIT and info["async"] and head_layers(info, num_layers) < num_layers:
-            want = {"async", "async_tail"}
+            want = {"async", "async_remaining"}
         if kinds != want:
             errors.append(f"{r}: expected {sorted(want)} submits, got {sorted(kinds)}")
 
@@ -191,12 +191,12 @@ def check_split(subs, req_info, promote_ns, promote_step, errors):
         steps[s.step].append((i, s))
     for step, ss in steps.items():
         # Tails of promoted requests are submitted before new heads.
-        tails = [i for i, s in ss if s.kind == "async_tail"]
+        tails = [i for i, s in ss if s.kind == "async_remaining"]
         heads = [i for i, s in ss if s.kind == "async"]
         if tails and heads and max(tails) > min(heads):
             errors.append(f"step {step}: a tail submitted after a head")
         # One segment per layer per kind: requests of a step form one batch.
-        for kind in ("async", "async_tail"):
+        for kind in ("async", "async_remaining"):
             layers = [j for _, s in ss if s.kind == kind
                       for j in range(s.first_layer, s.last_layer + 1)]
             if len(layers) != len(set(layers)):
@@ -210,7 +210,7 @@ def check_split(subs, req_info, promote_ns, promote_step, errors):
         if info["ext_tokens"] == 0 or not info["async"]:
             continue
         h = head_layers(info, num_layers)
-        for kind, want in (("async", range(0, h)), ("async_tail", range(h, num_layers))):
+        for kind, want in (("async", range(0, h)), ("async_remaining", range(h, num_layers))):
             ss = [s for s in by_req.get(r, []) if s.kind == kind]
             layers = sorted(j for s in ss for j in range(s.first_layer, s.last_layer + 1))
             if layers != list(want):
@@ -218,7 +218,7 @@ def check_split(subs, req_info, promote_ns, promote_step, errors):
                               f"({len(layers)}), expected {want}")
             if len({s.step for s in ss}) > 1:
                 errors.append(f"{r}: {kind} submitted in several steps")
-            if kind == "async_tail" and ss:
+            if kind == "async_remaining" and ss:
                 if r not in promote_step:
                     errors.append(f"{r}: tail submitted but never promoted")
                     continue
