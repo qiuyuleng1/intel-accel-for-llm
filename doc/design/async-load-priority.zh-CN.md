@@ -147,6 +147,7 @@ for req_id, request in async_reqs:
 
 安全性:请求只在被调度的那次 forward 里被等;在 split 下,它的尾在 promote 后的下一次 `start_load_kv()` 就已提交,不会晚于它被调度的那个 step,所以不会出现 `key not in get_results`。
 
+
 ## 4. 方案
 
 ### 4.0 命名
@@ -271,7 +272,7 @@ P0 的任务来源:
 | 输入长度 / 输出长度 | 4k / 128 | 4k / 128 | 8 × 4.1k 远小于 GPU7 的 KV 容量 66k token,不会触发抢占(connector 不支持抢占恢复) |
 | 命中率 | 95% | 95% | 每个请求 64 层 × 约 240 个 block,单个请求全部层解压约 115 ms |
 | 并发 / 请求数 | 8 / 16 | 8 / 32 | |
-| 请求速率 | 10 req/s | 0.5 req/s | S1:平均间隔 100 ms,小于单个请求的加载时间,且请求分散在不同 step;S2:让在途数在 4 附近波动,见 7.3 |
+| 请求速率 | 10 req/s | inf | S1:平均间隔 100 ms,小于单个请求的加载时间,且请求分散在不同 step;S2:用 benchmark 默认值,不为凑覆盖去调低速率(低速率的负载没有实际意义) |
 | warmup | 1 | 1 | 由 warmup 请求承担未命中、把前缀存进 DDR |
 
 实测修正(§11.3):速率为 inf 时前 8 个请求落在同一个 step,补进的请求在前面结束后(约 8 s)才到,队列早已空,覆盖不到 (a);warmup 为 0 时第 0 个测量请求是未命中,要做完整 prefill,其余请求在这个长 step 里到达并堆进下一个 step,同样覆盖不到 (a)。
@@ -290,7 +291,7 @@ P0 的任务来源:
 
 - S1:每个命中请求都走 async,N=4。覆盖"同一 step 多个 async 请求"(K1)和"后到 async 请求碰上前面的尾"((a))。
 - S2:scheduler 在途请求数(`len(self._req_states)`,含当前请求)为 1~3 时走 sync,≥4 时走 async 且 N=4,与实际配置一致(低并发 sync,高并发 async)。
-- S2 覆盖 (b) 的难点(推断):async 请求 A 提交时除 A 外至少有 3 个在途请求;之后到达的 C 要走 sync,除 C 外最多 2 个在途(含 A)。即在 A 的尾还在队列里的约 115 ms 内,A 之外的 3 个请求至少要有 2 个结束。实测 0.5 req/s、32 个请求一次都没出现(§11.3)。S2 的负载参数待定,见 §10。
+- S2 覆盖 (b) 的难点(推断):async 请求 A 提交时除 A 外至少有 3 个在途请求;之后到达的 C 要走 sync,除 C 外最多 2 个在途(含 A)。即在 A 的尾还在队列里的约 115 ms 内,A 之外的 3 个请求至少要有 2 个结束。实测 0.5 req/s、32 个请求一次都没出现(§11.3)。S2 改用速率 inf;覆盖不到 (b) 就记为未覆盖,不再为凑覆盖调负载。
 
 ### 7.4 各方案的预期队列
 
@@ -573,9 +574,9 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] §7 准备:connector 加 `start_load_kv` submit log 和 `get_finished` promote log
 - [x] §7 准备:`tests/vllm-benchmark.sh` 参数改为可用环境变量覆盖(输入长度、命中率、并发、请求数、warmup、请求速率、seed),默认值不变
 - [x] §7 准备:判定脚本 `tests/async_load_queue_check.py` + 执行脚本 `tests/async-load-queue-test.sh`
-- [x] §7:`naive` 上 S1 PASS;S2 未覆盖(§11.3)。S2 的负载暂不调整,后续每个方案照跑 S2。
+- [x] §7:`naive` 上 S1 PASS;S2 未覆盖(§11.3)。S2 速率改为 inf(不为凑覆盖调负载),后续每个方案照跑 S2。
 - [x] `batch_reqs_async_load_submit`:实现(8.2);§7 S1、S2 均无 FAIL(均为未覆盖);输出正确性通过;9.2 中"结束 / abort"未测(§11.4)
-- [ ] 已知问题 K3 修复(在 split 之前,单独提交):scheduler 把本 step 被调度的请求放进 connector metadata,worker 只把被调度的已 promote 请求搬进 active;验证:`naive`、`batch_reqs_async_load_submit` 各跑 §7 S1、S2 + 输出正确性检查
+- [x] 已知问题 K3 修复(在 split 之前,单独提交):scheduler 把本 step 被调度的请求放进 connector metadata,worker 只把被调度的已 promote 请求搬进 active;`naive`、`batch_reqs_async_load_submit` 各跑 §7 S1、S2 无 FAIL,输出正确性均通过(§11.5)
 - [ ] `split_async_load_submit`:按 4.2 / 8.3 实现(待补尾集合、分段提交、每请求 Task dict 副本、加载元数据、清理);判定脚本加 split 的结构检查(9.3);§7 S1、S2 都跑(结论不得为 FAIL)+ 输出正确性检查;abort 清理只做代码审查
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
@@ -585,6 +586,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 
 - 2026-10-08:完成问题分析、方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。
 - 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b)(§11.3)。step 层面的延迟记为已知问题 K2,不单独测试。完成 `batch_reqs_async_load_submit`,S1、S2 无 FAIL,输出正确(§11.4)。
+- 2026-10-10:完成 split 详细设计;修复 K3,`naive`、`batch_reqs_async_load_submit` 的 S1、S2 无 FAIL,输出正确(§11.5)。输出正确性检查改为要求 vLLM 以 `VLLM_BATCH_INVARIANT=1` 启动;S2 速率改为 inf。
 
 ### 11.1 公共基础设施
 
@@ -644,3 +646,43 @@ PASS 的具体表现,与 7.4 中 `naive` 的预期一致:
 **输出正确性**(`_data/queue-test/batch-correctness/`,含请求体、全部响应和 connector log):同一 prompt(4963 token)先发 1 次(未命中,`externally-cached tokens: 0`)作参考,再并发 4 次(均命中,`externally-cached tokens: 4960`,其中 3 个在 step 476 合并为一次提交并同时 promote);`temperature=0`、`seed=0`,4 个输出与参考逐字节一致,无 U+FFFD 或非法控制字符。
 
 **9.2 验收项状态**:提交行为 ✔(结构检查:每个 step 至多一次 async 提交);promote 正确 ✔(合并的 3 个请求同时 promote,输出正确);效果 ✔(见上);结束 / abort **未测**。
+
+### 11.5 K3 修复
+
+代码(`kvshrink/kvshrink_connector.py`):
+
+- `KVShrinkConnectorMetadata` 增加 `scheduled_req_ids`,`build_connector_meta()` 填入 `scheduler_output.num_scheduled_tokens` 的 key(本 step 被调度的请求)。
+- `start_load_kv()` 在有 forward 时,只把 `_early_promoted_tasks` 中属于 `scheduled_req_ids` 的请求搬进 `_active_promoted_tasks`,其余留在 early 等下一个 step。
+- 新增 log:`async_load step=<n> t=<ns> activate reqs=<本次搬入的请求> held=<留在 early 的请求>`。
+
+**输出正确性检查的方法修正**(`tests/async_load_correctness_check.py`):
+
+- 第一次检查(`naive` S1 配置,普通模式)FAIL:4 个命中请求中 2 个从第 1 个 token 起与参考不同。
+- 原因(实测):参考请求单独跑(batch=1),命中请求与其他请求混在一个 batch 里,kernel 的归约顺序不同,贪心解码分叉,与加载无关。证据:以 `VLLM_BATCH_INVARIANT=1` 重启后同样的检查连跑 2 次(`bi-naive-1`、`bi-naive-2`),4 个命中请求均与参考逐字节一致,每次各有 3 个请求经过 held → activate。
+- 因此正确性检查必须在 `VLLM_BATCH_INVARIANT=1` 下运行;队列顺序测试仍用普通模式(batch invariant kernel 更慢,会改变时序)。§11.4 的 10-09 正确性结果是普通模式下得到的,当时 4 个输出恰好一致。
+- 脚本修正:取本次 log 改为按字节偏移(log 中有 `\r`,按行数会错位,导致参考请求的 log 行没取到)。
+
+**§7 队列顺序验证**(普通模式,S2 速率 inf):
+
+| 运行名 | 方案 | 场景 | 命中 async / sync | 提交次数 | 结构错误 | 违序 | 含多个 async 请求的 step | (a) 次数 | (b) 次数 | 经过 held 的请求 | 结论 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `k3-naive-s1` | `naive` | S1 | 16 / 0 | 16 | 0 | 0 | 4 | 7 | — | 15 | **PASS** |
+| `k3-naive-s2` | `naive` | S2 | 29 / 3 | 31 | 0 | 0 | 10 | 12 | 0 | 29 | 未覆盖 |
+| `k3-batch-s1` | `batch_reqs_async_load_submit` | S1 | 16 / 0 | 12 | 0 | 0 | 4 | 3 | — | 15 | **PASS** |
+| `k3-batch-s2` | `batch_reqs_async_load_submit` | S2 | 29 / 3 | 12 | 0 | 0 | 7 | 3 | 0 | 29 | 未覆盖 |
+
+列说明:"经过 held 的请求"= 在某个 step 的 activate log 中出现在 `held=` 里的不同请求个数,即 promote 后至少等了一个 step 才被 forward 等待的请求;其余列同 11.3、11.4。
+
+- 几乎所有 async 请求都经过 held(推断:开了 async scheduling,scheduler 构建下一个 step 时还没收到该请求的 promote,所以该请求不在下一个 step 里,要再等一个 step)。修复前这些请求的尾会被不相关的 forward 全部等完。
+- S2 的 (b) 仍未覆盖,按约定记为未覆盖,不为凑覆盖调负载。
+
+**输出正确性**(`VLLM_BATCH_INVARIANT=1`,每次 1 个参考请求 + 4 个并发命中请求,prompt 4963 token,命中 4960 token):
+
+| 运行名 | 方案 | 服务配置 | 参考请求 externally-cached | 4 个命中请求 externally-cached | 与参考逐字节一致 | 乱码 | 经过 held 的请求 | 结论 |
+|---|---|---|---|---|---|---|---|---|
+| `bi-naive-1` / `bi-naive-2` | `naive` | S1 | 0 | 4960 ×4 | 4 / 4 | 无 | 3 / 3 | PASS |
+| `k3-naive-s2-correctness` | `naive` | S2 | 0 | 4960 ×4 | 4 / 4 | 无 | 1 | PASS |
+| `k3-batch-s1-correctness` | `batch_reqs_async_load_submit` | S1 | 0 | 4960 ×4 | 4 / 4 | 无 | 2 | PASS |
+| `k3-batch-s2-correctness` | `batch_reqs_async_load_submit` | S2 | 0 | 4960 ×4 | 4 / 4 | 无 | 1 | PASS |
+
+列说明:"服务配置"= 启动 vLLM 时的 §7.3 场景环境变量;"externally-cached"= connector log `get_num_new_matched_tokens` 中从 DDR 加载的 token 数,参考请求为 0 表示未命中;"乱码"= U+FFFD 或非法控制字符;"经过 held 的请求"同上。

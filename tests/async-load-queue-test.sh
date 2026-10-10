@@ -24,18 +24,18 @@ export INPUT_LEN=${INPUT_LEN:-4000} OUTPUT_LEN=${OUTPUT_LEN:-128} HIT_RATE=${HIT
 export CONCURRENCY=${CONCURRENCY:-8} NUM_WARMUPS=${NUM_WARMUPS:-1}
 case "$SCENARIO" in
     s1) export NUM_PROMPTS=${NUM_PROMPTS:-16} REQUEST_RATE=${REQUEST_RATE:-10} ;;
-    s2) export NUM_PROMPTS=${NUM_PROMPTS:-32} REQUEST_RATE=${REQUEST_RATE:-0.5} ;;
+    s2) export NUM_PROMPTS=${NUM_PROMPTS:-32} REQUEST_RATE=${REQUEST_RATE:-inf} ;;
     *) echo "unknown scenario $SCENARIO" >&2; exit 1 ;;
 esac
 
 mkdir -p "$OUT_DIR"
-log_start=$(($(wc -l <"$VLLM_LOG") + 1))
+log_start=$(stat -c %s "$VLLM_LOG")
 
 curl -sf "$CTRL/v1/cache/queue_trace?queue=OMP-Main&enable=1" >/dev/null
 "$SCRIPT_DIR/vllm-benchmark.sh" 2>&1 | tee "$OUT_DIR/bench.log"
 sleep 2 # let trailing zip/unzip tasks finish
 curl -sf "$CTRL/v1/cache/queue_trace?queue=OMP-Main&enable=0" >"$OUT_DIR/trace.json"
-tail -n "+$log_start" "$VLLM_LOG" >"$OUT_DIR/vllm.log"
+tail -c "+$((log_start + 1))" "$VLLM_LOG" >"$OUT_DIR/vllm.log"
 curl -sf -X POST "$CTRL/v1/cache/evict" -d '{"count": 999999}' >/dev/null
 
 python3 "$SCRIPT_DIR/async_load_queue_check.py" \
