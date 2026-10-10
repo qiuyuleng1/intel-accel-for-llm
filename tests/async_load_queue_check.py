@@ -32,7 +32,8 @@ SUBMIT_RE = re.compile(
 )
 PROMOTE_RE = re.compile(r"async_load step=(\d+) t=(\d+) promote reqs=(\S+)")
 
-FIFO_SCHEMES = ("naive", "batch_reqs_async_load_submit")
+FIFO_SCHEMES = ("naive", "batch_reqs_async_load_submit", "split_async_load_submit")
+SPLIT = "split_async_load_submit"
 
 
 @dataclass
@@ -51,10 +52,11 @@ class Submission:
 
 
 def parse_log(path: str):
-    """Return (req_info, submissions, promote_ns)."""
+    """Return (req_info, submissions, promote_ns, promote_step)."""
     req_info: dict[str, dict] = {}
     submissions: list[Submission] = []
     promote_ns: dict[str, int] = {}
+    promote_step: dict[str, int] = {}
     with open(path, errors="replace") as f:
         for line in f:
             m = MATCH_RE.search(line)
@@ -76,10 +78,11 @@ def parse_log(path: str):
                 continue
             m = PROMOTE_RE.search(line)
             if m:
-                _, t, reqs = m.groups()
+                step, t, reqs = m.groups()
                 for r in reqs.split(","):
                     promote_ns.setdefault(r, int(t))
-    return req_info, submissions, promote_ns
+                    promote_step.setdefault(r, int(step))
+    return req_info, submissions, promote_ns, promote_step
 
 
 def load_trace(path: str) -> list[dict]:
@@ -102,16 +105,22 @@ def load_trace(path: str) -> list[dict]:
 
 
 def attach_tasks(subs: list[Submission], events: list[dict], errors: list[str]):
+    # split submits a request's head and tail with the same description but
+    # disjoint layer ranges, so match a task by description AND layer.
     by_desc: dict[str, list[Submission]] = defaultdict(list)
     for s in subs:
         by_desc[s.desc].append(s)
     for desc, ss in by_desc.items():
-        if len(ss) > 1:
-            errors.append(f"description {desc!r} used by {len(ss)} submissions")
+        for i, a in enumerate(ss):
+            for b in ss[i + 1:]:
+                if a.first_layer <= b.last_layer and b.first_layer <= a.last_layer:
+                    errors.append(f"description {desc!r} used by submissions with "
+                                  "overlapping layers")
     for e in events:
         if e["kind"] not in ("unzip", "unzip_retry"):
             continue
-        ss = by_desc.get(e["desc"])
+        ss = [s for s in by_desc.get(e["desc"], [])
+              if s.first_layer <= e["layer"] <= s.last_layer]
         if not ss:
             errors.append(f"unzip task {e['label']} has no submit log line")
             continue
@@ -122,8 +131,13 @@ def attach_tasks(subs: list[Submission], events: list[dict], errors: list[str]):
             s.tasks[e["layer"]] = e
 
 
+def head_layers(info: dict, num_layers: int) -> int:
+    return num_layers if info["n"] == -1 else min(info["n"], num_layers)
+
+
 def check_structure(scheme, subs, req_info, events, errors):
     """Scheme-independent checks + per-scheme submission rules."""
+    num_layers = max(s.last_layer for s in subs) + 1 if subs else 0
     for s in subs:
         want = set(range(s.first_layer, s.last_layer + 1))
         if set(s.tasks) != want:
@@ -145,9 +159,11 @@ def check_structure(scheme, subs, req_info, events, errors):
             continue
         ss = loaded.get(r, [])
         kinds = {s.kind for s in ss}
-        want_kind = "async" if info["async"] else "sync"
-        if kinds != {want_kind}:
-            errors.append(f"{r}: expected {want_kind} submit, got {sorted(kinds)}")
+        want = {"async"} if info["async"] else {"sync"}
+        if scheme == SPLIT and info["async"] and head_layers(info, num_layers) < num_layers:
+            want = {"async", "async_tail"}
+        if kinds != want:
+            errors.append(f"{r}: expected {sorted(want)} submits, got {sorted(kinds)}")
 
     steps: dict[int, list[Submission]] = defaultdict(list)
     for s in subs:
@@ -161,8 +177,57 @@ def check_structure(scheme, subs, req_info, events, errors):
         elif scheme == "batch_reqs_async_load_submit":
             if len(asyncs) > 1:
                 errors.append(f"step {step}: {len(asyncs)} async submits, expected 1")
+        elif scheme == SPLIT:
+            pass  # checked by check_split()
         else:
             raise SystemExit(f"structure rules for scheme {scheme!r} not implemented")
+
+
+def check_split(subs, req_info, promote_ns, promote_step, errors):
+    """split_async_load_submit rules (doc section 9.3)."""
+    num_layers = max(s.last_layer for s in subs) + 1 if subs else 0
+    steps: dict[int, list[tuple[int, Submission]]] = defaultdict(list)
+    for i, s in enumerate(subs):
+        steps[s.step].append((i, s))
+    for step, ss in steps.items():
+        # Tails of promoted requests are submitted before new heads.
+        tails = [i for i, s in ss if s.kind == "async_tail"]
+        heads = [i for i, s in ss if s.kind == "async"]
+        if tails and heads and max(tails) > min(heads):
+            errors.append(f"step {step}: a tail submitted after a head")
+        # One segment per layer per kind: requests of a step form one batch.
+        for kind in ("async", "async_tail"):
+            layers = [j for _, s in ss if s.kind == kind
+                      for j in range(s.first_layer, s.last_layer + 1)]
+            if len(layers) != len(set(layers)):
+                errors.append(f"step {step}: {kind} segments overlap")
+
+    by_req: dict[str, list[Submission]] = defaultdict(list)
+    for s in subs:
+        for r in s.reqs:
+            by_req[r].append(s)
+    for r, info in req_info.items():
+        if info["ext_tokens"] == 0 or not info["async"]:
+            continue
+        h = head_layers(info, num_layers)
+        for kind, want in (("async", range(0, h)), ("async_tail", range(h, num_layers))):
+            ss = [s for s in by_req.get(r, []) if s.kind == kind]
+            layers = sorted(j for s in ss for j in range(s.first_layer, s.last_layer + 1))
+            if layers != list(want):
+                errors.append(f"{r}: {kind} layers {layers[:1]}..{layers[-1:]} "
+                              f"({len(layers)}), expected {want}")
+            if len({s.step for s in ss}) > 1:
+                errors.append(f"{r}: {kind} submitted in several steps")
+            if kind == "async_tail" and ss:
+                if r not in promote_step:
+                    errors.append(f"{r}: tail submitted but never promoted")
+                    continue
+                if ss[0].step != promote_step[r] + 1:
+                    errors.append(f"{r}: tail at step {ss[0].step}, promoted at "
+                                  f"step {promote_step[r]}")
+                if any(t["enqueue_ns"] < promote_ns[r]
+                       for s in ss for t in s.tasks.values()):
+                    errors.append(f"{r}: tail task enqueued before promotion")
 
 
 def sort_key(scheme: str, e: dict):
@@ -209,6 +274,7 @@ def coverage(subs, req_info, promote_ns):
             if ts.step < s.step and t["enqueue_ns"] <= head["enqueue_ns"] < t["start_ns"]:
                 ahead[classify(t, ts, req_info, promote_ns, head["enqueue_ns"])] += 1
         out.append({"step": s.step, "kind": s.kind, "reqs": len(s.reqs),
+                    "first_layer": s.first_layer,
                     "first_task_wait_ms": (head["start_ns"] - head["enqueue_ns"]) / 1e6,
                     "ahead_from_earlier_steps": dict(ahead)})
     return out
@@ -224,19 +290,23 @@ def main() -> int:
     ap.add_argument("--report", required=True)
     args = ap.parse_args()
 
-    req_info, subs, promote_ns = parse_log(args.log)
+    req_info, subs, promote_ns, promote_step = parse_log(args.log)
     events = load_trace(args.trace)
     errors: list[str] = []
     attach_tasks(subs, events, errors)
     check_structure(args.scheme, subs, req_info, events, errors)
+    if args.scheme == SPLIT:
+        check_split(subs, req_info, promote_ns, promote_step, errors)
     inversions = count_inversions(args.scheme, events)
     cov = coverage(subs, req_info, promote_ns)
 
     steps_multi_async = sum(
         1 for st in {s.step for s in subs}
-        if sum(len(s.reqs) for s in subs if s.step == st and s.kind == "async") >= 2
+        if len({r for s in subs if s.step == st and s.kind == "async" for r in s.reqs}) >= 2
     )
-    behind_async = [c for c in cov if any(k.startswith("async") for k in c["ahead_from_earlier_steps"])]
+    # Only the submission carrying a request's layer 0 represents its arrival.
+    behind_async = [c for c in cov if c["first_layer"] == 0 and
+                    any(k.startswith("async") for k in c["ahead_from_earlier_steps"])]
     a_cases = [c for c in behind_async if c["kind"] == "async"]
     b_cases = [c for c in behind_async if c["kind"] == "sync"]
     covered = len(a_cases) if args.scenario == "s1" else len(b_cases)

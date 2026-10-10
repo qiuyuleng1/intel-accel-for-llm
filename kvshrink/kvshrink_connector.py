@@ -42,6 +42,30 @@ setup_root_logger(show_pid_tid=False)
 logger = logging.getLogger(__name__)
 
 ReqId = str
+# (block_ids, block_hashes, head layer count) of a split async load.
+SplitLoadMeta = tuple[list[int], list[str], int]
+
+
+def _layer_segments(
+    head_layers: dict[ReqId, int], num_layers: int, tail: bool
+) -> list[tuple[int, int, list[ReqId]]]:
+    """Split layers into ranges where the set of requests needing them is constant.
+
+    A request with head layer count h needs layers [0, h) as head and [h, L) as
+    tail. Returns (start, end, req_ids) for every non-empty range, in layer order;
+    req_ids keep the insertion order of ``head_layers``.
+    """
+    cuts = sorted({0, num_layers, *head_layers.values()})
+    segments = []
+    for start, end in zip(cuts, cuts[1:]):
+        req_ids = [
+            req_id
+            for req_id, h in head_layers.items()
+            if (h <= start if tail else h >= end)
+        ]
+        if req_ids:
+            segments.append((start, end, req_ids))
+    return segments
 
 
 @dataclass
@@ -159,6 +183,12 @@ class KVShrinkConnector(KVConnectorBase_V1):
         self._early_promoted_tasks: dict[ReqId, dict[str, Any]] = {}
         # Early-promoted tasks active for the current forward pass.
         self._active_promoted_tasks: dict[ReqId, dict[str, Any]] = {}
+        # split_async_load_submit: load metadata of async requests whose tail is
+        # not submitted yet (needed after promotion, when reqs_to_load no longer
+        # carries the request).
+        self._split_load_meta: dict[ReqId, SplitLoadMeta] = {}
+        # Promoted requests whose tail is submitted by the next start_load_kv().
+        self._tail_pending: list[ReqId] = []
         # Worker-side step counter for the async_load submit/promote logs.
         self._load_step = 0
 
@@ -458,6 +488,9 @@ class KVShrinkConnector(KVConnectorBase_V1):
             )
 
         # Asynchronous loads are polled across scheduler steps in get_finished().
+        if self._async_load_scheme is AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT:
+            self._submit_split_loads(async_reqs)
+            return
         if not async_reqs:
             return
         if self._async_load_scheme is AsyncLoadScheme.NAIVE:
@@ -575,6 +608,8 @@ class KVShrinkConnector(KVConnectorBase_V1):
                     del self._pending_load_layers[req_id]
                     self._early_promoted_tasks[req_id] = tasks
                     finished_recving.add(req_id)
+                    if req_id in self._split_load_meta:
+                        self._tail_pending.append(req_id)
 
         if finished_recving:
             logger.info(
@@ -603,6 +638,10 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 self._pending_load_layers.pop(req_id, None)
                 self._early_promoted_tasks.pop(req_id, None)
                 self._active_promoted_tasks.pop(req_id, None)
+                # Finished before its tail was submitted: never submit it.
+                self._split_load_meta.pop(req_id, None)
+                if req_id in self._tail_pending:
+                    self._tail_pending.remove(req_id)
 
             tasks = self._current_put_tasks.get(req_id)
             if tasks is None:
@@ -617,6 +656,64 @@ class KVShrinkConnector(KVConnectorBase_V1):
 
         self._deferred_finished_req_ids.difference_update(completed)
         return (completed or None), (finished_recving or None)
+
+    def _submit_split_loads(self, async_reqs: list[tuple[ReqId, ReqMeta]]) -> None:
+        # split_async_load_submit (doc §4.2): tails of requests promoted since the
+        # last call first (a forward of this step may wait on them), then the heads
+        # of this step's new async requests. Each request owns a Task dict; segment
+        # tasks are shared by the requests of that segment.
+        num_layers = len(self._layer_names)
+        if self._tail_pending:
+            tails = {r: self._split_load_meta.pop(r) for r in self._tail_pending}
+            self._tail_pending = []
+            targets: dict[ReqId, dict[str, Any]] = {}
+            for req_id in tails:
+                promoted = self._early_promoted_tasks.get(req_id)
+                if promoted is None:
+                    promoted = self._active_promoted_tasks.get(req_id)
+                if promoted is None:
+                    raise RuntimeError(f"Missing promoted load tasks for {req_id}")
+                targets[req_id] = promoted
+            self._submit_layer_segments("async_tail", tails, targets, tail=True)
+
+        if not async_reqs:
+            return
+        heads: dict[ReqId, SplitLoadMeta] = {}
+        targets = {}
+        for req_id, request in async_reqs:
+            n = request.async_load_layers
+            head = num_layers if n == -1 else min(n, num_layers)
+            heads[req_id] = (request.block_ids, request.block_hashes, head)
+            targets[req_id] = self._pending_load_tasks[req_id] = {}
+            self._pending_load_layers[req_id] = n
+            if head < num_layers:
+                self._split_load_meta[req_id] = heads[req_id]
+        self._submit_layer_segments("async", heads, targets, tail=False)
+
+    def _submit_layer_segments(
+        self,
+        kind: str,
+        reqs: dict[ReqId, SplitLoadMeta],
+        targets: dict[ReqId, dict[str, Any]],
+        tail: bool,
+    ) -> None:
+        # One get() per layer segment; its tasks are merged into the Task dict of
+        # every request in the segment.
+        segments = _layer_segments(
+            {req_id: meta[2] for req_id, meta in reqs.items()},
+            len(self._layer_names),
+            tail,
+        )
+        for start, end, req_ids in segments:
+            self._log_load_submit(kind, req_ids, start, end)
+            tasks = self._store().get(
+                block_indices=[b for r in req_ids for b in reqs[r][0]],
+                block_hashs=[h for r in req_ids for h in reqs[r][1]],
+                layer_names=self._layer_names[start:end],
+                description=",".join(req_ids),
+            )
+            for req_id in req_ids:
+                targets[req_id].update(tasks)
 
     def _log_load_submit(
         self, kind: str, req_ids: list[ReqId], first_layer: int, end_layer: int
