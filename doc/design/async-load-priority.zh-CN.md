@@ -581,6 +581,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] 日志(整理 PR 前):`start_load_kv()` 的 `async_load step=… activate reqs=… held=…` 降为 DEBUG。它只用于验证 K3 / split 时人工统计,高并发下几乎每个 step 一行
+- [ ] 日志(整理 PR 前):删除 `_log_load_submit()` 及其调用(submit log)。它只供 §7 判定脚本把 trace 任务对应到提交,生产上不需要
 - [ ] 代码清理(以后做):`_early_promoted_tasks` 与 `_active_promoted_tasks` 合并为一个"已 promote" dict。promote 只发生在 forward 之后的 `get_finished`,forward 进行中不会新增;二者的区别只是"是否已进入某次 forward"。需在 K3 修复之后重新评估(K3 让"搬入 active"变为按请求是否被调度)
 
 ## 11. 进度记录
@@ -693,7 +694,7 @@ PASS 的具体表现,与 7.4 中 `naive` 的预期一致:
 代码(`kvshrink/kvshrink_connector.py`,`KVSHRINK_ASYNC_LOAD_SCHEME=split_async_load_submit`):
 
 - `start_load_kv()`:sync 批 → `_submit_split_loads()`:先把 `_tail_pending` 中全部请求的尾打成 batch 提交,再把本 step 新 async 请求的头打成 batch 提交。
-- 分段:`_layer_segments()` 按各请求的头层数 h(N=−1 时 h=L)切层,同一段内需要这些层的请求集合相同,每段调用一次 `get(layer_names=该段)`。submit log 的 kind:头为 `async`,尾为 `async_tail`。
+- 分段:`_first_n_layer_segments()` / `_remaining_layer_segments()` 按各请求的 N(N=−1 时取 L)切层,同一段内需要这些层的请求集合相同,每段调用一次 `get(layer_names=该段)`。submit log 的 kind:前 N 层为 `async`,剩余层为 `async_remaining`(§11.6 的运行日志中为旧名 `async_tail`)。
 - 每个请求一份自己的 Task dict,**只含它参与的层**(与 8.3 第 1 项写的 `dict(head_tasks)` 不同:整份复制会把同 batch 其他请求才有的层也放进来,虽然补尾时会被覆盖,但不必要)。补尾时把段的 Task 原地 `update` 进该 dict(它已被 `_early_promoted_tasks` 或 `_active_promoted_tasks` 引用)。
 - 新状态:`_split_load_meta`(block_ids / block_hashes / h,仅 h < L 的请求)和 `_tail_pending`。promote 时若请求在 `_split_load_meta` 中则加入 `_tail_pending`;请求结束清理时两者都删掉,因此 promote 后、补尾前结束的请求不会补尾。
 
