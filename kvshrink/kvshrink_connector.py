@@ -86,6 +86,8 @@ class RequestMetadata:
 class KVShrinkConnectorMetadata(KVConnectorMetadata):
     reqs_to_load: RequestMetadata
     reqs_to_save: RequestMetadata
+    # Requests scheduled in this step (keys of SchedulerOutput.num_scheduled_tokens).
+    scheduled_req_ids: set[ReqId] = field(default_factory=set)
 
 
 class KVShrinkConnector(KVConnectorBase_V1):
@@ -349,6 +351,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
         metadata = KVShrinkConnectorMetadata(
             reqs_to_load=self._reqs_to_load,
             reqs_to_save=self._reqs_to_save,
+            scheduled_req_ids=set(scheduler_output.num_scheduled_tokens),
         )
         self._reqs_to_load = RequestMetadata()
         self._reqs_to_save = RequestMetadata()
@@ -397,7 +400,9 @@ class KVShrinkConnector(KVConnectorBase_V1):
             raise TypeError("Unexpected connector metadata")
         self._load_step += 1
 
-        # A no-forward batch cannot consume promoted tasks layer by layer.
+        # A no-forward batch cannot consume promoted tasks layer by layer. Only
+        # promoted requests scheduled in this forward are waited on; the rest stay
+        # early-promoted until the step that actually schedules them.
         if forward_context.attn_metadata is not None:
             duplicates = (
                 self._active_promoted_tasks.keys()
@@ -407,8 +412,23 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 raise RuntimeError(
                     f"Duplicate promoted load tasks for requests {duplicates}"
                 )
-            self._active_promoted_tasks.update(self._early_promoted_tasks)
-            self._early_promoted_tasks = {}
+            scheduled = [
+                req_id
+                for req_id in self._early_promoted_tasks
+                if req_id in metadata.scheduled_req_ids
+            ]
+            for req_id in scheduled:
+                self._active_promoted_tasks[req_id] = self._early_promoted_tasks.pop(
+                    req_id
+                )
+            if scheduled or self._early_promoted_tasks:
+                logger.info(
+                    "async_load step=%d t=%d activate reqs=%s held=%s",
+                    self._load_step,
+                    time.monotonic_ns(),
+                    ",".join(scheduled),
+                    ",".join(self._early_promoted_tasks),
+                )
 
         sync_block_ids: list[int] = []
         sync_block_hashes: list[str] = []
