@@ -577,7 +577,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] §7:`naive` 上 S1 PASS;S2 未覆盖(§11.3)。S2 速率改为 inf(不为凑覆盖调负载),后续每个方案照跑 S2。
 - [x] `batch_reqs_async_load_submit`:实现(8.2);§7 S1、S2 均无 FAIL(均为未覆盖);输出正确性通过;9.2 中"结束 / abort"未测(§11.4)
 - [x] 已知问题 K3 修复(在 split 之前,单独提交):scheduler 把本 step 被调度的请求放进 connector metadata,worker 只把被调度的已 promote 请求搬进 active;`naive`、`batch_reqs_async_load_submit` 各跑 §7 S1、S2 无 FAIL,输出正确性均通过(§11.5)
-- [ ] `split_async_load_submit`:按 4.2 / 8.3 实现(待补尾集合、分段提交、每请求 Task dict 副本、加载元数据、清理);判定脚本加 split 的结构检查(9.3);§7 S1、S2 都跑(结论不得为 FAIL)+ 输出正确性检查;abort 清理只做代码审查
+- [x] `split_async_load_submit`:按 4.2 / 8.3 实现;判定脚本加 split 的结构检查(9.3);§7 S1 PASS、S2 未覆盖,输出正确性通过;abort 清理只做代码审查(§11.6)
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] 日志(整理 PR 前):`start_load_kv()` 的 `async_load step=… activate reqs=… held=…` 降为 DEBUG。它只用于验证 K3 / split 时人工统计,高并发下几乎每个 step 一行
@@ -587,7 +587,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 
 - 2026-10-08:完成问题分析、方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。
 - 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b)(§11.3)。step 层面的延迟记为已知问题 K2,不单独测试。完成 `batch_reqs_async_load_submit`,S1、S2 无 FAIL,输出正确(§11.4)。
-- 2026-10-10:完成 split 详细设计;修复 K3,`naive`、`batch_reqs_async_load_submit` 的 S1、S2 无 FAIL,输出正确(§11.5)。输出正确性检查改为要求 vLLM 以 `VLLM_BATCH_INVARIANT=1` 启动;S2 速率改为 inf。
+- 2026-10-10:完成 split 详细设计;修复 K3,`naive`、`batch_reqs_async_load_submit` 的 S1、S2 无 FAIL,输出正确(§11.5)。输出正确性检查改为要求 vLLM 以 `VLLM_BATCH_INVARIANT=1` 启动;S2 速率改为 inf。完成 `split_async_load_submit`,S1 PASS、S2 未覆盖,输出正确(§11.6)。
 
 ### 11.1 公共基础设施
 
@@ -687,3 +687,49 @@ PASS 的具体表现,与 7.4 中 `naive` 的预期一致:
 | `k3-batch-s2-correctness` | `batch_reqs_async_load_submit` | S2 | 0 | 4960 ×4 | 4 / 4 | 无 | 1 | PASS |
 
 列说明:"服务配置"= 启动 vLLM 时的 §7.3 场景环境变量;"externally-cached"= connector log `get_num_new_matched_tokens` 中从 DDR 加载的 token 数,参考请求为 0 表示未命中;"乱码"= U+FFFD 或非法控制字符;"经过 held 的请求"同上。
+
+### 11.6 `split_async_load_submit`
+
+代码(`kvshrink/kvshrink_connector.py`,`KVSHRINK_ASYNC_LOAD_SCHEME=split_async_load_submit`):
+
+- `start_load_kv()`:sync 批 → `_submit_split_loads()`:先把 `_tail_pending` 中全部请求的尾打成 batch 提交,再把本 step 新 async 请求的头打成 batch 提交。
+- 分段:`_layer_segments()` 按各请求的头层数 h(N=−1 时 h=L)切层,同一段内需要这些层的请求集合相同,每段调用一次 `get(layer_names=该段)`。submit log 的 kind:头为 `async`,尾为 `async_tail`。
+- 每个请求一份自己的 Task dict,**只含它参与的层**(与 8.3 第 1 项写的 `dict(head_tasks)` 不同:整份复制会把同 batch 其他请求才有的层也放进来,虽然补尾时会被覆盖,但不必要)。补尾时把段的 Task 原地 `update` 进该 dict(它已被 `_early_promoted_tasks` 或 `_active_promoted_tasks` 引用)。
+- 新状态:`_split_load_meta`(block_ids / block_hashes / h,仅 h < L 的请求)和 `_tail_pending`。promote 时若请求在 `_split_load_meta` 中则加入 `_tail_pending`;请求结束清理时两者都删掉,因此 promote 后、补尾前结束的请求不会补尾。
+
+判定脚本(`tests/async_load_queue_check.py`)新增的 split 检查(9.3):每个请求的头恰为 0..h−1、尾恰为 h..L−1,各在一个 step 内提交;尾在 promote 的下一个 step 提交,且 trace 中尾的任务入队时间不早于 promote;同一 step 内尾先于头提交;同一 step 内同类分段的层不重叠。头与尾的 description 相同,改为按 description + 层号把 trace 任务对应到 submit log。用新脚本重跑 11.5 的四组数据,结果不变。
+
+**§7 队列顺序验证**(普通模式,S2 速率 inf):
+
+| 运行名 | 场景 | 命中 async / sync | 提交次数 | 结构错误 | 违序 | 含多个 async 请求的 step | (a) 次数 | (b) 次数 | 结论 |
+|---|---|---|---|---|---|---|---|---|---|
+| `k3-split-s1` | S1 | 16 / 0 | 19 | 0 | 0 | 4 | 1 | — | **PASS** |
+| `k3-split-s2` | S2 | 29 / 3 | 22 | 0 | 0 | 7 | 2 | 0 | 未覆盖 |
+
+列说明同 11.4;"提交次数"含头、尾、sync 各段的 `get()` 次数。
+
+**新到达的提交前面排着什么**(只统计含第 0 层的提交,即一批新请求或一个 sync 批的到达;实测):
+
+| 运行名 | 提交数 | 前面:已 promote 的尾 | 前面:未 promote 的尾 | 前面:头 | 首个任务等待 最大 / 平均(ms) |
+|---|---|---|---|---|---|
+| `k3-naive-s1` | 16 | 172 | 420 | 28 | 340.7 / 119.6 |
+| `k3-batch-s1` | 12 | 78 | 0 | 0 | 67.6 / 16.7 |
+| `k3-split-s1` | 10 | 44 | 0 | 0 | 215.0 / 61.2 |
+| `k3-naive-s2` | 31 | 255 | 300 | 20 | 683.7 / 142.7 |
+| `k3-batch-s2` | 12 | 37 | 0 | 0 | 233.0 / 26.4 |
+| `k3-split-s2` | 12 | 62 | 0 | 0 | 224.3 / 57.8 |
+
+列说明:"前面:xxx"= 该提交的首个任务入队时,来自更早 step、尚未开始执行的任务个数(按类别累加,类别见 7.6);"首个任务等待"= 首个任务从入队到开始执行的时间。
+
+- split 下新到达的提交前面只有已 promote 的尾,没有未 promote 的尾,符合 4.2。
+- batch 的两轮也没有"未 promote 的尾",原因未分析(可能是本轮到达时刻恰好没造出)。
+- 三个方案各自一轮、请求到达时刻随机(seed 取当前时间),各轮队列负载不同,**等待时间不能用于方案间比较**。
+
+**输出正确性**(`VLLM_BATCH_INVARIANT=1`):
+
+| 运行名 | 服务配置 | 4 个请求的路径 | 与参考逐字节一致 | 乱码 | 结论 |
+|---|---|---|---|---|---|
+| `k3-split-s1-correctness` | S1 | 4 个 async:先 1 个、后 3 个合并提交头(层 0-3),各自 promote 后下一 step 补尾(层 4-63) | 4 / 4 | 无 | PASS |
+| `k3-split-s2-correctness` | S2 | 3 个 sync + 1 个 async(头 0-3,promote 后下一 step 补尾 4-63) | 4 / 4 | 无 | PASS |
+
+列说明:"4 个请求的路径"取自 connector log 的 submit / promote 行;其余同 11.5。

@@ -29,7 +29,11 @@ class AsyncLoadScheme(str, enum.Enum):
 
 
 IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset(
-    {AsyncLoadScheme.NAIVE, AsyncLoadScheme.BATCH_REQS_ASYNC_LOAD_SUBMIT}
+    {
+        AsyncLoadScheme.NAIVE,
+        AsyncLoadScheme.BATCH_REQS_ASYNC_LOAD_SUBMIT,
+        AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT,
+    }
 )
 
 
