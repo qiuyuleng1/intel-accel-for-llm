@@ -583,6 +583,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [ ] 日志(整理 PR 前):`start_load_kv()` 的 `async_load step=… activate reqs=… held=…` 降为 DEBUG。它只用于验证 K3 / split 时人工统计,高并发下几乎每个 step 一行
 - [ ] 日志(整理 PR 前):删除 `_log_load_submit()` 及其调用(submit log)。它只供 §7 判定脚本把 trace 任务对应到提交,生产上不需要
 - [ ] 整理 PR 前:删除本分支在 sync / batch / split 路径 `get()` 上新加的 `description=` 参数(`naive` 路径的 `description=req_id` 是 main 原有的,保留)。它只用于 queue trace 标签把任务对应到请求
+- [ ] 方案取舍(与同事讨论后定):正式 PR 暂时保留 `naive`、`batch_reqs_async_load_submit`、`split_async_load_submit` 三个可切换方案,默认 `split_async_load_submit`。若 split 的性能确认更好,后续删掉 `naive` / `batch_reqs_async_load_submit` 及 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关
 - [ ] 代码清理(以后做):`_early_promoted_tasks` 与 `_active_promoted_tasks` 合并为一个"已 promote" dict。promote 只发生在 forward 之后的 `get_finished`,forward 进行中不会新增;二者的区别只是"是否已进入某次 forward"。需在 K3 修复之后重新评估(K3 让"搬入 active"变为按请求是否被调度)
 
 ## 11. 进度记录
