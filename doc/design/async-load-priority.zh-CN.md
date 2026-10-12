@@ -590,6 +590,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - 2026-10-08:完成问题分析、方案设计与复杂度评估;创建分支 `perf/async-load-optimization-dev`。
 - 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b)(§11.3)。step 层面的延迟记为已知问题 K2,不单独测试。完成 `batch_reqs_async_load_submit`,S1、S2 无 FAIL,输出正确(§11.4)。
 - 2026-10-10:完成 split 详细设计;修复 K3,`naive`、`batch_reqs_async_load_submit` 的 S1、S2 无 FAIL,输出正确(§11.5)。输出正确性检查改为要求 vLLM 以 `VLLM_BATCH_INVARIANT=1` 启动;S2 速率改为 inf。完成 `split_async_load_submit`,S1 PASS、S2 未覆盖,输出正确(§11.6)。
+- 2026-10-12:connector 代码整理(命名、显式循环、K3 搬入 active 移到所有提交之后),修正测试工具切 log 的问题,三个方案在 v0.23 上重测无 FAIL(§11.7)。rebase 到 `origin/main`(vLLM v0.29.0),在新容器里三个方案 S1、S2 无 FAIL、输出正确(§11.8)。split 下 GSM8K 跑 2 次:0.955 / 0.950(§11.9)。
 
 ### 11.1 公共基础设施
 
@@ -609,6 +610,8 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 | vLLM | `gpu-memory-utilization 0.95`,`max-model-len 32765`,prefix caching 关 | 0.8 时单卡 KV 只剩 3.6 GiB,起不来 |
 | 端口 | API 8010,controller 18710,worker 18810 | 容器是 host 网络,避开默认端口 |
 | async 配置 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0`,`..._LAYERS=4` | 固定 N=4,保证单请求也走 async |
+| v0.29 容器(§11.8 起) | `iaxl.vllm.qiuyu-v29`,镜像 `vllm-iaxl-dev-qiuyu-v29`(base `vllm/vllm-openai:v0.29.0`),vllm 0.29.0 / torch 2.13.0+cu130 | v0.23 的容器和镜像保留不动;由 `tests/async_load_dev/build-v29-container.sh` 构建 |
+| 测试脚本 | `tests/async_load_dev/`:`restart-vllm.sh`、`run-queue-and-correctness.sh`、`v29-pipeline.sh`、`gsm8k-split.sh` | dev 辅助脚本;日志在 `_data/queue-test/logs/` |
 
 ### 11.3 §7 队列顺序验证:`naive`
 
@@ -694,10 +697,12 @@ PASS 的具体表现,与 7.4 中 `naive` 的预期一致:
 
 代码(`kvshrink/kvshrink_connector.py`,`KVSHRINK_ASYNC_LOAD_SCHEME=split_async_load_submit`):
 
-- `start_load_kv()`:sync 批 → `_submit_split_loads()`:先把 `_tail_pending` 中全部请求的尾打成 batch 提交,再把本 step 新 async 请求的头打成 batch 提交。
-- 分段:`_first_n_layer_segments()` / `_remaining_layer_segments()` 按各请求的 N(N=−1 时取 L)切层,同一段内需要这些层的请求集合相同,每段调用一次 `get(layer_names=该段)`。submit log 的 kind:前 N 层为 `async`,剩余层为 `async_remaining`(§11.6 的运行日志中为旧名 `async_tail`)。
-- 每个请求一份自己的 Task dict,**只含它参与的层**(与 8.3 第 1 项写的 `dict(head_tasks)` 不同:整份复制会把同 batch 其他请求才有的层也放进来,虽然补尾时会被覆盖,但不必要)。补尾时把段的 Task 原地 `update` 进该 dict(它已被 `_early_promoted_tasks` 或 `_active_promoted_tasks` 引用)。
-- 新状态:`_split_load_meta`(block_ids / block_hashes / h,仅 h < L 的请求)和 `_tail_pending`。promote 时若请求在 `_split_load_meta` 中则加入 `_tail_pending`;请求结束清理时两者都删掉,因此 promote 后、补尾前结束的请求不会补尾。
+- `start_load_kv()`:sync 批 → `_submit_split_loads()`:先把 `_pending_remaining_load_req_ids` 中全部请求的剩余层打成 batch 提交,再把本 step 新 async 请求的前 N 层打成 batch 提交。
+- 分段:`_first_n_layer_segments()` / `_remaining_layer_segments()` 按各请求的 N(N=−1 时取 L)切层,同一段内需要这些层的请求集合相同,每段调用一次 `get(layer_names=该段)`(`_submit_layer_segments()`,返回每个请求新提交的 Task)。submit log 的 kind:前 N 层为 `async`,剩余层为 `async_remaining`(本节下面 `k3-split-*` 的运行日志中为旧名 `async_tail`)。
+- 每个请求一份自己的 Task dict,**只含它参与的层**(与 8.3 第 1 项写的 `dict(head_tasks)` 不同:整份复制会把同 batch 其他请求才有的层也放进来,不必要)。补剩余层时把新 Task 原地 `update` 进 `_early_promoted_tasks[req_id]`(K3 的搬入 active 在所有提交之后,此时请求一定还在 early)。
+- 新状态:`_remaining_load_meta`(`SplitLoadMeta`:block_ids / block_hashes / num_first_n_layers,仅有剩余层的请求)和 `_pending_remaining_load_req_ids`。promote 时若请求在 `_remaining_load_meta` 中则加入待提交列表;请求结束清理时两者都删掉,因此 promote 后、补剩余层前结束的请求不会补。
+- `async_load_layers` 只接受 −1 或 [1, L),其他值 `raise ValueError`(配置解析已保证,不做截断)。
+- 以上为 10-12 整理后的代码(§11.7);10-10 初版用的是 `_split_load_meta` / `_tail_pending` 等旧名。
 
 判定脚本(`tests/async_load_queue_check.py`)新增的 split 检查(9.3):每个请求的头恰为 0..h−1、尾恰为 h..L−1,各在一个 step 内提交;尾在 promote 的下一个 step 提交,且 trace 中尾的任务入队时间不早于 promote;同一 step 内尾先于头提交;同一 step 内同类分段的层不重叠。头与尾的 description 相同,改为按 description + 层号把 trace 任务对应到 submit log。用新脚本重跑 11.5 的四组数据,结果不变。
 
@@ -735,3 +740,71 @@ PASS 的具体表现,与 7.4 中 `naive` 的预期一致:
 | `k3-split-s2-correctness` | S2 | 3 个 sync + 1 个 async(头 0-3,promote 后下一 step 补尾 4-63) | 4 / 4 | 无 | PASS |
 
 列说明:"4 个请求的路径"取自 connector log 的 submit / promote 行;其余同 11.5。
+
+### 11.7 代码整理与 v0.23 上的回归
+
+**connector 整理**(提交 `d477b45`,行为不变):
+
+- split 相关的状态和变量按代码已有术语改名(first-N / remaining,不再用头 / 尾);`SplitLoadMeta` 改为 dataclass;分段用 `LayerSegment`。
+- 推导式改为显式循环;`_submit_layer_segments()` 返回每个请求的 Task,由调用方赋值。
+- K3 的"搬入 active"移到 `start_load_kv()` 末尾(所有提交之后),补剩余层时只需查 `_early_promoted_tasks`。naive / batch 分支由提前 `return` 改为 `if / elif`,逻辑不变。
+
+**测试工具问题:切 log 切错**(实测 + 推断):
+
+- 现象(实测):一轮 split S1 判 FAIL,benchmark 16 个请求全部成功,但切出的 vLLM log 只有 7 条 `get_num_new_matched_tokens`,且从半行开始;trace 中前 8 个请求的任务找不到 submit 行,报 260 个结构错误。10-10 的 `k3-naive-s1` log 片段中也有 9753 个 NUL 字节。
+- 原因(推断):重启 vLLM 时旧的 `tee log.kvshrink-vllm` 还未退出,新 tee 截断文件从头写,旧 tee 仍在原偏移处写,文件被撑大(留下 NUL 空洞);测试脚本用文件大小作起点,切丢了开头。
+- 修正:`restart-vllm.sh` 在启动新 vLLM 前,在容器内等 cwd 为本仓库的旧 tee 退出(host 用户读不到容器 root 进程的 `/proc/<pid>/cwd`)。之后每轮结果都检查 log 片段:从完整的一行开始、无 NUL、`get_num_new_matched_tokens` 条数 = 1(warmup) + 请求数。
+
+**v0.23 上的回归**(connector md5 `76ea7e4b` = `d477b45`):
+
+| 运行名 | 方案 | 场景 | 命中 async / sync | 提交次数 | 结构错误 | 违序 | 含多个 async 请求的 step | (a) 次数 | (b) 次数 | 队列结论 | 正确性 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `r4-split-s1` | split | S1 | 16 / 0 | 16 | 0 | 0 | 4 | 1 | — | **PASS** | PASS |
+| `r3-split-s2` | split | S2 | 29 / 3 | 22 | 0 | 0 | 7 | 0 | 0 | 未覆盖 | PASS |
+| `r3-naive-s1` | naive | S1 | 16 / 0 | 16 | 0 | 0 | 5 | 7 | — | **PASS** | PASS |
+| `r3-naive-s2` | naive | S2 | 29 / 3 | 31 | 0 | 0 | 10 | 12 | 0 | 未覆盖 | PASS |
+| `r3-batch-s1` | batch | S1 | 16 / 0 | 10 | 0 | 0 | 4 | 4 | — | **PASS** | PASS |
+| `r2-batch-s2` | batch | S2 | 29 / 3 | 12 | 0 | 0 | 7 | 4 | 0 | 未覆盖 | PASS |
+
+列说明同 11.4、11.5;"正确性"为同一配置下 `VLLM_BATCH_INVARIANT=1` 的输出正确性检查(4 个命中请求与参考逐字节一致、无乱码)。`r3-split-s1` 因上述切 log 问题作废,由 `r4-split-s1` 重跑。
+
+### 11.8 rebase 到 vLLM v0.29.0
+
+`origin/main` 的 `1ddbe90 kvshrink: upgrade base vLLM to v0.29.0 (#15)` 把基础镜像升到 v0.29.0,并修改 connector:
+
+- `_view_as_blocks()`:v0.29 把所有层放在一块连续分配里,给出非连续的 view;connector 按 `KVCacheConfig` 的 page 大小把每层看作 `(num_blocks, page)`,store 用 `block_dim=0`。
+- `build_connector_meta()` 中强制 `scheduler_output.has_sync_kv_loads = True`:否则 v0.29 把 async 的 `start_load_kv` 推迟到 forward 之后;我们的 load 只是 host 侧提交,必须在 forward 前执行。
+
+rebase 结果:只有 `setvars.sh` 一处冲突(基础镜像用上游 v0.29.0,开发镜像名保留本机的);connector 由 git 自动合并,"rebase 前备份 → rebase 后"的 connector 增删行与上游改动完全一致,`build_connector_meta()` 中两边改动并存(先 `has_sync_kv_loads = True`,再构造带 `scheduled_req_ids` 的 metadata)。rebase 前的状态备份在本地分支 `backup/async-load-dev-pre-v0.29`。
+
+**v0.29 上的验证**(容器 `iaxl.vllm.qiuyu-v29`,vllm 0.29.0 / torch 2.13.0+cu130,connector md5 `4633759c` = rebase 后 HEAD):
+
+| 运行名 | 方案 | 场景 | 命中 async / sync | 提交次数 | 结构错误 | 违序 | 含多个 async 请求的 step | (a) 次数 | (b) 次数 | 经过 held 的请求 | 队列结论 | 正确性 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `v29-split-s1` | split | S1 | 16 / 0 | 25 | 0 | 0 | 2 | 5 | — | 15 | **PASS** | PASS |
+| `v29-split-s2` | split | S2 | 29 / 3 | 26 | 0 | 0 | 9 | 5 | 0 | 28 | 未覆盖 | PASS |
+| `v29-naive-s1` | naive | S1 | 16 / 0 | 16 | 0 | 0 | 4 | 6 | — | 15 | **PASS** | PASS |
+| `v29-naive-s2` | naive | S2 | 29 / 3 | 31 | 0 | 0 | 8 | 13 | 0 | 29 | 未覆盖 | PASS |
+| `v29-batch-s1` | batch | S1 | 16 / 0 | 16 | 0 | 0 | 0 | 5 | — | 15 | **PASS** | PASS |
+| `v29-batch-s2` | batch | S2 | 29 / 3 | 14 | 0 | 0 | 7 | 6 | 0 | 28 | 未覆盖 | PASS |
+
+列说明同 11.5、11.7。六份 log 片段均从完整的一行开始、无 NUL,`get_num_new_matched_tokens` 条数为 17 / 33(1 个 warmup + 16 / 32 个请求)。
+
+- 正确性(从保存的 `responses.json` 复核):6 组各 4 个命中请求与参考逐字节一致,参考与命中输出中乱码字符均为 0;直接给出答案的 3 组(split S1、naive S1、naive S2)答案与各自 prompt 中 Record 0042 一致。
+- v0.29 下 K3 的 held → activate 路径照常触发,split 的结构检查全部通过;上游的 `_view_as_blocks` + `block_dim=0` 与 split 按层 `get(layer_names=...)` 配合正常。
+- `v29-batch-s1` 的"含多个 async 请求的 step"为 0:本轮请求恰好各自在不同 step 到达(到达时刻随机),16 个请求 16 次提交,结构检查无误。
+
+### 11.9 GSM8K 精度:`split_async_load_submit`
+
+配置:容器 `iaxl.vllm.qiuyu-v29`(vLLM 0.29.0),Qwen3-32B(bf16),TP=2 在 GPU4、5,`VLLM_CPU_OMP_THREADS_BIND=64-95|96-127`;`KVSHRINK_ASYNC_LOAD_SCHEME=split_async_load_submit`,async 配置用 `setvars.sh` 默认(`DYNAMIC=1`,map `0-3:0,4-6:4,7-:8`)。评测用 `Al-dsv4/KVCacheClip/internal/daocloud/test/accuracy-gsm8k/run-gsm8k.sh`(evalscope,200 题,并发 50,temperature 0,max_tokens 2048),同一个服务连跑 2 次,中间不清 DDR。脚本 `tests/async_load_dev/gsm8k-split.sh`,结果 `_data/gsm8k-split/`。
+
+| 运行 | 答对 / 总数 | mean_acc | 命中外部缓存的请求 | 外部加载 token 平均 / 最少 / 最多 | 选到的 N(请求数) | 前 N 层 / 剩余层提交次数 | 报错行 |
+|---|---|---|---|---|---|---|---|
+| run1 | 191 / 200 | **0.955** | 199 / 200 | 573 / 0 / 576 | N=0:3,N=4:3,N=8:194 | 180 / 180 | 0 |
+| run2 | 190 / 200 | **0.950** | 200 / 200 | 653 / 608 / 720 | N=0:3,N=4:3,N=8:194 | 164 / 162 | 0 |
+
+列说明:"命中外部缓存的请求"= connector log 中 `externally-cached tokens` > 0 的请求数;"外部加载 token"= 每个请求从 DDR 加载的 token 数;"选到的 N"= 动态映射表按并发度选的 N(0 表示走 sync),N=4 与 N=8 同时出现,分段提交被覆盖;"前 N 层 / 剩余层提交次数"= 两类分段各自的 `get()` 次数;"报错行"= log 中 `Traceback` / `RuntimeError` / `ValueError` 行数。
+
+- run1 也几乎全部命中:gsm8k 的 prompt 共用同一段 few-shot 示例(约 576 token),第一个请求存进 DDR 后其余请求都命中;run2 还命中了题目本身。
+- 逐题对比(实测):最终答案相同 191 / 200;对错不同 3 题(index 98、114 run1 对 run2 错;197 run1 错 run2 对);输出全文相同 29 / 200;400 条输出乱码字符为 0。
+- 两次相差 1 题(0.005)。没有开 `VLLM_BATCH_INVARIANT`,并发 50 时各请求所在 batch 的组成每次不同,贪心解码会分叉(与 11.5 的现象一致);推断该差异为运行间波动,未见 split 加载导致的问题。客户报告为 0.955(qwen3-32b-fp8,模型不同,仅供参考)。
