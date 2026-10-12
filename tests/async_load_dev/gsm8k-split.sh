@@ -6,7 +6,7 @@
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 C=${C:-iaxl.vllm.qiuyu-v29}
 GSM8K_DIR=/home/pese/qiuyu/Al-dsv4/KVCacheClip/internal/daocloud/test/accuracy-gsm8k
-OUT=$REPO/_data/gsm8k-split
+OUT=${OUT:-$REPO/_data/gsm8k-split}
 MODEL=/home/pese/model-space/Qwen3-32B
 cd "$REPO"
 
@@ -49,4 +49,7 @@ for RUN in run1 run2; do
         "remaining_submits=$(grep -ac 'submit kind=async_remaining' $OUT/$RUN.vllm.log)" \
         "errors=$(grep -acE 'Traceback|RuntimeError|ValueError' $OUT/$RUN.vllm.log)"
 done
+# Free GPU4,5.
+P=$(ps -eo pid,args | grep -E "[v]llm serve .*--port 8010" | awk '{print $1}')
+[ -n "$P" ] && docker exec $C kill -TERM "$P"
 echo ALL_DONE
