@@ -156,11 +156,14 @@ for req_id, request in async_reqs:
 |---|---|---|
 | `naive` | 现状:每个 async 请求单独调一次 `get()`,一次提交全部 L 层 | 对照组,不加前提 |
 | `batch_reqs_async_load_submit` | 同一 step 的 async 请求打成一个 batch,调一次 `get()`;每层一个任务,覆盖 batch 内所有请求的 block(与 sync 路径相同) | 本身就是公共前提 |
-| `split_async_load_submit` | async 请求先只提交头(前 N 层);promote 后的下一次 `start_load_kv` 再提交尾(后 L−N 层) | `batch_reqs_async_load_submit` |
-| `priority_3level` | 一次提交全部 L 层;队列加 3 级优先级(P0/P1/P2),promote 时把尾从 P2 调到 P0 | `batch_reqs_async_load_submit` |
+| `split_async_load_submit_first_n_batch_reqs` | async 请求先只提交头(前 N 层);promote 后的下一次 `start_load_kv` 再提交尾(后 L−N 层)。同一 step 的头组 batch,按层分段每段一次 `get()` | `batch_reqs_async_load_submit` |
+| `split_async_load_submit_first_n_per_req` | 同上,但头逐个请求提交:每个请求一次 `get()`,按到达顺序;尾仍组 batch 按层提交 | `batch_reqs_async_load_submit` |
+| `priority_3level_first_n_batch_reqs` / `priority_3level_first_n_per_req` | 一次提交全部 L 层;队列加 3 级优先级(P0/P1/P2),promote 时把尾从 P2 调到 P0。两个变种的头分别组 batch 按层提交 / 逐个请求提交(未实现) | `batch_reqs_async_load_submit` |
 | `split_priority_2level` | 按 `split_async_load_submit` 分两次提交;队列加 2 级固定优先级(P0/P1):头用 P1,尾和 sync 用 P0,P0 内按层号排 | `batch_reqs_async_load_submit` |
 
 列说明:"名字"用于文档、代码和 `KVSHRINK_ASYNC_LOAD_SCHEME` 的取值;"做法"写的是与 `naive` 的区别;"前提"指该方案是否建立在 `batch_reqs_async_load_submit` 之上。
+
+2026-10-13 起 `split_async_load_submit` 改名为 `split_async_load_submit_first_n_batch_reqs`(行为不变,旧名启动时报错;PR 分支暂保留旧名),`priority_3level` 同样拆成两个变种。下文未带后缀的 `split_async_load_submit` / `priority_3level` 指该方案的两个变种共有的部分。
 
 `split_priority_2level` 不是 `split_async_load_submit` 与 `priority_3level` 的叠加:它沿用 split 的提交方式,但优先级是另一套 2 级固定方案,与 `priority_3level` 只共用"P0 内按层号排序"这一点(对比见 4.4)。
 
@@ -192,6 +195,15 @@ get_finished
 
 代价:尾失去 promote 前的提前解压时间。forward 算 layer i 时队列同时解压 layer i+1、i+2…,是流水线;**不卡的条件是单层解压时间 ≤ 单层 prefill 计算时间**。本轮不测这一条件(目前是软件解压,换硬件加速和 GPU 后结论会变)。
 
+**头的两种提交方式**(两个变种只在这一点不同,尾都组 batch 按层提交):
+
+| 变种 | 同一 step 来 A、B(N=4)时的队列 | 头完成时刻 |
+|---|---|---|
+| `_first_n_batch_reqs` | `[L0(A+B) L1(A+B) L2(A+B) L3(A+B)]` | A、B 同时,= 4 × (A+B 单层) |
+| `_first_n_per_req` | `[A0 A1 A2 A3][B0 B1 B2 B3]` | A 先完成(4 × A 单层),B 与上一行相同 |
+
+`_first_n_per_req` 让先到的请求先凑齐 N 层,与 §4.3 "P1 按提交序 FIFO"的理由相同;代价是每个任务的固定开销多付几次。v29 trace 实测(CPU 软件压缩)单层任务耗时与所含请求数近似成正比:覆盖 1 / 2 / 4 个请求时平均 1.73 / 3.29 / 6.33 ms,合并只省约 8%。头完成后要等 `get_finished()` 才 promote(v29 split 实测头完成 → promote 平均 66~77 ms),头完成时刻相差几毫秒时往往落在同一个 step、同时 promote,收益待实测。
+
 ### 4.3 `priority_3level`
 
 一次性提交 L 层不变;`TaskQueue` 改为 3 级且优先级可变:
@@ -201,8 +213,11 @@ get_finished
 | P0 | forward 正在等的:sync 批全部层 + 已 promote 请求的尾 | 按 layer 号跨请求交错,同层按提交序 |
 | P1 | 未 promote 请求的头 | 按提交序 FIFO |
 | P2 | 未 promote 请求的尾(预取) | 按提交序 FIFO |
+| P3 | 压缩任务(KV 存入 DDR,现有 `PRIORITY_LOW`) | 按提交序 FIFO |
 
 promote 时对该请求的尾调用 `set_priority(P0)`。
+
+P3 不变,只是写明:压缩排在所有解压之后。风险(推断):P2 预取持续占队列时压缩被压后,存储用的 pinned 中转池(ScratchPool)要等压缩完才释放,满了会让引擎报错退出;请求结束也要等它的存储完成。`batch_reqs_async_load_submit` 下尾全是 HIGH,同样压在压缩前面,不是本方案新引入的。
 
 P1 用 FIFO 而非按层交错是有意的:头的目标是让**某一个**请求尽快凑齐 N 层去被调度;按层交错(A0 B0 A1 B1…)会让两个请求都拖到最后才凑齐。
 
@@ -579,7 +594,9 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] 已知问题 K3 修复(在 split 之前,单独提交):scheduler 把本 step 被调度的请求放进 connector metadata,worker 只把被调度的已 promote 请求搬进 active;`naive`、`batch_reqs_async_load_submit` 各跑 §7 S1、S2 无 FAIL,输出正确性均通过(§11.5)
 - [x] `split_async_load_submit`:按 4.2 / 8.3 实现;判定脚本加 split 的结构检查(9.3);§7 S1 PASS、S2 未覆盖,输出正确性通过;abort 清理只做代码审查(§11.6)
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
-- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
+- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)。分 `_first_n_batch_reqs` / `_first_n_per_req` 两个变种
+- [x] split 拆成两个变种:`split_async_load_submit` 改名 `split_async_load_submit_first_n_batch_reqs`;新增 `split_async_load_submit_first_n_per_req`(头逐个请求提交);判定脚本对 `_first_n_per_req` 改为"每次头提交只含 1 个请求"。§7 S1/S2 与正确性验证尚未跑(GPU 被占用)
+- [ ] PR 分支同步改名(目前 PR 分支仍是 `split_async_load_submit`,`tests/async_load_dev/perf-qwen72b-bench.sh` 也按 PR 分支用旧名)
 - [ ] 日志(整理 PR 前):`start_load_kv()` 的 `async_load step=… activate reqs=… held=…` 降为 DEBUG。它只用于验证 K3 / split 时人工统计,高并发下几乎每个 step 一行
 - [ ] 日志(整理 PR 前):删除 `_log_load_submit()` 及其调用(submit log)。它只供 §7 判定脚本把 trace 任务对应到提交,生产上不需要
 - [ ] 整理 PR 前:删除本分支在 sync / batch / split 路径 `get()` 上新加的 `description=` 参数(`naive` 路径的 `description=req_id` 是 main 原有的,保留)。它只用于 queue trace 标签把任务对应到请求

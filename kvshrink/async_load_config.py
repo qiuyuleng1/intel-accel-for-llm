@@ -20,8 +20,11 @@ class AsyncLoadScheme(str, enum.Enum):
     NAIVE = "naive"
     # Async requests of one step share one get() call, one task per layer.
     BATCH_REQS_ASYNC_LOAD_SUBMIT = "batch_reqs_async_load_submit"
-    # Submit the first N layers, then the remaining layers after promotion.
-    SPLIT_ASYNC_LOAD_SUBMIT = "split_async_load_submit"
+    # Submit the first N layers, then the remaining layers after promotion. The
+    # first N layers of one step's requests share one get() per layer segment.
+    SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_BATCH_REQS = "split_async_load_submit_first_n_batch_reqs"
+    # Same, but each request's first N layers use their own get(), in arrival order.
+    SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ = "split_async_load_submit_first_n_per_req"
     # Submit all layers with three mutable priorities, raised on promotion.
     PRIORITY_3LEVEL = "priority_3level"
     # Split submission with two fixed priorities; top level ordered by layer.
@@ -32,7 +35,8 @@ IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset(
     {
         AsyncLoadScheme.NAIVE,
         AsyncLoadScheme.BATCH_REQS_ASYNC_LOAD_SUBMIT,
-        AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT,
+        AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_BATCH_REQS,
+        AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
     }
 )
 

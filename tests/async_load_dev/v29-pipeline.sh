@@ -15,7 +15,7 @@ done
 docker exec $C tail -3 /tmp/pip_install.log
 docker exec $C grep -q "PIP_EXIT=0" /tmp/pip_install.log || { echo "PIP_FAILED"; exit 1; }
 docker exec $C python3 -c "import vllm, torch; print('vllm', vllm.__version__, 'torch', torch.__version__)"
-for scheme in split_async_load_submit naive batch_reqs_async_load_submit; do
+for scheme in split_async_load_submit_first_n_batch_reqs naive batch_reqs_async_load_submit; do
     PREFIX=v29 "$REPO/tests/async_load_dev/run-queue-and-correctness.sh" $scheme s1 s2
 done
 echo ALL_DONE

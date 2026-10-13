@@ -51,7 +51,7 @@ ReqId = str
 
 @dataclass
 class SplitLoadMeta:
-    """Blocks of one async request loaded under split_async_load_submit."""
+    """Blocks of one async request loaded under a split_async_load_submit_* scheme."""
     block_ids: list[int]
     block_hashes: list[str]
     # Layers [0, num_first_n_layers) are submitted on arrival and must finish before
@@ -229,7 +229,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
         self._early_promoted_tasks: dict[ReqId, dict[str, Any]] = {}
         # Early-promoted tasks active for the current forward pass.
         self._active_promoted_tasks: dict[ReqId, dict[str, Any]] = {}
-        # split_async_load_submit: blocks of async requests whose remaining layers
+        # split_async_load_submit_*: blocks of async requests whose remaining layers
         # are not submitted yet. Kept because reqs_to_load no longer carries a
         # request after its first submission.
         self._remaining_load_meta: dict[ReqId, SplitLoadMeta] = {}
@@ -557,7 +557,10 @@ class KVShrinkConnector(KVConnectorBase_V1):
             )
 
         # Asynchronous loads are polled across scheduler steps in get_finished().
-        if self._async_load_scheme is AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT:
+        if self._async_load_scheme in (
+            AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_BATCH_REQS,
+            AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
+        ):
             self._submit_split_loads(async_reqs)
         elif self._async_load_scheme is AsyncLoadScheme.NAIVE:
             # One get() per request: each request's layers are queued contiguously.
@@ -808,11 +811,27 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 num_first_n_layers=num_first_n_layers,
             )
 
-        first_n_layer_tasks = self._submit_layer_segments(
-            _first_n_layer_segments(first_n_layer_loads, num_layers),
-            first_n_layer_loads,
-            "async",
-        )
+        if (
+            self._async_load_scheme
+            is AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ
+        ):
+            # One get() per request, in arrival order: a request's first N layers
+            # all finish before the next request's start, so the earliest request
+            # is promoted first instead of every request waiting for the whole batch.
+            first_n_layer_tasks: dict[ReqId, dict[str, Any]] = {}
+            for req_id, load in first_n_layer_loads.items():
+                req_tasks = self._submit_layer_segments(
+                    [LayerSegment(0, load.num_first_n_layers, [req_id])],
+                    {req_id: load},
+                    "async",
+                )
+                first_n_layer_tasks[req_id] = req_tasks[req_id]
+        else:
+            first_n_layer_tasks = self._submit_layer_segments(
+                _first_n_layer_segments(first_n_layer_loads, num_layers),
+                first_n_layer_loads,
+                "async",
+            )
         for req_id, request in async_reqs:
             # get_finished() polls these tasks and promotes the request once its
             # first N layers are loaded.

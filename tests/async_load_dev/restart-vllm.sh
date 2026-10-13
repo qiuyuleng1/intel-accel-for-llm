@@ -23,7 +23,9 @@ for i in $(seq 1 30); do
     sleep 2
 done
 [ -n "${OLD_TEE// /}" ] && { echo "old tee still running: $OLD_TEE" >&2; exit 1; }
-docker exec -w "$REPO" -d $C bash -c "export CUDA_VISIBLE_DEVICES=7 VLLM_CPU_OMP_THREADS_BIND=64-127 PORT=8010 IAXL_API_CONTROLLER_PORT=18710 IAXL_API_WORKER_BASE_PORT=18810 KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1 KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=$1 KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=$2 KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=$3 KVSHRINK_ASYNC_LOAD_SCHEME=$4 VLLM_BATCH_INVARIANT=${VLLM_BATCH_INVARIANT:-0}; exec ./examples/kvshrink-vllm-serve.sh > /dev/null 2>&1"
+# MODEL / TP_SIZE are pinned: the v29 container is created with the 72B model and
+# TP_SIZE in its environment (recreate-v29-container.sh), which setvars.sh keeps.
+docker exec -w "$REPO" -d $C bash -c "export MODEL=/home/pese/model-space/Qwen3-32B TP_SIZE=1 CUDA_VISIBLE_DEVICES=7 VLLM_CPU_OMP_THREADS_BIND=64-127 PORT=8010 IAXL_API_CONTROLLER_PORT=18710 IAXL_API_WORKER_BASE_PORT=18810 KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1 KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=$1 KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=$2 KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=$3 KVSHRINK_ASYNC_LOAD_SCHEME=$4 VLLM_BATCH_INVARIANT=${VLLM_BATCH_INVARIANT:-0}; exec ./examples/kvshrink-vllm-serve.sh > /dev/null 2>&1"
 for i in $(seq 1 90); do curl -sf http://localhost:8010/health >/dev/null && break; sleep 5; done
 curl -s -o /dev/null -w 'health=%{http_code}\n' http://localhost:8010/health
 grep -aE "async load scheme" "$REPO/log.kvshrink-vllm" | sed -E 's/^.*\] //'

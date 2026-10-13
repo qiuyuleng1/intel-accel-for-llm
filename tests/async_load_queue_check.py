@@ -32,8 +32,10 @@ SUBMIT_RE = re.compile(
 )
 PROMOTE_RE = re.compile(r"async_load step=(\d+) t=(\d+) promote reqs=(\S+)")
 
-FIFO_SCHEMES = ("naive", "batch_reqs_async_load_submit", "split_async_load_submit")
-SPLIT = "split_async_load_submit"
+SPLIT_FIRST_N_BATCH_REQS = "split_async_load_submit_first_n_batch_reqs"
+SPLIT_FIRST_N_PER_REQ = "split_async_load_submit_first_n_per_req"
+SPLIT_SCHEMES = (SPLIT_FIRST_N_BATCH_REQS, SPLIT_FIRST_N_PER_REQ)
+FIFO_SCHEMES = ("naive", "batch_reqs_async_load_submit") + SPLIT_SCHEMES
 
 
 @dataclass
@@ -160,7 +162,7 @@ def check_structure(scheme, subs, req_info, events, errors):
         ss = loaded.get(r, [])
         kinds = {s.kind for s in ss}
         want = {"async"} if info["async"] else {"sync"}
-        if scheme == SPLIT and info["async"] and head_layers(info, num_layers) < num_layers:
+        if scheme in SPLIT_SCHEMES and info["async"] and head_layers(info, num_layers) < num_layers:
             want = {"async", "async_remaining"}
         if kinds != want:
             errors.append(f"{r}: expected {sorted(want)} submits, got {sorted(kinds)}")
@@ -177,14 +179,14 @@ def check_structure(scheme, subs, req_info, events, errors):
         elif scheme == "batch_reqs_async_load_submit":
             if len(asyncs) > 1:
                 errors.append(f"step {step}: {len(asyncs)} async submits, expected 1")
-        elif scheme == SPLIT:
+        elif scheme in SPLIT_SCHEMES:
             pass  # checked by check_split()
         else:
             raise SystemExit(f"structure rules for scheme {scheme!r} not implemented")
 
 
-def check_split(subs, req_info, promote_ns, promote_step, errors):
-    """split_async_load_submit rules (doc section 9.3)."""
+def check_split(scheme, subs, req_info, promote_ns, promote_step, errors):
+    """split_async_load_submit_* rules (doc section 9.3)."""
     num_layers = max(s.last_layer for s in subs) + 1 if subs else 0
     steps: dict[int, list[tuple[int, Submission]]] = defaultdict(list)
     for i, s in enumerate(subs):
@@ -195,8 +197,17 @@ def check_split(subs, req_info, promote_ns, promote_step, errors):
         heads = [i for i, s in ss if s.kind == "async"]
         if tails and heads and max(tails) > min(heads):
             errors.append(f"step {step}: a tail submitted after a head")
-        # One segment per layer per kind: requests of a step form one batch.
-        for kind in ("async", "async_remaining"):
+        # Remaining layers of one step always form one batch: one segment per
+        # layer. First N layers do too under first_n_batch_reqs; under
+        # first_n_per_req every first-N submission holds exactly one request.
+        kinds_one_segment_per_layer = ["async_remaining"]
+        if scheme == SPLIT_FIRST_N_BATCH_REQS:
+            kinds_one_segment_per_layer.append("async")
+        else:
+            for _, s in ss:
+                if s.kind == "async" and len(s.reqs) != 1:
+                    errors.append(f"step {step}: first-N submit has {len(s.reqs)} reqs")
+        for kind in kinds_one_segment_per_layer:
             layers = [j for _, s in ss if s.kind == kind
                       for j in range(s.first_layer, s.last_layer + 1)]
             if len(layers) != len(set(layers)):
@@ -295,8 +306,8 @@ def main() -> int:
     errors: list[str] = []
     attach_tasks(subs, events, errors)
     check_structure(args.scheme, subs, req_info, events, errors)
-    if args.scheme == SPLIT:
-        check_split(subs, req_info, promote_ns, promote_step, errors)
+    if args.scheme in SPLIT_SCHEMES:
+        check_split(args.scheme, subs, req_info, promote_ns, promote_step, errors)
     inversions = count_inversions(args.scheme, events)
     cov = coverage(subs, req_info, promote_ns)
 
