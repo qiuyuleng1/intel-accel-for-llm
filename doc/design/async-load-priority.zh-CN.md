@@ -616,7 +616,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] `split_async_load_submit`:按 4.2 / 8.3 实现;判定脚本加 split 的结构检查(9.3);§7 S1 PASS、S2 未覆盖,输出正确性通过;abort 清理只做代码审查(§11.6)
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
 - [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)。分 `_first_n_batch_reqs` / `_first_n_per_req` 两个变种。**10-13 改为按组提权方案(§4.3 末尾、§8.4),先做 `_first_n_per_req`**
-- [ ] `priority_3level`:P0 内是否按层号排序,看 trace 中 sync 批第 0 层的等待再定(先按先进先出)
+- [ ] **待讨论(10-14 继续)** `priority_3level`:P0 内用先进先出还是按层号排序。要讨论的点:(1) 按层号排序要解决的场景(A 的尾已在 P0,本 step 来 sync 请求 C,C0 排在 A 的尾后面,forward 第 0 层空等)实际是否出现、等多久;(2) 用 trace 的哪个量判断(sync 批第 0 层任务入队到开始执行的等待,及其前面排着的已 promote 尾个数);(3) 若要排序,`Item` 加层号字段、P0 改用有序容器的代价。讨论定之前实现先按先进先出
 - [x] split 拆成两个变种:`split_async_load_submit` 改名 `split_async_load_submit_first_n_batch_reqs`;新增 `split_async_load_submit_first_n_per_req`(头逐个请求提交);判定脚本对 `_first_n_per_req` 改为"每次头提交只含 1 个请求"。§7 S1/S2 与正确性验证尚未跑(GPU 被占用)
 - [ ] PR 分支同步改名(目前 PR 分支仍是 `split_async_load_submit`,`tests/async_load_dev/perf-qwen72b-bench.sh` 也按 PR 分支用旧名)
 - [ ] 日志(整理 PR 前):`start_load_kv()` 的 `async_load step=… activate reqs=… held=…` 降为 DEBUG。它只用于验证 K3 / split 时人工统计,高并发下几乎每个 step 一行
