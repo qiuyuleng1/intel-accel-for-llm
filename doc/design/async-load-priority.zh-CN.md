@@ -225,6 +225,14 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 
 与公共前提的关系:同一 batch 的请求共用尾任务。batch 内各请求 N 相同时它们同时 promote;N 不同时,第一个 promote 的请求会把整批的尾提到 P0,其余请求的尾随之提前,无害。
 
+**2026-10-13 讨论结论(先只做 `priority_3level_first_n_per_req`)**:
+
+- **优先级存放在哪**:存在 `TaskQueue` 的排队条目 `Item` 上,不存进 `Context`。`Context`(每层一次 `get()` 生成的解压 / 拷贝对象,由 Python `Task.ctx` 持有)不加字段,只把参数原样往下传:connector → `KVStore.get` → `KVFlow.get` → `Context::unzip_from_mem` → `omp_queue().submit`。理由:排队顺序本来由队列管,优先级放在队列里,"按优先级取任务"和"改优先级"在同一个类、同一把锁内完成;不需要 §8.4 原方案的共享优先级 cell,也就没有 cell 的生命周期和 `Context` 手写 move 漏字段的问题。
+- **怎么改优先级(按组提权)**:每个任务带一个组号。`_first_n_per_req` 下一个请求一次 `get()`,组号就是请求的编号(Python 生成,记 `req_id → 组号`,请求结束时随现有清理一起删)。promote 时 connector 调一次 `set_group_priority(组号, P0)`,队列持锁把该组仍在 P2 排队的任务移到 P0;此时头已执行完,不在队列里。已在执行或已完成的任务不受影响。队列不维护组表,无需清理。不属于任何组的任务(sync 批、压缩、H2D/D2H 拷贝)组号为 0,提权不会碰到。
+- **`Item` 字段**:现有 `fn / label / priority / traced / seq / enqueue_ns / high_depth / low_depth`;`priority` 改为 0..3(P0..P3);新增 `group`(组号);新增 `submit_priority`(提交时的优先级,trace 用,`priority` 记执行时的);`high_depth / low_depth` 换成 4 个数(入队时 P0..P3 各排着几个)。
+- **P0 内顺序(待定)**:本节上表写的"P0 按 layer 号跨请求交错"是 10-08 的原设计,§5 结论里已注明"是否保留待实测"。用意:A 的尾(A5..A63)已在 P0,本 step 来了 sync 请求 C,先进先出时 C0 要等 A 的 59 层,forward 在第 0 层空等;按层号排则 C0..C4 先做、之后 A/C 按层交替。代价:`Item` 多一个层号字段,P0 不能用简单的 deque。**先按先进先出实现**(不加层号字段),是否需要按层号排序看 trace 中 sync 批第 0 层的等待再定。
+- **`_first_n_batch_reqs` 变种(以后做)**:同一 step 内各请求 N 不同时(按到达时的在途数查映射表,可能一个 N=4、一个 N=8),按层合并会出现"同一层对 A 是尾、对 B 是头"的混合任务。做法:复用 split 的 `_first_n_layer_segments()` / `_remaining_layer_segments()` 分段,每个任务要么是头要么是尾,不出现混合任务。
+
 ### 4.4 `split_priority_2level`
 
 按 `split_async_load_submit` 提交:尾在 promote 前不进队列,队列里不存在"未 promote 的尾"这类任务,因此**不需要 P2,也不需要改优先级**。promote 后尾直接以 P0 提交。队列只需:
@@ -434,6 +442,19 @@ P0 的任务来源:
 
 ### 8.4 `priority_3level`(C++ 为主)
 
+2026-10-13 起按 §4.3 末尾的讨论结论做(按组提权,`Context` 不改,先做 `_first_n_per_req`,P0 先按先进先出)。改动如下;其后的表格是原"可变优先级 cell"方案,保留作对比,不再采用。
+
+| # | 文件 | 改什么(10-13 方案) |
+|---|---|---|
+| 1 | `iaxl/csrc/include/task_queue.h` | 4 个等待区 P0..P3;`Item` 加 `group`、`submit_priority`,depth 换成 4 个数;新增 `set_group_priority(group, priority)`,持锁把该组 P2 中的任务移到 P0。保留旧 `submit(fn, priority)`:`PRIORITY_HIGH` → P0,`PRIORITY_LOW` → P3,Record / H2D / D2H 队列与压缩任务行为不变 |
+| 2 | `torch_ext/zip.cpp`、`torch_ext/torch_ext.cpp` | `unzip_from_mem` 加 `priority`、`group` 两个参数(pybind 给默认值,现有调用方不变);`UnzipFromMemWork` 记下这两个值,缓存未命中重试时沿用(现在重试硬编码 LOW);`Context` 不加字段 |
+| 3 | `iaxl/kvflow/flow.py`、`iaxl/kvstore/kvstore.py` | `get()` 接收每层优先级和组号并透传;新增 `set_group_priority` 封装 |
+| 4 | connector | `start_load_kv()`:sync → P0;每个 async 请求一次 `get()`,前 N 层 P1、其余 P2,组号按请求记录;`get_finished()` promote 时提权到 P0;请求结束时删 `req_id → 组号` |
+| 5 | `csrc/test/task_queue_test.cpp` | 单测:4 级取任务顺序、提权后顺序改变、旧 HIGH/LOW 调用行为不变、并发提权与入队(TSan) |
+| 6 | `tests/async_load_queue_check.py` | 优先级会变:违序检查按任务**执行时**的优先级判断,需要 trace 的 `priority` 与 `submit_priority` 两个字段 |
+
+原方案(不再采用):
+
 | # | 文件 | 改什么 |
 |---|---|---|
 | 1 | `iaxl/csrc/include/task_queue.h` | 两个 deque 换成一个条目列表,每条 `{shared_ptr<atomic<int>> prio, int64 sort_key, uint64 seq, fn}`;worker 在锁内线性扫最小 `(prio, sort_key, seq)`。队列长度 ≤ 并发数 × 层数(几千),线性扫可接受。**保留旧 `submit(fn, priority)` 重载**——`kv_pool/record.cpp` 的 `Record` 和 H2D / D2H 队列也用这个类 |
@@ -594,7 +615,8 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] 已知问题 K3 修复(在 split 之前,单独提交):scheduler 把本 step 被调度的请求放进 connector metadata,worker 只把被调度的已 promote 请求搬进 active;`naive`、`batch_reqs_async_load_submit` 各跑 §7 S1、S2 无 FAIL,输出正确性均通过(§11.5)
 - [x] `split_async_load_submit`:按 4.2 / 8.3 实现;判定脚本加 split 的结构检查(9.3);§7 S1 PASS、S2 未覆盖,输出正确性通过;abort 清理只做代码审查(§11.6)
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级 + P0 按 layer 号排序;`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority / layer 号;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
-- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)。分 `_first_n_batch_reqs` / `_first_n_per_req` 两个变种
+- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)。分 `_first_n_batch_reqs` / `_first_n_per_req` 两个变种。**10-13 改为按组提权方案(§4.3 末尾、§8.4),先做 `_first_n_per_req`**
+- [ ] `priority_3level`:P0 内是否按层号排序,看 trace 中 sync 批第 0 层的等待再定(先按先进先出)
 - [x] split 拆成两个变种:`split_async_load_submit` 改名 `split_async_load_submit_first_n_batch_reqs`;新增 `split_async_load_submit_first_n_per_req`(头逐个请求提交);判定脚本对 `_first_n_per_req` 改为"每次头提交只含 1 个请求"。§7 S1/S2 与正确性验证尚未跑(GPU 被占用)
 - [ ] PR 分支同步改名(目前 PR 分支仍是 `split_async_load_submit`,`tests/async_load_dev/perf-qwen72b-bench.sh` 也按 PR 分支用旧名)
 - [ ] 日志(整理 PR 前):`start_load_kv()` 的 `async_load step=… activate reqs=… held=…` 降为 DEBUG。它只用于验证 K3 / split 时人工统计,高并发下几乎每个 step 一行
