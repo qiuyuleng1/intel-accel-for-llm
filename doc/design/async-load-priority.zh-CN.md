@@ -28,7 +28,7 @@
 | 位置 | 事实 |
 |---|---|
 | `iaxl/csrc/torch_ext/context.h` `omp_queue()` | 全局唯一 `static TaskQueue("OMP-Main")` |
-| `iaxl/csrc/include/task_queue.h` | **1 个 worker 线程**;两个 deque(HIGH / LOW);先取 HIGH 再取 LOW,级内严格 FIFO;优先级在提交时固定,之后不可改 |
+| `iaxl/csrc/include/task_queue.h` | **1 个 worker 线程**;两个 deque(HIGH / LOW);先取 HIGH 再取 LOW,级内严格 FIFO;优先级在提交时固定,之后不可改(10-14 起改为 P0..P3 四级、可按组提权,见 §8.4、§11.10) |
 | `iaxl/csrc/torch_ext/zip.cpp` `Context::unzip_from_mem` | 解压任务提交为 `PRIORITY_HIGH` |
 | `iaxl/csrc/torch_ext/zip.cpp` `Context::zip_to_mem` | 压缩任务提交为 `PRIORITY_LOW` |
 | `iaxl/csrc/kv_zip/kv_zip.cpp` `zip_pipeline` | 每个任务内部开 OMP parallel region,占满全部 QAT/IAA/CPU 压缩 worker |
@@ -158,7 +158,7 @@ for req_id, request in async_reqs:
 | `batch_reqs_async_load_submit` | 同一 step 的 async 请求打成一个 batch,调一次 `get()`;每层一个任务,覆盖 batch 内所有请求的 block(与 sync 路径相同) | 本身就是公共前提 |
 | `split_async_load_submit_first_n_batch_reqs` | async 请求先只提交头(前 N 层);promote 后的下一次 `start_load_kv` 再提交尾(后 L−N 层)。同一 step 的头组 batch,按层分段每段一次 `get()` | `batch_reqs_async_load_submit` |
 | `split_async_load_submit_first_n_per_req` | 同上,但头逐个请求提交:每个请求一次 `get()`,按到达顺序;尾仍组 batch 按层提交 | `batch_reqs_async_load_submit` |
-| `priority_3level_first_n_batch_reqs` / `priority_3level_first_n_per_req` | 一次提交全部 L 层;队列加 3 级优先级(P0/P1/P2),promote 时把尾从 P2 调到 P0。两个变种的头分别组 batch 按层提交 / 逐个请求提交(未实现) | `batch_reqs_async_load_submit` |
+| `priority_3level_first_n_batch_reqs` / `priority_3level_first_n_per_req` | 一次提交全部 L 层;队列加 3 级优先级(P0/P1/P2),请求进入 forward(K3 搬入 active)时把它的尾从 P2 调到 P0。两个变种的头分别组 batch 按层提交 / 逐个请求提交。`_first_n_per_req` 已实现(10-14,§11.10),`_first_n_batch_reqs` 未实现 | `batch_reqs_async_load_submit` |
 | `split_priority_2level` | 按 `split_async_load_submit` 分两次提交;队列加 2 级固定优先级(P0/P1):头用 P1,尾和 sync 用 P0,P0 内先进先出 | `batch_reqs_async_load_submit` |
 
 列说明:"名字"用于文档、代码和 `KVSHRINK_ASYNC_LOAD_SCHEME` 的取值;"做法"写的是与 `naive` 的区别;"前提"指该方案是否建立在 `batch_reqs_async_load_submit` 之上。
@@ -210,12 +210,12 @@ get_finished
 
 | 级别 | 内容 | 级内排序 |
 |---|---|---|
-| P0 | forward 正在等的:sync 批全部层 + 已 promote 请求的尾 | 按提交序 FIFO(10-14 定,见本节末尾) |
+| P0 | forward 正在等的:sync 批全部层 + 已进入 forward 的请求的尾 | 按进入 P0 的顺序 FIFO(10-14 定,见本节末尾) |
 | P1 | 未 promote 请求的头 | 按提交序 FIFO |
-| P2 | 未 promote 请求的尾(预取) | 按提交序 FIFO |
+| P2 | 尚未进入 forward 的请求的尾(预取) | 按提交序 FIFO |
 | P3 | 压缩任务(KV 存入 DDR,现有 `PRIORITY_LOW`) | 按提交序 FIFO |
 
-promote 时对该请求的尾调用 `set_priority(P0)`。
+请求被 K3 搬入 active(本 step 的 forward 开始等它)时,对该请求的组调用 `set_group_priority(组号, P0)`(10-14 定,见本节末尾)。
 
 P3 不变,只是写明:压缩排在所有解压之后。风险(推断):P2 预取持续占队列时压缩被压后,存储用的 pinned 中转池(ScratchPool)要等压缩完才释放,满了会让引擎报错退出;请求结束也要等它的存储完成。`batch_reqs_async_load_submit` 下尾全是 HIGH,同样压在压缩前面,不是本方案新引入的。
 
@@ -229,10 +229,20 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 
 - **优先级存放在哪**:存在 `TaskQueue` 的排队条目 `Item` 上,不存进 `Context`。`Context`(每层一次 `get()` 生成的解压 / 拷贝对象,由 Python `Task.ctx` 持有)不加字段,只把参数原样往下传:connector → `KVStore.get` → `KVFlow.get` → `Context::unzip_from_mem` → `omp_queue().submit`。理由:排队顺序本来由队列管,优先级放在队列里,"按优先级取任务"和"改优先级"在同一个类、同一把锁内完成;不需要 §8.4 原方案的共享优先级 cell,也就没有 cell 的生命周期和 `Context` 手写 move 漏字段的问题。
 - **任务粒度**:`Item` 是队列里的一个任务 = 一次 `get()` 中一层的解压任务,覆盖这次 `get()` 涉及的所有请求的 block。`_first_n_per_req` 下一次 `get()` 只含一个请求,所以一个 `Item` = (一个请求, 一层);`_first_n_batch_reqs` 下一个 `Item` = (同 step 一批请求, 一层)。
-- **怎么改优先级(按组提权)**:每个任务带一个组号。`_first_n_per_req` 下一个请求一次 `get()`,组号就是请求的编号(Python 生成,记 `req_id → 组号`,请求结束时随现有清理一起删)。promote 时 connector 调一次 `set_group_priority(组号, P0)`,队列持锁把该组仍在 P2 排队的任务移到 P0;此时头已执行完,不在队列里。已在执行或已完成的任务不受影响。队列不维护组表,无需清理。与原 cell 方案相比:原方案 promote 时 Python 要对该请求每个尾层的 `Task.ctx` 各调一次 `set_priority`(L−N 次 Python→C++ 调用);按组提权只调一次,由队列在锁内扫 P2 把同组的 L−N 个 `Item` 移走,逐个移动的工作仍在,但都在 C++ 内一次完成。不属于任何组的任务(sync 批、压缩、H2D/D2H 拷贝)组号为 0,提权不会碰到。
+- **怎么改优先级(按组提权)**:每个任务带一个组号。`_first_n_per_req` 下一个请求一次 `get()`,组号就是请求的编号(Python 生成,记 `req_id → 组号`,请求结束时随现有清理一起删)。请求进入 forward 时(10-14 改,见下方补充)connector 调一次 `set_group_priority(组号, P0)`,队列持锁把该组仍在 P2 排队的任务移到 P0;此时头已执行完,不在队列里。已在执行或已完成的任务不受影响。队列不维护组表,无需清理。与原 cell 方案相比:原方案 promote 时 Python 要对该请求每个尾层的 `Task.ctx` 各调一次 `set_priority`(L−N 次 Python→C++ 调用);按组提权只调一次,由队列在锁内扫 P2 把同组的 L−N 个 `Item` 移走,逐个移动的工作仍在,但都在 C++ 内一次完成。不属于任何组的任务(sync 批、压缩、H2D/D2H 拷贝)组号为 0,提权不会碰到。
 - **`Item` 字段**:现有 `fn / label / priority / traced / seq / enqueue_ns / high_depth / low_depth`;`priority` 改为 0..3(P0..P3);新增 `group`(组号);新增 `submit_priority`(提交时的优先级,trace 用,`priority` 记执行时的);`high_depth / low_depth` 换成 4 个数(入队时 P0..P3 各排着几个)。
 - **P0 内顺序:先进先出,不按层号排序(10-14 定,适用于所有带 P0 的方案)**:10-08 原设计是"P0 按 layer 号跨请求交错",用意是:A 的尾(A5..A63)已在 P0,本 step 来了 sync 请求 C,先进先出时 C0 要排在 A 的尾后面;按层号排则 C0..C4 先做、之后 A/C 按层交替,让 A、C 同一次 forward 能更早开始。不做的理由:C 的第 0 层排在更早进入 P0 的 A 的尾后面是预期行为,先到的先加载完;我们不追求把先后到达的请求凑成一个大 batch 同时就绪。不做省掉的东西:`Item` 不加层号字段;P0 用普通 deque,不需要有序容器;`get()` / `unzip_from_mem` 不透传层号;判定脚本的排序键不含层号;不需要按层排序的单测。
 - **`_first_n_batch_reqs` 变种(以后做)**:同一 step 内各请求 N 不同时(按到达时的在途数查映射表,可能一个 N=4、一个 N=8),按层合并会出现"同一层对 A 是尾、对 B 是头"的混合任务。做法:复用 split 的 `_first_n_layer_segments()` / `_remaining_layer_segments()` 分段,每个任务要么是头要么是尾,不出现混合任务。
+
+**2026-10-14 补充(实现时定下的细节)**:
+
+- **提权时机:请求进入 forward 时,不在 promote 时**。§11.5 实测几乎所有 async 请求 promote 后都要再等一个 step 才被调度(held)。若 promote 时就提到 P0,不在本次 forward 里的请求会占住 P0,排在本 step 的 sync 批前面。改为在 `start_load_kv()` 的 K3 循环里(请求被搬进 `_active_promoted_tasks`)提权:代码量与 promote 时提权相同,只是调用位置不同;该循环在 forward 之前执行,来得及。提权后删掉 `req_id → 组号`。
+- **P0 顺序 = 进入 P0 的顺序**:被提权的任务按原顺序追加到 P0 末尾,排在已在 P0 的任务(如更早提交的 sync 批)之后。实现就是 deque 尾部追加。
+- **trace 字段**:`priority`(执行时所在级别)、`submit_priority`(提交时级别)、`group`、`p0_enter_ns`(被 `set_group_priority` 移入 P0 的时间,未移过为 0)、`depth[4]`(提交时 P0..P3 各排着几个)。`enqueue_ns` 与 `p0_enter_ns` 都在队列锁内取,二者先后与进入级别的先后一致。判定脚本用它们还原每个任务在任一时刻所在的级别(§7.6)。
+- **数值**:`PRIORITY_HIGH = P0 = 0`,`PRIORITY_LOW = P3 = 3`(原来 LOW = 1);旧的两级调用方行为不变。
+- **已知问题(记录,不处理)**:
+  - 远程存储(`IAXL_RDMA_ENABLE`,`KVStoreRemote`)没有 OMP-Main 优先级队列:选 `priority_3level_*` 且开远程存储时启动直接报错,以后再处理。
+  - 请求在进入 forward 前结束(abort)时,它的尾一直留在 P2,排在所有 P1 后面;结束清理要等这些尾做完,期间该请求的 GPU block 不释放。`naive` / `batch` 下尾是 HIGH,没有这个问题。
 
 ### 4.4 `split_priority_2level`
 
@@ -250,7 +260,7 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 | | `priority_3level` | `split_priority_2level` |
 |---|---|---|
 | 优先级级数 | 3(P0/P1/P2) | 2(P0/P1) |
-| 优先级能否改 | 能:promote 时 `set_priority` | 不能:提交时定死 |
+| 优先级能否改 | 能:请求进入 forward 时 `set_group_priority` | 不能:提交时定死 |
 | 尾在 promote 前预取(P2) | 有 | 无 |
 | P0 内顺序 | FIFO | FIFO |
 
@@ -266,7 +276,7 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 | 尾不卡 forward 的条件 | 宽松 | 单层解压 ≤ 单层 prefill 计算 | 宽松 | 单层解压 ≤ 单层 prefill 计算 |
 | 队列优先级 | 2 级固定(HIGH/LOW) | 2 级固定(HIGH/LOW) | 3 级**可变** | 2 级固定 |
 | C++ 改动 | — | 无 | 4 级 + 按组提权 `set_group_priority` | 2 级;提交接口加 priority 参数 |
-| Python 改动 | — | worker 保存 async 请求元数据;promote 后按 batch 补提交尾 | `get()` 加 per-layer priority;promote 时提权 | `split_async_load_submit` 的改动 + `get()` 加 priority 参数 |
+| Python 改动 | — | worker 保存 async 请求元数据;promote 后按 batch 补提交尾 | `get()` 加 per-layer priority;请求进入 forward 时提权 | `split_async_load_submit` 的改动 + `get()` 加 priority 参数 |
 
 结论:`split_async_load_submit` 单独能把 (a)(b) 从 L 层压到 N 层;`priority_3level` 解决 (a)(b) 但需可变优先级;`split_priority_2level` 解决 (a)(b) 且队列只需 2 级固定优先级,代价是尾没有提前量(本轮不评估,见 4.2)。P0 内不按层号排序,先进先出(10-14 定,理由见 4.3 末尾)。另外,已知问题 K2(§3)的延迟发生在任务进队列之前,本文方案对它无效。
 
@@ -328,7 +338,7 @@ P0 的任务来源:
 | `naive` | `[R1_0..R1_63][R2_0..R2_63]…[R8_0..R8_63]`,512 个任务;R8_0 排第 449 位 |
 | `batch_reqs_async_load_submit` | `[L0(R1..R8)]…[L63(R1..R8)]`,64 个任务;8 个请求在 L3 完成后同时 promote |
 | `split_async_load_submit` | 本 step `[L0..L3(R1..R8)]`,4 个任务;promote 后下一个 step `[L4..L63(R1..R8)]`,60 个任务 |
-| `priority_3level` | 同 batch,64 个任务;L0~L3 为 P1,L4~L63 为 P2,promote 后提到 P0 |
+| `priority_3level` | 同 batch,64 个任务;L0~L3 为 P1,L4~L63 为 P2,promote 后提到 P0(10-14 实现的 `_first_n_per_req`:每个请求一次 `get()` 共 64 个任务,P2 在请求进入 forward 时提到 P0) |
 | `split_priority_2level` | 同 split;头为 P1,尾为 P0 |
 
 实际上 8 个请求不一定落在同一个 step;判定时以 7.5 的 step log 为准,对每个 step 套用上表。
@@ -354,21 +364,22 @@ P0 的任务来源:
 
 | log | 内容 | 状态 |
 |---|---|---|
-| `GET /v1/cache/queue_trace` | 每个解压任务的 `label=unzip\|<req_id 列表>\|<层名>`、`priority`、`seq`、`enqueue_ns / start_ns / end_ns`;按 `start_ns` 排序即实际执行顺序 | 已有 |
+| `GET /v1/cache/queue_trace` | 每个解压任务的 `label=unzip\|<req_id 列表>\|<层名>`、`priority`、`seq`、`enqueue_ns / start_ns / end_ns`;按 `start_ns` 排序即实际执行顺序。10-14 起另有 `submit_priority` / `group` / `p0_enter_ns` / `depth`(§4.3 末尾) | 已有 |
 | connector `get_num_new_matched_tokens` | 每个请求实际走 sync 还是 async、N 是多少 | 已有 |
 | connector `start_load_kv` | 每次 `get()` 一行:`async_load step=<k> t=<ns> submit kind=sync\|async reqs=<id,...> layers=<a>-<b>` | 已加 |
 | connector `get_finished` | `async_load step=<k> t=<ns> promote reqs=<id,...>` | 已加 |
+| connector `start_load_kv`(K3) | `async_load step=<k> t=<ns> activate reqs=<本次搬入 active 的请求> held=<留在 early 的请求>`;`priority_3level` 在打这行之前提权 | 已加 |
 
 `t` 是 `time.monotonic_ns()`,与 trace 同一时钟。sync 批的 description 也改为逗号分隔的 req_id,trace 里每个任务都能对应到具体的 submit 行。
 
-`priority_3level` 的优先级会中途改变,做该方案时 trace 要记录执行时的优先级,而不是提交时的。
+`priority_3level` 的优先级会中途改变:trace 的 `priority` 是执行时所在级别,`submit_priority` 是提交时级别,`p0_enter_ns` 是被提权移入 P0 的时间。
 
 ### 7.6 判定
 
 判定脚本读取 7.5 的 log,对每次运行输出三项:
 
 1. **提交结构是否与 7.4 一致**:每个 step 的任务数、层范围、req_id 组成。例:`batch_reqs_async_load_submit` 同一 step 恰好 64 个任务且 label 含该 step 全部 async 请求;split 类方案中,任何请求在 promote 记录之前不得有 L4 及以上的任务。
-2. **违序数**:用 trace 重放队列,对每个任务检查它开始执行的那一刻,是否有"已入队、未开始、排序键更小"的任务。排序键:FIFO 类方案 `(HIGH/LOW, seq)`;优先级类方案 `(执行时的 priority, seq)`。必须为 0。
+2. **违序数**:用 trace 重放队列,对每个任务检查它开始执行的那一刻,是否有"已入队、未开始、排序键更小"的任务。排序键:FIFO 类方案 `(HIGH/LOW, seq)`;优先级类方案取任务**在该时刻**的 `(所在级别, 进入该级别的时间, seq)`:被提权的任务在 `p0_enter_ns` 之前处于提交级别(进入时间 = `enqueue_ns`),之后处于 P0(进入时间 = `p0_enter_ns`)。必须为 0。
 3. **场景覆盖数**:S1 中"R9 类请求到达时前面有尾"的次数;S2 中"sync 批提交时队列里有 async 任务"的次数。
 
 每次运行的结论只有三种:
@@ -450,11 +461,15 @@ P0 的任务来源:
 | 1 | `iaxl/csrc/include/task_queue.h` | 4 个等待区 P0..P3;`Item` 加 `group`、`submit_priority`,depth 换成 4 个数;新增 `set_group_priority(group, priority)`,持锁把该组 P2 中的任务移到 P0。保留旧 `submit(fn, priority)`:`PRIORITY_HIGH` → P0,`PRIORITY_LOW` → P3,Record / H2D / D2H 队列与压缩任务行为不变 |
 | 2 | `torch_ext/zip.cpp`、`torch_ext/torch_ext.cpp` | `unzip_from_mem` 加 `priority`、`group` 两个参数(pybind 给默认值,现有调用方不变);缓存未命中重试**不改**,仍以 `PRIORITY_LOW`(= P3,组号 0)入队,见下方"重试优先级";`Context` 不加字段 |
 | 3 | `iaxl/kvflow/flow.py`、`iaxl/kvstore/kvstore.py` | `get()` 接收每层优先级和组号并透传;新增 `set_group_priority` 封装 |
-| 4 | connector | `start_load_kv()`:sync → P0;每个 async 请求一次 `get()`,前 N 层 P1、其余 P2,组号按请求记录;`get_finished()` promote 时提权到 P0;请求结束时删 `req_id → 组号` |
+| 4 | connector | `start_load_kv()`:sync → P0;每个 async 请求一次 `get()`,前 N 层 P1、其余 P2,组号按请求记录;请求被 K3 搬入 active 时提权到 P0(10-14 改,原为 promote 时);请求结束时删 `req_id → 组号`;开远程存储时启动报错 |
 | 5 | `csrc/test/task_queue_test.cpp` | 单测:4 级取任务顺序、提权后顺序改变、旧 HIGH/LOW 调用行为不变、并发提权与入队(TSan) |
-| 6 | `tests/async_load_queue_check.py` | 优先级会变:违序检查按任务**执行时**的优先级判断,需要 trace 的 `priority` 与 `submit_priority` 两个字段 |
+| 6 | `tests/async_load_queue_check.py` | 优先级会变:违序检查按任务**在该时刻**所在级别判断,需要 trace 的 `submit_priority` 与 `p0_enter_ns`;另查每个任务的提交级别、组号,以及提权时间介于 promote 与 activate 之间 |
+
+10-14 已按上表实现,验证结果见 §11.10。
 
 **重试优先级(10-14 定)**:解压任务在 `mem->get()` 取不到数据时重试,原因是这层 KV 的压缩任务还在队列里、数据还没写进 DDR。重试以 `PRIORITY_LOW`(P3)入队,与压缩同级先进先出,排在更早入队的压缩任务后面,压缩做完再取就有数据;第二次仍取不到会 `IAXL_CHECK` 退出。所以重试**不能**沿用原任务的 P0 / P1 / P2,否则会跑在压缩前面。重试组号为 0,提权只移动 P2,碰不到它。
+
+已知行为(记录,不处理):重试排在**所有**已入队的压缩任务后面,不只是它要等的那一个。若重试的是 forward 正在等的任务(P0 的尾或 sync 批),而压缩积压较多,forward 要等整段压缩做完。这是现有行为,4 级方案下不变;实际发生频率未测(trace 中 `unzip_retry` 标签可统计),本轮不看。
 
 原方案(不再采用):
 
@@ -616,9 +631,14 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] 已知问题 K3 修复(在 split 之前,单独提交):scheduler 把本 step 被调度的请求放进 connector metadata,worker 只把被调度的已 promote 请求搬进 active;`naive`、`batch_reqs_async_load_submit` 各跑 §7 S1、S2 无 FAIL,输出正确性均通过(§11.5)
 - [x] `split_async_load_submit`:按 4.2 / 8.3 实现;判定脚本加 split 的结构检查(9.3);§7 S1 PASS、S2 未覆盖,输出正确性通过;abort 清理只做代码审查(§11.6)
 - [ ] `split_priority_2level`:`TaskQueue` 2 级固定优先级(P0 内 FIFO);`unzip_from_mem` / `KVFlow.get()` / `KVStore.get()` 透传 priority;connector 接入;9.5 验收 + §7 S1、S2 都跑(结论不得为 FAIL)
-- [ ] `priority_3level`:`TaskQueue` 可变 cell + `Context::set_priority` + pybind;trace 记录执行时优先级;connector promote 时提权;9.4 验收 + §7 S1、S2 都跑(结论不得为 FAIL)。分 `_first_n_batch_reqs` / `_first_n_per_req` 两个变种。**10-13 改为按组提权方案(§4.3 末尾、§8.4),先做 `_first_n_per_req`**
+- [x] `priority_3level_first_n_per_req`:按 §4.3 末尾 / §8.4 实现(按组提权,请求进入 forward 时提权,`Context` 不改);单测 + TSan 通过;§7 S1、S2 均 PASS,输出正确性通过(§11.10)
+- [ ] `priority_3level_first_n_batch_reqs`:未实现(做法见 §4.3 末尾)
+- [ ] 已知问题:`priority_3level_*` 不支持远程存储(`IAXL_RDMA_ENABLE`),目前启动报错,以后处理
+- [ ] 分析:`v29p3-priority-s1` 中两次新请求的头等了 58 / 61 ms(§11.10),原因未查
+- [ ] 性能测试:72B 脚本(`perf-qwen72b-bench.sh`)目前只认 PR 分支和旧方案名、固定 GPU4-7,需适配 dev 分支与新方案
+- [ ] `record_test.cpp` 并发段报 `Invalid KV cache label: 0:0`(改动前的 `task_queue.h` 同样出现,与本方案无关),该测试也未接入 Makefile
 - [x] P0 内顺序:10-14 定为先进先出,不按层号排序,适用于所有带 P0 的方案(理由见 4.3 末尾)
-- [x] split 拆成两个变种:`split_async_load_submit` 改名 `split_async_load_submit_first_n_batch_reqs`;新增 `split_async_load_submit_first_n_per_req`(头逐个请求提交);判定脚本对 `_first_n_per_req` 改为"每次头提交只含 1 个请求"。§7 S1/S2 与正确性验证尚未跑(GPU 被占用)
+- [x] split 拆成两个变种:`split_async_load_submit` 改名 `split_async_load_submit_first_n_batch_reqs`;新增 `split_async_load_submit_first_n_per_req`(头逐个请求提交);判定脚本对 `_first_n_per_req` 改为"每次头提交只含 1 个请求"。10-14 在 GPU2 跑:S1 PASS、S2 未覆盖,输出正确性通过(§11.10)
 - [ ] PR 分支同步改名(目前 PR 分支仍是 `split_async_load_submit`,`tests/async_load_dev/perf-qwen72b-bench.sh` 也按 PR 分支用旧名)
 - [ ] 日志(整理 PR 前):`start_load_kv()` 的 `async_load step=… activate reqs=… held=…` 降为 DEBUG。它只用于验证 K3 / split 时人工统计,高并发下几乎每个 step 一行
 - [ ] 日志(整理 PR 前):删除 `_log_load_submit()` 及其调用(submit log)。它只供 §7 判定脚本把 trace 任务对应到提交,生产上不需要
@@ -632,13 +652,15 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - 2026-10-09:完成公共基础设施,并在 `naive` 上跑了 T2;方案改用 4.0 的名字,`batch_reqs_async_load_submit` 定为公共前提。完成 §7 测试工具(submit / promote log、benchmark 参数、判定脚本),`naive` 的 S1 PASS;S2 在实际映射表下未覆盖 (b)(§11.3)。step 层面的延迟记为已知问题 K2,不单独测试。完成 `batch_reqs_async_load_submit`,S1、S2 无 FAIL,输出正确(§11.4)。
 - 2026-10-10:完成 split 详细设计;修复 K3,`naive`、`batch_reqs_async_load_submit` 的 S1、S2 无 FAIL,输出正确(§11.5)。输出正确性检查改为要求 vLLM 以 `VLLM_BATCH_INVARIANT=1` 启动;S2 速率改为 inf。完成 `split_async_load_submit`,S1 PASS、S2 未覆盖,输出正确(§11.6)。
 - 2026-10-12:connector 代码整理(命名、显式循环、K3 搬入 active 移到所有提交之后),修正测试工具切 log 的问题,三个方案在 v0.23 上重测无 FAIL(§11.7)。rebase 到 `origin/main`(vLLM v0.29.0),在新容器里三个方案 S1、S2 无 FAIL、输出正确(§11.8)。split 下 GSM8K 跑 2 次:0.955 / 0.950(§11.9)。
+- 2026-10-13:72B 性能脚本;split 拆成 `_first_n_batch_reqs` / `_first_n_per_req` 两个变种;`priority_3level` 改为按组提权的设计。
+- 2026-10-14:定下 P0 按进入顺序 FIFO、请求进入 forward 时提权、重试保持 LOW、`p0_enter_ns`;实现 `priority_3level_first_n_per_req`,单测 / TSan 通过,GPU2 上 S1、S2 PASS、输出正确;补跑 `split_..._first_n_per_req`(§11.10)。
 
 ### 11.1 公共基础设施
 
 - `TaskQueue`(`iaxl/csrc/include/task_queue.h`):开启后为每个任务记录 `label / priority / seq / enqueue_ns / start_ns / end_ns / high_depth / low_depth`,时钟为 steady_clock(= Python `time.monotonic_ns()`);关闭时只多一次原子读。上限 262144 条,超出计入 `dropped`。
 - 标签(`torch_ext/zip.cpp`):`<kind>|<description>|<tensor_key>`,kind ∈ {`unzip`, `unzip_retry`, `zip`};description 是本次 `get()` 涉及的 req_id(逗号分隔;sync 批同样如此),put 为空。
 - 读取:`GET /v1/cache/queue_trace?queue=OMP-Main&enable=1|0`(worker 端;controller 转发)。每次调用返回并清空已记录事件。
-- 单测:`iaxl/csrc/test/task_queue_test.cpp`(`make test-task-queue`),21 项通过;TSan 0 告警(需 `setarch $(uname -m) -R` 运行)。
+- 单测:`iaxl/csrc/test/task_queue_test.cpp`(`make test-task-queue`),21 项通过;TSan 0 告警(需 `setarch $(uname -m) -R` 运行)。10-14 起的 4 级队列与新 trace 字段见 §11.10。
 
 ### 11.2 测试环境(本机配置,不进 PR)
 
@@ -849,3 +871,49 @@ rebase 结果:只有 `setvars.sh` 一处冲突(基础镜像用上游 v0.29.0,开
 - run1 也几乎全部命中:gsm8k 的 prompt 共用同一段 few-shot 示例(约 576 token),第一个请求存进 DDR 后其余请求都命中;run2 还命中了题目本身。
 - 逐题对比(实测):最终答案相同 191 / 200;对错不同 3 题(index 98、114 run1 对 run2 错;197 run1 错 run2 对);输出全文相同 29 / 200;400 条输出乱码字符为 0。
 - 两次相差 1 题(0.005)。没有开 `VLLM_BATCH_INVARIANT`,并发 50 时各请求所在 batch 的组成每次不同,贪心解码会分叉(与 11.5 的现象一致);推断该差异为运行间波动,未见 split 加载导致的问题。客户报告为 0.955(qwen3-32b-fp8,模型不同,仅供参考)。
+
+### 11.10 `priority_3level_first_n_per_req`
+
+**代码**(设计见 §4.3 末尾、§8.4):
+
+| 文件 | 改动 |
+|---|---|
+| `iaxl/csrc/include/task_queue.h` | 4 个 deque(P0..P3);`submit(fn, priority, label, group = 0)`,priority 越界抛 `std::invalid_argument`;`set_group_priority(group, priority)` 持锁把该组在更低级别排队的任务按原顺序移到目标级别末尾,移入 P0 的记 `p0_enter_ns`,返回移动个数,组号 0 不动;`enqueue_ns` 改在锁内取;trace 新增 `submit_priority` / `group` / `p0_enter_ns` / `depth[4]`(替换 `high_depth` / `low_depth`) |
+| `iaxl/csrc/torch_ext/context.h`、`zip.cpp`、`torch_ext.cpp` | `unzip_from_mem(..., priority = 0, group = 0)`;重试不变(LOW,组号 0);trace 输出新字段;新增 `task_queue_set_group_priority(group, priority)` |
+| `iaxl/kvflow/flow.py`、`iaxl/kvstore/kvstore.py` | `get(..., priorities, group)` 透传(`priorities` 缺层时 `ValueError`);新增 `set_group_priority` |
+| `kvshrink/async_load_config.py` | 方案名 `priority_3level_first_n_per_req`(已实现)、`priority_3level_first_n_batch_reqs`(未实现,启动报错) |
+| `kvshrink/kvshrink_connector.py` | `_submit_priority_loads()`:每个 async 请求一次 `get()`,前 N 层 P1、其余 P2,一请求一个组号;K3 搬入 active 时 `set_group_priority(组号, P0)` 并删映射;结束清理时删映射;开远程存储时启动报错 |
+| `tests/async_load_queue_check.py` | 新方案的结构检查(每次 async 提交 1 个请求、提交级别、组号唯一、提权时间介于 promote 与 activate 之间)与按时刻级别的违序检查(§7.6) |
+| `tests/async_load_dev/restart-vllm.sh` | GPU 号 / 绑核改为环境变量 `GPU` / `CPU_BIND`(默认 7 / 64-127) |
+
+**单测**(`iaxl.vllm.qiuyu-v29` 容器内):`task_queue_test` 35 项全部通过(原 22 项 + 新 13 项:4 级顺序、提权后按进入 P0 顺序、不移动的情况、重试排在压缩后、并发提权与入队);TSan 0 告警。`record_test` 前 9 项(含 3 项 `TaskQueue` HIGH/LOW 检查)通过,之后并发段报 `Invalid KV cache label: 0:0`,用改动前的 `task_queue.h` 编译结果完全相同,为已有问题。
+
+**§7 队列顺序 + 输出正确性**(GPU2,`VLLM_CPU_OMP_THREADS_BIND=0-63`,Qwen3-32B,TP=1,输入 4k;connector md5 `586c6133`):
+
+| 运行名 | 方案 | 场景 | 命中 async / sync | 提交次数 | 结构错误 | 违序 | (a) 次数 | (b) 次数 | 队列结论 | 正确性 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `v29p3-priority-s1` | `priority_3level_first_n_per_req` | S1 | 16 / 0 | 16 | 0 | 0 | 12 | — | **PASS** | PASS |
+| `v29p3-priority-s2` | `priority_3level_first_n_per_req` | S2 | 27 / 5 | 31 | 0 | 0 | 8 | 2 | **PASS** | PASS |
+| `v29fnpr-split-s1` | `split_async_load_submit_first_n_per_req` | S1 | 16 / 0 | 28 | 0 | 0 | 4 | — | **PASS** | PASS |
+| `v29fnpr-split-s2` | `split_async_load_submit_first_n_per_req` | S2 | 29 / 3 | 44 | 0 | 0 | 7 | 0 | 未覆盖 | PASS |
+| `v29p3reg-naive-s1` | `naive`(`TaskQueue` 改动后的回归) | S1 | 16 / 0 | 16 | 0 | 0 | 7 | — | **PASS** | PASS |
+
+列说明同 11.7;"正确性"为 `VLLM_BATCH_INVARIANT=1` 下 1 个参考请求(`externally-cached tokens` = 0)+ 4 个命中请求(各 4960 token),4 个输出与参考逐字节一致、乱码字符 0 个。
+
+**提权是否发生**(`v29p3-priority-s1` trace,实测):
+
+| 提交级别 | 执行级别 | 被提权(`p0_enter_ns` > 0) | 任务数 |
+|---|---|---|---|
+| P1(前 N 层) | P1 | 否 | 64 |
+| P2(其余层) | P0 | 是 | 394 |
+| P2 | P2 | 否 | 566 |
+
+列说明:"提交级别"= `submit_priority`;"执行级别"= `priority`;"任务数"为 unzip 任务条数(另有 1024 个 zip 任务,P3)。566 个 P2 任务未被提权就执行完,推断为请求 activate 前趁队列空闲预取完成,未单独核对。
+
+- 超车:64 个 P1 任务中 48 个比更早入队的 P2 任务先执行。
+- 负对照:把 trace 中的提权记录抹掉(`p0_enter_ns` 置 0、`priority` 改回提交级别)再判定,结果 FAIL、违序 53,判定脚本能识别提权。
+- (b) 第一次被覆盖:`v29p3-priority-s2` 中 sync 批两次到达时前面分别排着 62、61 个更早 step 的尾任务,其第 0 层任务等待 0.7 ms、0.9 ms。
+- 未解释:S1 中两次新请求的首个任务等了 58.2 ms、61.0 ms(其余同类提交 0.7~4.1 ms),原因未查(§10)。
+- 判定报告的 `async_tail_promoted` 按"请求已 promote"分类;本方案下已 promote 但未 activate 的请求,尾仍在 P2,该分类不等于"在 P0"。
+
+本节只验证队列顺序与输出正确性,未测 TTFT。

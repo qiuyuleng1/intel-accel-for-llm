@@ -4,6 +4,8 @@
 #include "task_queue.h"
 
 #include <algorithm>
+#include <array>
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <future>
@@ -108,8 +110,11 @@ static void test_timestamps_and_order() {
           "queued tasks start only after the blocking task is released");
     CHECK(hi->start_ns - hi->enqueue_ns >= 20 * 1000 * 1000,
           "queue wait (start_ns - enqueue_ns) covers the time spent behind the blocking task");
-    CHECK(lo->high_depth == 0 && lo->low_depth == 0, "low saw an empty queue at submit");
-    CHECK(hi->high_depth == 0 && hi->low_depth == 1, "high saw one LOW task waiting at submit");
+    CHECK(lo->depth == (std::array<uint32_t, 4>{0, 0, 0, 0}), "low saw an empty queue at submit");
+    CHECK(hi->depth == (std::array<uint32_t, 4>{0, 0, 0, 1}),
+          "high saw one LOW (P3) task waiting at submit");
+    CHECK(hi->submit_priority == hi->priority && hi->group == 0 && hi->p0_enter_ns == 0,
+          "plain submit records submit_priority == priority, group 0, p0_enter_ns 0");
 
     CHECK(queue.drain_trace().empty(), "drain_trace clears the buffer");
 }
@@ -184,6 +189,169 @@ static void test_untraced_submit_compatible() {
     CHECK(rejected, "invalid priority is rejected");
 }
 
+// Blocks the worker inside one task so that later submits stay queued until release().
+class WorkerGate {
+  public:
+    explicit WorkerGate(TaskQueue &queue) : gate_(release_.get_future()) {
+        done_ = queue.submit(
+            [this]() {
+                started_.set_value();
+                gate_.wait();
+            },
+            TaskQueue::PRIORITY_P0, "gate", kGateGroup);
+        started_.get_future().wait();
+    }
+
+    void release() {
+        release_.set_value();
+        done_.get();
+    }
+
+    static constexpr uint64_t kGateGroup = 99;
+
+  private:
+    std::promise<void> started_;
+    std::promise<void> release_;
+    std::shared_future<void> gate_;
+    std::future<void> done_;
+};
+
+static std::vector<std::string> run_order(const std::vector<TaskTraceEvent> &events) {
+    std::vector<TaskTraceEvent> sorted = events;
+    std::sort(sorted.begin(), sorted.end(),
+              [](const TaskTraceEvent &a, const TaskTraceEvent &b) {
+                  return a.start_ns < b.start_ns;
+              });
+    std::vector<std::string> labels;
+    for (const auto &e : sorted) {
+        if (e.label != "gate")
+            labels.push_back(e.label);
+    }
+    return labels;
+}
+
+static void test_four_levels_order() {
+    TaskQueue queue("TQ-LEVELS");
+    queue.init();
+    queue.set_trace_enabled(true);
+    WorkerGate gate(queue);
+    std::vector<std::future<void>> done;
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P3, "p3"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "p2"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P1, "p1"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "p0"));
+    gate.release();
+    for (auto &f : done)
+        f.get();
+    auto events = flush_and_drain(queue);
+    CHECK(run_order(events) == std::vector<std::string>({"p0", "p1", "p2", "p3"}),
+          "worker takes P0, then P1, then P2, then P3");
+    const auto *p0 = find(events, "p0");
+    CHECK(p0 && p0->depth == (std::array<uint32_t, 4>{0, 1, 1, 1}),
+          "depth records waiting tasks per level at submit");
+}
+
+static void test_group_raise_to_p0() {
+    TaskQueue queue("TQ-RAISE");
+    queue.init();
+    queue.set_trace_enabled(true);
+    WorkerGate gate(queue);
+    std::vector<std::future<void>> done;
+    // A's tail (group 5, P2) is queued before sync batch S (P0) and B's head (P1).
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "a_tail_0", 5));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "a_tail_1", 5));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "c_tail", 7));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "s"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P1, "b_head", 6));
+    const size_t moved = queue.set_group_priority(5, TaskQueue::PRIORITY_P0);
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "s_late"));
+    gate.release();
+    for (auto &f : done)
+        f.get();
+    CHECK(moved == 2, "set_group_priority returns the number of moved tasks");
+    auto events = flush_and_drain(queue);
+    CHECK(run_order(events) ==
+              std::vector<std::string>({"s", "a_tail_0", "a_tail_1", "s_late", "b_head", "c_tail"}),
+          "raised tasks join P0 in the order they entered P0, ahead of P1 and P2");
+    const auto *a0 = find(events, "a_tail_0");
+    const auto *s = find(events, "s");
+    const auto *c = find(events, "c_tail");
+    CHECK(a0 && a0->priority == TaskQueue::PRIORITY_P0 &&
+              a0->submit_priority == TaskQueue::PRIORITY_P2 && a0->group == 5,
+          "raised task records execution priority, submit priority and group");
+    CHECK(a0 && s && a0->p0_enter_ns > s->enqueue_ns, "raised task records p0_enter_ns");
+    CHECK(s && c && s->p0_enter_ns == 0 && c->p0_enter_ns == 0,
+          "tasks never moved keep p0_enter_ns 0");
+}
+
+static void test_raise_noop_cases() {
+    TaskQueue queue("TQ-RAISE-NOOP");
+    queue.init();
+    WorkerGate gate(queue);
+    auto p1 = queue.submit([]() {}, TaskQueue::PRIORITY_P1, "", 0);
+    CHECK(queue.set_group_priority(0, TaskQueue::PRIORITY_P0) == 0, "group 0 is never moved");
+    CHECK(queue.set_group_priority(12345, TaskQueue::PRIORITY_P0) == 0,
+          "unknown group moves nothing");
+    CHECK(queue.set_group_priority(WorkerGate::kGateGroup, TaskQueue::PRIORITY_P0) == 0,
+          "running task is not affected");
+    bool rejected = false;
+    try {
+        queue.set_group_priority(5, 4);
+    } catch (const std::invalid_argument &) {
+        rejected = true;
+    }
+    CHECK(rejected, "set_group_priority rejects an invalid priority");
+    gate.release();
+    p1.get();
+}
+
+// Cache-miss retry is submitted at PRIORITY_LOW with group 0: it must stay behind the
+// zip task it waits for even after the original request's group is raised.
+static void test_retry_stays_behind_zip() {
+    TaskQueue queue("TQ-RETRY");
+    queue.init();
+    queue.set_trace_enabled(true);
+    WorkerGate gate(queue);
+    std::vector<std::future<void>> done;
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_LOW, "zip"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_LOW, "unzip_retry"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "tail", 5));
+    queue.set_group_priority(5, TaskQueue::PRIORITY_P0);
+    gate.release();
+    for (auto &f : done)
+        f.get();
+    CHECK(run_order(flush_and_drain(queue)) ==
+              std::vector<std::string>({"tail", "zip", "unzip_retry"}),
+          "retry stays behind zip after a group raise");
+}
+
+static void test_concurrent_raise_and_submit() {
+    TaskQueue queue("TQ-RAISE-MT");
+    queue.init();
+    constexpr int kThreads = 4;
+    constexpr int kPerThread = 500;
+    std::atomic<int> ran{0};
+    std::vector<std::thread> threads;
+    for (int t = 0; t < kThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            std::vector<std::future<void>> done;
+            for (int i = 0; i < kPerThread; ++i) {
+                const uint64_t group = static_cast<uint64_t>(t * kPerThread + i) / 8 + 1;
+                done.push_back(queue.submit([&]() { ran.fetch_add(1); },
+                                            TaskQueue::PRIORITY_P2, "", group));
+                if (i % 8 == 7)
+                    queue.set_group_priority(group, TaskQueue::PRIORITY_P0);
+            }
+            for (auto &f : done)
+                f.get();
+        });
+    }
+    for (auto &th : threads)
+        th.join();
+    CHECK(ran.load() == kThreads * kPerThread,
+          "concurrent submit and set_group_priority run every task exactly once");
+}
+
 int main() {
     test_disabled_by_default();
     test_timestamps_and_order();
@@ -191,6 +359,11 @@ int main() {
     test_disable_stops_recording();
     test_capacity_drop();
     test_untraced_submit_compatible();
+    test_four_levels_order();
+    test_group_raise_to_p0();
+    test_raise_noop_cases();
+    test_retry_stays_behind_zip();
+    test_concurrent_raise_and_submit();
 
     if (g_failures) {
         std::fprintf(stderr, "%d check(s) failed\n", g_failures);

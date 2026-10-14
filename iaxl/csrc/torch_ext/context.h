@@ -105,10 +105,15 @@ class Context {
                     const std::vector<std::string> &chunk_labels,
                     const std::vector<torch::Tensor> &cpu_tensors, bool compress = true);
 
+    // priority: TaskQueue level (PRIORITY_P0..P3) of the decompression task.
+    // group: TaskQueue group for set_group_priority(); 0 = no group.
+    // A cache-miss retry is always resubmitted at PRIORITY_LOW with group 0, so it
+    // runs after the zip task that writes the missing data.
     void unzip_from_mem(kv_pool::Mem &mem, const std::string &label, const std::string &tensor_key,
                         const std::vector<std::string> &chunk_labels,
                         const std::vector<int64_t> &chunk_indices,
-                        const std::vector<torch::Tensor> &cpu_tensors);
+                        const std::vector<torch::Tensor> &cpu_tensors,
+                        int priority = TaskQueue::PRIORITY_HIGH, uint64_t group = 0);
 
     void zip_wait();
     bool zip_is_complete();

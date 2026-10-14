@@ -25,9 +25,13 @@ class AsyncLoadScheme(str, enum.Enum):
     SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_BATCH_REQS = "split_async_load_submit_first_n_batch_reqs"
     # Same, but each request's first N layers use their own get(), in arrival order.
     SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ = "split_async_load_submit_first_n_per_req"
-    # Submit all layers with three mutable priorities, raised on promotion.
-    PRIORITY_3LEVEL = "priority_3level"
-    # Split submission with two fixed priorities; top level ordered by layer.
+    # Submit all layers in one get() per request: first N layers at level P1, the
+    # rest at P2; the request's group is raised to P0 when a forward first waits
+    # on it. First-N-batch-requests variant (not implemented yet).
+    PRIORITY_3LEVEL_FIRST_N_BATCH_REQS = "priority_3level_first_n_batch_reqs"
+    # Same, one get() per request.
+    PRIORITY_3LEVEL_FIRST_N_PER_REQ = "priority_3level_first_n_per_req"
+    # Split submission with two fixed priorities; each level FIFO.
     SPLIT_PRIORITY_2LEVEL = "split_priority_2level"
 
 
@@ -37,6 +41,7 @@ IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset(
         AsyncLoadScheme.BATCH_REQS_ASYNC_LOAD_SUBMIT,
         AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_BATCH_REQS,
         AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
+        AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
     }
 )
 

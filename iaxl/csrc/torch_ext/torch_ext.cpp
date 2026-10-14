@@ -87,9 +87,12 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
              py::call_guard<py::gil_scoped_release>())
         .def("unzip_from_mem", &Context::unzip_from_mem,
              "Retrieve from cache, decompress, and H2D transfer (async).\n"
+             "priority: OMP-Main level 0..3 (0 = most urgent, default 0).\n"
+             "group: id for task_queue_set_group_priority(); 0 = no group.\n"
              "Call unzip_wait() + xfer_wait() to block until done.",
              py::arg("cache"), py::arg("label"), py::arg("tensor_key"), py::arg("chunk_labels"),
              py::arg("chunk_indices"), py::arg("cpu_tensors"),
+             py::arg("priority") = TaskQueue::PRIORITY_HIGH, py::arg("group") = 0,
              py::call_guard<py::gil_scoped_release>())
         .def("zip_wait", &Context::zip_wait, "Wait for zip_to_mem to complete",
              py::call_guard<py::gil_scoped_release>())
@@ -540,12 +543,17 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
                 py::dict d;
                 d["label"] = e.label;
                 d["priority"] = e.priority;
+                d["submit_priority"] = e.submit_priority;
+                d["group"] = e.group;
                 d["seq"] = e.seq;
                 d["enqueue_ns"] = e.enqueue_ns;
+                d["p0_enter_ns"] = e.p0_enter_ns;
                 d["start_ns"] = e.start_ns;
                 d["end_ns"] = e.end_ns;
-                d["high_depth"] = e.high_depth;
-                d["low_depth"] = e.low_depth;
+                py::list depth;
+                for (uint32_t n : e.depth)
+                    depth.append(n);
+                d["depth"] = depth;
                 py_events.append(d);
             }
             py::dict d;
@@ -557,10 +565,22 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
         },
         "Return and clear recorded task timings of a TaskQueue.\n"
         "Each event: label ('<kind>|<description>|<tensor_key>' for OMP-Main zip tasks),\n"
-        "priority (0=HIGH, 1=LOW), seq (submit order), enqueue_ns/start_ns/end_ns\n"
-        "(steady_clock ns, same clock as time.monotonic_ns()), high_depth/low_depth\n"
-        "(tasks already waiting at submit). dropped counts events lost to the buffer cap.",
+        "priority (level the task ran from, 0..3; 0 = HIGH, 3 = LOW), submit_priority\n"
+        "(level passed at submit), group (0 = none), seq (submit order),\n"
+        "enqueue_ns/p0_enter_ns/start_ns/end_ns (steady_clock ns, same clock as\n"
+        "time.monotonic_ns(); p0_enter_ns is 0 unless set_group_priority moved the task\n"
+        "into level 0), depth (tasks already waiting in levels 0..3 at submit).\n"
+        "dropped counts events lost to the buffer cap.",
         py::arg("queue") = "OMP-Main");
+
+    m.def(
+        "task_queue_set_group_priority",
+        [](uint64_t group, int priority) { return omp_queue().set_group_priority(group, priority); },
+        "Move every waiting OMP-Main task of `group` that sits in a less urgent level than\n"
+        "`priority` to the tail of level `priority`. Running or finished tasks are not\n"
+        "affected; group 0 is never moved. Returns the number of tasks moved.",
+        py::arg("group"), py::arg("priority") = TaskQueue::PRIORITY_HIGH,
+        py::call_guard<py::gil_scoped_release>());
 
     m.def("rdma_init", &kv_xfer::rdma_init, py::arg("name"), py::arg("listen_port"),
           py::call_guard<py::gil_scoped_release>());

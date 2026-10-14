@@ -31,11 +31,16 @@ SUBMIT_RE = re.compile(
     r"async_load step=(\d+) t=(\d+) submit kind=(\w+) reqs=(\S+) layers=(\d+)-(\d+)"
 )
 PROMOTE_RE = re.compile(r"async_load step=(\d+) t=(\d+) promote reqs=(\S+)")
+ACTIVATE_RE = re.compile(r"async_load step=(\d+) t=(\d+) activate reqs=(\S*) held=")
 
 SPLIT_FIRST_N_BATCH_REQS = "split_async_load_submit_first_n_batch_reqs"
 SPLIT_FIRST_N_PER_REQ = "split_async_load_submit_first_n_per_req"
 SPLIT_SCHEMES = (SPLIT_FIRST_N_BATCH_REQS, SPLIT_FIRST_N_PER_REQ)
 FIFO_SCHEMES = ("naive", "batch_reqs_async_load_submit") + SPLIT_SCHEMES
+PRIORITY_FIRST_N_PER_REQ = "priority_3level_first_n_per_req"
+PRIORITY_SCHEMES = (PRIORITY_FIRST_N_PER_REQ,)
+# OMP-Main levels used by the connector (kvshrink_connector.LOAD_PRIORITY_*).
+P0, P1, P2 = 0, 1, 2
 
 
 @dataclass
@@ -54,11 +59,12 @@ class Submission:
 
 
 def parse_log(path: str):
-    """Return (req_info, submissions, promote_ns, promote_step)."""
+    """Return (req_info, submissions, promote_ns, promote_step, activate_ns)."""
     req_info: dict[str, dict] = {}
     submissions: list[Submission] = []
     promote_ns: dict[str, int] = {}
     promote_step: dict[str, int] = {}
+    activate_ns: dict[str, int] = {}
     with open(path, errors="replace") as f:
         for line in f:
             m = MATCH_RE.search(line)
@@ -84,7 +90,14 @@ def parse_log(path: str):
                 for r in reqs.split(","):
                     promote_ns.setdefault(r, int(t))
                     promote_step.setdefault(r, int(step))
-    return req_info, submissions, promote_ns, promote_step
+                continue
+            m = ACTIVATE_RE.search(line)
+            if m:
+                _, t, reqs = m.groups()
+                for r in reqs.split(","):
+                    if r:
+                        activate_ns.setdefault(r, int(t))
+    return req_info, submissions, promote_ns, promote_step, activate_ns
 
 
 def load_trace(path: str) -> list[dict]:
@@ -181,6 +194,11 @@ def check_structure(scheme, subs, req_info, events, errors):
                 errors.append(f"step {step}: {len(asyncs)} async submits, expected 1")
         elif scheme in SPLIT_SCHEMES:
             pass  # checked by check_split()
+        elif scheme in PRIORITY_SCHEMES:
+            for s in asyncs:
+                if len(s.reqs) != 1:
+                    errors.append(f"step {step}: per-request async submit has "
+                                  f"{len(s.reqs)} reqs")
         else:
             raise SystemExit(f"structure rules for scheme {scheme!r} not implemented")
 
@@ -241,20 +259,81 @@ def check_split(scheme, subs, req_info, promote_ns, promote_step, errors):
                     errors.append(f"{r}: tail task enqueued before promotion")
 
 
+def check_priority(subs, req_info, promote_ns, activate_ns, errors):
+    """priority_3level_first_n_per_req rules (doc sections 4.3, 8.4).
+
+    Per task: submit level (sync P0; async first N layers P1, the rest P2), group
+    (sync 0; one distinct non-zero group per async request), and raise to P0 only
+    for tail tasks, after the request's promotion and no later than its activation.
+    """
+    num_layers = max(s.last_layer for s in subs) + 1 if subs else 0
+    group_owner: dict[int, str] = {}
+    for s in subs:
+        for layer, t in s.tasks.items():
+            where = f"step {s.step} {s.kind} {s.desc} layer {layer}"
+            if s.kind == "sync":
+                if t["submit_priority"] != P0 or t["group"] != 0:
+                    errors.append(f"{where}: sync task submit_priority "
+                                  f"{t['submit_priority']} group {t['group']}")
+                continue
+            r = s.reqs[0]
+            h = head_layers(req_info.get(r, {"n": -1}), num_layers)
+            want = P1 if layer < h else P2
+            if t["submit_priority"] != want:
+                errors.append(f"{where}: submit_priority {t['submit_priority']}, "
+                              f"expected {want}")
+            if t["group"] == 0:
+                errors.append(f"{where}: async task has group 0")
+            elif group_owner.setdefault(t["group"], r) != r:
+                errors.append(f"{where}: group {t['group']} shared with "
+                              f"{group_owner[t['group']]}")
+            raised = t["p0_enter_ns"] > 0
+            if raised != (t["priority"] == P0 and t["submit_priority"] != P0):
+                errors.append(f"{where}: priority {t['priority']} inconsistent with "
+                              f"p0_enter_ns {t['p0_enter_ns']}")
+            if not raised:
+                continue
+            if want != P2:
+                errors.append(f"{where}: first-N task raised to P0")
+            if t["p0_enter_ns"] < promote_ns.get(r, 1 << 62):
+                errors.append(f"{where}: raised before promotion")
+            if r not in activate_ns or t["p0_enter_ns"] > activate_ns[r]:
+                errors.append(f"{where}: raised later than its activate log line")
+
+
 def sort_key(scheme: str, e: dict):
     if scheme in FIFO_SCHEMES:
         return (e["priority"], e["seq"])
     raise SystemExit(f"order key for scheme {scheme!r} not implemented")
 
 
+def level_key_at(e: dict, at_ns: int):
+    """(level, time it entered that level, seq) of task e at time at_ns.
+
+    A task raised by set_group_priority sits in its submit level until
+    p0_enter_ns and in P0 (behind everything already there) afterwards.
+    """
+    if e.get("p0_enter_ns", 0) and e["p0_enter_ns"] <= at_ns:
+        return (P0, e["p0_enter_ns"], e["seq"])
+    return (e.get("submit_priority", e["priority"]), e["enqueue_ns"], e["seq"])
+
+
 def count_inversions(scheme: str, events: list[dict]):
     """Tasks that started while a smaller-key task was already queued."""
     inversions = []
     for e in events:
-        ke = sort_key(scheme, e)
+        if scheme in PRIORITY_SCHEMES:
+            ke = level_key_at(e, e["start_ns"])
+        else:
+            ke = sort_key(scheme, e)
         for f in events:
-            if (f["enqueue_ns"] <= e["start_ns"] < f["start_ns"]
-                    and sort_key(scheme, f) < ke):
+            if not f["enqueue_ns"] <= e["start_ns"] < f["start_ns"]:
+                continue
+            if scheme in PRIORITY_SCHEMES:
+                kf = level_key_at(f, e["start_ns"])
+            else:
+                kf = sort_key(scheme, f)
+            if kf < ke:
                 inversions.append({"ran": e["label"], "seq": e["seq"],
                                    "waiting": f["label"], "waiting_seq": f["seq"]})
                 break
@@ -301,13 +380,15 @@ def main() -> int:
     ap.add_argument("--report", required=True)
     args = ap.parse_args()
 
-    req_info, subs, promote_ns, promote_step = parse_log(args.log)
+    req_info, subs, promote_ns, promote_step, activate_ns = parse_log(args.log)
     events = load_trace(args.trace)
     errors: list[str] = []
     attach_tasks(subs, events, errors)
     check_structure(args.scheme, subs, req_info, events, errors)
     if args.scheme in SPLIT_SCHEMES:
         check_split(args.scheme, subs, req_info, promote_ns, promote_step, errors)
+    if args.scheme in PRIORITY_SCHEMES:
+        check_priority(subs, req_info, promote_ns, activate_ns, errors)
     inversions = count_inversions(args.scheme, events)
     cov = coverage(subs, req_info, promote_ns)
 

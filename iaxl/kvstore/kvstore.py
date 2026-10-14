@@ -221,7 +221,16 @@ class KVStoreLocal:
         block_hashs: List[str],
         layer_names: Optional[List[str]] = None,
         description: str = "",
+        priorities: Optional[Dict[str, int]] = None,
+        group: int = 0,
     ) -> Dict[str, Task]:
+        """Load blocks of ``layer_names`` (all layers if None) from the DDR pool.
+
+        Args:
+            priorities: OMP-Main level (0..3, 0 most urgent) per layer name; None
+                submits every layer at level 0. See ``KVFlow.get``.
+            group: group id for ``set_group_priority``; 0 means no group.
+        """
 
         if self.has_only_mode:
             raise RuntimeError(
@@ -240,7 +249,16 @@ class KVStoreLocal:
             chunk_indices=block_indices,
             chunk_labels=block_hashs,
             description=description,
+            priorities=priorities,
+            group=group,
         )
+
+    def set_group_priority(self, group: int, priority: int) -> int:
+        """Raise the waiting load tasks of ``group`` to OMP-Main level ``priority``.
+
+        See ``KVFlow.set_group_priority``. Returns the number of tasks moved.
+        """
+        return self.tensorzip.set_group_priority(group, priority)
 
     def get_wait(
         self,

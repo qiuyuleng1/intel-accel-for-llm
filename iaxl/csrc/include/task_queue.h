@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -22,20 +23,29 @@
 // Timestamps are std::chrono::steady_clock nanoseconds (CLOCK_MONOTONIC on Linux,
 // the same clock as Python's time.monotonic_ns()).
 struct TaskTraceEvent {
-    std::string label;      // caller-supplied tag, empty if none
-    int priority;           // TaskQueue::PRIORITY_*
-    uint64_t seq;           // submit order within this queue
-    int64_t enqueue_ns;     // submit() pushed the task
-    int64_t start_ns;       // worker began running the task
-    int64_t end_ns;         // task returned (or threw)
-    uint32_t high_depth;    // HIGH tasks already waiting when this task was submitted
-    uint32_t low_depth;     // LOW tasks already waiting when this task was submitted
+    std::string label;           // caller-supplied tag, empty if none
+    int priority;                // level the task was taken from (TaskQueue::PRIORITY_P0..P3)
+    int submit_priority;         // level passed to submit()
+    uint64_t group;              // group passed to submit(); 0 = no group
+    uint64_t seq;                // submit order within this queue
+    int64_t enqueue_ns;          // submit() pushed the task
+    int64_t p0_enter_ns;         // set_group_priority() moved the task into P0; 0 if never
+    int64_t start_ns;            // worker began running the task
+    int64_t end_ns;              // task returned (or threw)
+    std::array<uint32_t, 4> depth; // tasks already waiting in P0..P3 when this task was submitted
 };
 
 class TaskQueue {
   public:
-    static constexpr int PRIORITY_HIGH = 0;
-    static constexpr int PRIORITY_LOW = 1;
+    // Levels, most urgent first. The worker always takes the front task of the most
+    // urgent non-empty level; each level is FIFO in the order tasks entered it.
+    static constexpr int PRIORITY_P0 = 0;
+    static constexpr int PRIORITY_P1 = 1;
+    static constexpr int PRIORITY_P2 = 2;
+    static constexpr int PRIORITY_P3 = 3;
+    static constexpr int NUM_PRIORITIES = 4;
+    static constexpr int PRIORITY_HIGH = PRIORITY_P0;
+    static constexpr int PRIORITY_LOW = PRIORITY_P3;
     // Events beyond this are dropped (counted by trace_dropped()) to bound memory.
     static constexpr size_t TRACE_CAPACITY = 1u << 18;
 
@@ -60,23 +70,27 @@ class TaskQueue {
         state_ = State::RUNNING;
     }
 
+    // Queue func at the tail of level `priority` (PRIORITY_P0..PRIORITY_P3).
+    // `group` tags the task for set_group_priority(); 0 means no group.
     // label is only stored when tracing is enabled; callers may pass an empty string
     // (or build it only if trace_enabled()) to avoid the formatting cost.
+    // Throws std::invalid_argument if priority is out of range and std::runtime_error
+    // if the queue is not running.
     template <typename F>
-    std::future<void> submit(F &&func, int priority = PRIORITY_HIGH, std::string label = {}) {
-        if (priority != PRIORITY_HIGH && priority != PRIORITY_LOW) {
-            throw std::invalid_argument("TaskQueue priority must be PRIORITY_HIGH or PRIORITY_LOW");
-        }
+    std::future<void> submit(F &&func, int priority = PRIORITY_HIGH, std::string label = {},
+                             uint64_t group = 0) {
+        check_priority(priority);
         auto task = std::make_shared<std::packaged_task<void()>>(std::forward<F>(func));
         auto future = task->get_future();
 
         Item item;
         item.fn = [task]() { (*task)(); };
         item.priority = priority;
+        item.submit_priority = priority;
+        item.group = group;
         item.traced = trace_enabled_.load(std::memory_order_relaxed);
         if (item.traced) {
             item.label = std::move(label);
-            item.enqueue_ns = now_ns();
         }
 
         {
@@ -84,18 +98,49 @@ class TaskQueue {
             if (state_ != State::RUNNING) {
                 throw std::runtime_error("TaskQueue submit rejected: queue is not running");
             }
+            // Taken under the lock, like p0_enter_ns, so timestamps follow the
+            // order in which tasks entered a level.
+            if (item.traced)
+                item.enqueue_ns = now_ns();
             item.seq = next_seq_++;
-            item.high_depth = static_cast<uint32_t>(high_priority_tasks_.size());
-            item.low_depth = static_cast<uint32_t>(low_priority_tasks_.size());
-            if (priority == PRIORITY_HIGH) {
-                high_priority_tasks_.push_back(std::move(item));
-            } else {
-                low_priority_tasks_.push_back(std::move(item));
+            for (int level = 0; level < NUM_PRIORITIES; ++level) {
+                item.depth[level] = static_cast<uint32_t>(tasks_[level].size());
             }
+            tasks_[priority].push_back(std::move(item));
         }
         cv_.notify_one();
 
         return future;
+    }
+
+    // Move every waiting task of `group` that sits in a less urgent level than
+    // `priority` to the tail of level `priority`, keeping their relative order.
+    // Tasks already running or finished are not affected; group 0 is never moved.
+    // Tasks moved into P0 record p0_enter_ns. Returns the number of tasks moved.
+    // Throws std::invalid_argument if priority is out of range.
+    size_t set_group_priority(uint64_t group, int priority) {
+        check_priority(priority);
+        if (group == 0)
+            return 0;
+        size_t moved = 0;
+        std::lock_guard<std::mutex> lock(mutex_);
+        const int64_t moved_ns = now_ns();
+        for (int level = priority + 1; level < NUM_PRIORITIES; ++level) {
+            std::deque<Item> kept;
+            for (Item &item : tasks_[level]) {
+                if (item.group != group) {
+                    kept.push_back(std::move(item));
+                    continue;
+                }
+                item.priority = priority;
+                if (priority == PRIORITY_P0)
+                    item.p0_enter_ns = moved_ns;
+                tasks_[priority].push_back(std::move(item));
+                ++moved;
+            }
+            tasks_[level].swap(kept);
+        }
+        return moved;
     }
 
     // Tracing affects tasks submitted after the call; already-queued tasks keep
@@ -154,12 +199,28 @@ class TaskQueue {
         std::function<void()> fn;
         std::string label;
         int priority = PRIORITY_HIGH;
+        int submit_priority = PRIORITY_HIGH;
+        uint64_t group = 0;
         bool traced = false;
         uint64_t seq = 0;
         int64_t enqueue_ns = 0;
-        uint32_t high_depth = 0;
-        uint32_t low_depth = 0;
+        int64_t p0_enter_ns = 0;
+        std::array<uint32_t, NUM_PRIORITIES> depth{};
     };
+
+    static void check_priority(int priority) {
+        if (priority < 0 || priority >= NUM_PRIORITIES) {
+            throw std::invalid_argument("TaskQueue priority must be in [PRIORITY_P0, PRIORITY_P3]");
+        }
+    }
+
+    bool all_empty() const {
+        for (const auto &level : tasks_) {
+            if (!level.empty())
+                return false;
+        }
+        return true;
+    }
 
     static int64_t now_ns() {
         return std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -173,9 +234,10 @@ class TaskQueue {
             trace_dropped_.fetch_add(1, std::memory_order_relaxed);
             return;
         }
-        trace_events_.push_back(TaskTraceEvent{std::move(item.label), item.priority, item.seq,
-                                               item.enqueue_ns, start_ns, end_ns, item.high_depth,
-                                               item.low_depth});
+        trace_events_.push_back(TaskTraceEvent{std::move(item.label), item.priority,
+                                               item.submit_priority, item.group, item.seq,
+                                               item.enqueue_ns, item.p0_enter_ns, start_ns, end_ns,
+                                               item.depth});
     }
 
     void worker_loop() {
@@ -184,22 +246,18 @@ class TaskQueue {
 
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                cv_.wait(lock, [this]() {
-                    return state_ != State::RUNNING || !high_priority_tasks_.empty() ||
-                           !low_priority_tasks_.empty();
-                });
+                cv_.wait(lock, [this]() { return state_ != State::RUNNING || !all_empty(); });
 
-                if (state_ == State::STOPPING && high_priority_tasks_.empty() &&
-                    low_priority_tasks_.empty()) {
+                if (state_ == State::STOPPING && all_empty()) {
                     return;
                 }
 
-                if (!high_priority_tasks_.empty()) {
-                    item = std::move(high_priority_tasks_.front());
-                    high_priority_tasks_.pop_front();
-                } else {
-                    item = std::move(low_priority_tasks_.front());
-                    low_priority_tasks_.pop_front();
+                for (auto &level : tasks_) {
+                    if (!level.empty()) {
+                        item = std::move(level.front());
+                        level.pop_front();
+                        break;
+                    }
                 }
             }
 
@@ -218,8 +276,7 @@ class TaskQueue {
     std::mutex mutex_;
     std::condition_variable cv_;
     std::condition_variable state_cv_;
-    std::deque<Item> high_priority_tasks_;
-    std::deque<Item> low_priority_tasks_;
+    std::array<std::deque<Item>, NUM_PRIORITIES> tasks_;
     State state_ = State::CREATED;
     uint64_t next_seq_ = 0;
 

@@ -18,6 +18,7 @@ from ..envs import envs
 from ..torch_ext import Record
 from ..torch_ext import Context, GpuTransferDirection
 from ..torch_ext import Mem, Storage
+from ..torch_ext import task_queue_set_group_priority
 from .. import torch_ext as _iqt
 from ..utils import cuda_available
 from .scratch_pool import ScratchPool
@@ -286,7 +287,20 @@ class KVFlow:
         chunk_indices: List[int],
         chunk_labels: List[str],
         description: str = "",
+        priorities: Optional[Dict[str, int]] = None,
+        group: int = 0,
     ) -> Dict[str, Task]:
+        """Submit one decompression task per tensor to the OMP-Main queue.
+
+        Args:
+            priorities: OMP-Main level (0..3, 0 most urgent) per tensor key. None
+                submits every task at level 0. When given, it must contain every key
+                of ``tensors``.
+            group: group id for ``set_group_priority``; 0 means no group.
+
+        Raises:
+            ValueError: ``priorities`` misses a key of ``tensors``.
+        """
 
         self._ensure_streams()
         assert chunk_indices is not None and chunk_labels is not None
@@ -307,6 +321,13 @@ class KVFlow:
             assert tensor.is_contiguous(), "all GPU tensors must be contiguous"
             assert tensor.shape == first_t.shape, "all tensors must have the same shape"
             assert tensor.dtype == first_t.dtype, "all tensors must have the same dtype"
+        if priorities is not None:
+            missing = []
+            for tensor_key in tensors:
+                if tensor_key not in priorities:
+                    missing.append(tensor_key)
+            if missing:
+                raise ValueError(f"priorities is missing tensor keys {missing}")
 
         results = {}
         num_chunks = len(chunk_indices)
@@ -332,8 +353,16 @@ class KVFlow:
                 if stream_sync_on_get and self.device_type is not None:
                     ctx.xfer_wait_cur_stream()
                 first_tensor = False
+            priority = 0 if priorities is None else priorities[tensor_key]
             ctx.unzip_from_mem(
-                self.mem, label, tensor_key, chunk_labels, chunk_indices, cpu_tensors
+                self.mem,
+                label,
+                tensor_key,
+                chunk_labels,
+                chunk_indices,
+                cpu_tensors,
+                priority=priority,
+                group=group,
             )
 
             results[tensor_key] = Task(
@@ -345,6 +374,25 @@ class KVFlow:
             )
 
         return results
+
+    def set_group_priority(self, group: int, priority: int) -> int:
+        """Move waiting OMP-Main tasks of ``group`` to level ``priority``.
+
+        Only tasks still waiting in a less urgent level move; they join the tail of
+        ``priority`` in their original order. Running or finished tasks and group 0
+        are not affected.
+
+        Args:
+            group: group id passed to ``get``.
+            priority: target level, 0..3 (0 most urgent).
+
+        Returns:
+            Number of tasks moved.
+
+        Raises:
+            ValueError: ``priority`` is outside 0..3.
+        """
+        return task_queue_set_group_priority(group, priority)
 
     @profile_func(lambda self, get_results, *_: f"(count={len(get_results)})")
     def get_wait(

@@ -48,6 +48,14 @@ logger = logging.getLogger(__name__)
 
 ReqId = str
 
+# OMP-Main TaskQueue levels (iaxl/csrc/include/task_queue.h), most urgent first.
+# P0: loads a forward waits on (sync batch, raised tails); P1: first N layers of
+# async requests; P2: remaining layers before the request enters a forward.
+# P3 (zip and cache-miss retries) is used by iaxl internally.
+LOAD_PRIORITY_P0 = 0
+LOAD_PRIORITY_P1 = 1
+LOAD_PRIORITY_P2 = 2
+
 
 @dataclass
 class SplitLoadMeta:
@@ -235,6 +243,11 @@ class KVShrinkConnector(KVConnectorBase_V1):
         self._remaining_load_meta: dict[ReqId, SplitLoadMeta] = {}
         # Promoted requests whose remaining layers the next start_load_kv() submits.
         self._pending_remaining_load_req_ids: list[ReqId] = []
+        # priority_3level_*: TaskQueue group of each async request's load tasks,
+        # kept until the group is raised to P0 or the request finishes.
+        self._load_groups: dict[ReqId, int] = {}
+        # Next group id; 0 means "no group" in the TaskQueue.
+        self._next_load_group = 1
         # Worker-side step counter for the async_load submit/promote logs.
         self._load_step = 0
 
@@ -242,6 +255,16 @@ class KVShrinkConnector(KVConnectorBase_V1):
             num_layers=self.num_layers,
         )
         self._async_load_scheme = load_async_load_scheme_from_env()
+        if (
+            self._async_load_scheme
+            is AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ
+            and iaxl_envs.IAXL_RDMA_ENABLE
+        ):
+            # Known issue: the remote store has no OMP-Main priority queue.
+            raise ValueError(
+                f"KVSHRINK_ASYNC_LOAD_SCHEME={self._async_load_scheme.value} is not "
+                "supported with IAXL_RDMA_ENABLE (remote KVStore)"
+            )
         logger.info(
             "KVShrink async load scheme: %s, role=%s",
             self._async_load_scheme.value,
@@ -562,6 +585,11 @@ class KVShrinkConnector(KVConnectorBase_V1):
             AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
         ):
             self._submit_split_loads(async_reqs)
+        elif (
+            self._async_load_scheme
+            is AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ
+        ):
+            self._submit_priority_loads(async_reqs)
         elif self._async_load_scheme is AsyncLoadScheme.NAIVE:
             # One get() per request: each request's layers are queued contiguously.
             for req_id, request in async_reqs:
@@ -617,6 +645,11 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 self._active_promoted_tasks[req_id] = self._early_promoted_tasks.pop(
                     req_id
                 )
+                # priority_3level_*: this forward waits on the request's remaining
+                # layers from now on, so they join P0 behind the work already there.
+                group = self._load_groups.pop(req_id, None)
+                if group is not None:
+                    self._store().set_group_priority(group, LOAD_PRIORITY_P0)
             if scheduled or self._early_promoted_tasks:
                 logger.info(
                     "async_load step=%d t=%d activate reqs=%s held=%s",
@@ -751,6 +784,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 self._remaining_load_meta.pop(req_id, None)
                 if req_id in self._pending_remaining_load_req_ids:
                     self._pending_remaining_load_req_ids.remove(req_id)
+                self._load_groups.pop(req_id, None)
 
             tasks = self._current_put_tasks.get(req_id)
             if tasks is None:
@@ -839,6 +873,45 @@ class KVShrinkConnector(KVConnectorBase_V1):
             self._pending_load_layers[req_id] = request.async_load_layers
             if first_n_layer_loads[req_id].num_first_n_layers < num_layers:
                 self._remaining_load_meta[req_id] = first_n_layer_loads[req_id]
+
+    def _submit_priority_loads(
+        self, async_reqs: list[tuple[ReqId, ReqMeta]]
+    ) -> None:
+        # priority_3level_first_n_per_req: one get() per request over all layers, in
+        # arrival order. First N layers at P1 so they overtake every waiting tail;
+        # the remaining layers at P2, prefetched while the queue is otherwise idle
+        # and raised to P0 by group when a forward first waits on the request.
+        num_layers = len(self._layer_names)
+        for req_id, request in async_reqs:
+            if request.async_load_layers == -1:
+                # Promoted only after all layers are loaded: no remaining layers.
+                num_first_n_layers = num_layers
+            elif 0 < request.async_load_layers < num_layers:
+                num_first_n_layers = request.async_load_layers
+            else:
+                raise ValueError(
+                    f"async_load_layers of request {req_id} must be -1 or in "
+                    f"[1, {num_layers}), got {request.async_load_layers}"
+                )
+            priorities: dict[str, int] = {}
+            for index, layer_name in enumerate(self._layer_names):
+                if index < num_first_n_layers:
+                    priorities[layer_name] = LOAD_PRIORITY_P1
+                else:
+                    priorities[layer_name] = LOAD_PRIORITY_P2
+            group = self._next_load_group
+            self._next_load_group += 1
+            self._log_load_submit("async", [req_id], 0, num_layers)
+            self._pending_load_tasks[req_id] = self._store().get(
+                block_indices=request.block_ids,
+                block_hashs=request.block_hashes,
+                description=req_id,
+                priorities=priorities,
+                group=group,
+            )
+            self._pending_load_layers[req_id] = request.async_load_layers
+            if num_first_n_layers < num_layers:
+                self._load_groups[req_id] = group
 
     def _submit_layer_segments(
         self,
