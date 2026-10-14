@@ -448,11 +448,13 @@ P0 的任务来源:
 | # | 文件 | 改什么(10-13 方案) |
 |---|---|---|
 | 1 | `iaxl/csrc/include/task_queue.h` | 4 个等待区 P0..P3;`Item` 加 `group`、`submit_priority`,depth 换成 4 个数;新增 `set_group_priority(group, priority)`,持锁把该组 P2 中的任务移到 P0。保留旧 `submit(fn, priority)`:`PRIORITY_HIGH` → P0,`PRIORITY_LOW` → P3,Record / H2D / D2H 队列与压缩任务行为不变 |
-| 2 | `torch_ext/zip.cpp`、`torch_ext/torch_ext.cpp` | `unzip_from_mem` 加 `priority`、`group` 两个参数(pybind 给默认值,现有调用方不变);`UnzipFromMemWork` 记下这两个值,缓存未命中重试时沿用(现在重试硬编码 LOW);`Context` 不加字段 |
+| 2 | `torch_ext/zip.cpp`、`torch_ext/torch_ext.cpp` | `unzip_from_mem` 加 `priority`、`group` 两个参数(pybind 给默认值,现有调用方不变);缓存未命中重试**不改**,仍以 `PRIORITY_LOW`(= P3,组号 0)入队,见下方"重试优先级";`Context` 不加字段 |
 | 3 | `iaxl/kvflow/flow.py`、`iaxl/kvstore/kvstore.py` | `get()` 接收每层优先级和组号并透传;新增 `set_group_priority` 封装 |
 | 4 | connector | `start_load_kv()`:sync → P0;每个 async 请求一次 `get()`,前 N 层 P1、其余 P2,组号按请求记录;`get_finished()` promote 时提权到 P0;请求结束时删 `req_id → 组号` |
 | 5 | `csrc/test/task_queue_test.cpp` | 单测:4 级取任务顺序、提权后顺序改变、旧 HIGH/LOW 调用行为不变、并发提权与入队(TSan) |
 | 6 | `tests/async_load_queue_check.py` | 优先级会变:违序检查按任务**执行时**的优先级判断,需要 trace 的 `priority` 与 `submit_priority` 两个字段 |
+
+**重试优先级(10-14 定)**:解压任务在 `mem->get()` 取不到数据时重试,原因是这层 KV 的压缩任务还在队列里、数据还没写进 DDR。重试以 `PRIORITY_LOW`(P3)入队,与压缩同级先进先出,排在更早入队的压缩任务后面,压缩做完再取就有数据;第二次仍取不到会 `IAXL_CHECK` 退出。所以重试**不能**沿用原任务的 P0 / P1 / P2,否则会跑在压缩前面。重试组号为 0,提权只移动 P2,碰不到它。
 
 原方案(不再采用):
 
@@ -460,7 +462,7 @@ P0 的任务来源:
 |---|---|---|
 | 1 | `iaxl/csrc/include/task_queue.h` | 两个 deque 换成一个条目列表,每条 `{shared_ptr<atomic<int>> prio, int64 sort_key, uint64 seq, fn}`;worker 在锁内线性扫最小 `(prio, sort_key, seq)`。队列长度 ≤ 并发数 × 层数(几千),线性扫可接受。**保留旧 `submit(fn, priority)` 重载**——`kv_pool/record.cpp` 的 `Record` 和 H2D / D2H 队列也用这个类 |
 | 2 | 同上 | 新增 `submit(fn, prio_cell, sort_key)` 重载;调用方持有 `prio_cell` 即可随时改 |
-| 3 | `torch_ext/context.h` / `torch_ext/zip.cpp` | `unzip_from_mem` 加 `priority, sort_key` 参数;`Context` 持有 `prio_cell`;新增 `set_priority(int)`;**cache-miss 重试路径**(`UnzipFromMemWork::execute` 中重新 submit 处)要复用同一个 cell,不能再硬编码 LOW |
+| 3 | `torch_ext/context.h` / `torch_ext/zip.cpp` | `unzip_from_mem` 加 `priority, sort_key` 参数;`Context` 持有 `prio_cell`;新增 `set_priority(int)`;**cache-miss 重试路径**(`UnzipFromMemWork::execute` 中重新 submit 处)要复用同一个 cell,不能再硬编码 LOW(10-14 注:此条是错的,重试必须排在压缩后面,见上方"重试优先级") |
 | 4 | `torch_ext/torch_ext.cpp` | pybind:`unzip_from_mem` 加两个带默认值的参数;绑定 `set_priority` |
 | 5 | `iaxl/kvflow/flow.py` `get()` | 加 `priorities` / `sort_keys`(按 tensor_key 的 dict),透传 |
 | 6 | `iaxl/kvstore/kvstore.py` `get()` | 接收 per-layer priority;`sort_key = self.layer_names.index(name)` |
@@ -482,7 +484,7 @@ P0 的任务来源:
 |---|---|
 | `TaskQueue` | 不需要提权。3 个 deque:P0、P1、LOW(zip),均 FIFO。~50 行 |
 | `unzip_from_mem` | 加 `priority` 参数即可,**不需要提权接口**,`Context` 不加新成员,move 语义不动 |
-| 重试路径 | 重试时沿用原 priority(局部捕获即可) |
+| 重试路径 | 不改,仍以 `PRIORITY_LOW` 入队,排在压缩后面(理由同 8.4"重试优先级") |
 | connector | `split_async_load_submit` 改动之上:首次提交头传 P1,补提交尾传 P0;sync 传 P0。promote 分支不调任何提权接口 |
 
 - 规模:C++ ~80~100 行,Python = `split_async_load_submit` + ~20 行。
@@ -564,7 +566,7 @@ P0 的任务来源:
 |---|---|---|
 | 多级队列生效 | P0 / P1 / P2 任务进入队列后,worker 取任务顺序符合 `(priority, seq)` | 在 `task_queue_test.cpp` 里加用例:手工 submit 若干假任务,断言执行顺序与预期一致 |
 | 可变优先级生效 | 任务入队后但尚未执行前,`set_group_priority(组号, P0)` 能改变其出队顺序 | 同上加用例:先入队 A(P2)、B(P1),再把 A 的组提到 P0,断言 A 先执行 |
-| retry 保持优先级 | cache miss 重试后的 unzip 任务仍保留原 priority / 组号 | 人工触发一次 retry,检查重试前后 trace 中的 priority / 组号相同 |
+| retry 排在压缩后面 | cache miss 重试的 unzip 任务以 P3 入队,不受提权影响 | 单测:队列中有 P3 压缩任务时按重试路径入队一个 P3 任务(组号 0),再对原任务的组提权,断言它仍在压缩之后执行 |
 | (a) 缓解生效 | B 的头(P1)能越过 A 的未 promote 尾(P2) | 构造 A、B 两个 async 请求,查看队列执行顺序,确认 B0..B{N-1} 先于 A_N..A_{L-1} |
 | (b) 缓解生效 | sync 批(C 的 S0)作为 P0,能越过所有 P1/P2 | 先让队列中存在 async 任务,再提交 1 个 sync 批,检查 S0 先于所有 P1/P2 执行 |
 | 线程安全/生命周期 | 并发提权与入队、任务 finish、abort 不导致 crash | 开启 ASAN/Debug 或至少跑多次并发压测,确认无 crash / double free / use-after-free |
