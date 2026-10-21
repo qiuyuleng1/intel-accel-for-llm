@@ -1,0 +1,90 @@
+branch=perf/async-load-optimization-dev commit=757215e
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink CPU rank 4: GPU=4 PCI=00000000:B8:00.0 NUMA=1 CPUs=64-79
+KVShrink CPU rank 5: GPU=5 PCI=00000000:B9:00.0 NUMA=1 CPUs=80-95
+KVShrink CPU rank 6: GPU=6 PCI=00000000:C8:00.0 NUMA=1 CPUs=96-111
+KVShrink CPU rank 7: GPU=7 PCI=00000000:C9:00.0 NUMA=1 CPUs=112-127
+0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+KVShrink QAT rank 0: indices=0 devices=0000:01:00.0(numa=0)
+KVShrink QAT rank 1: indices=1 devices=0000:06:00.0(numa=0)
+KVShrink QAT rank 2: indices=2 devices=0000:0b:00.0(numa=0)
+KVShrink QAT rank 3: indices=3 devices=0000:10:00.0(numa=0)
+KVShrink QAT rank 4: indices=4 devices=0000:81:00.0(numa=1)
+KVShrink QAT rank 5: indices=5 devices=0000:86:00.0(numa=1)
+KVShrink QAT rank 6: indices=6 devices=0000:8b:00.0(numa=1)
+KVShrink QAT rank 7: indices=7 devices=0000:90:00.0(numa=1)
+0|1|2|3|4|5|6|7
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+KVShrink GPU rank 4: index=4 pci=00000000:B8:00.0 numa=1
+KVShrink GPU rank 4: DSA=dsa8 WQ=wq8.0
+KVShrink GPU rank 5: index=5 pci=00000000:B9:00.0 numa=1
+KVShrink GPU rank 5: DSA=dsa10 WQ=wq10.0
+KVShrink GPU rank 6: index=6 pci=00000000:C8:00.0 numa=1
+KVShrink GPU rank 6: DSA=dsa12 WQ=wq12.0
+KVShrink GPU rank 7: index=7 pci=00000000:C9:00.0 numa=1
+KVShrink GPU rank 7: DSA=dsa14 WQ=wq14.0
+wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+out=/home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/hit98diag_20261020_030016 schemes=priority_3level_first_n_per_req priority_3level_first_n_per_req_promote_raise batch_reqs_async_load_submit sync maps=0-3:0,4-6:4,7-:8 input=8000 output=128 hit=98 100 conc=16 max_conc=16000:16 32000:8 prompts=1:16 4:32 8:64 16:96 32:160 warmups=5 trace=1 ddr_gb=25 scratch_gb=16
+===== label=priority_3level_first_n_per_req_L0-4-8 map=0-3:0,4-6:4,7-:8 connector_md5=24541dc0 =====
+    reclaimed host memory: free=485G available=484G
+    Node 0, zone   Normal  77206  90041  93959  87276  73948  59832  49750  40144  31394  21269  32559 
+    Node 1, zone   Normal  94025 101596  99679  94855  87054  77479  64131  49774  36467  27221  22574 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/hit98diag_20261020_030016/priority_3level_first_n_per_req_L0-4-8.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 input=8000 hit=98 conc=16: mean_ttft=2032.52 median_ttft=2277.82 p95_ttft=2536.63 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 input=8000 hit=100 conc=16: mean_ttft=1034.59 median_ttft=950.62 p95_ttft=1756.39 ms
+===== label=priority_3level_first_n_per_req_promote_raise_L0-4-8 map=0-3:0,4-6:4,7-:8 connector_md5=24541dc0 =====
+    reclaimed host memory: free=485G available=484G
+    Node 0, zone   Normal  49188  56858  57240  56154  52674  44999  38210  32423  26694  19109  37757 
+    Node 1, zone   Normal  70767  84619  86196  84984  78387  69678  58311  46861  33751  26689  24856 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/hit98diag_20261020_030016/priority_3level_first_n_per_req_promote_raise_L0-4-8.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_promote_raise_L0-4-8_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_promote_raise map=0-3:0,4-6:4,7-:8 input=8000 hit=98 conc=16: mean_ttft=1918.08 median_ttft=2085.87 p95_ttft=2440.81 ms
+    --- priority_3level_first_n_per_req_promote_raise_L0-4-8_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_promote_raise map=0-3:0,4-6:4,7-:8 input=8000 hit=100 conc=16: mean_ttft=608.75 median_ttft=498.74 p95_ttft=1633.74 ms
+===== label=batch_reqs_async_load_submit_L0-4-8 map=0-3:0,4-6:4,7-:8 connector_md5=24541dc0 =====
+    reclaimed host memory: free=485G available=484G
+    Node 0, zone   Normal  52130  64374  63197  61060  56193  47266  38892  32881  26670  18463  37789 
+    Node 1, zone   Normal  77910  97414  95181  91842  78726  70091  58911  46386  33307  25007  25648 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/hit98diag_20261020_030016/batch_reqs_async_load_submit_L0-4-8.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 input=8000 hit=98 conc=16: mean_ttft=1784.04 median_ttft=2047.36 p95_ttft=2069.93 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 input=8000 hit=100 conc=16: mean_ttft=683.85 median_ttft=503.23 p95_ttft=1812.13 ms
+===== label=sync map=none connector_md5=24541dc0 =====
+    reclaimed host memory: free=485G available=484G
+    Node 0, zone   Normal  46799  56316  57077  57537  52673  44602  37080  31544  25845  17815  38784 
+    Node 1, zone   Normal  76412  90919  91224  88635  81414  71455  61172  48838  34102  24281  25313 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/hit98diag_20261020_030016/sync.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- sync_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none input=8000 hit=98 conc=16: mean_ttft=1554.44 median_ttft=1517.06 p95_ttft=2055.44 ms
+    --- sync_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none input=8000 hit=100 conc=16: mean_ttft=1157.38 median_ttft=1458.88 p95_ttft=1797.3 ms
+ALL_DONE

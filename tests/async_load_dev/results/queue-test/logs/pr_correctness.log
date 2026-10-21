@@ -1,0 +1,24 @@
+===== PR split s1 correctness (BI=1) connector_md5=abf97189 =====
+health=200
+KVShrink async load scheme: split_async_load_submit, role=WORKER
+KVShrink async load scheme: split_async_load_submit, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+ext tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=4, async_load_layers=-1
+ext tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+ext tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+ext tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+ext tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+===== PR split s2 correctness (BI=1) connector_md5=abf97189 =====
+health=200
+KVShrink async load scheme: split_async_load_submit, role=WORKER
+KVShrink async load scheme: split_async_load_submit, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+ext tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+ext tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+ext tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+ext tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+ext tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+restored_md5=4633759c
+ALL_DONE

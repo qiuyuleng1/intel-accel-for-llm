@@ -1,0 +1,427 @@
+(EngineCore pid=818555) INFO 10-12 06:54:02,879 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-be985042edf73d50-9f21e5d8, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(Worker_TP0 pid=818651) INFO 10-12 06:54:02,886 [flow.py:140] CUDA/XPU streams created (lazy init, device=cuda)
+(Worker_TP1 pid=818652) INFO 10-12 06:54:02,886 [flow.py:140] CUDA/XPU streams created (lazy init, device=cuda)
+(Worker_TP0 pid=818651) INFO 10-12 06:54:06,770 [scratch_pool.py:38] ScratchPool: 262144 x (16384,) torch.bfloat16 = 8192.00 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 32.00 KB, blocks = 39
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+(Worker_TP1 pid=818652) INFO 10-12 06:54:06,773 [scratch_pool.py:38] ScratchPool: 262144 x (16384,) torch.bfloat16 = 8192.00 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 32.00 KB, blocks = 39
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+(EngineCore pid=818555) INFO 10-12 06:54:06,941 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a3560e6b90310604-b26e7d7c, externally-cached tokens: 576, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=818555) INFO 10-12 06:54:06,942 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a1ac9808710d81f9-a174c5e5, externally-cached tokens: 576, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=818555) INFO 10-12 06:54:06,942 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8c7b3bd566823ff8-86974db6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=818555) INFO 10-12 06:54:06,942 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ac057470d12fea63-90db5dde, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=818555) INFO 10-12 06:54:06,942 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b78567f04a92ed56-aba58809, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=818555) INFO 10-12 06:54:06,943 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8130424745e30329-a45b68d2, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,943 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-806d70fceff5bc57-a3bf4678, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,943 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b914f67a794d4b48-b99f5e3e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,943 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a5f17c3ef8e18ad0-afd434d8, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,943 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-afd426560e3f5403-ad91ca4b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,944 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9ca083db35f3ecda-8b332499, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,944 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-93eb5a9eac1e82d8-92822ce1, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,944 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-91489c8efdbeb1af-923e2b41, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,944 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ac32d664ef9ca70d-801fe399, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,944 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b6feaf641b86c929-bfda48c7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,945 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b52aad000ba7cd13-bcf3138e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,945 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b2e37d6c95d06291-8e06491d, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,945 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a78f7f90f16a84e7-84265967, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,945 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a14af34a02fae905-b5dace44, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,945 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-aa95e3403fdf09f2-9fd094df, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,946 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-85d16e7e585d7721-9a365c2c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,946 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8d694db2d5dbe0d0-86883b61, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,946 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b87f1b07b2e16a37-85a84527, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,946 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9598227813c196cb-aefd55f1, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,946 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-be82f5096af1347f-a5d367f0, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,947 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-becfad9947b7b7ab-a1dabbe9, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,947 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8f5cc302227c413f-8af0f282, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,947 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9faacedb75861a50-9e4933f8, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,947 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8c5d508e4d69bd6e-af79d625, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,947 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a895582386ab2065-8e7477c9, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,948 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a2acf3b6bc0e9cc6-b9cfdef2, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,948 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-99f853daa6b1a7dd-9b4f9970, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,949 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a84b134686131cbf-b04b392c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,949 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-86bab2bf677019a3-a19772ce, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,949 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ae39907cf37edde9-8fe6df82, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,949 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b43ff5ad364c04af-9f86f491, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,950 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a03aceec66e68e5c-8ab6383b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,950 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ba9f27e61b65fb47-8ce6146d, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,950 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9965803601be5ec5-b63e21ac, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,950 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8b4a3c0ad6365681-ba8fc4b1, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,950 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bd99c6ac78994aef-a8a3da5f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,951 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-87c5dc5ee06f26a0-b00f41e3, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,951 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9b51fc3ad01e54c2-9f00b70f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,951 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-98faca8e656db702-aeaa27ad, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,951 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ade3d691245435f9-abd8abf8, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,951 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9c609da58884178d-81571c44, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,952 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b9f49a7e3d65d072-b667c3d8, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,952 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8bd28f0bf06e3e70-89f184ef, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:06,952 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bc5e2af909c3698f-96b44c3b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO 10-12 06:54:09 [loggers.py:310] Engine 000: Avg prompt throughput: 437.9 tokens/s, Avg generation throughput: 103.5 tokens/s, Running: 50 reqs, Waiting: 0 reqs, GPU KV cache usage: 9.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 85.6%
+(APIServer pid=818452) INFO 10-12 06:54:19 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 1215.0 tokens/s, Running: 50 reqs, Waiting: 0 reqs, GPU KV cache usage: 12.3%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 85.6%
+(APIServer pid=818452) INFO:     127.0.0.1:36072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:24,481 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9299c1a3ace9c84b-8a343a76, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36274 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:25,468 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-97bb8a87d1ab9554-aa291f86, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36364 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:26,498 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9ab5ed50b21193bc-8e3ec4b2, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36196 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36216 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36048 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:27,483 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b5be336c6d5480c6-8cfb869b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:27,483 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b60a42b053112f05-8eb5daf5, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:27,483 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-94bb60fbb5d864c6-9c3ed60c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:27,483 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-98ba289aac7c9d24-aed7cd04, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36252 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36026 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36040 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:54:29 [loggers.py:310] Engine 000: Avg prompt throughput: 59.3 tokens/s, Avg generation throughput: 1155.5 tokens/s, Running: 47 reqs, Waiting: 0 reqs, GPU KV cache usage: 13.7%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 85.8%
+(EngineCore pid=818555) INFO 10-12 06:54:29,494 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a3a28bdea09db0c1-99c1c343, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:29,494 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b9ffc099cc5b06d1-82ec68b2, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:29,495 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b24bcd04b2e42958-8255637f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36190 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36102 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:30,475 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-beaed53f3a348033-a72e6aac, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:30,476 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-be087778f239b1a8-bb1cc4f6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36250 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:31,493 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b62598796a82e101-9f51d713, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36332 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36430 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:32,496 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b6611c9dab56e46b-94902b4e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:32,497 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-909e033157d9e454-b323a5ad, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36346 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36172 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36060 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:33,521 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a7f92622c3c3d1c6-a7b8111d, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:33,521 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b02118c87193ee15-8720412a, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:33,522 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b1c6e9a65bc22537-9c9663de, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36306 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:34,514 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-92e9d249f310ff76-a1571007, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36350 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:35,504 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8d8196ac6f76d1b3-8b4d3ede, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36372 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:37,507 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a597b287bc41bfae-917e101f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36224 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36262 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36318 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36208 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36288 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:38,528 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b4933b1c7eeae90b-9b3b4a50, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:38,528 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9c6a2d615f98472a-917fd270, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:38,528 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ac19e39448d1be9c-9c861d61, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:38,529 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-872b52aa7eb4db9b-8b50efd8, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:38,529 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a249587bb1479248-80abca3f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO 10-12 06:54:39 [loggers.py:310] Engine 000: Avg prompt throughput: 161.1 tokens/s, Avg generation throughput: 1114.7 tokens/s, Running: 50 reqs, Waiting: 0 reqs, GPU KV cache usage: 14.6%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.1%
+(APIServer pid=818452) INFO:     127.0.0.1:36162 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36226 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:40,545 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a8096dffe85f16ac-83b8b172, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36176 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36112 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36410 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:41,540 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a00126aae210e6b4-86a8b955, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:41,541 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-808d946b4fca3328-a7796fbf, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:41,541 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-845418d79947f9ca-a71610b9, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:41,541 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ad6ca1e6c6a31b62-92b1d56a, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36400 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:42,534 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-88ec3bd879aee441-8a310b03, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36384 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:43,541 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bec6e56a9d35d4a9-94833893, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:43,541 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-870a6f31e1edc39e-9103e266, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36296 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:44,546 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-93699c085b5489a8-af7a5a1c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36098 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36122 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36140 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36274 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:45,562 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8a9be95fc7ad712d-b7c21e6b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:45,562 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-99d1a002474bae7a-99e15378, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:45,563 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a06d02d60d7913fe-9029b969, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:45,563 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8f5b48238ceaba63-8abf6441, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36218 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36216 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36252 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:47,567 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9556108db91c1c69-ab6a5b2c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:47,568 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a5c51f7cbde86de2-8619fdd6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:47,568 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a6cad281a19bc41e-84cf9242, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36324 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36398 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:54:49 [loggers.py:310] Engine 000: Avg prompt throughput: 124.9 tokens/s, Avg generation throughput: 1119.0 tokens/s, Running: 48 reqs, Waiting: 0 reqs, GPU KV cache usage: 13.6%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.5%
+(EngineCore pid=818555) INFO 10-12 06:54:49,557 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9352823eb5526c32-96f02cd4, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:49,557 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-984550b0036cd307-ba508e4c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36084 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36234 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36154 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:51,560 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8a88ff7e55f56bb7-b6f525c7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:51,561 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a3265513180407d6-b234a2f7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:51,561 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a046e38474ec678f-a4c4dc22, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36364 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:52,570 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-94f84baf1cbf8a6d-b4bd6d12, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:52,570 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a6da89e015bcc6f1-996026ba, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36272 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:53,584 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b0ae43fcc10038f8-8f48c9bb, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36430 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36102 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:54,584 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-93df29f754df6e4d-aa3c7037, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:54,585 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9a5eb00e59a9dd48-87f8bdd9, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36196 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36190 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:55,561 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8baa457be7732687-b11dc1c6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:54:55,561 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bb22e63350ee1466-87eb2983, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36350 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:56,577 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a499c890ee0384b3-af1cf736, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36306 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:54:57,569 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9e8f7c0c0676b577-b4f817db, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO 10-12 06:54:59 [loggers.py:310] Engine 000: Avg prompt throughput: 120.7 tokens/s, Avg generation throughput: 1134.9 tokens/s, Running: 50 reqs, Waiting: 0 reqs, GPU KV cache usage: 14.8%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.5%
+(APIServer pid=818452) INFO:     127.0.0.1:36208 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36226 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:00,580 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a6d0cacd95987628-822921c7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:00,580 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-acef91bed97084cc-8f636efa, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36060 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:01,606 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-813ea64e17ed2d50-ba0932ab, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36410 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:05,604 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bdf6c6c13dda5596-b6ca4fd8, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36346 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36172 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:06,575 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9171947c0a8671a0-9fcd4eec, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:06,575 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bf0a2218e7ac1b30-a087dcd1, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36048 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:08,586 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a05d6a59f3e4dd38-96a7a292, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:08,587 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ab88f349bb7559a9-970c96d7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36234 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:55:09 [loggers.py:310] Engine 000: Avg prompt throughput: 74.1 tokens/s, Avg generation throughput: 1137.9 tokens/s, Running: 49 reqs, Waiting: 0 reqs, GPU KV cache usage: 16.2%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.5%
+(EngineCore pid=818555) INFO 10-12 06:55:09,614 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-89211a16a19d4c07-b3f6c0cd, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36098 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36198 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:10,595 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8d6fb5637371b332-8e15328e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:10,595 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a31a63d35ed2ea3b-946f46da, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36122 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36306 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36400 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36262 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36216 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:11,605 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8638b8e8283a4ba7-accac59a, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:11,605 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-941bab165c265773-a29ce4ab, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:11,605 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-97c08b278672752f-926db0a1, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:11,606 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8bdad607fedb4700-a613d6eb, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:11,606 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9e6364788e26c09f-b5b33406, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36274 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:12,602 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a1a0efce4199a6e7-80dc3a63, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36252 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:13,626 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-81ecbfe4f3aa4658-add8081b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36318 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36332 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:14,617 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-adbf06d44d5a3a26-ae92e663, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:14,617 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8df83233b0787c4c-b7aecd20, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36112 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:15,624 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ad6800a6cd00898c-a69eb6e3, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36162 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:16,633 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-901d6abf873e5e14-835ef855, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36324 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36224 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:17,638 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-afbc044b0f704c3c-a696e934, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:17,639 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9db835922a592683-a87038c7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36296 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:55:19 [loggers.py:310] Engine 000: Avg prompt throughput: 141.3 tokens/s, Avg generation throughput: 1097.7 tokens/s, Running: 49 reqs, Waiting: 0 reqs, GPU KV cache usage: 16.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.5%
+(EngineCore pid=818555) INFO 10-12 06:55:19,614 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9f9c57db4c85c84f-a11ee4a6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36218 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:20,624 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ba6e7ba70debc64d-87b2268e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36430 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36026 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36372 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:21,618 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ad154c6b925c6d3e-83d597e5, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:21,619 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-92504974eae7d989-b119d517, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:21,619 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bbdffc878d72ea3e-8299cdbb, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:21,619 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-86306f0d9e84c6e5-a499df48, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36288 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:22,631 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bac3cf7345a16a10-af02cf48, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36360 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36154 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36040 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:23,624 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bf6aa3b280969ff8-947d7168, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:23,665 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9b888ad3d90cff7b-bdf7feb1, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:23,666 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9a0b39f0fd6e0fed-a2f39085, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:23,666 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9dbddf42b07b5cf7-b9dbe6ad, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36106 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:25,646 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-80d74b98a8bac261-9213a445, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36190 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36348 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:26,646 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-84681f084a910cdc-afb7949f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:26,647 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-811173479d41878f-a0cf4d9e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36122 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:55:29 [loggers.py:310] Engine 000: Avg prompt throughput: 102.2 tokens/s, Avg generation throughput: 1116.5 tokens/s, Running: 49 reqs, Waiting: 0 reqs, GPU KV cache usage: 15.3%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(EngineCore pid=818555) INFO 10-12 06:55:29,661 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b589808a63ebaa2f-97cb0ed2, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36350 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:30,650 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-97c043b6181efb49-a1e3c555, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36306 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36176 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:31,647 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-967b7f7125f0b7cf-bc405ffb, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:31,647 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8a25b0933f5f6d66-b95636e6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36384 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36060 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:33,659 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9f4e9685b3314c2b-ba4fe47e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:33,660 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bae5a0d7e16f0f60-8e152c36, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36048 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36172 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36196 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36216 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:34,678 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a850eb2ac4c17933-80e5970f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:34,678 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-966b4b923f30bae7-ba0cb443, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:34,678 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8274559c96af35f0-858e14ed, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:34,678 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9c3461e75615ee4b-9c17ba11, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36198 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36112 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36410 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:35,678 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-abcbdc16183028b1-9b671071, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:35,679 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8944ccc8be6610ca-9f897b48, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:35,679 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-920ca23ed703ca98-95fdd8b2, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36162 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36084 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36116 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36132 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:37,703 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8259b719caa5a258-8606a006, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:37,703 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-86f4eb75239534ab-95648c54, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:37,703 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9c390d36dab0154b-a45f1871, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:37,704 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9d78e222fc845f6b-9a98209e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36218 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:38,686 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-96765412b02e2889-8c47ebce, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:55:39 [loggers.py:310] Engine 000: Avg prompt throughput: 181.5 tokens/s, Avg generation throughput: 1091.6 tokens/s, Running: 49 reqs, Waiting: 0 reqs, GPU KV cache usage: 14.4%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.5%
+(EngineCore pid=818555) INFO 10-12 06:55:39,696 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a70de6f3ab986f35-897df1e5, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36208 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:41,706 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8193f218e78bf032-ac063656, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36288 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:42,679 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b6a1c3b9abb041f1-b24a3f2a, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36332 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36346 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36318 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36430 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:43,716 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a1e9ab3752547813-ae904db1, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:43,716 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bb3893751bb41a19-806f9d4e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:43,717 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b50bc1535a403a74-a7fa7c4f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:43,717 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b756f089ea38119e-b994cef3, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36296 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36252 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:44,728 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-886c36b4587a16b3-80cb7325, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:44,729 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-81a70691c25598a6-8ad36b6e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:45,736 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ae733305cab73a71-879a37cc, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36190 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:47,726 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ab282975cb56866a-8638f459, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36400 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:48,702 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8f852776c2dbcc0a-865a6737, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO 10-12 06:55:49 [loggers.py:310] Engine 000: Avg prompt throughput: 97.1 tokens/s, Avg generation throughput: 1123.4 tokens/s, Running: 50 reqs, Waiting: 0 reqs, GPU KV cache usage: 15.7%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.6%
+(APIServer pid=818452) INFO:     127.0.0.1:36026 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:50,742 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9c09490cf156da80-939a09ab, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36384 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:51,725 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-bf882ff6e9f95401-ac31024c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36372 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:52,708 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-85963903a8e1f323-9dbc9537, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36098 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36154 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:54,738 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a5ac745933d602a9-833af04e, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:54,738 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9f0ef7e7d8ef3799-8bc3a111, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36226 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36132 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:56,745 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8d273d4fe83113fc-ab924e32, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:56,745 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-879041cdc286bd34-9ce06bb7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36162 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:57,732 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-91c9037c1b6cc8ac-a0ffcdc6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36350 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36348 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36060 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:58,737 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8c01894cb9d93c61-8789c8f6, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:58,737 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-9bedb45e1974bb43-b7e465b7, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:58,738 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8b0359346b0bb005-b4a19a0b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36196 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:55:59 [loggers.py:310] Engine 000: Avg prompt throughput: 100.6 tokens/s, Avg generation throughput: 1113.6 tokens/s, Running: 49 reqs, Waiting: 0 reqs, GPU KV cache usage: 16.4%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.6%
+(APIServer pid=818452) INFO:     127.0.0.1:36318 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36272 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:55:59,761 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-aa1bc8e607e4166c-a6990763, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:59,761 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b98eb7f29019563f-9e83194f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:55:59,761 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-80d926e78368600c-aeae83be, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36410 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36224 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36106 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36430 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:56:00,760 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a6b021c2d1f7d321-87b234ca, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:56:00,760 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8dacaa25bffa24c3-a2d013bd, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:56:00,760 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-ac50d2300f3732c0-a9aeeaae, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:56:00,760 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b5201607baeb3a7e-9d73a3ae, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36122 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36116 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36250 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:56:01,781 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-90e36390bb6a76e1-a1e7923f, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:56:01,781 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b098515470f34b51-87b13d7b, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:56:01,781 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-86a83448f1bb50d1-8026cb3c, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36176 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:56:02,755 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a921e119afb1a914-a47c52cf, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36324 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36040 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:56:05,780 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-a30f4b392b73bb78-8a70a36a, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=818555) INFO 10-12 06:56:05,780 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-992410c4f086879b-a0f3b904, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(EngineCore pid=818555) INFO 10-12 06:56:07,782 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-b068f4305612adf4-8c14a8ef, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36288 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36112 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:56:09 [loggers.py:310] Engine 000: Avg prompt throughput: 116.1 tokens/s, Avg generation throughput: 1118.0 tokens/s, Running: 48 reqs, Waiting: 0 reqs, GPU KV cache usage: 15.9%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(EngineCore pid=818555) INFO 10-12 06:56:09,775 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-chatcmpl-8a3757dff486b084-890291fe, externally-cached tokens: 576, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(APIServer pid=818452) INFO:     127.0.0.1:36208 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36140 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36372 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36196 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36360 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36132 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36296 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36198 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36026 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36410 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36364 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36398 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:56:19 [loggers.py:310] Engine 000: Avg prompt throughput: 10.2 tokens/s, Avg generation throughput: 1065.8 tokens/s, Running: 37 reqs, Waiting: 0 reqs, GPU KV cache usage: 13.6%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(APIServer pid=818452) INFO:     127.0.0.1:36346 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36384 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36252 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36172 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36190 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36226 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36102 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36216 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36154 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36234 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36430 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36048 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36332 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36176 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:56:29 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 742.2 tokens/s, Running: 22 reqs, Waiting: 0 reqs, GPU KV cache usage: 9.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(APIServer pid=818452) INFO:     127.0.0.1:36040 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36084 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36272 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36112 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36060 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36250 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36106 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36274 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36262 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36348 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36400 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36318 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:56:39 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 488.7 tokens/s, Running: 10 reqs, Waiting: 0 reqs, GPU KV cache usage: 4.7%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(APIServer pid=818452) INFO:     127.0.0.1:36116 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36122 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36098 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:56:49 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 258.6 tokens/s, Running: 7 reqs, Waiting: 0 reqs, GPU KV cache usage: 3.9%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(APIServer pid=818452) INFO:     127.0.0.1:36306 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36224 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36218 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:56:59 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 174.3 tokens/s, Running: 4 reqs, Waiting: 0 reqs, GPU KV cache usage: 2.4%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(APIServer pid=818452) INFO:     127.0.0.1:36350 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO 10-12 06:57:09 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 117.9 tokens/s, Running: 2 reqs, Waiting: 0 reqs, GPU KV cache usage: 1.4%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 86.7%
+(APIServer pid=818452) INFO:     127.0.0.1:36324 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=818452) INFO:     127.0.0.1:36162 - "POST /v1/chat/completions HTTP/1.1" 200 OK

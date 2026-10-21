@@ -1,0 +1,12 @@
+(EngineCore pid=197301) INFO 10-10 06:34:46,459 [kvshrink_connector.py:287] get_num_new_matched_tokens, req-cmpl-8daf4681a47c648c-0-bb81e4b3, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=197301) INFO 10-10 06:35:05,838 [kvshrink_connector.py:287] get_num_new_matched_tokens, req-cmpl-a88e1f9bb525ff0a-0-8cd5a70e, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=197301) INFO 10-10 06:35:05,841 [kvshrink_connector.py:722] async_load step=68 t=83779126477946 submit kind=sync reqs=cmpl-a88e1f9bb525ff0a-0-8cd5a70e layers=0-63
+(EngineCore pid=197301) INFO 10-10 06:35:06,016 [kvshrink_connector.py:287] get_num_new_matched_tokens, req-cmpl-9368cd57ac671310-0-98df37d9, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=197301) INFO 10-10 06:35:06,017 [kvshrink_connector.py:287] get_num_new_matched_tokens, req-cmpl-9059556e4296ff58-0-b658dd53, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=197301) INFO 10-10 06:35:06,018 [kvshrink_connector.py:287] get_num_new_matched_tokens, req-cmpl-89e97414f5962c73-0-a1fd67f7, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=197301) INFO 10-10 06:35:06,020 [kvshrink_connector.py:722] async_load step=69 t=83779305940314 submit kind=sync reqs=cmpl-9368cd57ac671310-0-98df37d9,cmpl-9059556e4296ff58-0-b658dd53 layers=0-63
+(EngineCore pid=197301) INFO 10-10 06:35:06,035 [kvshrink_connector.py:722] async_load step=69 t=83779320681508 submit kind=async reqs=cmpl-89e97414f5962c73-0-a1fd67f7 layers=0-3
+(EngineCore pid=197301) INFO 10-10 06:35:06,348 [kvshrink_connector.py:615] async_load step=70 t=83779634322494 promote reqs=cmpl-89e97414f5962c73-0-a1fd67f7
+(EngineCore pid=197301) INFO 10-10 06:35:06,350 [kvshrink_connector.py:455] async_load step=71 t=83779635494424 activate reqs= held=cmpl-89e97414f5962c73-0-a1fd67f7
+(EngineCore pid=197301) INFO 10-10 06:35:06,350 [kvshrink_connector.py:722] async_load step=71 t=83779635586792 submit kind=async_tail reqs=cmpl-89e97414f5962c73-0-a1fd67f7 layers=4-63
+(EngineCore pid=197301) INFO 10-10 06:35:06,488 [kvshrink_connector.py:455] async_load step=72 t=83779773914870 activate reqs=cmpl-89e97414f5962c73-0-a1fd67f7 held=

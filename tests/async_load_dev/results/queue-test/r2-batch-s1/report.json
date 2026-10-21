@@ -1,0 +1,66 @@
+{
+  "scheme": "batch_reqs_async_load_submit",
+  "scenario": "s1",
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 6,
+  "trace_events": 1408,
+  "structure_errors": [],
+  "inversions": 0,
+  "inversion_samples": [],
+  "steps_with_multiple_async_reqs": 4,
+  "case_a_async_behind_earlier_async": 0,
+  "case_b_sync_behind_earlier_async": 0,
+  "per_submission": [
+    {
+      "step": 132,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.019327,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 137,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.019595,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 140,
+      "kind": "async",
+      "reqs": 5,
+      "first_layer": 0,
+      "first_task_wait_ms": 1.665835,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 266,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.021125,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 269,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.532995,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 272,
+      "kind": "async",
+      "reqs": 5,
+      "first_layer": 0,
+      "first_task_wait_ms": 1.632991,
+      "ahead_from_earlier_steps": {}
+    }
+  ],
+  "verdict": "UNCOVERED"
+}

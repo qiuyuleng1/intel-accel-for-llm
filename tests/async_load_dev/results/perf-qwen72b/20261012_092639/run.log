@@ -1,0 +1,95 @@
+out=/home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261012_092639 schemes=naive batch_reqs_async_load_submit split_async_load_submit input=8000 output=128 hit=80 100 conc=1 4 8 12 prompts=1:16 4:48 8:96 12:96 warmups=5
+===== scheme=naive connector_md5=abf97189 =====
+    reclaimed host memory: free=273G available=272G
+    Node 0, zone   Normal 127177 128363 109284 102828  91470  71743  47307  25960  12576  13685   8579 
+    Node 1, zone   Normal 108210 162198 181565 179531 144456 100842  61973  37756  20706  16094  10092 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261012_092639/naive.serve.log
+    prewarm: conc=12 prompts=24 hit=100
+    --- naive_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> naive hit=80 conc=1: mean_ttft=1095.98 median_ttft=1157.86 p95_ttft=1164.81 ms
+    --- naive_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> naive hit=80 conc=4: mean_ttft=2246.95 median_ttft=2377.59 p95_ttft=3493.32 ms
+    --- naive_hr80_c8 prompts=96 ---
+Successful requests:                     96        
+    -> naive hit=80 conc=8: mean_ttft=6988.07 median_ttft=9453.84 p95_ttft=9495.61 ms
+    --- naive_hr80_c12 prompts=96 ---
+Successful requests:                     96        
+    -> naive hit=80 conc=12: mean_ttft=8760.7 median_ttft=9505.16 p95_ttft=13075.9 ms
+    --- naive_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> naive hit=100 conc=1: mean_ttft=204.9 median_ttft=203.85 p95_ttft=211.4 ms
+    --- naive_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> naive hit=100 conc=4: mean_ttft=543.52 median_ttft=527.38 p95_ttft=796.14 ms
+    --- naive_hr100_c8 prompts=96 ---
+Successful requests:                     96        
+    -> naive hit=100 conc=8: mean_ttft=860.78 median_ttft=855.05 p95_ttft=1085.93 ms
+    --- naive_hr100_c12 prompts=96 ---
+Successful requests:                     96        
+    -> naive hit=100 conc=12: mean_ttft=940.96 median_ttft=857.8 p95_ttft=1615.98 ms
+===== scheme=batch_reqs_async_load_submit connector_md5=abf97189 =====
+    reclaimed host memory: free=273G available=272G
+    Node 0, zone   Normal 146563 138140 119608 109568  95136  74339  48601  27242  12893  13464   8071 
+    Node 1, zone   Normal 105070 159069 174073 174863 141163  99433  59998  36196  19812  16056  10873 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261012_092639/batch_reqs_async_load_submit.serve.log
+    prewarm: conc=12 prompts=24 hit=100
+    --- batch_reqs_async_load_submit_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> batch_reqs_async_load_submit hit=80 conc=1: mean_ttft=1102.88 median_ttft=1163.35 p95_ttft=1167.08 ms
+    --- batch_reqs_async_load_submit_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> batch_reqs_async_load_submit hit=80 conc=4: mean_ttft=2234.73 median_ttft=2372.59 p95_ttft=3480.86 ms
+    --- batch_reqs_async_load_submit_hr80_c8 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit hit=80 conc=8: mean_ttft=6250.57 median_ttft=8286.41 p95_ttft=8390.54 ms
+    --- batch_reqs_async_load_submit_hr80_c12 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit hit=80 conc=12: mean_ttft=8530.11 median_ttft=8372.42 p95_ttft=13037.67 ms
+    --- batch_reqs_async_load_submit_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> batch_reqs_async_load_submit hit=100 conc=1: mean_ttft=210.07 median_ttft=210.19 p95_ttft=216.06 ms
+    --- batch_reqs_async_load_submit_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> batch_reqs_async_load_submit hit=100 conc=4: mean_ttft=509.79 median_ttft=524.8 p95_ttft=649.52 ms
+    --- batch_reqs_async_load_submit_hr100_c8 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit hit=100 conc=8: mean_ttft=762.32 median_ttft=757.95 p95_ttft=964.37 ms
+    --- batch_reqs_async_load_submit_hr100_c12 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit hit=100 conc=12: mean_ttft=909.2 median_ttft=842.83 p95_ttft=1208.86 ms
+===== scheme=split_async_load_submit connector_md5=abf97189 =====
+    reclaimed host memory: free=273G available=272G
+    Node 0, zone   Normal 146898 139418 120264 110230  96315  75493  49694  28062  13527  13091   7850 
+    Node 1, zone   Normal 105125 160106 174090 173571 140897  99214  59869  36152  19746  15981  10965 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261012_092639/split_async_load_submit.serve.log
+    prewarm: conc=12 prompts=24 hit=100
+    --- split_async_load_submit_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> split_async_load_submit hit=80 conc=1: mean_ttft=1107.0 median_ttft=1162.97 p95_ttft=1185.68 ms
+    --- split_async_load_submit_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> split_async_load_submit hit=80 conc=4: mean_ttft=2244.53 median_ttft=2376.16 p95_ttft=3537.24 ms
+    --- split_async_load_submit_hr80_c8 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit hit=80 conc=8: mean_ttft=6224.7 median_ttft=8258.98 p95_ttft=8333.57 ms
+    --- split_async_load_submit_hr80_c12 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit hit=80 conc=12: mean_ttft=8993.67 median_ttft=9436.57 p95_ttft=13081.49 ms
+    --- split_async_load_submit_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> split_async_load_submit hit=100 conc=1: mean_ttft=216.5 median_ttft=218.72 p95_ttft=222.99 ms
+    --- split_async_load_submit_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> split_async_load_submit hit=100 conc=4: mean_ttft=551.88 median_ttft=558.45 p95_ttft=766.54 ms
+    --- split_async_load_submit_hr100_c8 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit hit=100 conc=8: mean_ttft=828.33 median_ttft=899.01 p95_ttft=986.11 ms
+    --- split_async_load_submit_hr100_c12 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit hit=100 conc=12: mean_ttft=972.58 median_ttft=877.95 p95_ttft=1595.25 ms
+ALL_DONE

@@ -1,0 +1,9 @@
+scheme,dynamic_map,input_len,hit_rate,concurrency,num_prompts,completed,duration,request_throughput,mean_ttft_ms,median_ttft_ms,p95_ttft_ms,mean_tpot_ms,median_tpot_ms,p95_tpot_ms
+priority_3level_first_n_per_req,"0-3:0,4-6:4,7-:8",8000,98,16,96,96,59.4,1.62,2032.52,2277.82,2536.63,61.84,59.57,73.71
+priority_3level_first_n_per_req,"0-3:0,4-6:4,7-:8",8000,100,16,96,96,53.49,1.79,1034.59,950.62,1756.39,61.85,61.34,66.63
+priority_3level_first_n_per_req_promote_raise,"0-3:0,4-6:4,7-:8",8000,98,16,96,96,58.74,1.63,1918.08,2085.87,2440.81,61.88,60.34,72.92
+priority_3level_first_n_per_req_promote_raise,"0-3:0,4-6:4,7-:8",8000,100,16,96,96,50.51,1.9,608.75,498.74,1633.74,61.07,61.36,62.46
+batch_reqs_async_load_submit,"0-3:0,4-6:4,7-:8",8000,98,16,96,96,56.58,1.7,1784.04,2047.36,2069.93,60.1,57.98,70.34
+batch_reqs_async_load_submit,"0-3:0,4-6:4,7-:8",8000,100,16,96,96,51.73,1.86,683.85,503.23,1812.13,61.93,62.05,64.22
+sync,none,8000,98,16,96,96,56.33,1.7,1554.44,1517.06,2055.44,61.6,62.07,70.71
+sync,none,8000,100,16,96,96,54.04,1.78,1157.38,1458.88,1797.3,61.71,59.26,68.36

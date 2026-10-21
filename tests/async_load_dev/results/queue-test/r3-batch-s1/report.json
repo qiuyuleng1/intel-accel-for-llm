@@ -1,0 +1,110 @@
+{
+  "scheme": "batch_reqs_async_load_submit",
+  "scenario": "s1",
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 10,
+  "trace_events": 1664,
+  "structure_errors": [],
+  "inversions": 0,
+  "inversion_samples": [],
+  "steps_with_multiple_async_reqs": 4,
+  "case_a_async_behind_earlier_async": 4,
+  "case_b_sync_behind_earlier_async": 0,
+  "per_submission": [
+    {
+      "step": 132,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.019683,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 140,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.025116,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 141,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 75.777243,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 37
+      }
+    },
+    {
+      "step": 142,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 260.008557,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 10,
+        "async_head": 4,
+        "async_tail_unpromoted": 60
+      }
+    },
+    {
+      "step": 143,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 183.974346,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 15,
+        "async_head": 4,
+        "async_tail_unpromoted": 60
+      }
+    },
+    {
+      "step": 145,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 2.89673,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 266,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.027606,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 272,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.023797,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 274,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 11.212071,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 5
+      }
+    },
+    {
+      "step": 277,
+      "kind": "async",
+      "reqs": 4,
+      "first_layer": 0,
+      "first_task_wait_ms": 3.312546,
+      "ahead_from_earlier_steps": {}
+    }
+  ],
+  "verdict": "PASS"
+}

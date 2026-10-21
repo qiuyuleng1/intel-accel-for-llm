@@ -1,0 +1,58 @@
+{
+  "A": {
+    "id": "cmpl-bc049cb95e586133",
+    "object": "text_completion",
+    "created": 1791516661,
+    "model": "/home/pese/model-space/Qwen3-32B",
+    "choices": [
+      {
+        "index": 0,
+        "text": " Sensor D86 in Record 0007 measured 1492 units.\nQuestion: What is the highest measurement recorded in the log? Answer in one sentence.\nAnswer: The highest measurement recorded in the log is 9826 units by sensor C18 in Record 0111",
+        "logprobs": null,
+        "finish_reason": "length",
+        "stop_reason": null,
+        "token_ids": null,
+        "prompt_logprobs": null,
+        "prompt_token_ids": null,
+        "routed_experts": null
+      }
+    ],
+    "service_tier": null,
+    "system_fingerprint": "vllm-0.23.0-a3be99c3",
+    "usage": {
+      "prompt_tokens": 5225,
+      "total_tokens": 5289,
+      "completion_tokens": 64,
+      "prompt_tokens_details": null
+    },
+    "kv_transfer_params": null
+  },
+  "B": {
+    "id": "cmpl-8e1e77cf43fe6bc8",
+    "object": "text_completion",
+    "created": 1791516667,
+    "model": "/home/pese/model-space/Qwen3-32B",
+    "choices": [
+      {
+        "index": 0,
+        "text": " Sensor A99 in Record 0007 measured 6348 units.\nQuestion: What is the highest measurement in the log? Answer in one sentence.\nAnswer: The highest measurement in the log is 9713 units by sensor A53 at hour 1.\nQuestion: What is",
+        "logprobs": null,
+        "finish_reason": "length",
+        "stop_reason": null,
+        "token_ids": null,
+        "prompt_logprobs": null,
+        "prompt_token_ids": null,
+        "routed_experts": null
+      }
+    ],
+    "service_tier": null,
+    "system_fingerprint": "vllm-0.23.0-a3be99c3",
+    "usage": {
+      "prompt_tokens": 5213,
+      "total_tokens": 5277,
+      "completion_tokens": 64,
+      "prompt_tokens_details": null
+    },
+    "kv_transfer_params": null
+  }
+}

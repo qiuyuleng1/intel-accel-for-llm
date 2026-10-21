@@ -1,0 +1,25 @@
+===== priority_3level_first_n_per_req s2 queue (BI=0) connector_md5=586c6133 =====
+KVShrink async load scheme: priority_3level_first_n_per_req, role=WORKER
+KVShrink async load scheme: priority_3level_first_n_per_req, role=SCHEDULER
+queue_exit=0
+{
+  "hit_requests": 32,
+  "hit_async": 27,
+  "hit_sync": 5,
+  "submissions": 31,
+  "trace_events": 4032,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 6,
+  "case_a_async_behind_earlier_async": 8,
+  "case_b_sync_behind_earlier_async": 2,
+  "verdict": "PASS"
+}
+PASS
+  activate lines with held!='': 8
+===== priority_3level_first_n_per_req s2 correctness (BI=1) connector_md5=586c6133 =====
+KVShrink async load scheme: priority_3level_first_n_per_req, role=WORKER
+KVShrink async load scheme: priority_3level_first_n_per_req, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1

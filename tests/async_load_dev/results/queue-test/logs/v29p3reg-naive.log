@@ -1,0 +1,25 @@
+===== naive s1 queue (BI=0) connector_md5=586c6133 =====
+KVShrink async load scheme: naive, role=WORKER
+KVShrink async load scheme: naive, role=SCHEDULER
+queue_exit=0
+{
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 16,
+  "trace_events": 2048,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 2,
+  "case_a_async_behind_earlier_async": 7,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "PASS"
+}
+PASS
+  activate lines with held!='': 13
+===== naive s1 correctness (BI=1) connector_md5=586c6133 =====
+KVShrink async load scheme: naive, role=WORKER
+KVShrink async load scheme: naive, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 3

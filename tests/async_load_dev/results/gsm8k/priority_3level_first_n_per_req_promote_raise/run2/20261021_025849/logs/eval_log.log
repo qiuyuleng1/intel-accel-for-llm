@@ -1,0 +1,149 @@
+2026-10-21 02:58:49 - evalscope - INFO: Running with native backend
+2026-10-21 02:58:49 - evalscope - INFO: Dump task config to /home/pese/qiuyu/intel-accel-for-llm-1008/_data/gsm8k/priority_3level_first_n_per_req_promote_raise/run2/20261021_025849/configs/task_config.yaml
+2026-10-21 02:58:49 - evalscope - INFO: {
+    "model_id": "Qwen3-32B",
+    "model_args": {},
+    "model_task": "text_generation",
+    "chat_template": null,
+    "datasets": [
+        "gsm8k"
+    ],
+    "dataset_args": {
+        "gsm8k": {
+            "name": "gsm8k",
+            "dataset_id": "AI-ModelScope/gsm8k",
+            "output_types": [
+                "generation"
+            ],
+            "subset_list": [
+                "main"
+            ],
+            "default_subset": "default",
+            "few_shot_num": 4,
+            "few_shot_random": false,
+            "train_split": "train",
+            "eval_split": "test",
+            "prompt_template": "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}.",
+            "few_shot_prompt_template": "Here are some examples of how to solve similar problems:\n\n{fewshot}\n\n{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}.",
+            "system_prompt": null,
+            "query_template": null,
+            "pretty_name": "GSM8K",
+            "description": "\n## Overview\n\nGSM8K (Grade School Math 8K) is a high-quality dataset of 8.5K linguistically diverse grade school math word problems created by human problem writers. The dataset is specifically designed to evaluate and improve the multi-step mathematical reasoning capabilities of language models.\n\n## Task Description\n\n- **Task Type**: Mathematical Word Problem Solving\n- **Input**: Natural language math word problem\n- **Output**: Numerical answer derived through step-by-step reasoning\n- **Difficulty**: Grade school level (2-8 reasoning steps required)\n\n## Key Features\n\n- Problems require basic arithmetic operations (addition, subtraction, multiplication, division)\n- Solutions involve 2 to 8 sequential reasoning steps\n- High linguistic diversity in problem formulations\n- Human-written problems ensuring natural language quality\n- Clear numerical answers for objective evaluation\n\n## Evaluation Notes\n\n- Default configuration uses **4-shot** examples with Chain-of-Thought (CoT) prompting\n- Answers should be formatted within `\\boxed{}` for proper extraction\n- The metric extracts numerical values for accuracy comparison\n- Supports both zero-shot and few-shot evaluation modes\n",
+            "paper_url": "https://arxiv.org/abs/2110.14168",
+            "data_statistics": null,
+            "sample_example": null,
+            "tags": [
+                "Math",
+                "Reasoning"
+            ],
+            "filters": null,
+            "metric_list": [
+                {
+                    "acc": {
+                        "numeric": true
+                    }
+                }
+            ],
+            "aggregation": "mean",
+            "shuffle": false,
+            "shuffle_choices": false,
+            "force_redownload": false,
+            "review_timeout": null,
+            "extra_params": {},
+            "sandbox_config": {},
+            "max_image_bytes": null
+        }
+    },
+    "dataset_dir": "/home/pese/qiuyu/Al-dsv4/KVCacheClip/internal/daocloud/test/accuracy-gsm8k/evalscope/datasets",
+    "dataset_hub": "modelscope",
+    "repeats": 1,
+    "eval_type": "openai_api",
+    "eval_backend": "Native",
+    "eval_config": null,
+    "limit": 200,
+    "eval_batch_size": 50,
+    "use_cache": null,
+    "rerun_review": false,
+    "work_dir": "/home/pese/qiuyu/intel-accel-for-llm-1008/_data/gsm8k/priority_3level_first_n_per_req_promote_raise/run2/20261021_025849",
+    "no_timestamp": false,
+    "enable_progress_tracker": false,
+    "ignore_errors": false,
+    "debug": false,
+    "seed": 42,
+    "api_url": "http://127.0.0.1:8010/v1",
+    "api_key": "**********",
+    "timeout": null,
+    "stream": null,
+    "judge_strategy": "auto",
+    "judge_worker_num": 1,
+    "judge_model_args": {},
+    "analysis_report": false,
+    "collect_perf": true,
+    "sandbox": {
+        "enabled": false,
+        "engine": "docker",
+        "default_config": {},
+        "manager_config": {},
+        "pool_size": null
+    },
+    "use_sandbox": false,
+    "sandbox_type": "docker",
+    "sandbox_manager_config": {},
+    "agent_config": null,
+    "evalscope_version": "1.9.1",
+    "model": "/home/pese/model-space/Qwen3-32B",
+    "generation_config": {
+        "batch_size": 50,
+        "max_tokens": 2048,
+        "temperature": 0.0
+    }
+}
+2026-10-21 02:58:49 - evalscope - INFO: Start loading benchmark dataset: gsm8k
+2026-10-21 02:58:49 - evalscope - WARNING: gsm8k: 200 samples to evaluate (1 subset, --limit=200 per subset). Remove `--limit` for a formal evaluation.
+2026-10-21 02:58:49 - evalscope - INFO: Subsets of gsm8k: ['main']
+2026-10-21 02:58:49 - evalscope - INFO: Loading model for prediction...
+2026-10-21 02:58:49 - evalscope - INFO: Creating model /home/pese/model-space/Qwen3-32B with eval_type=openai_api base_url=http://127.0.0.1:8010/v1, config={'retries': 5, 'retry_interval': 10, 'batch_size': 50, 'max_tokens': 2048, 'temperature': 0.0, 'anthropic_cache_strategy': 'evaluation'}, model_args={}
+2026-10-21 02:58:49 - evalscope - INFO: Model loaded successfully.
+2026-10-21 02:59:49 - evalscope - INFO: Evaluating[gsm8k]  32%| 64/200 [Elapsed: 01:00 < Remaining: 02:05,  1.09it/s]
+2026-10-21 03:00:49 - evalscope - INFO: Evaluating[gsm8k]  74%| 147/200 [Elapsed: 02:00 < Remaining: 00:35,  1.50it/s]
+2026-10-21 03:01:50 - evalscope - INFO: Evaluating[gsm8k]  99%| 198/200 [Elapsed: 03:00 < Remaining: 00:04,  2.31s/it]
+2026-10-21 03:01:53 - evalscope - INFO: Evaluating[gsm8k] 100%| 200/200 [Elapsed: 03:03 < Remaining: 00:00,  3.20s/it]
+2026-10-21 03:01:53 - evalscope - INFO: gsm8k: predictions complete, aggregating scores...
+2026-10-21 03:01:53 - evalscope - INFO: Aggregating scores for subset: main
+2026-10-21 03:01:53 - evalscope - INFO: Generating report...
+2026-10-21 03:01:53 - evalscope - INFO: 
+gsm8k report table:
+┌───────────┬───────────┬──────────┬──────────┬───────┬─────────┬─────────┐
+│ Model     │ Dataset   │ Metric   │ Subset   │   Num │   Score │ Cat.0   │
+├───────────┼───────────┼──────────┼──────────┼───────┼─────────┼─────────┤
+│ Qwen3-32B │ gsm8k     │ mean_acc │ main     │   200 │   0.945 │ default │
+└───────────┴───────────┴──────────┴──────────┴───────┴─────────┴─────────┘ 
+
+2026-10-21 03:01:53 - evalscope - INFO: Skipping report analysis (`analysis_report=False`).
+2026-10-21 03:01:53 - evalscope - INFO: Dump report to: /home/pese/qiuyu/intel-accel-for-llm-1008/_data/gsm8k/priority_3level_first_n_per_req_promote_raise/run2/20261021_025849/reports/Qwen3-32B/gsm8k.json 
+
+2026-10-21 03:01:53 - evalscope - INFO: 
+gsm8k perf table:
+Model      Dataset      Num    Avg Lat  Avg TTFT    Avg TPOT      Avg Thpt    Avg In    Avg Out
+                                   (s)  (ms)        (ms)           (tok/s)       Tok        Tok
+---------  ---------  -----  ---------  ----------  ----------  ----------  --------  ---------
+Qwen3-32B  gsm8k        200    35.2182  -           -                 23.5   661.385    827.705
+
+2026-10-21 03:01:53 - evalscope - INFO: Benchmark gsm8k evaluation finished.
+2026-10-21 03:01:53 - evalscope - INFO: Running[eval] 100%| 1/1 [Elapsed: 03:04 < Remaining: 00:00, 184.28s/benchmark]
+2026-10-21 03:01:53 - evalscope - INFO: Overall report table: 
+┌───────────┬───────────┬──────────┬──────────┬───────┬─────────┬─────────┐
+│ Model     │ Dataset   │ Metric   │ Subset   │   Num │   Score │ Cat.0   │
+├───────────┼───────────┼──────────┼──────────┼───────┼─────────┼─────────┤
+│ Qwen3-32B │ gsm8k     │ mean_acc │ main     │   200 │   0.945 │ default │
+└───────────┴───────────┴──────────┴──────────┴───────┴─────────┴─────────┘ 
+
+2026-10-21 03:01:53 - evalscope - INFO: Overall perf table: 
+Model      Dataset      Num    Avg Lat  Avg TTFT    Avg TPOT      Avg Thpt    Avg In    Avg Out
+                                   (s)  (ms)        (ms)           (tok/s)       Tok        Tok
+---------  ---------  -----  ---------  ----------  ----------  ----------  --------  ---------
+Qwen3-32B  gsm8k        200    35.2182  -           -                 23.5   661.385    827.705 
+
+2026-10-21 03:01:54 - evalscope - INFO: HTML report generated: /home/pese/qiuyu/intel-accel-for-llm-1008/_data/gsm8k/priority_3level_first_n_per_req_promote_raise/run2/20261021_025849/reports/report.html
+2026-10-21 03:01:54 - evalscope - INFO: Finished evaluation for Qwen3-32B on ['gsm8k']
+2026-10-21 03:01:54 - evalscope - INFO: Output directory: /home/pese/qiuyu/intel-accel-for-llm-1008/_data/gsm8k/priority_3level_first_n_per_req_promote_raise/run2/20261021_025849

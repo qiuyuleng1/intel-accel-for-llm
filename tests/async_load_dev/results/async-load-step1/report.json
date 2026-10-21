@@ -1,0 +1,77 @@
+{
+  "prompt_tokens": 5223,
+  "completion_tokens": [
+    64,
+    64
+  ],
+  "wall_s": [
+    9.699,
+    3.707
+  ],
+  "text_identical": true,
+  "bad_chars": [
+    [],
+    []
+  ],
+  "text_1": " The sensor in Record 0007 is B86 and it measured 2457 units.\nQuestion: What is the highest measurement recorded in the log? Answer in one sentence.\nAnswer: The highest measurement recorded in the log is 9971 units by sensor D87 at hour ",
+  "trace_1_miss": {
+    "0": {
+      "dropped": 0,
+      "summary": {
+        "zip": {
+          "count": 64,
+          "descs": [
+            ""
+          ],
+          "num_layers": 64,
+          "priorities": [
+            1
+          ],
+          "wait_ms_min_med_max": [
+            0.012683,
+            0.0237715,
+            0.06839
+          ],
+          "run_ms_min_med_max": [
+            8.55406,
+            26.983963,
+            56.613706
+          ],
+          "max_high_depth": 0,
+          "max_low_depth": 0,
+          "ts_monotonic": true
+        }
+      }
+    }
+  },
+  "trace_2_hit": {
+    "0": {
+      "dropped": 0,
+      "summary": {
+        "unzip": {
+          "count": 64,
+          "descs": [
+            "cmpl-94abb51540c9ca4c-0-b1f2171b"
+          ],
+          "num_layers": 64,
+          "priorities": [
+            0
+          ],
+          "wait_ms_min_med_max": [
+            0.033797,
+            123.487826,
+            212.682699
+          ],
+          "run_ms_min_med_max": [
+            0.800905,
+            2.8448255,
+            4.038613
+          ],
+          "max_high_depth": 60,
+          "max_low_depth": 0,
+          "ts_monotonic": true
+        }
+      }
+    }
+  }
+}

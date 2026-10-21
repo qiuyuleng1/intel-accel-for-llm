@@ -1,0 +1,13 @@
+scheme,hit_rate,concurrency,num_prompts,completed,duration,request_throughput,mean_ttft_ms,median_ttft_ms,p95_ttft_ms,mean_tpot_ms,median_tpot_ms,p95_tpot_ms
+batch_reqs_async_load_submit,100,8,64,64,44.77,1.43,439.96,391.89,922.9,40.42,40.41,41.54
+batch_reqs_async_load_submit,100,16,96,96,51.04,1.88,606.69,448.71,1774.13,61.66,61.85,64.07
+batch_reqs_async_load_submit,100,32,160,160,63.54,2.52,1056.84,654.31,3474.48,90.49,91.13,94.65
+split_async_load_submit_first_n_per_req,100,8,64,64,44.69,1.43,439.2,373.23,861.34,40.32,40.56,41.53
+split_async_load_submit_first_n_per_req,100,16,96,96,52.46,1.83,773.55,689.23,1757.47,62.25,62.87,65.31
+split_async_load_submit_first_n_per_req,100,32,160,160,66.23,2.42,1512.0,1685.75,3383.06,91.55,92.06,98.2
+priority_3level_first_n_per_req,100,8,64,64,45.14,1.42,591.59,707.34,964.72,39.69,38.74,42.2
+priority_3level_first_n_per_req,100,16,96,96,53.47,1.8,1078.21,1151.54,1806.85,61.47,61.29,66.72
+priority_3level_first_n_per_req,100,32,160,160,67.16,2.38,1678.69,1697.54,3501.58,91.94,90.92,100.87
+sync,100,8,64,64,45.3,1.41,766.86,842.97,905.74,38.53,37.91,43.11
+sync,100,16,96,96,53.82,1.78,1107.58,1515.0,1752.22,61.84,59.04,67.66
+sync,100,32,160,160,67.34,2.38,2145.5,2773.62,3508.09,88.99,83.6,101.72

@@ -1,0 +1,37 @@
+Namespace(subparser='bench', bench_type='serve', dispatch_function=<function BenchmarkServingSubcommand.cmd at 0x7ec7bc5ce340>, trust_remote_code=True, seed=10130, num_prompts=160, dataset_name='random', no_stream=False, dataset_path=None, no_oversample=False, skip_chat_template=False, enable_multimodal_chat=False, disable_shuffle=False, custom_output_len=256, custom_ensure_client_side_data=False, spec_bench_output_len=256, spec_bench_category=None, sonnet_input_len=550, sonnet_output_len=150, sonnet_prefix_len=200, sharegpt_output_len=None, timed_trace_chunk_hash_size=16, timed_trace_sec_multiplier=1, timed_trace_label_timestamp='timestamp', timed_trace_label_input_length='input_length', timed_trace_label_output_length='output_length', timed_trace_label_hash_ids='hash_ids', blazedit_min_distance=0.0, blazedit_max_distance=1.0, asr_max_audio_len_sec=inf, asr_min_audio_len_sec=0.0, random_input_len=160, random_output_len=128, random_range_ratio='0.0', random_prefix_len=7840, random_batch_size=1, no_reranker=False, random_mm_base_items_per_request=1, random_mm_num_mm_items_range_ratio=0.0, random_mm_limit_mm_per_prompt={'image': 255, 'video': 1}, random_mm_bucket_config={(256, 256, 1): 0.5, (720, 1280, 1): 0.5, (720, 1280, 16): 0.0}, hf_subset=None, hf_split=None, hf_name=None, hf_output_len=None, bfcl_categories=None, prefix_repetition_prefix_len=256, prefix_repetition_suffix_len=256, prefix_repetition_num_prefixes=10, prefix_repetition_output_len=128, speed_bench_dataset_subset='qualitative', speed_bench_output_len=4096, speed_bench_category=None, label=None, backend='vllm', base_url=None, host='localhost', port=8010, endpoint='/v1/completions', header=None, max_concurrency=32, model='/home/pese/model-space/Qwen2.5-72B-Instruct', input_len=None, output_len=None, tokenizer='/home/pese/model-space/Qwen2.5-72B-Instruct', tokenizer_mode='auto', use_beam_search=False, logprobs=None, request_rate=inf, burstiness=1.0, probe_request_rate=0.0, disable_tqdm=False, num_warmups=5, profile=False, save_result=True, save_detailed=False, append_result=False, metadata=None, result_dir='/home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/map8k16k_20261019_032052', result_filename='priority_3level_first_n_per_req_promote_raise_L0-8-16_in8000_hr98_c32.json', ignore_eos=True, self_timed=None, percentile_metrics='ttft,tpot', metric_percentiles='50,95', goodput=None, request_id_prefix='bench-5a947c80-', top_p=None, top_k=None, min_p=None, temperature=None, frequency_penalty=None, presence_penalty=None, repetition_penalty=None, served_model_name=None, lora_modules=None, lora_assignment='random', ramp_up_strategy=None, ramp_up_start_rps=None, ramp_up_end_rps=None, ready_check_timeout_sec=0, chat_template_kwargs=None, extra_body=None, skip_tokenizer_init=False, insecure=False, plot_timeline=False, timeline_itl_thresholds='25,50', plot_dataset_stats=False)
+INFO 10-19 08:29:21 [utils.py:90] Sampling input_len from [160, 160] and output_len from [128, 128]
+WARNING: vllm bench serve no longer sets temperature==0 (greedy) in requests by default. The default will be determined on the server side and can be model/API specific. For the old behavior, include --temperature=0.
+Starting initial single prompt test run...
+Skipping endpoint ready check.
+Warming up with 5 requests...
+  0%|          | 0/5 [00:00<?, ?it/s] 20%|██        | 1/5 [00:10<00:41, 10.27s/it] 80%|████████  | 4/5 [00:10<00:01,  1.98s/it]100%|██████████| 5/5 [00:10<00:00,  2.09s/it]
+Warmup run completed.
+Starting main benchmark run...
+Traffic request rate: inf
+Burstiness factor: 1.0 (Poisson process)
+Maximum request concurrency: 32
+  0%|          | 0/160 [00:00<?, ?it/s]  1%|          | 1/160 [00:15<41:56, 15.83s/it]  1%|▏         | 2/160 [00:16<17:25,  6.62s/it]  2%|▎         | 4/160 [00:16<06:35,  2.54s/it]  6%|▋         | 10/160 [00:16<01:49,  1.38it/s] 18%|█▊        | 28/160 [00:16<00:25,  5.23it/s] 20%|██        | 32/160 [00:29<00:24,  5.23it/s] 21%|██        | 33/160 [00:31<01:45,  1.21it/s] 21%|██▏       | 34/160 [00:31<01:39,  1.27it/s] 22%|██▎       | 36/160 [00:32<01:25,  1.46it/s] 26%|██▋       | 42/160 [00:32<00:51,  2.28it/s] 36%|███▌      | 57/160 [00:32<00:20,  5.07it/s] 41%|████      | 65/160 [00:47<01:06,  1.43it/s] 41%|████▏     | 66/160 [00:47<01:03,  1.49it/s] 42%|████▎     | 68/160 [00:47<00:55,  1.67it/s] 46%|████▋     | 74/160 [00:48<00:34,  2.47it/s] 56%|█████▌    | 89/160 [00:48<00:13,  5.19it/s] 60%|██████    | 96/160 [00:59<00:12,  5.19it/s] 61%|██████    | 97/160 [01:03<00:43,  1.46it/s] 61%|██████▏   | 98/160 [01:03<00:41,  1.51it/s] 62%|██████▎   | 100/160 [01:03<00:35,  1.69it/s] 66%|██████▋   | 106/160 [01:03<00:21,  2.48it/s] 76%|███████▌  | 121/160 [01:04<00:07,  5.17it/s] 81%|████████  | 129/160 [01:18<00:21,  1.47it/s] 81%|████████▏ | 130/160 [01:19<00:19,  1.53it/s] 82%|████████▎ | 132/160 [01:19<00:16,  1.72it/s] 86%|████████▋ | 138/160 [01:19<00:08,  2.59it/s]100%|██████████| 160/160 [01:19<00:00,  2.01it/s]
+tip: install termplotlib and gnuplot to plot the metrics
+============ Serving Benchmark Result ============
+Successful requests:                     160       
+Failed requests:                         0         
+Maximum request concurrency:             32        
+Benchmark duration (s):                  79.57     
+Total input tokens:                      1280000   
+Total generated tokens:                  20480     
+Request throughput (req/s):              2.01      
+Output token throughput (tok/s):         257.39    
+Peak output token throughput (tok/s):    416.00    
+Peak concurrent requests:                62.00     
+Total token throughput (tok/s):          16344.18  
+---------------Time to First Token----------------
+Mean TTFT (ms):                          3628.40   
+Median TTFT (ms):                        4055.50   
+P50 TTFT (ms):                           4055.50   
+P95 TTFT (ms):                           5214.88   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          96.51     
+Median TPOT (ms):                        91.87     
+P50 TPOT (ms):                           91.87     
+P95 TPOT (ms):                           118.16    
+==================================================

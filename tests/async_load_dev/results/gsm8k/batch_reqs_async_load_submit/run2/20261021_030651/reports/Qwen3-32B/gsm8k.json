@@ -1,0 +1,94 @@
+{
+    "name": "Qwen3-32B@gsm8k",
+    "dataset_name": "gsm8k",
+    "dataset_pretty_name": "GSM8K",
+    "dataset_description": "\n## Overview\n\nGSM8K (Grade School Math 8K) is a high-quality dataset of 8.5K linguistically diverse grade school math word problems created by human problem writers. The dataset is specifically designed to evaluate and improve the multi-step mathematical reasoning capabilities of language models.\n\n## Task Description\n\n- **Task Type**: Mathematical Word Problem Solving\n- **Input**: Natural language math word problem\n- **Output**: Numerical answer derived through step-by-step reasoning\n- **Difficulty**: Grade school level (2-8 reasoning steps required)\n\n## Key Features\n\n- Problems require basic arithmetic operations (addition, subtraction, multiplication, division)\n- Solutions involve 2 to 8 sequential reasoning steps\n- High linguistic diversity in problem formulations\n- Human-written problems ensuring natural language quality\n- Clear numerical answers for objective evaluation\n\n## Evaluation Notes\n\n- Default configuration uses **4-shot** examples with Chain-of-Thought (CoT) prompting\n- Answers should be formatted within `\\boxed{}` for proper extraction\n- The metric extracts numerical values for accuracy comparison\n- Supports both zero-shot and few-shot evaluation modes\n",
+    "model_name": "Qwen3-32B",
+    "score": 0.955,
+    "metrics": [
+        {
+            "name": "mean_acc",
+            "num": 200,
+            "score": 0.955,
+            "macro_score": 0.955,
+            "categories": [
+                {
+                    "name": [
+                        "default"
+                    ],
+                    "num": 200,
+                    "score": 0.955,
+                    "macro_score": 0.955,
+                    "subsets": [
+                        {
+                            "name": "main",
+                            "score": 0.955,
+                            "num": 200,
+                            "is_aggregate": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "analysis": "N/A",
+    "perf_metrics": {
+        "summary": {
+            "n_samples": 200,
+            "latency": {
+                "mean": 35.003941,
+                "std": 17.092579,
+                "min": 12.257434,
+                "25%": 22.977947,
+                "50%": 29.695021,
+                "75%": 41.303916,
+                "90%": 60.549084,
+                "99%": 87.116335,
+                "max": 87.774726
+            },
+            "throughput": {
+                "avg_output_tps": 23.72,
+                "avg_req_ps": 0.0286
+            },
+            "usage": {
+                "input_tokens": {
+                    "mean": 661.385,
+                    "std": 23.889334,
+                    "min": 624.0,
+                    "25%": 643.0,
+                    "50%": 656.5,
+                    "75%": 674.25,
+                    "90%": 694.0,
+                    "99%": 728.05,
+                    "max": 734.0
+                },
+                "output_tokens": {
+                    "mean": 830.29,
+                    "std": 427.158657,
+                    "min": 279.0,
+                    "25%": 536.25,
+                    "50%": 691.0,
+                    "75%": 969.25,
+                    "90%": 1440.2,
+                    "99%": 2048.0,
+                    "max": 2048.0
+                },
+                "total_tokens": {
+                    "mean": 1491.675,
+                    "std": 436.148849,
+                    "min": 919.0,
+                    "25%": 1192.0,
+                    "50%": 1351.5,
+                    "75%": 1630.25,
+                    "90%": 2102.7,
+                    "99%": 2743.0,
+                    "max": 2773.0
+                },
+                "total_input_tokens": 132277,
+                "total_output_tokens": 166058,
+                "total_tokens_count": 298335
+            }
+        }
+    },
+    "num": 200
+}

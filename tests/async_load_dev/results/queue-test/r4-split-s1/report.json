@@ -1,0 +1,150 @@
+{
+  "scheme": "split_async_load_submit",
+  "scenario": "s1",
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 16,
+  "trace_events": 1536,
+  "structure_errors": [],
+  "inversions": 0,
+  "inversion_samples": [],
+  "steps_with_multiple_async_reqs": 4,
+  "case_a_async_behind_earlier_async": 1,
+  "case_b_sync_behind_earlier_async": 0,
+  "per_submission": [
+    {
+      "step": 132,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.01643,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 140,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 0.007081,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 149,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.017501,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 150,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.017162,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 151,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 0.016582,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 152,
+      "kind": "async_remaining",
+      "reqs": 2,
+      "first_layer": 4,
+      "first_task_wait_ms": 61.179421,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 31
+      }
+    },
+    {
+      "step": 153,
+      "kind": "async",
+      "reqs": 4,
+      "first_layer": 0,
+      "first_task_wait_ms": 73.825597,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 20
+      }
+    },
+    {
+      "step": 154,
+      "kind": "async_remaining",
+      "reqs": 4,
+      "first_layer": 4,
+      "first_task_wait_ms": 0.898713,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 271,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.014955,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 272,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 0.017037,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 282,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.019359,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 283,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 0.019723,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 283,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 111.667189,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 285,
+      "kind": "async_remaining",
+      "reqs": 2,
+      "first_layer": 4,
+      "first_task_wait_ms": 2.025212,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 285,
+      "kind": "async",
+      "reqs": 4,
+      "first_layer": 0,
+      "first_task_wait_ms": 211.435643,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 287,
+      "kind": "async_remaining",
+      "reqs": 4,
+      "first_layer": 4,
+      "first_task_wait_ms": 0.187298,
+      "ahead_from_earlier_steps": {}
+    }
+  ],
+  "verdict": "PASS"
+}

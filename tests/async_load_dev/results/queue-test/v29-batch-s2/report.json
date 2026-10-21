@@ -1,0 +1,142 @@
+{
+  "scheme": "batch_reqs_async_load_submit",
+  "scenario": "s2",
+  "hit_requests": 32,
+  "hit_async": 29,
+  "hit_sync": 3,
+  "submissions": 14,
+  "trace_events": 2944,
+  "structure_errors": [],
+  "inversions": 0,
+  "inversion_samples": [],
+  "steps_with_multiple_async_reqs": 7,
+  "case_a_async_behind_earlier_async": 6,
+  "case_b_sync_behind_earlier_async": 0,
+  "per_submission": [
+    {
+      "step": 132,
+      "kind": "sync",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.021972,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 133,
+      "kind": "sync",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.024034,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 133,
+      "kind": "async",
+      "reqs": 5,
+      "first_layer": 0,
+      "first_task_wait_ms": 222.788255,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 262,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.020913,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 263,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 67.826071,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 33
+      }
+    },
+    {
+      "step": 265,
+      "kind": "async",
+      "reqs": 5,
+      "first_layer": 0,
+      "first_task_wait_ms": 91.974671,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 24
+      }
+    },
+    {
+      "step": 394,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.0206,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 396,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 6.985264,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 3
+      }
+    },
+    {
+      "step": 398,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 26.946595,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 7
+      }
+    },
+    {
+      "step": 399,
+      "kind": "async",
+      "reqs": 4,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.99479,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 526,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.02199,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 528,
+      "kind": "async",
+      "reqs": 2,
+      "first_layer": 0,
+      "first_task_wait_ms": 6.7306,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 3
+      }
+    },
+    {
+      "step": 530,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 15.507123,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 3
+      }
+    },
+    {
+      "step": 531,
+      "kind": "async",
+      "reqs": 4,
+      "first_layer": 0,
+      "first_task_wait_ms": 2.030354,
+      "ahead_from_earlier_steps": {}
+    }
+  ],
+  "verdict": "UNCOVERED"
+}

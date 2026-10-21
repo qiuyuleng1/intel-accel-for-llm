@@ -1,0 +1,126 @@
+(APIServer pid=703909) INFO:     127.0.0.1:32944 - "POST /tokenize HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:03:44,501 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-aa383ef6d87df800-0-9b0f8c18, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=704046) INFO 10-12 04:03:44,506 [flow.py:140] CUDA/XPU streams created (lazy init, device=cuda)
+(EngineCore pid=704046) INFO 10-12 04:03:49,584 [scratch_pool.py:38] ScratchPool: 131072 x (32768,) torch.bfloat16 = 8192.00 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 64.00 KB, blocks = 249
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+(APIServer pid=703909) INFO 10-12 04:03:57 [loggers.py:310] Engine 000: Avg prompt throughput: 400.0 tokens/s, Avg generation throughput: 11.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 6.7%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:03:58,602 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-0-0-99dc7908, externally-cached tokens: 3984, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=704046) INFO 10-12 04:03:58,604 [kvshrink_connector.py:859] async_load step=132 t=247511890229159 submit kind=sync reqs=cmpl-bench-7d169d5a-0-0-99dc7908 layers=0-63
+(APIServer pid=703909) INFO:     127.0.0.1:43348 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43360 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43374 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43380 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43390 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43396 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43410 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:03:58,753 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-1-0-9345be3d, externally-cached tokens: 3792, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=704046) INFO 10-12 04:03:58,754 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-3-0-9882fc38, externally-cached tokens: 3792, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=704046) INFO 10-12 04:03:58,755 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-2-0-893a6971, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:03:58,756 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-4-0-8115d5db, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:03:58,757 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-5-0-acd54fd2, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:03:58,758 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-6-0-86a5e169, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:03:58,759 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-7-0-becfc71d, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:03:58,761 [kvshrink_connector.py:859] async_load step=133 t=247512047148295 submit kind=sync reqs=cmpl-bench-7d169d5a-1-0-9345be3d,cmpl-bench-7d169d5a-3-0-9882fc38 layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:03:58,774 [kvshrink_connector.py:859] async_load step=133 t=247512059611416 submit kind=async reqs=cmpl-bench-7d169d5a-2-0-893a6971,cmpl-bench-7d169d5a-4-0-8115d5db,cmpl-bench-7d169d5a-5-0-acd54fd2,cmpl-bench-7d169d5a-6-0-86a5e169,cmpl-bench-7d169d5a-7-0-becfc71d layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:03:59,055 [kvshrink_connector.py:720] async_load step=133 t=247512341175208 promote reqs=cmpl-bench-7d169d5a-2-0-893a6971,cmpl-bench-7d169d5a-4-0-8115d5db,cmpl-bench-7d169d5a-5-0-acd54fd2,cmpl-bench-7d169d5a-6-0-86a5e169,cmpl-bench-7d169d5a-7-0-becfc71d
+(EngineCore pid=704046) INFO 10-12 04:03:59,058 [kvshrink_connector.py:618] async_load step=134 t=247512343601090 activate reqs= held=cmpl-bench-7d169d5a-2-0-893a6971,cmpl-bench-7d169d5a-4-0-8115d5db,cmpl-bench-7d169d5a-5-0-acd54fd2,cmpl-bench-7d169d5a-6-0-86a5e169,cmpl-bench-7d169d5a-7-0-becfc71d
+(EngineCore pid=704046) INFO 10-12 04:03:59,074 [kvshrink_connector.py:618] async_load step=135 t=247512360139110 activate reqs=cmpl-bench-7d169d5a-2-0-893a6971,cmpl-bench-7d169d5a-4-0-8115d5db,cmpl-bench-7d169d5a-5-0-acd54fd2,cmpl-bench-7d169d5a-6-0-86a5e169,cmpl-bench-7d169d5a-7-0-becfc71d held=
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:07,278 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-8-0-ae97c290, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,279 [kvshrink_connector.py:859] async_load step=262 t=247520565071475 submit kind=async reqs=cmpl-bench-7d169d5a-8-0-ae97c290 layers=0-63
+(APIServer pid=703909) INFO:     127.0.0.1:43348 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43360 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:07,297 [kvshrink_connector.py:720] async_load step=262 t=247520582806160 promote reqs=cmpl-bench-7d169d5a-8-0-ae97c290
+(EngineCore pid=704046) INFO 10-12 04:04:07,337 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-9-0-969a21f0, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,338 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-10-0-83cacb7c, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,338 [kvshrink_connector.py:859] async_load step=263 t=247520624324419 submit kind=async reqs=cmpl-bench-7d169d5a-9-0-969a21f0,cmpl-bench-7d169d5a-10-0-83cacb7c layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:07,400 [kvshrink_connector.py:618] async_load step=264 t=247520685512806 activate reqs=cmpl-bench-7d169d5a-8-0-ae97c290 held=
+(APIServer pid=703909) INFO:     127.0.0.1:43396 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43374 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43390 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43410 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43380 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:07,541 [kvshrink_connector.py:720] async_load step=264 t=247520827119047 promote reqs=cmpl-bench-7d169d5a-10-0-83cacb7c,cmpl-bench-7d169d5a-9-0-969a21f0
+(EngineCore pid=704046) INFO 10-12 04:04:07,548 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-11-0-88457af1, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,549 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-13-0-9ad2f64d, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,550 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-12-0-b45df963, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,551 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-14-0-afb35fe8, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,552 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-15-0-8be763bb, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:07,554 [kvshrink_connector.py:859] async_load step=265 t=247520840152289 submit kind=async reqs=cmpl-bench-7d169d5a-11-0-88457af1,cmpl-bench-7d169d5a-13-0-9ad2f64d,cmpl-bench-7d169d5a-12-0-b45df963,cmpl-bench-7d169d5a-14-0-afb35fe8,cmpl-bench-7d169d5a-15-0-8be763bb layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:07,581 [kvshrink_connector.py:618] async_load step=265 t=247520866895289 activate reqs= held=cmpl-bench-7d169d5a-9-0-969a21f0,cmpl-bench-7d169d5a-10-0-83cacb7c
+(EngineCore pid=704046) INFO 10-12 04:04:07,596 [kvshrink_connector.py:618] async_load step=266 t=247520881874364 activate reqs=cmpl-bench-7d169d5a-9-0-969a21f0,cmpl-bench-7d169d5a-10-0-83cacb7c held=
+(EngineCore pid=704046) INFO 10-12 04:04:07,895 [kvshrink_connector.py:720] async_load step=266 t=247521181138490 promote reqs=cmpl-bench-7d169d5a-11-0-88457af1,cmpl-bench-7d169d5a-12-0-b45df963,cmpl-bench-7d169d5a-13-0-9ad2f64d,cmpl-bench-7d169d5a-14-0-afb35fe8,cmpl-bench-7d169d5a-15-0-8be763bb
+(EngineCore pid=704046) INFO 10-12 04:04:07,897 [kvshrink_connector.py:618] async_load step=267 t=247521183294323 activate reqs= held=cmpl-bench-7d169d5a-11-0-88457af1,cmpl-bench-7d169d5a-13-0-9ad2f64d,cmpl-bench-7d169d5a-12-0-b45df963,cmpl-bench-7d169d5a-14-0-afb35fe8,cmpl-bench-7d169d5a-15-0-8be763bb
+(APIServer pid=703909) INFO 10-12 04:04:07 [loggers.py:310] Engine 000: Avg prompt throughput: 168.0 tokens/s, Avg generation throughput: 103.9 tokens/s, Running: 3 reqs, Waiting: 5 reqs, Deferred: 5 reqs, GPU KV cache usage: 50.6%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 89.5%
+(EngineCore pid=704046) INFO 10-12 04:04:07,913 [kvshrink_connector.py:618] async_load step=268 t=247521199267521 activate reqs=cmpl-bench-7d169d5a-11-0-88457af1,cmpl-bench-7d169d5a-13-0-9ad2f64d,cmpl-bench-7d169d5a-12-0-b45df963,cmpl-bench-7d169d5a-14-0-afb35fe8,cmpl-bench-7d169d5a-15-0-8be763bb held=
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:16,059 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-16-0-9f264266, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,060 [kvshrink_connector.py:859] async_load step=394 t=247529345984873 submit kind=async reqs=cmpl-bench-7d169d5a-16-0-9f264266 layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:16,076 [kvshrink_connector.py:720] async_load step=394 t=247529361874514 promote reqs=cmpl-bench-7d169d5a-16-0-9f264266
+(EngineCore pid=704046) INFO 10-12 04:04:16,119 [kvshrink_connector.py:618] async_load step=395 t=247529405081873 activate reqs= held=cmpl-bench-7d169d5a-16-0-9f264266
+(APIServer pid=703909) INFO:     127.0.0.1:43348 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43360 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:16,179 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-17-0-8f95796c, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,180 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-18-0-a80fe4ed, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,183 [kvshrink_connector.py:859] async_load step=396 t=247529468482173 submit kind=async reqs=cmpl-bench-7d169d5a-17-0-8f95796c,cmpl-bench-7d169d5a-18-0-a80fe4ed layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:16,194 [kvshrink_connector.py:618] async_load step=396 t=247529480398037 activate reqs=cmpl-bench-7d169d5a-16-0-9f264266 held=
+(EngineCore pid=704046) INFO 10-12 04:04:16,380 [kvshrink_connector.py:720] async_load step=396 t=247529665450490 promote reqs=cmpl-bench-7d169d5a-17-0-8f95796c,cmpl-bench-7d169d5a-18-0-a80fe4ed
+(EngineCore pid=704046) INFO 10-12 04:04:16,383 [kvshrink_connector.py:618] async_load step=397 t=247529668782602 activate reqs= held=cmpl-bench-7d169d5a-17-0-8f95796c,cmpl-bench-7d169d5a-18-0-a80fe4ed
+(APIServer pid=703909) INFO:     127.0.0.1:43396 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:16,403 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-21-0-bb4b677e, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,405 [kvshrink_connector.py:859] async_load step=398 t=247529691276092 submit kind=async reqs=cmpl-bench-7d169d5a-21-0-bb4b677e layers=0-63
+(APIServer pid=703909) INFO:     127.0.0.1:43374 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43390 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:16,413 [kvshrink_connector.py:618] async_load step=398 t=247529699256669 activate reqs=cmpl-bench-7d169d5a-17-0-8f95796c,cmpl-bench-7d169d5a-18-0-a80fe4ed held=
+(APIServer pid=703909) INFO:     127.0.0.1:43410 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43380 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:16,704 [kvshrink_connector.py:720] async_load step=398 t=247529990306116 promote reqs=cmpl-bench-7d169d5a-21-0-bb4b677e
+(EngineCore pid=704046) INFO 10-12 04:04:16,707 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-19-0-a90982c7, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,708 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-20-0-984e0507, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,709 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-22-0-95e8f940, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,709 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-23-0-aeb9df43, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:16,711 [kvshrink_connector.py:859] async_load step=399 t=247529996996081 submit kind=async reqs=cmpl-bench-7d169d5a-19-0-a90982c7,cmpl-bench-7d169d5a-20-0-984e0507,cmpl-bench-7d169d5a-22-0-95e8f940,cmpl-bench-7d169d5a-23-0-aeb9df43 layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:16,734 [kvshrink_connector.py:618] async_load step=399 t=247530019869226 activate reqs= held=cmpl-bench-7d169d5a-21-0-bb4b677e
+(EngineCore pid=704046) INFO 10-12 04:04:16,747 [kvshrink_connector.py:720] async_load step=399 t=247530032686139 promote reqs=cmpl-bench-7d169d5a-19-0-a90982c7,cmpl-bench-7d169d5a-20-0-984e0507,cmpl-bench-7d169d5a-22-0-95e8f940,cmpl-bench-7d169d5a-23-0-aeb9df43
+(EngineCore pid=704046) INFO 10-12 04:04:16,750 [kvshrink_connector.py:618] async_load step=400 t=247530035689795 activate reqs=cmpl-bench-7d169d5a-21-0-bb4b677e held=cmpl-bench-7d169d5a-19-0-a90982c7,cmpl-bench-7d169d5a-20-0-984e0507,cmpl-bench-7d169d5a-22-0-95e8f940,cmpl-bench-7d169d5a-23-0-aeb9df43
+(EngineCore pid=704046) INFO 10-12 04:04:16,953 [kvshrink_connector.py:618] async_load step=401 t=247530238793097 activate reqs=cmpl-bench-7d169d5a-19-0-a90982c7,cmpl-bench-7d169d5a-20-0-984e0507,cmpl-bench-7d169d5a-22-0-95e8f940,cmpl-bench-7d169d5a-23-0-aeb9df43 held=
+(APIServer pid=703909) INFO 10-12 04:04:17 [loggers.py:310] Engine 000: Avg prompt throughput: 312.0 tokens/s, Avg generation throughput: 109.8 tokens/s, Running: 8 reqs, Waiting: 0 reqs, GPU KV cache usage: 52.4%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 91.2%
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:24,876 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-24-0-a806cb9c, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:24,877 [kvshrink_connector.py:859] async_load step=526 t=247538163164756 submit kind=async reqs=cmpl-bench-7d169d5a-24-0-a806cb9c layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:24,895 [kvshrink_connector.py:720] async_load step=526 t=247538180542702 promote reqs=cmpl-bench-7d169d5a-24-0-a806cb9c
+(EngineCore pid=704046) INFO 10-12 04:04:24,936 [kvshrink_connector.py:618] async_load step=527 t=247538221950142 activate reqs= held=cmpl-bench-7d169d5a-24-0-a806cb9c
+(APIServer pid=703909) INFO:     127.0.0.1:43348 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43360 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:24,997 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-25-0-b367b048, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:24,998 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-26-0-ad58ec5a, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:25,000 [kvshrink_connector.py:859] async_load step=528 t=247538285703998 submit kind=async reqs=cmpl-bench-7d169d5a-25-0-b367b048,cmpl-bench-7d169d5a-26-0-ad58ec5a layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:25,012 [kvshrink_connector.py:618] async_load step=528 t=247538298197807 activate reqs=cmpl-bench-7d169d5a-24-0-a806cb9c held=
+(EngineCore pid=704046) INFO 10-12 04:04:25,213 [kvshrink_connector.py:720] async_load step=528 t=247538499092868 promote reqs=cmpl-bench-7d169d5a-25-0-b367b048,cmpl-bench-7d169d5a-26-0-ad58ec5a
+(EngineCore pid=704046) INFO 10-12 04:04:25,216 [kvshrink_connector.py:618] async_load step=529 t=247538502286802 activate reqs= held=cmpl-bench-7d169d5a-25-0-b367b048,cmpl-bench-7d169d5a-26-0-ad58ec5a
+(APIServer pid=703909) INFO:     127.0.0.1:43396 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:25,232 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-27-0-9eb874d3, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:25,234 [kvshrink_connector.py:859] async_load step=530 t=247538520436477 submit kind=async reqs=cmpl-bench-7d169d5a-27-0-9eb874d3 layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:25,242 [kvshrink_connector.py:618] async_load step=530 t=247538528047550 activate reqs=cmpl-bench-7d169d5a-25-0-b367b048,cmpl-bench-7d169d5a-26-0-ad58ec5a held=
+(APIServer pid=703909) INFO:     127.0.0.1:43374 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43390 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43410 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43380 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=704046) INFO 10-12 04:04:25,529 [kvshrink_connector.py:720] async_load step=530 t=247538814954139 promote reqs=cmpl-bench-7d169d5a-27-0-9eb874d3
+(EngineCore pid=704046) INFO 10-12 04:04:25,534 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-28-0-8119199e, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:25,535 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-29-0-be54aa73, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:25,536 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-30-0-a8c3a4a7, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:25,537 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bench-7d169d5a-31-0-8d79d443, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=704046) INFO 10-12 04:04:25,539 [kvshrink_connector.py:859] async_load step=531 t=247538824524784 submit kind=async reqs=cmpl-bench-7d169d5a-28-0-8119199e,cmpl-bench-7d169d5a-29-0-be54aa73,cmpl-bench-7d169d5a-30-0-a8c3a4a7,cmpl-bench-7d169d5a-31-0-8d79d443 layers=0-63
+(EngineCore pid=704046) INFO 10-12 04:04:25,563 [kvshrink_connector.py:618] async_load step=531 t=247538849268400 activate reqs= held=cmpl-bench-7d169d5a-27-0-9eb874d3
+(EngineCore pid=704046) INFO 10-12 04:04:25,576 [kvshrink_connector.py:720] async_load step=531 t=247538861799117 promote reqs=cmpl-bench-7d169d5a-28-0-8119199e,cmpl-bench-7d169d5a-29-0-be54aa73,cmpl-bench-7d169d5a-30-0-a8c3a4a7,cmpl-bench-7d169d5a-31-0-8d79d443
+(EngineCore pid=704046) INFO 10-12 04:04:25,579 [kvshrink_connector.py:618] async_load step=532 t=247538864978209 activate reqs=cmpl-bench-7d169d5a-27-0-9eb874d3 held=cmpl-bench-7d169d5a-28-0-8119199e,cmpl-bench-7d169d5a-29-0-be54aa73,cmpl-bench-7d169d5a-30-0-a8c3a4a7,cmpl-bench-7d169d5a-31-0-8d79d443
+(EngineCore pid=704046) INFO 10-12 04:04:25,781 [kvshrink_connector.py:618] async_load step=533 t=247539067165949 activate reqs=cmpl-bench-7d169d5a-28-0-8119199e,cmpl-bench-7d169d5a-29-0-be54aa73,cmpl-bench-7d169d5a-30-0-a8c3a4a7,cmpl-bench-7d169d5a-31-0-8d79d443 held=
+(APIServer pid=703909) INFO 10-12 04:04:27 [loggers.py:310] Engine 000: Avg prompt throughput: 166.4 tokens/s, Avg generation throughput: 117.6 tokens/s, Running: 8 reqs, Waiting: 0 reqs, GPU KV cache usage: 52.7%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 92.1%
+(APIServer pid=703909) INFO:     127.0.0.1:32954 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=703909) INFO:     127.0.0.1:43348 - "GET /metrics HTTP/1.1" 200 OK

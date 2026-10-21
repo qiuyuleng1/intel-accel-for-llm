@@ -1,0 +1,253 @@
+branch=perf/async-load-optimization-dev commit=757215e
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink CPU rank 4: GPU=4 PCI=00000000:B8:00.0 NUMA=1 CPUs=64-79
+KVShrink CPU rank 5: GPU=5 PCI=00000000:B9:00.0 NUMA=1 CPUs=80-95
+KVShrink CPU rank 6: GPU=6 PCI=00000000:C8:00.0 NUMA=1 CPUs=96-111
+KVShrink CPU rank 7: GPU=7 PCI=00000000:C9:00.0 NUMA=1 CPUs=112-127
+0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+KVShrink QAT rank 0: indices=0 devices=0000:01:00.0(numa=0)
+KVShrink QAT rank 1: indices=1 devices=0000:06:00.0(numa=0)
+KVShrink QAT rank 2: indices=2 devices=0000:0b:00.0(numa=0)
+KVShrink QAT rank 3: indices=3 devices=0000:10:00.0(numa=0)
+KVShrink QAT rank 4: indices=4 devices=0000:81:00.0(numa=1)
+KVShrink QAT rank 5: indices=5 devices=0000:86:00.0(numa=1)
+KVShrink QAT rank 6: indices=6 devices=0000:8b:00.0(numa=1)
+KVShrink QAT rank 7: indices=7 devices=0000:90:00.0(numa=1)
+0|1|2|3|4|5|6|7
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+KVShrink GPU rank 4: index=4 pci=00000000:B8:00.0 numa=1
+KVShrink GPU rank 4: DSA=dsa8 WQ=wq8.0
+KVShrink GPU rank 5: index=5 pci=00000000:B9:00.0 numa=1
+KVShrink GPU rank 5: DSA=dsa10 WQ=wq10.0
+KVShrink GPU rank 6: index=6 pci=00000000:C8:00.0 numa=1
+KVShrink GPU rank 6: DSA=dsa12 WQ=wq12.0
+KVShrink GPU rank 7: index=7 pci=00000000:C9:00.0 numa=1
+KVShrink GPU rank 7: DSA=dsa14 WQ=wq14.0
+wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+out=/home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261014_095912 schemes=naive batch_reqs_async_load_submit split_async_load_submit_first_n_batch_reqs split_async_load_submit_first_n_per_req priority_3level_first_n_per_req input=8000 output=128 hit=80 100 conc=1 4 8 16 24 32 prompts=1:16 4:48 8:64 16:96 24:128 32:160 warmups=5
+===== scheme=naive connector_md5=d68a6e9b =====
+    reclaimed host memory: free=485G available=484G
+    Node 0, zone   Normal  65221  84727  80286  79405  68671  57107  46441  36972  29281  19777  34550 
+    Node 1, zone   Normal  94719 109691 104068 102108  88522  76375  58622  46418  31512  24485  25989 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261014_095912/naive.serve.log
+    prewarm: conc=32 prompts=64 hit=100
+    --- naive_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> naive hit=80 conc=1: mean_ttft=1088.29 median_ttft=1150.91 p95_ttft=1154.04 ms
+    --- naive_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> naive hit=80 conc=4: mean_ttft=2156.32 median_ttft=2306.47 p95_ttft=3404.84 ms
+    --- naive_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> naive hit=80 conc=8: mean_ttft=6274.16 median_ttft=8685.74 p95_ttft=8732.72 ms
+    --- naive_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> naive hit=80 conc=16: mean_ttft=9248.73 median_ttft=8797.43 p95_ttft=15460.88 ms
+    --- naive_hr80_c24 prompts=128 ---
+Successful requests:                     128       
+    -> naive hit=80 conc=24: mean_ttft=11929.14 median_ttft=10059.47 p95_ttft=20984.58 ms
+    --- naive_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> naive hit=80 conc=32: mean_ttft=15837.14 median_ttft=18247.25 p95_ttft=25657.95 ms
+    --- naive_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> naive hit=100 conc=1: mean_ttft=175.85 median_ttft=175.94 p95_ttft=177.47 ms
+    --- naive_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> naive hit=100 conc=4: mean_ttft=297.57 median_ttft=298.03 p95_ttft=445.85 ms
+    --- naive_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> naive hit=100 conc=8: mean_ttft=420.86 median_ttft=388.4 p95_ttft=771.7 ms
+    --- naive_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> naive hit=100 conc=16: mean_ttft=665.4 median_ttft=526.2 p95_ttft=1856.59 ms
+    --- naive_hr100_c24 prompts=128 ---
+Successful requests:                     128       
+    -> naive hit=100 conc=24: mean_ttft=1051.31 median_ttft=878.97 p95_ttft=2708.65 ms
+    --- naive_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> naive hit=100 conc=32: mean_ttft=942.04 median_ttft=505.62 p95_ttft=3651.35 ms
+===== scheme=batch_reqs_async_load_submit connector_md5=d68a6e9b =====
+    reclaimed host memory: free=486G available=484G
+    Node 0, zone   Normal  49456  61489  57586  59756  52926  44753  36934  30291  24441  17259  39448 
+    Node 1, zone   Normal  78642  89417  85594  87915  80121  69869  56534  44892  31946  23087  27530 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261014_095912/batch_reqs_async_load_submit.serve.log
+    prewarm: conc=32 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> batch_reqs_async_load_submit hit=80 conc=1: mean_ttft=1090.53 median_ttft=1152.2 p95_ttft=1160.43 ms
+    --- batch_reqs_async_load_submit_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> batch_reqs_async_load_submit hit=80 conc=4: mean_ttft=2143.74 median_ttft=2311.86 p95_ttft=3347.21 ms
+    --- batch_reqs_async_load_submit_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit hit=80 conc=8: mean_ttft=5585.96 median_ttft=7655.31 p95_ttft=7679.9 ms
+    --- batch_reqs_async_load_submit_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit hit=80 conc=16: mean_ttft=10102.3 median_ttft=10875.86 p95_ttft=16160.8 ms
+    --- batch_reqs_async_load_submit_hr80_c24 prompts=128 ---
+Successful requests:                     128       
+    -> batch_reqs_async_load_submit hit=80 conc=24: mean_ttft=12662.33 median_ttft=13107.43 p95_ttft=22545.51 ms
+    --- batch_reqs_async_load_submit_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit hit=80 conc=32: mean_ttft=15750.43 median_ttft=18257.63 p95_ttft=29739.72 ms
+    --- batch_reqs_async_load_submit_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> batch_reqs_async_load_submit hit=100 conc=1: mean_ttft=170.6 median_ttft=170.5 p95_ttft=172.0 ms
+    --- batch_reqs_async_load_submit_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> batch_reqs_async_load_submit hit=100 conc=4: mean_ttft=296.15 median_ttft=290.34 p95_ttft=443.52 ms
+    --- batch_reqs_async_load_submit_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit hit=100 conc=8: mean_ttft=523.31 median_ttft=563.57 p95_ttft=996.37 ms
+    --- batch_reqs_async_load_submit_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit hit=100 conc=16: mean_ttft=716.55 median_ttft=554.09 p95_ttft=1909.23 ms
+    --- batch_reqs_async_load_submit_hr100_c24 prompts=128 ---
+Successful requests:                     128       
+    -> batch_reqs_async_load_submit hit=100 conc=24: mean_ttft=983.53 median_ttft=653.97 p95_ttft=2796.09 ms
+    --- batch_reqs_async_load_submit_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit hit=100 conc=32: mean_ttft=1107.27 median_ttft=681.47 p95_ttft=2798.29 ms
+===== scheme=split_async_load_submit_first_n_batch_reqs connector_md5=d68a6e9b =====
+    reclaimed host memory: free=486G available=484G
+    Node 0, zone   Normal  48777  58896  56886  58829  52098  43807  36019  29291  23691  16799  40102 
+    Node 1, zone   Normal  77820  90118  84397  87331  79571  68749  55633  44247  31637  22597  28056 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261014_095912/split_async_load_submit_first_n_batch_reqs.serve.log
+    prewarm: conc=32 prompts=64 hit=100
+    --- split_async_load_submit_first_n_batch_reqs_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> split_async_load_submit_first_n_batch_reqs hit=80 conc=1: mean_ttft=1079.84 median_ttft=1141.38 p95_ttft=1144.66 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> split_async_load_submit_first_n_batch_reqs hit=80 conc=4: mean_ttft=2361.01 median_ttft=2293.54 p95_ttft=3379.39 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> split_async_load_submit_first_n_batch_reqs hit=80 conc=8: mean_ttft=6230.17 median_ttft=8632.54 p95_ttft=8691.68 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit_first_n_batch_reqs hit=80 conc=16: mean_ttft=9248.33 median_ttft=8757.07 p95_ttft=15431.74 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr80_c24 prompts=128 ---
+Successful requests:                     128       
+    -> split_async_load_submit_first_n_batch_reqs hit=80 conc=24: mean_ttft=11608.97 median_ttft=12956.42 p95_ttft=20879.87 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> split_async_load_submit_first_n_batch_reqs hit=80 conc=32: mean_ttft=14755.32 median_ttft=13364.42 p95_ttft=29523.62 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> split_async_load_submit_first_n_batch_reqs hit=100 conc=1: mean_ttft=170.78 median_ttft=170.71 p95_ttft=172.24 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> split_async_load_submit_first_n_batch_reqs hit=100 conc=4: mean_ttft=309.87 median_ttft=302.34 p95_ttft=458.71 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> split_async_load_submit_first_n_batch_reqs hit=100 conc=8: mean_ttft=481.33 median_ttft=335.01 p95_ttft=1065.55 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit_first_n_batch_reqs hit=100 conc=16: mean_ttft=1042.75 median_ttft=1029.8 p95_ttft=2352.33 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr100_c24 prompts=128 ---
+Successful requests:                     128       
+    -> split_async_load_submit_first_n_batch_reqs hit=100 conc=24: mean_ttft=1421.42 median_ttft=1455.12 p95_ttft=2792.82 ms
+    --- split_async_load_submit_first_n_batch_reqs_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> split_async_load_submit_first_n_batch_reqs hit=100 conc=32: mean_ttft=1633.89 median_ttft=1472.0 p95_ttft=2984.78 ms
+===== scheme=split_async_load_submit_first_n_per_req connector_md5=d68a6e9b =====
+    reclaimed host memory: free=480G available=478G
+    Node 0, zone   Normal  56831  55703  51494  57222  53783  45851  37762  31036  24100  14717  39140 
+    Node 1, zone   Normal  73376  88691  82768  86409  78249  68470  55571  44287  31792  24162  27286 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261014_095912/split_async_load_submit_first_n_per_req.serve.log
+    prewarm: conc=32 prompts=64 hit=100
+    --- split_async_load_submit_first_n_per_req_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> split_async_load_submit_first_n_per_req hit=80 conc=1: mean_ttft=1081.41 median_ttft=1143.91 p95_ttft=1146.36 ms
+    --- split_async_load_submit_first_n_per_req_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> split_async_load_submit_first_n_per_req hit=80 conc=4: mean_ttft=2179.16 median_ttft=2317.68 p95_ttft=3382.84 ms
+    --- split_async_load_submit_first_n_per_req_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> split_async_load_submit_first_n_per_req hit=80 conc=8: mean_ttft=6247.95 median_ttft=8663.38 p95_ttft=8713.8 ms
+    --- split_async_load_submit_first_n_per_req_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit_first_n_per_req hit=80 conc=16: mean_ttft=9250.98 median_ttft=8757.04 p95_ttft=15432.52 ms
+    --- split_async_load_submit_first_n_per_req_hr80_c24 prompts=128 ---
+Successful requests:                     128       
+    -> split_async_load_submit_first_n_per_req hit=80 conc=24: mean_ttft=12452.54 median_ttft=12954.69 p95_ttft=21306.3 ms
+    --- split_async_load_submit_first_n_per_req_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> split_async_load_submit_first_n_per_req hit=80 conc=32: mean_ttft=15709.41 median_ttft=15312.54 p95_ttft=29631.72 ms
+    --- split_async_load_submit_first_n_per_req_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> split_async_load_submit_first_n_per_req hit=100 conc=1: mean_ttft=170.29 median_ttft=169.76 p95_ttft=172.6 ms
+    --- split_async_load_submit_first_n_per_req_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> split_async_load_submit_first_n_per_req hit=100 conc=4: mean_ttft=297.97 median_ttft=300.38 p95_ttft=438.74 ms
+    --- split_async_load_submit_first_n_per_req_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> split_async_load_submit_first_n_per_req hit=100 conc=8: mean_ttft=484.98 median_ttft=466.18 p95_ttft=945.94 ms
+    --- split_async_load_submit_first_n_per_req_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> split_async_load_submit_first_n_per_req hit=100 conc=16: mean_ttft=807.81 median_ttft=725.8 p95_ttft=1906.19 ms
+    --- split_async_load_submit_first_n_per_req_hr100_c24 prompts=128 ---
+Successful requests:                     128       
+    -> split_async_load_submit_first_n_per_req hit=100 conc=24: mean_ttft=1252.88 median_ttft=1028.03 p95_ttft=2679.75 ms
+    --- split_async_load_submit_first_n_per_req_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> split_async_load_submit_first_n_per_req hit=100 conc=32: mean_ttft=1669.82 median_ttft=1527.83 p95_ttft=3045.16 ms
+===== scheme=priority_3level_first_n_per_req connector_md5=d68a6e9b =====
+    reclaimed host memory: free=486G available=484G
+    Node 0, zone   Normal  53594  61980  59845  60248  53362  45090  37167  30328  24591  17393  39288 
+    Node 1, zone   Normal  76476  90067  87790  87895  80435  67051  56149  44588  32240  24960  26659 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261014_095912/priority_3level_first_n_per_req.serve.log
+    prewarm: conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> priority_3level_first_n_per_req hit=80 conc=1: mean_ttft=1082.15 median_ttft=1144.22 p95_ttft=1146.44 ms
+    --- priority_3level_first_n_per_req_hr80_c4 prompts=48 ---
+Successful requests:                     48        
+    -> priority_3level_first_n_per_req hit=80 conc=4: mean_ttft=2363.4 median_ttft=2296.01 p95_ttft=3385.6 ms
+    --- priority_3level_first_n_per_req_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req hit=80 conc=8: mean_ttft=6205.68 median_ttft=8681.71 p95_ttft=8700.44 ms
+    --- priority_3level_first_n_per_req_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req hit=80 conc=16: mean_ttft=9949.32 median_ttft=8808.48 p95_ttft=14319.36 ms
+    --- priority_3level_first_n_per_req_hr80_c24 prompts=128 ---
+Successful requests:                     128       
+    -> priority_3level_first_n_per_req hit=80 conc=24: mean_ttft=12875.95 median_ttft=14167.47 p95_ttft=22565.86 ms
+    --- priority_3level_first_n_per_req_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req hit=80 conc=32: mean_ttft=15917.3 median_ttft=17292.51 p95_ttft=25679.39 ms
+    --- priority_3level_first_n_per_req_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> priority_3level_first_n_per_req hit=100 conc=1: mean_ttft=176.25 median_ttft=176.23 p95_ttft=178.26 ms
+    --- priority_3level_first_n_per_req_hr100_c4 prompts=48 ---
+Successful requests:                     48        
+    -> priority_3level_first_n_per_req hit=100 conc=4: mean_ttft=300.05 median_ttft=294.08 p95_ttft=458.4 ms
+    --- priority_3level_first_n_per_req_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req hit=100 conc=8: mean_ttft=584.53 median_ttft=658.01 p95_ttft=791.42 ms
+    --- priority_3level_first_n_per_req_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req hit=100 conc=16: mean_ttft=1172.92 median_ttft=1326.82 p95_ttft=1937.49 ms
+    --- priority_3level_first_n_per_req_hr100_c24 prompts=128 ---
+Successful requests:                     128       
+    -> priority_3level_first_n_per_req hit=100 conc=24: mean_ttft=1660.37 median_ttft=1694.55 p95_ttft=3149.07 ms
+    --- priority_3level_first_n_per_req_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req hit=100 conc=32: mean_ttft=2154.66 median_ttft=2200.62 p95_ttft=3512.55 ms
+ALL_DONE

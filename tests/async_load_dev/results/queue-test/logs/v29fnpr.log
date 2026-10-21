@@ -1,0 +1,50 @@
+===== split_async_load_submit_first_n_per_req s1 queue (BI=0) connector_md5=586c6133 =====
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=WORKER
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=SCHEDULER
+queue_exit=0
+{
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 28,
+  "trace_events": 1808,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 3,
+  "case_a_async_behind_earlier_async": 4,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "PASS"
+}
+PASS
+  activate lines with held!='': 11
+===== split_async_load_submit_first_n_per_req s1 correctness (BI=1) connector_md5=586c6133 =====
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=WORKER
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1
+===== split_async_load_submit_first_n_per_req s2 queue (BI=0) connector_md5=586c6133 =====
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=WORKER
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=SCHEDULER
+queue_exit=2
+{
+  "hit_requests": 32,
+  "hit_async": 29,
+  "hit_sync": 3,
+  "submissions": 44,
+  "trace_events": 3072,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 7,
+  "case_a_async_behind_earlier_async": 7,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "UNCOVERED"
+}
+UNCOVERED
+  activate lines with held!='': 12
+===== split_async_load_submit_first_n_per_req s2 correctness (BI=1) connector_md5=586c6133 =====
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=WORKER
+KVShrink async load scheme: split_async_load_submit_first_n_per_req, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1

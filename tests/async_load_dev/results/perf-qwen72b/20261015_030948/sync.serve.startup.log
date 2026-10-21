@@ -1,0 +1,228 @@
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink CPU rank 4: GPU=4 PCI=00000000:B8:00.0 NUMA=1 CPUs=64-79
+KVShrink CPU rank 5: GPU=5 PCI=00000000:B9:00.0 NUMA=1 CPUs=80-95
+KVShrink CPU rank 6: GPU=6 PCI=00000000:C8:00.0 NUMA=1 CPUs=96-111
+KVShrink CPU rank 7: GPU=7 PCI=00000000:C9:00.0 NUMA=1 CPUs=112-127
+KVShrink QAT rank 0: indices=0 devices=0000:01:00.0(numa=0)
+KVShrink QAT rank 1: indices=1 devices=0000:06:00.0(numa=0)
+KVShrink QAT rank 2: indices=2 devices=0000:0b:00.0(numa=0)
+KVShrink QAT rank 3: indices=3 devices=0000:10:00.0(numa=0)
+KVShrink QAT rank 4: indices=4 devices=0000:81:00.0(numa=1)
+KVShrink QAT rank 5: indices=5 devices=0000:86:00.0(numa=1)
+KVShrink QAT rank 6: indices=6 devices=0000:8b:00.0(numa=1)
+KVShrink QAT rank 7: indices=7 devices=0000:90:00.0(numa=1)
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+KVShrink GPU rank 4: index=4 pci=00000000:B8:00.0 numa=1
+KVShrink GPU rank 4: DSA=dsa8 WQ=wq8.0
+KVShrink GPU rank 5: index=5 pci=00000000:B9:00.0 numa=1
+KVShrink GPU rank 5: DSA=dsa10 WQ=wq10.0
+KVShrink GPU rank 6: index=6 pci=00000000:C8:00.0 numa=1
+KVShrink GPU rank 6: DSA=dsa12 WQ=wq12.0
+KVShrink GPU rank 7: index=7 pci=00000000:C9:00.0 numa=1
+KVShrink GPU rank 7: DSA=dsa14 WQ=wq14.0
+vLLM configuration:
+  MODEL=/home/pese/model-space/Qwen2.5-72B-Instruct
+  TP_SIZE=8
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=1
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=1
+  VLLM_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+  KVSHRINK_QAT_DEVICES=0|1|2|3|4|5|6|7
+  KVSHRINK_DSA_DEVICES=wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:4,7-:8
+  KVSHRINK_ASYNC_LOAD_SCHEME=naive
+OpenMP configuration:
+  rank CPU counts=16,16,16,16,16,16,16,16
+  IAXL_QAT_INSTANCE_NUM=2
+  IAXL_IAA_INSTANCE_NUM=4
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=6
+(APIServer pid=1575784) INFO 10-15 03:10:10 [api_utils.py:347] 
+(APIServer pid=1575784) INFO 10-15 03:10:10 [api_utils.py:347]        █     █     █▄   ▄█
+(APIServer pid=1575784) INFO 10-15 03:10:10 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0
+(APIServer pid=1575784) INFO 10-15 03:10:10 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /home/pese/model-space/Qwen2.5-72B-Instruct
+(APIServer pid=1575784) INFO 10-15 03:10:10 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=1575784) INFO 10-15 03:10:10 [api_utils.py:347] 
+(APIServer pid=1575784) INFO 10-15 03:10:10 [api_utils.py:286] non-default args: {'model_tag': '/home/pese/model-space/Qwen2.5-72B-Instruct', 'port': 8010, 'model': '/home/pese/model-space/Qwen2.5-72B-Instruct', 'trust_remote_code': True, 'max_model_len': 32765, 'tensor_parallel_size': 8, 'block_size': 16, 'gpu_memory_utilization': 0.95, 'enable_prefix_caching': False, 'kv_transfer_config': KVTransferConfig(kv_connector='KVShrinkConnector', engine_id='87ab6cb8-15a7-4980-8d30-b292978e8960', kv_buffer_device='cuda', kv_buffer_size=1000000000.0, kv_role='kv_both', kv_rank=None, kv_parallel_size=1, kv_ip='127.0.0.1', kv_port=14579, kv_connector_extra_config={}, kv_connector_module_path='kvshrink.kvshrink_connector', enable_permute_local_kv=False, kv_load_failure_policy='fail')}
+(APIServer pid=1575784) INFO 10-15 03:10:10 [model.py:684] Resolved architecture: Qwen2ForCausalLM
+(APIServer pid=1575784) INFO 10-15 03:10:10 [model.py:2021] Using max model len 32765
+(APIServer pid=1575784) INFO 10-15 03:10:10 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=8192.
+(APIServer pid=1575784) INFO 10-15 03:10:10 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1575784) WARNING 10-15 03:10:10 [vllm.py:1573] KV connector KVShrinkConnector requires PIECEWISE CUDA graph mode due to layerwise async operations that cannot be captured in CUDA graphs. Overriding cudagraph_mode from FULL_AND_PIECEWISE to PIECEWISE.
+(APIServer pid=1575784) WARNING 10-15 03:10:10 [vllm.py:1821] Turning off hybrid kv cache manager because `--kv-transfer-config` selects a KV connector that does not support it. Impact: hybrid SSM models (e.g. Jamba, Bamba) require HMA and will fail at startup without it; models with sliding window attention will run with reduced performance. To add HMA support to a KV connector, subclass `SupportsHMA` defined in kv_connector/v1/base.py (for MultiConnector, all child connectors must support HMA).
+(EngineCore pid=1575917) INFO 10-15 03:10:19 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/home/pese/model-space/Qwen2.5-72B-Instruct', speculative_config=None, tokenizer='/home/pese/model-space/Qwen2.5-72B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=32765, download_dir=None, load_format=auto, tensor_parallel_size=8, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/home/pese/model-space/Qwen2.5-72B-Instruct, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::qwen4_exp_compute_ple_ngram_ids', 'vllm::qwen4_exp_ple_short_conv', 'vllm::qwen4_exp_qsa_with_output', 'vllm::linear_attention', 'vllm::qwen_gdn_attention_core', 'vllm::qwen_gdn_attention_core_fused_norm_packed', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.PIECEWISE: 1>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=1575917) WARNING 10-15 03:10:19 [network_utils.py:37] The environment variable HOST_IP is deprecated and ignored, as it is often used by Docker and other software to interact with the container's network stack. Please use VLLM_HOST_IP instead to set the IP address for vLLM processes to communicate with each other.
+(EngineCore pid=1575917) INFO 10-15 03:10:19 [multiproc_executor.py:153] DP group leader: node_rank=0, node_rank_within_dp=0, master_addr=127.0.0.1, mq_connect_ip=10.239.11.147 (local), world_size=8, local_world_size=8
+(Worker pid=1575983) INFO 10-15 03:10:33 [parallel_state.py:1775] world_size=8 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575984) INFO 10-15 03:10:34 [parallel_state.py:1775] world_size=8 rank=1 local_rank=1 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575986) INFO 10-15 03:10:34 [parallel_state.py:1775] world_size=8 rank=3 local_rank=3 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575985) INFO 10-15 03:10:34 [parallel_state.py:1775] world_size=8 rank=2 local_rank=2 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575987) INFO 10-15 03:10:34 [parallel_state.py:1775] world_size=8 rank=4 local_rank=4 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575990) INFO 10-15 03:10:34 [parallel_state.py:1775] world_size=8 rank=7 local_rank=7 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575988) INFO 10-15 03:10:34 [parallel_state.py:1775] world_size=8 rank=5 local_rank=5 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575989) INFO 10-15 03:10:34 [parallel_state.py:1775] world_size=8 rank=6 local_rank=6 distributed_init_method=file:///tmp/vllm_dist_39dc84d9db374bba9e5fd56a20c213bc backend=nccl
+(Worker pid=1575983) INFO 10-15 03:10:34 [pynccl.py:113] vLLM is using nccl==2.30.7
+(Worker pid=1575985) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575983) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575990) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575988) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575989) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575987) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575984) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575986) WARNING 10-15 03:10:35 [symm_mem.py:67] SymmMemCommunicator: Device capability 12.0 not supported, communicator is not available.
+(Worker pid=1575985) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575987) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575989) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575990) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575988) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575983) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575986) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575984) WARNING 10-15 03:10:35 [flashinfer_all_reduce.py:383] FlashInfer All Reduce is disabled because it is not supported for world_size=8.
+(Worker pid=1575985) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575984) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575990) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575986) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575983) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575988) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575989) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575983) INFO 10-15 03:10:35 [cuda_communicator.py:269] Using ['PYNCCL'] all-reduce backends (in dispatch order) for group 'tp:0' out of potential backends: ['FLASHINFER', 'NCCL_SYMM_MEM', 'QUICK_REDUCE', 'AITER_CUSTOM', 'CUSTOM', 'SYMM_MEM', 'PYNCCL'].
+(Worker pid=1575987) WARNING 10-15 03:10:35 [custom_all_reduce.py:237] Custom allreduce is disabled because it's not supported on more than two PCIe-only GPUs. To silence this warning, specify disable_custom_all_reduce=True explicitly.
+(Worker pid=1575983) INFO 10-15 03:10:35 [parallel_state.py:2119] rank 0 in world size 8 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(Worker pid=1575983) INFO 10-15 03:10:35 [gpu_worker.py:429] Using V2 Model Runner
+(Worker_TP0 pid=1575983) INFO 10-15 03:10:36 [model_runner.py:382] Loading model from scratch...
+(Worker_TP0 pid=1575983) INFO 10-15 03:10:36 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(Worker_TP0 pid=1575983) INFO 10-15 03:10:36 [flash_attn.py:897] Using FlashAttention version 2
+(Worker_TP0 pid=1575983) INFO 10-15 03:10:36 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 135.43 GiB. Available RAM: 468.68 GiB.
+(Worker_TP0 pid=1575983) INFO 10-15 03:10:36 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:   0% Completed | 0/37 [00:00<?, ?it/s]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:   3% Completed | 1/37 [00:00<00:25,  1.41it/s]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:   5% Completed | 2/37 [00:01<00:33,  1.03it/s]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:   8% Completed | 3/37 [00:06<01:23,  2.46s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  11% Completed | 4/37 [00:10<01:44,  3.15s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  14% Completed | 5/37 [00:14<01:51,  3.50s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  16% Completed | 6/37 [00:19<02:09,  4.17s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  19% Completed | 7/37 [00:24<02:09,  4.31s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  22% Completed | 8/37 [00:28<02:02,  4.22s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  24% Completed | 9/37 [00:32<01:57,  4.20s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  27% Completed | 10/37 [00:38<02:08,  4.75s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  30% Completed | 11/37 [00:43<02:02,  4.71s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  32% Completed | 12/37 [00:47<01:54,  4.57s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  35% Completed | 13/37 [00:51<01:47,  4.49s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  38% Completed | 14/37 [00:57<01:52,  4.87s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  41% Completed | 15/37 [01:02<01:45,  4.79s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  43% Completed | 16/37 [01:06<01:37,  4.65s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  46% Completed | 17/37 [01:10<01:29,  4.46s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  49% Completed | 18/37 [01:16<01:31,  4.79s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  51% Completed | 19/37 [01:20<01:22,  4.60s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  54% Completed | 20/37 [01:24<01:16,  4.49s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  57% Completed | 21/37 [01:28<01:09,  4.37s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  59% Completed | 22/37 [01:34<01:10,  4.72s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  62% Completed | 23/37 [01:38<01:04,  4.58s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  65% Completed | 24/37 [01:42<00:57,  4.42s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  68% Completed | 25/37 [01:46<00:51,  4.31s/it]
+(APIServer pid=1575784) INFO 10-15 03:12:24 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore
+[iaxl] config: qat_zip=ON iaa_zip=ON cpu_zip=OFF qat_instances=2 iaa_instances=4 cpu_zip_threads=0 omp_threads=6 cpus=256 compression=ON data_shuffle=OFF lossy_trunc=0 dsa_gd=ON dsa_gd_reset=OFF profile=disabled
+(APIServer pid=1575784) Traceback (most recent call last):
+(APIServer pid=1575784)   File "/usr/local/bin/vllm", line 10, in <module>
+(APIServer pid=1575784)     sys.exit(main())
+(APIServer pid=1575784)              ^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/main.py", line 97, in main
+(APIServer pid=1575784)     args.dispatch_function(args)
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/serve.py", line 153, in cmd
+(APIServer pid=1575784)     uvloop.run(run_server(args))
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 96, in run
+(APIServer pid=1575784)     return __asyncio.run(
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+(APIServer pid=1575784)     return runner.run(main)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+(APIServer pid=1575784)     return self._loop.run_until_complete(task)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "uvloop/loop.pyx", line 1512, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=1575784)   File "uvloop/loop.pyx", line 1505, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=1575784)   File "uvloop/loop.pyx", line 1379, in uvloop.loop.Loop.run_forever
+(APIServer pid=1575784)   File "uvloop/loop.pyx", line 557, in uvloop.loop.Loop._run
+(APIServer pid=1575784)   File "uvloop/loop.pyx", line 476, in uvloop.loop.Loop._on_idle
+(APIServer pid=1575784)   File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+(APIServer pid=1575784)   File "uvloop/cbhandles.pyx", line 61, in uvloop.loop.Handle._run
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 48, in wrapper
+(APIServer pid=1575784)     return await main
+(APIServer pid=1575784)            ^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 176, in run_server
+(APIServer pid=1575784)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 190, in run_server_worker
+(APIServer pid=1575784)     async with build_async_engine_client(
+(APIServer pid=1575784)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=1575784)     return await anext(self.gen)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 58, in build_async_engine_client
+(APIServer pid=1575784)     async with build_async_engine_client_from_engine_args(
+(APIServer pid=1575784)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=1575784)     return await anext(self.gen)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 94, in build_async_engine_client_from_engine_args
+(APIServer pid=1575784)     async_llm = AsyncLLM.from_vllm_config(
+(APIServer pid=1575784)                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 227, in from_vllm_config
+(APIServer pid=1575784)     return cls(
+(APIServer pid=1575784)            ^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 156, in __init__
+(APIServer pid=1575784)     self.engine_core = EngineCoreClient.make_async_mp_client(
+(APIServer pid=1575784)                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=1575784)     return func(*args, **kwargs)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 139, in make_async_mp_client
+(APIServer pid=1575784)     return AsyncMPClient(*client_args)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=1575784)     return func(*args, **kwargs)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 991, in __init__
+(APIServer pid=1575784)     super().__init__(
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 658, in __init__
+(APIServer pid=1575784)     if not sync_input_socket.poll(
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/zmq/sugar/socket.py", line 1106, in poll
+(APIServer pid=1575784)     evts = dict(p.poll(timeout))
+(APIServer pid=1575784)                 ^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/zmq/sugar/poll.py", line 106, in poll
+(APIServer pid=1575784)     return zmq_poll(self.sockets, timeout=timeout)
+(APIServer pid=1575784)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1575784)   File "zmq/backend/cython/_zmq.py", line 1680, in zmq.backend.cython._zmq.zmq_poll
+(APIServer pid=1575784)   File "zmq/backend/cython/_zmq.py", line 179, in zmq.backend.cython._zmq._check_rc
+(APIServer pid=1575784)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 171, in _interrupt_init
+(APIServer pid=1575784)     raise KeyboardInterrupt("terminated")
+(APIServer pid=1575784) KeyboardInterrupt: terminated
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  70% Completed | 26/37 [01:52<00:51,  4.69s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  73% Completed | 27/37 [01:56<00:46,  4.65s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  76% Completed | 28/37 [02:00<00:39,  4.43s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  78% Completed | 29/37 [02:04<00:34,  4.33s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  81% Completed | 30/37 [02:10<00:33,  4.72s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  84% Completed | 31/37 [02:14<00:27,  4.58s/it]
+(Worker_TP0 pid=1575983) Loading safetensors checkpoint shards:  84% Completed | 31/37 [02:18<00:26,  4.47s/it]
+(Worker_TP0 pid=1575983) 
+[rank0]:[W1015 03:12:56.567536839 ProcessGroupNCCL.cpp:1624] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 2 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

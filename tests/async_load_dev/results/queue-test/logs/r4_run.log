@@ -1,0 +1,27 @@
+nohup: ignoring input
+===== split_async_load_submit s1 queue (BI=0) connector_md5=76ea7e4b =====
+/tmp/qy/restart.sh: line 31: unexpected EOF while looking for matching `"'
+GPU7 used MiB: 3
+queue_exit=0
+{
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 16,
+  "trace_events": 1536,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 4,
+  "case_a_async_behind_earlier_async": 1,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "PASS"
+}
+PASS
+  activate lines with held!='': 7
+===== split_async_load_submit s1 correctness (BI=1) connector_md5=76ea7e4b =====
+KVShrink async load scheme: split_async_load_submit, role=WORKER
+KVShrink async load scheme: split_async_load_submit, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 0
+ALL_DONE

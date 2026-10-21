@@ -1,0 +1,196 @@
+branch=perf/async-load-optimization-dev commit=757215e
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink CPU rank 4: GPU=4 PCI=00000000:B8:00.0 NUMA=1 CPUs=64-79
+KVShrink CPU rank 5: GPU=5 PCI=00000000:B9:00.0 NUMA=1 CPUs=80-95
+KVShrink CPU rank 6: GPU=6 PCI=00000000:C8:00.0 NUMA=1 CPUs=96-111
+KVShrink CPU rank 7: GPU=7 PCI=00000000:C9:00.0 NUMA=1 CPUs=112-127
+0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+KVShrink QAT rank 0: indices=0 devices=0000:01:00.0(numa=0)
+KVShrink QAT rank 1: indices=1 devices=0000:06:00.0(numa=0)
+KVShrink QAT rank 2: indices=2 devices=0000:0b:00.0(numa=0)
+KVShrink QAT rank 3: indices=3 devices=0000:10:00.0(numa=0)
+KVShrink QAT rank 4: indices=4 devices=0000:81:00.0(numa=1)
+KVShrink QAT rank 5: indices=5 devices=0000:86:00.0(numa=1)
+KVShrink QAT rank 6: indices=6 devices=0000:8b:00.0(numa=1)
+KVShrink QAT rank 7: indices=7 devices=0000:90:00.0(numa=1)
+0|1|2|3|4|5|6|7
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+KVShrink GPU rank 4: index=4 pci=00000000:B8:00.0 numa=1
+KVShrink GPU rank 4: DSA=dsa8 WQ=wq8.0
+KVShrink GPU rank 5: index=5 pci=00000000:B9:00.0 numa=1
+KVShrink GPU rank 5: DSA=dsa10 WQ=wq10.0
+KVShrink GPU rank 6: index=6 pci=00000000:C8:00.0 numa=1
+KVShrink GPU rank 6: DSA=dsa12 WQ=wq12.0
+KVShrink GPU rank 7: index=7 pci=00000000:C9:00.0 numa=1
+KVShrink GPU rank 7: DSA=dsa14 WQ=wq14.0
+wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+out=/home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/len8k16k_20261016_093111 schemes=sync naive batch_reqs_async_load_submit split_async_load_submit_first_n_batch_reqs split_async_load_submit_first_n_per_req priority_3level_first_n_per_req priority_3level_first_n_per_req_promote_raise input=8000 16000 output=128 hit=80 90 95 98 100 conc=1 8 16 32 prompts=1:16 8:64 16:96 32:160 warmups=5 trace=0 ddr_gb=20 scratch_gb=32
+===== label=sync connector_md5=7574e6c3 =====
+    reclaimed host memory: free=485G available=484G
+    Node 0, zone   Normal  47457  72513  68800  67101  59939  49573  39237  31844  25920  18807  37640 
+    Node 1, zone   Normal  67786  97937  99054  97623  85879  72490  60247  47263  34067  20544  27322 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/len8k16k_20261016_093111/sync.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- sync_in8000_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=8000 hit=80 conc=1: mean_ttft=1089.41 median_ttft=1150.48 p95_ttft=1159.26 ms
+    --- sync_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=8000 hit=80 conc=8: mean_ttft=5917.56 median_ttft=6502.61 p95_ttft=7581.52 ms
+    --- sync_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=8000 hit=80 conc=16: mean_ttft=9289.33 median_ttft=10750.89 p95_ttft=15298.82 ms
+    --- sync_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=8000 hit=80 conc=32: mean_ttft=14105.78 median_ttft=14941.32 p95_ttft=26204.62 ms
+    --- sync_in8000_hr90_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=8000 hit=90 conc=1: mean_ttft=627.9 median_ttft=657.81 p95_ttft=660.33 ms
+    --- sync_in8000_hr90_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=8000 hit=90 conc=8: mean_ttft=3897.13 median_ttft=4417.38 p95_ttft=4428.8 ms
+    --- sync_in8000_hr90_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=8000 hit=90 conc=16: mean_ttft=6415.73 median_ttft=6149.7 p95_ttft=8464.08 ms
+    --- sync_in8000_hr90_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=8000 hit=90 conc=32: mean_ttft=9416.68 median_ttft=10589.56 p95_ttft=16425.55 ms
+    --- sync_in8000_hr95_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=8000 hit=95 conc=1: mean_ttft=369.51 median_ttft=381.52 p95_ttft=383.55 ms
+    --- sync_in8000_hr95_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=8000 hit=95 conc=8: mean_ttft=2198.65 median_ttft=2467.21 p95_ttft=2484.83 ms
+    --- sync_in8000_hr95_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=8000 hit=95 conc=16: mean_ttft=3252.66 median_ttft=2989.26 p95_ttft=4404.0 ms
+    --- sync_in8000_hr95_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=8000 hit=95 conc=32: mean_ttft=6576.42 median_ttft=5812.78 p95_ttft=8992.89 ms
+    --- sync_in8000_hr98_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=8000 hit=98 conc=1: mean_ttft=225.33 median_ttft=228.21 p95_ttft=230.37 ms
+    --- sync_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=8000 hit=98 conc=8: mean_ttft=1054.91 median_ttft=1166.89 p95_ttft=1191.69 ms
+    --- sync_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=8000 hit=98 conc=16: mean_ttft=1536.43 median_ttft=1386.24 p95_ttft=2158.94 ms
+    --- sync_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=8000 hit=98 conc=32: mean_ttft=3194.6 median_ttft=4110.77 p95_ttft=4387.35 ms
+    --- sync_in8000_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=8000 hit=100 conc=1: mean_ttft=196.49 median_ttft=196.19 p95_ttft=198.79 ms
+    --- sync_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=8000 hit=100 conc=8: mean_ttft=737.16 median_ttft=748.47 p95_ttft=1057.35 ms
+    --- sync_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=8000 hit=100 conc=16: mean_ttft=1319.22 median_ttft=1341.63 p95_ttft=2036.09 ms
+    --- sync_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=8000 hit=100 conc=32: mean_ttft=2860.89 median_ttft=3624.23 p95_ttft=3978.12 ms
+    prewarm: input=16000 conc=32 prompts=64 hit=100
+    --- sync_in16000_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=16000 hit=80 conc=1: mean_ttft=2182.43 median_ttft=2306.24 p95_ttft=2314.89 ms
+    --- sync_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=16000 hit=80 conc=8: mean_ttft=10823.82 median_ttft=13117.89 p95_ttft=15205.99 ms
+    --- sync_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=16000 hit=80 conc=16: mean_ttft=13516.89 median_ttft=13075.45 p95_ttft=23818.71 ms
+    --- sync_in16000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=16000 hit=80 conc=32: mean_ttft=19597.76 median_ttft=16455.94 p95_ttft=50462.48 ms
+    --- sync_in16000_hr90_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=16000 hit=90 conc=1: mean_ttft=1182.27 median_ttft=1237.87 p95_ttft=1246.08 ms
+    --- sync_in16000_hr90_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=16000 hit=90 conc=8: mean_ttft=6686.49 median_ttft=6996.6 p95_ttft=9056.83 ms
+    --- sync_in16000_hr90_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=16000 hit=90 conc=16: mean_ttft=9521.49 median_ttft=11172.97 p95_ttft=14973.86 ms
+    --- sync_in16000_hr90_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=16000 hit=90 conc=32: mean_ttft=14475.48 median_ttft=14620.5 p95_ttft=26591.34 ms
+    --- sync_in16000_hr95_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=16000 hit=95 conc=1: mean_ttft=697.16 median_ttft=719.53 p95_ttft=724.67 ms
+    --- sync_in16000_hr95_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=16000 hit=95 conc=8: mean_ttft=4199.45 median_ttft=4729.64 p95_ttft=4744.61 ms
+    --- sync_in16000_hr95_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=16000 hit=95 conc=16: mean_ttft=6432.43 median_ttft=4882.23 p95_ttft=9071.81 ms
+    --- sync_in16000_hr95_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=16000 hit=95 conc=32: mean_ttft=10034.23 median_ttft=10595.83 p95_ttft=16942.54 ms
+    --- sync_in16000_hr98_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=16000 hit=98 conc=1: mean_ttft=399.67 median_ttft=395.63 p95_ttft=454.21 ms
+    --- sync_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=16000 hit=98 conc=8: mean_ttft=2102.15 median_ttft=2339.32 p95_ttft=2355.24 ms
+    --- sync_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=16000 hit=98 conc=16: mean_ttft=3164.98 median_ttft=2541.52 p95_ttft=4691.66 ms
+    --- sync_in16000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=16000 hit=98 conc=32: mean_ttft=6365.73 median_ttft=8237.09 p95_ttft=8553.93 ms
+    --- sync_in16000_hr100_c1 prompts=16 ---
+Successful requests:                     16        
+    -> sync input=16000 hit=100 conc=1: mean_ttft=344.59 median_ttft=344.0 p95_ttft=349.18 ms
+    --- sync_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync input=16000 hit=100 conc=8: mean_ttft=1480.64 median_ttft=1600.41 p95_ttft=1883.89 ms
+    --- sync_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync input=16000 hit=100 conc=16: mean_ttft=2429.2 median_ttft=3210.4 p95_ttft=3588.48 ms
+    --- sync_in16000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync input=16000 hit=100 conc=32: mean_ttft=5065.96 median_ttft=5988.65 p95_ttft=7638.5 ms
+===== label=naive connector_md5=7574e6c3 =====
+    reclaimed host memory: free=374G available=373G
+    Node 0, zone   Normal  55730  43640  52780  62627  59212  50440  41999  35512  29276  19312  31934 
+    Node 1, zone   Normal 123837  77493  62512  69193  57277  50457  42537  33933  23822  20764   9724 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/len8k16k_20261016_093111/naive.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- naive_in8000_hr80_c1 prompts=16 ---
+Successful requests:                     16        
+    -> naive input=8000 hit=80 conc=1: mean_ttft=1087.12 median_ttft=1147.99 p95_ttft=1152.7 ms
+    --- naive_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> naive input=8000 hit=80 conc=8: mean_ttft=6263.77 median_ttft=8680.29 p95_ttft=8715.41 ms
+    --- naive_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> naive input=8000 hit=80 conc=16: mean_ttft=10014.96 median_ttft=8878.32 p95_ttft=14764.39 ms
+    --- naive_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> naive input=8000 hit=80 conc=32: mean_ttft=16162.83 median_ttft=17202.87 p95_ttft=29744.4 ms
+    --- naive_in8000_hr90_c1 prompts=16 ---
+Successful requests:                     16        
+    -> naive input=8000 hit=90 conc=1: mean_ttft=625.79 median_ttft=653.01 p95_ttft=670.5 ms
+    --- naive_in8000_hr90_c8 prompts=64 ---
+Successful requests:                     64        
+    -> naive input=8000 hit=90 conc=8: mean_ttft=3064.06 median_ttft=4130.59 p95_ttft=4178.51 ms
+    --- naive_in8000_hr90_c16 prompts=96 ---
+Successful requests:                     96        
+    -> naive input=8000 hit=90 conc=16: mean_ttft=5864.39 median_ttft=5329.09 p95_ttft=8469.23 ms
+    --- naive_in8000_hr90_c32 prompts=160 ---
+Successful requests:                     33        
+ERROR: server died during naive_in8000_hr90_c32, see /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/len8k16k_20261016_093111/naive.serve.log

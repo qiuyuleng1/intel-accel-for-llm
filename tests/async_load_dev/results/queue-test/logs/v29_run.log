@@ -1,0 +1,155 @@
+Successfully installed iaxl-1.5.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+PIP_EXIT=0
+vllm 0.29.0 torch 2.13.0+cu130
+===== split_async_load_submit s1 queue (BI=0) connector_md5=4633759c =====
+KVShrink async load scheme: split_async_load_submit, role=WORKER
+KVShrink async load scheme: split_async_load_submit, role=SCHEDULER
+queue_exit=0
+{
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 25,
+  "trace_events": 1796,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 2,
+  "case_a_async_behind_earlier_async": 5,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "PASS"
+}
+PASS
+  activate lines with held!='': 11
+===== split_async_load_submit s1 correctness (BI=1) connector_md5=4633759c =====
+KVShrink async load scheme: split_async_load_submit, role=WORKER
+KVShrink async load scheme: split_async_load_submit, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1
+===== split_async_load_submit s2 queue (BI=0) connector_md5=4633759c =====
+KVShrink async load scheme: split_async_load_submit, role=WORKER
+KVShrink async load scheme: split_async_load_submit, role=SCHEDULER
+queue_exit=2
+{
+  "hit_requests": 32,
+  "hit_async": 29,
+  "hit_sync": 3,
+  "submissions": 26,
+  "trace_events": 2944,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 9,
+  "case_a_async_behind_earlier_async": 5,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "UNCOVERED"
+}
+UNCOVERED
+  activate lines with held!='': 11
+===== split_async_load_submit s2 correctness (BI=1) connector_md5=4633759c =====
+KVShrink async load scheme: split_async_load_submit, role=WORKER
+KVShrink async load scheme: split_async_load_submit, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1
+===== naive s1 queue (BI=0) connector_md5=4633759c =====
+KVShrink async load scheme: naive, role=WORKER
+KVShrink async load scheme: naive, role=SCHEDULER
+queue_exit=0
+{
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 16,
+  "trace_events": 2048,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 4,
+  "case_a_async_behind_earlier_async": 6,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "PASS"
+}
+PASS
+  activate lines with held!='': 12
+===== naive s1 correctness (BI=1) connector_md5=4633759c =====
+KVShrink async load scheme: naive, role=WORKER
+KVShrink async load scheme: naive, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 3
+===== naive s2 queue (BI=0) connector_md5=4633759c =====
+KVShrink async load scheme: naive, role=WORKER
+KVShrink async load scheme: naive, role=SCHEDULER
+queue_exit=2
+{
+  "hit_requests": 32,
+  "hit_async": 29,
+  "hit_sync": 3,
+  "submissions": 31,
+  "trace_events": 4032,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 8,
+  "case_a_async_behind_earlier_async": 13,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "UNCOVERED"
+}
+UNCOVERED
+  activate lines with held!='': 21
+===== naive s2 correctness (BI=1) connector_md5=4633759c =====
+KVShrink async load scheme: naive, role=WORKER
+KVShrink async load scheme: naive, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1
+===== batch_reqs_async_load_submit s1 queue (BI=0) connector_md5=4633759c =====
+KVShrink async load scheme: batch_reqs_async_load_submit, role=WORKER
+KVShrink async load scheme: batch_reqs_async_load_submit, role=SCHEDULER
+queue_exit=0
+{
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 16,
+  "trace_events": 2048,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 0,
+  "case_a_async_behind_earlier_async": 5,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "PASS"
+}
+PASS
+  activate lines with held!='': 15
+===== batch_reqs_async_load_submit s1 correctness (BI=1) connector_md5=4633759c =====
+KVShrink async load scheme: batch_reqs_async_load_submit, role=WORKER
+KVShrink async load scheme: batch_reqs_async_load_submit, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1
+===== batch_reqs_async_load_submit s2 queue (BI=0) connector_md5=4633759c =====
+KVShrink async load scheme: batch_reqs_async_load_submit, role=WORKER
+KVShrink async load scheme: batch_reqs_async_load_submit, role=SCHEDULER
+queue_exit=2
+{
+  "hit_requests": 32,
+  "hit_async": 29,
+  "hit_sync": 3,
+  "submissions": 14,
+  "trace_events": 2944,
+  "structure_errors": [],
+  "inversions": 0,
+  "steps_with_multiple_async_reqs": 7,
+  "case_a_async_behind_earlier_async": 6,
+  "case_b_sync_behind_earlier_async": 0,
+  "verdict": "UNCOVERED"
+}
+UNCOVERED
+  activate lines with held!='': 11
+===== batch_reqs_async_load_submit s2 correctness (BI=1) connector_md5=4633759c =====
+KVShrink async load scheme: batch_reqs_async_load_submit, role=WORKER
+KVShrink async load scheme: batch_reqs_async_load_submit, role=SCHEDULER
+correctness_exit=0
+PASS ref_ext 0 hits [(4960, True, 0), (4960, True, 0), (4960, True, 0), (4960, True, 0)]
+  activate lines with held!='': 1
+ALL_DONE
