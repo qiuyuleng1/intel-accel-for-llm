@@ -635,7 +635,11 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [ ] `priority_3level_first_n_batch_reqs`:未实现(做法见 §4.3 末尾)
 - [ ] 已知问题:`priority_3level_*` 不支持远程存储(`IAXL_RDMA_ENABLE`),目前启动报错,以后处理
 - [ ] 分析:`v29p3-priority-s1` 中两次新请求的头等了 58 / 61 ms(§11.10),原因未查
-- [ ] 性能测试:72B 脚本(`perf-qwen72b-bench.sh`)目前只认 PR 分支和旧方案名、固定 GPU4-7,需适配 dev 分支与新方案
+- [x] 性能测试:72B 脚本(`perf-qwen72b-bench.sh`)适配 dev 分支与新方案、TP=8 用 GPU0-7;支持动态 map、固定层数(`DYNAMIC=0`)和每格重复次数(§11.12)
+- [ ] `priority_3level_first_n_per_req_promote_raise`:只跑过 GSM8K(§11.11),§7 S1、S2 与输出正确性检查未跑
+- [ ] 32k 并发上限:scratch 在 `KVFlow.get()` 提交时为每层申请、`get_wait(wait=True)` 时才归还,占用 ≈ 在途请求数 × 每请求完整 KV;32k 每请求每 rank 1.22 GiB,16 GiB 只够 c8。改为任务开始执行时申请、H2D 完成后释放(§11.12)
+- [ ] 动态 map 按在途请求数(`len(self._req_states)`)选层数,32k c4 / c8 正好落在分界附近,同一格里 sync 与两种层数混在一起;考虑按新 token 数 / 命中率选(§11.12)
+- [ ] hit 98 下 store 步每层 ~14 ms 的去向未定:用 connector 的 `wait_ms` / `save_ms`(event log 的 `step_end` 行,已加未跑)拆分(§11.13)
 - [ ] `record_test.cpp` 并发段报 `Invalid KV cache label: 0:0`(改动前的 `task_queue.h` 同样出现,与本方案无关),该测试也未接入 Makefile
 - [x] P0 内顺序:10-14 定为先进先出,不按层号排序,适用于所有带 P0 的方案(理由见 4.3 末尾)
 - [x] split 拆成两个变种:`split_async_load_submit` 改名 `split_async_load_submit_first_n_batch_reqs`;新增 `split_async_load_submit_first_n_per_req`(头逐个请求提交);判定脚本对 `_first_n_per_req` 改为"每次头提交只含 1 个请求"。10-14 在 GPU2 跑:S1 PASS、S2 未覆盖,输出正确性通过(§11.10)
@@ -645,6 +649,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [ ] 整理 PR 前:删除本分支在 sync / batch / split 路径 `get()` 上新加的 `description=` 参数(`naive` 路径的 `description=req_id` 是 main 原有的,保留)。它只用于 queue trace 标签把任务对应到请求
 - [ ] 方案取舍(与同事讨论后定):正式 PR 暂时保留 `naive`、`batch_reqs_async_load_submit`、`split_async_load_submit` 三个可切换方案,默认 `split_async_load_submit`。若 split 的性能确认更好,后续删掉 `naive` / `batch_reqs_async_load_submit` 及 `KVSHRINK_ASYNC_LOAD_SCHEME` 开关
 - [ ] 代码清理(以后做):`_early_promoted_tasks` 与 `_active_promoted_tasks` 合并为一个"已 promote" dict。promote 只发生在 forward 之后的 `get_finished`,forward 进行中不会新增;二者的区别只是"是否已进入某次 forward"。需在 K3 修复之后重新评估(K3 让"搬入 active"变为按请求是否被调度)
+- [ ] OMP-Main 任务 release 开销(单独 PR):release 约占 OMP-Main 忙碌时间的 18–21%,原因、影响估算与修复方案见 [task-release-overhead.zh-CN.md](task-release-overhead.zh-CN.md)
 
 ## 11. 进度记录
 
@@ -654,6 +659,9 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - 2026-10-12:connector 代码整理(命名、显式循环、K3 搬入 active 移到所有提交之后),修正测试工具切 log 的问题,三个方案在 v0.23 上重测无 FAIL(§11.7)。rebase 到 `origin/main`(vLLM v0.29.0),在新容器里三个方案 S1、S2 无 FAIL、输出正确(§11.8)。split 下 GSM8K 跑 2 次:0.955 / 0.950(§11.9)。
 - 2026-10-13:72B 性能脚本;split 拆成 `_first_n_batch_reqs` / `_first_n_per_req` 两个变种;`priority_3level` 改为按组提权的设计。
 - 2026-10-14:定下 P0 按进入顺序 FIFO、请求进入 forward 时提权、重试保持 LOW、`p0_enter_ns`;实现 `priority_3level_first_n_per_req`,单测 / TSan 通过,GPU2 上 S1、S2 PASS、输出正确;补跑 `split_..._first_n_per_req`(§11.10)。
+- 2026-10-16:trace 增加 `release_ns`,确认任务间隔几乎全部是 release;分析与修复方案另立文档 [task-release-overhead.zh-CN.md](task-release-overhead.zh-CN.md)。
+- 2026-10-20:72B(TP=8)hit 98 诊断:变慢全部在 store 步,原因未定(§11.13);72B 全矩阵 360 格(prio / raise / batch × 3 个 map + sync,8k / 16k / 32k),无失败(§11.12)。
+- 2026-10-21:prio、raise、batch 的 GSM8K 各 2 次,0.945–0.955,与 split 同水平(§11.11);72B 脚本加固定层数与重复次数,下一轮做 32k 固定层数扫描(§11.12)。
 
 ### 11.1 公共基础设施
 
@@ -674,7 +682,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 | 端口 | API 8010,controller 18710,worker 18810 | 容器是 host 网络,避开默认端口 |
 | async 配置 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0`,`..._LAYERS=4` | 固定 N=4,保证单请求也走 async |
 | v0.29 容器(§11.8 起) | `iaxl.vllm.qiuyu-v29`,镜像 `vllm-iaxl-dev-qiuyu-v29`(base `vllm/vllm-openai:v0.29.0`),vllm 0.29.0 / torch 2.13.0+cu130 | v0.23 的容器和镜像保留不动;由 `tests/async_load_dev/build-v29-container.sh` 构建 |
-| 测试脚本 | `tests/async_load_dev/`:`restart-vllm.sh`、`run-queue-and-correctness.sh`、`v29-pipeline.sh`、`gsm8k-split.sh` | dev 辅助脚本;日志在 `_data/queue-test/logs/` |
+| 测试脚本 | `tests/async_load_dev/`:`restart-vllm.sh`、`run-queue-and-correctness.sh`、`v29-pipeline.sh`、`gsm8k-split.sh`(`SCHEME=` 选方案,结果 `_data/gsm8k/<方案>/`)、`perf-qwen72b-bench.sh` / `perf-qwen72b-serve.sh`(72B TP=8) | dev 辅助脚本;日志在 `_data/queue-test/logs/` |
 
 ### 11.3 §7 队列顺序验证:`naive`
 
@@ -917,3 +925,119 @@ rebase 结果:只有 `setvars.sh` 一处冲突(基础镜像用上游 v0.29.0,开
 - 判定报告的 `async_tail_promoted` 按"请求已 promote"分类;本方案下已 promote 但未 activate 的请求,尾仍在 P2,该分类不等于"在 P0"。
 
 本节只验证队列顺序与输出正确性,未测 TTFT。
+
+### 11.11 GSM8K 精度:`priority_3level_first_n_per_req`、`_promote_raise`、`batch_reqs_async_load_submit`
+
+配置与 §11.9 相同(Qwen3-32B bf16,TP=2 在 GPU4、5,map `0-3:0,4-6:4,7-:8`,200 题,并发 50,temperature 0,同一服务连跑 2 次、中间不清 DDR),另开 `KVSHRINK_ASYNC_LOAD_EVENT_LOG=1` 记录每次提交 / promote。10-21 依次跑三个方案。脚本 `SCHEME=<方案> tests/async_load_dev/gsm8k-split.sh`(脚本现在显式传 `MODEL`:容器环境变量里的 `MODEL` 是 72B,第一次启动误加载了 72B,已停掉重跑),结果 `_data/gsm8k/<方案>/`,汇总行在 `_data/gsm8k/<方案>.run.log`。
+
+| 方案 | 运行 | 答对 / 总数 | mean_acc | 命中外部缓存的请求 | 外部加载 token 平均 / 最少 / 最多 | 选到的 N(请求数) | sync / async 提交行 | 报错行 | 乱码 |
+|---|---|---|---|---|---|---|---|---|---|
+| prio | run1 | 191 / 200 | **0.955** | 198 / 200 | 570 / 0 / 576 | N=0:3,N=4:3,N=8:194 | 2 / 394 | 0 | 0 |
+| prio | run2 | 189 / 200 | **0.945** | 200 / 200 | 653 / 608 / 720 | 同上 | 6 / 394 | 0 | 0 |
+| raise | run1 | 191 / 200 | **0.955** | 198 / 200 | 570 / 0 / 576 | 同上 | 2 / 394 | 0 | 0 |
+| raise | run2 | 189 / 200 | **0.945** | 200 / 200 | 653 / 608 / 720 | 同上 | 4 / 394 | 0 | 0 |
+| batch | run1 | 189 / 200 | **0.945** | 199 / 200 | 573 / 0 / 576 | 同上 | 2 / 178 | 0 | 0 |
+| batch | run2 | 191 / 200 | **0.955** | 200 / 200 | 653 / 608 / 720 | 同上 | 4 / 178 | 0 | 0 |
+
+列说明:prio / raise / batch 分别是 `priority_3level_first_n_per_req` / `priority_3level_first_n_per_req_promote_raise` / `batch_reqs_async_load_submit`;"sync / async 提交行"= vLLM log 中 `submit kind=sync` / `submit kind=async` 的行数,两个 TP rank 合计(prio / raise 每个 async 请求一次 `get()`,197 个请求 × 2 rank = 394;batch 同一 step 的请求合成一次);"乱码"= 400 条输出中 U+FFFD 与非法控制字符个数;其余同 §11.9。
+
+**同一方案 run1 与 run2 逐题对比**(实测):
+
+| 方案 | 最终答案相同 | 对错不同的题 | 输出相同 |
+|---|---|---|---|
+| prio | 187 / 200 | 8 题:run1 对 5 题(12、85、93、147、187),run2 对 3 题(40、114、139) | 47 / 200 |
+| raise | 188 / 200 | 8 题:run1 对 5 题(7、62、87、161、181),run2 对 3 题(39、114、122) | 33 / 200 |
+| batch | 189 / 200 | 6 题:run1 对 2 题(147、187),run2 对 4 题(7、93、114、138) | 42 / 200 |
+| split(§11.9) | 191 / 200 | 3 题 | 29 / 200 |
+
+列说明:题号为 evalscope 的 `index`;"输出相同"= 评审记录 `sample_score.score.prediction` 全文相同(与 §11.9 的 29 / 200 同一口径)。
+
+- 三个方案 6 次在 0.945–0.955,与 split 的 0.955 / 0.950 同一水平;同一方案两次相差 0–2 题,方向两边都有(batch 是 run2 更好)。
+- 对错翻转的题在方案之间重复:114 在四个方案里都翻转,7、93、147、187 在两个方案里翻转。推断为对数值扰动敏感的题,差异来自运行间波动(未开 `VLLM_BATCH_INVARIANT`,与 §11.9 同),未见加载方案导致的问题。
+- 局限:GSM8K 每个请求只加载约 576–720 token(共享的 few-shot 前缀),只覆盖短加载;map 用的是 setvars 默认值,不是 §11.12 推荐的 map。
+
+### 11.12 72B 性能:三个方案 × 三个 map(10-20)
+
+配置:容器 `iaxl.vllm.qiuyu-v29`,Qwen2.5-72B-Instruct,TP=8 在 GPU0-7,QAT + IAA 压缩、DSA + GDRCopy 传输,每 rank DDR 25 GiB / scratch 16 GiB,`max_num_batched_tokens=8192`;输出 128 token,每格 5 个 warmup,每格结束清 DDR;输入 8k / 16k / 32k,hit 80 / 95 / 98 / 100,并发 c4 / c8 / c16 / c32(16k 最多 c16,32k 最多 c8),prompt 数 c4:32、c8:64、c16:96、c32:160。方案 prio / raise / batch,各跑 3 个 map:A = `0-3:0,4-6:8,7-:16`,B = `0-3:0,4-6:16,7-:32`,C = `0-3:0,4-6:40,7-:79`;加 sync(`KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0`)。10 个 server × 36 格 = 360 格,06:54–21:33,无失败格、无重启。结果 `_data/perf-qwen72b/20261020_065412/`。
+
+**各配置整体**(实测):
+
+| 配置 | TTFT 变化 | 优于 sync 的格数 | 最差格 | p95 TTFT 变化 | TPOT 变化 |
+|---|---|---|---|---|---|
+| prio A | −18.2% | 25 / 36 | +20%(16k h98 c16) | −3.2% | +6.8% |
+| prio B | −22.2% | 29 / 36 | +19%(16k h80 c16) | −5.6% | +7.6% |
+| prio C | −20.4% | 27 / 36 | +50%(16k h80 c16) | −2.2% | +5.9% |
+| raise A | −21.6% | 23 / 36 | +17%(8k h98 c16) | −2.7% | +6.3% |
+| raise B | −21.9% | 29 / 36 | +30%(16k h80 c16) | −3.9% | +4.6% |
+| raise C | −19.8% | 27 / 36 | +49%(16k h80 c16) | −0.8% | +6.0% |
+| batch A | −22.0% | 30 / 36 | +14%(8k h80 c32) | −5.0% | +7.1% |
+| batch B | −21.6% | 26 / 36 | +33%(16k h80 c16) | −2.2% | +5.8% |
+| batch C | −21.5% | 28 / 36 | +32%(16k h80 c16) | +2.7% | +5.7% |
+
+列说明:"TTFT / p95 TTFT / TPOT 变化"= 每格"该配置 ÷ sync"取几何平均后减 1,负数为更好;"最差格"= 平均 TTFT 相对 sync 变慢最多的格(h 命中率,c 并发)。
+
+**按命中率**(平均 TTFT 相对 sync,各长度、并发的几何平均,依次为 map A / B / C):
+
+| 方案 | hit 80 | hit 95 | hit 98 | hit 100 |
+|---|---|---|---|---|
+| prio | −9 / −6 / −4% | −14 / −12 / −11% | −2 / −14 / −16% | −42 / −49 / −43% |
+| raise | −7 / −5 / −3% | −11 / −11 / −12% | −7 / −15 / −16% | −51 / −48 / −43% |
+| batch | −8 / −5 / −2% | −12 / −12 / −16% | −16 / −18 / −21% | −46 / −45 / −41% |
+
+- 噪声(实测):与 10-19 那一轮的 20 个相同格子比,各配置两轮之比的中位数 0.99–1.00,单格 0.73–1.25。单格 25% 以内的差别不能用来给配置排序;9 个配置整体相差约 4 个百分点,在噪声内。
+- hit 98:map `0-3:0,4-6:4,7-:8`(10-16、10-19)和 A(10-19 的第二个 map,本轮仍在跑)下,prio / raise 在 hit 98 c16 / c32 比 sync 慢,本轮 prio A 仍是 8k c16 +10%、c32 +16%,16k c16 +20%;换成 B / C 后这几格 prio / raise 都比 sync 快(−2% ~ −33%)。
+- 输入长度:8k / 16k / 32k 整体收益为 −17 ~ −22% / −21 ~ −27% / −16 ~ −23%,看不出随长度变化的趋势。
+
+**低命中、高并发时异步"变慢"只是 TTFT 与 TPOT 的再分配**(实测,16k h80 c16):
+
+| 配置 | 平均 TTFT ms | 平均 TPOT ms | TTFT + 127 × TPOT ms | c × 时长 ÷ 请求数 ms | 平均排队 | 平均运行 |
+|---|---|---|---|---|---|---|
+| sync | 13517 | 226 | 42261 | 42287 | 0.5 | 13.2 |
+| prio A | 13858 | 225 | 42407 | 42448 | 2.0 | 12.7 |
+| prio B | 16086 | 211 | 42900 | 42942 | 2.7 | 12.0 |
+| prio C | 20216 | 175 | 42455 | 42478 | 4.2 | 11.2 |
+
+列说明:"TTFT + 127 × TPOT"= 每个请求的平均端到端时延(输出固定 128 token);"c × 时长 ÷ 请求数"= 按 Little 定律从吞吐反推的端到端时延;"平均排队 / 平均运行"= 该格时间窗内 vLLM 每 10 s 统计行 `Waiting` / `Running` 的平均值(`Waiting` 含等待 KV 加载的请求)。
+
+- 本格 10 个配置的端到端时延都在 42.1–42.9 s,时长 253–258 s,prefill 吞吐 1216–1240 token/s;32k h80 c8(42.2–42.8 s)和 8k h80 c32(44.3–44.8 s)同样。异步没有改变吞吐,map 越大请求在加载完前 N 层之前排队越久(TTFT 升),在跑的请求变少、每步更快(TPOT 降)。
+- 对照 16k h100 c16:异步把端到端时延从 11.5 s 降到 10.0–10.8 s、时长从 69 s 降到 61–65 s,是真实的吞吐提升。
+- 推断:hit 80 时 sync 的加载在请求自己那一步里逐层与 prefill 重叠,几乎不额外耗时,异步没有可隐藏的加载,只推迟准入。
+- 未解释:8k c32 / 16k c16 / 32k c8 的 hit 80 prefill 吞吐都约 1.2k token/s,不随上下文长度变化,瓶颈可能在随新 token 数增长的部分(例如 store),未验证。
+
+**动态 map 在 c4 / c8 下把"层数"和"走不走 async"混在一起**(实测,prio):
+
+| 格子 | map | 走 async 的请求 | 选到的 N(请求数) | 平均 TTFT ms | sync ms |
+|---|---|---|---|---|---|
+| 32k h98 c4 | A | 25% | 8:7 | 1764 | 1849 |
+| 32k h98 c4 | B | 47% | 16:15 | 1281 | 1849 |
+| 32k h98 c4 | C | 68% | 40:21 | 1328 | 1849 |
+| 32k h98 c8 | B | 75% | 16:31,32:16 | 3619 | 3966 |
+
+列说明:"走 async 的请求"= serve.log 中 `async=True` 的请求 ÷ 命中外部缓存的请求;"选到的 N"= async 请求选到的层数及请求数。
+
+- map 按在途请求数(`len(self._req_states)`)选规则,32k 只有 c4 / c8,正好在 0-3 / 4-6 / ≥7 的分界附近;在途数又随配置变化,同一格里 A 只有 25% 的请求走 async,C 有 68%。所以 32k 上"B 比 A 好"的证据(最明显的是 h98 c4,0.73 倍)不干净。
+- 当前推荐:prio + map B(整体 −22.2%,29 / 36 格优于 sync,hit 98 不再输给 sync,最差 +19%)。prio 与 raise 在本轮分不出高下(B 下整体 −22.2% / −21.9%);选 prio 是因为它有 §7 S1 / S2 与输出正确性记录、逻辑更简单、最差格更小。
+
+**32k 并发上不去**(代码事实):`KVFlow.get()` 提交时为每层 `chunk_pool.allocate()`,`get_wait(wait=True)` 时才 `release()`(`iaxl/kvflow/flow.py`),H2D 早已完成也不还。32k 一个请求每 rank 80 层 × 2000 块 × 8 KiB ≈ 1.22 GiB,c8 ≈ 9.8 GiB(10-20 实测峰值 8.86 GiB / rank,0.5 s 采样),c16 ≈ 19.5 GiB,超过 16 GiB 时 `ScratchPool.allocate()` 抛异常。scratch 开到 24 / 32 GiB 的 3 个 server 中有 2 个与整机一起卡住(推断与 (scratch + DDR) × 8 ≈ 416 GB 的内存压力有关,未验证)。见 §10。
+
+**下一轮**(脚本默认值已改,未跑):只跑 prio 与 sync,32k,hit 95 / 98 / 100,c4 / c8,每格重复 2 次(同一 seed);层数设置为 map B 加 `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0` 下固定 N = 4 / 8 / 16 / 32 / 48 / 64 / −1(标签 `_N4` … `_Nall`),共 9 个 server × 12 格 = 108 格。目的:请求全部走 async 时单独比较 N,并看 map 的"0-3 走 sync"在 32k 下是否有利。
+
+### 11.13 72B hit 98 诊断(10-20)
+
+配置:8k,hit 98 / 100,c16,map `0-3:0,4-6:4,7-:8`,`TRACE=1`(OMP-Main trace + event log),prio / raise / batch / sync 各 2 格。结果 `_data/perf-qwen72b/hit98diag_20261020_030016/`。
+
+| 方案 | hit 98 平均 TTFT ms | hit 100 平均 TTFT ms |
+|---|---|---|
+| prio | 2033 | 1035 |
+| raise | 1918 | 609 |
+| batch | 1784 | 684 |
+| sync | 1554 | 1157 |
+
+实测:
+
+- 变慢全部在 store 步(请求 2% 的新 token,即 160 token / 10 块,算完要存回 DDR 的那一步)。sync 下加载同样请求数的一步,hit 98 / hit 100 耗时:1 个请求 198 / 137 ms,4 个 557 / 380 ms,10 个 1234 / 883 ms,约多 35 + 32 × 请求数 ms。
+- 加载没有变慢:sync 下 OMP 解压每请求每层 ~1.0–1.1 ms,hit 98 与 hit 100 相同;hit 98 的 10 请求步里,OMP 解压完第 L 层的时刻比前向到达第 L 层早 88 ms(第 0 层)到 447 ms(第 79 层),前向不是在等解压。
+- put 本身的开销可以忽略:同一层相邻两个请求的 put(以 zip 任务入队时刻计)只隔 ~0.03 ms。put 首个 tensor 调用 `xfer_wait_cur_stream(sync_cur_stream=True)`,即 `cudaStreamSynchronize(cur_stream)`,阻塞时长等于 GPU 上剩余的工作量,是否构成每层的主要耗时未测。
+- prio 的 10 请求激活步:已预加载的第 0–7 层每层 ~14 ms(普通 decode 每层 ~0.65 ms);第 7 → 8 层(第一个尾层)停了 572 ms,期间 OMP-Main 86% 忙于这些请求尾层的 P0 解压,即尾层在激活前没预取完;之后每层 ~14 ms。sync 处理同样 10 个请求一步 1.23 s,prio 1.6–1.7 s。
+
+未定:store 步每层 ~14 ms 花在哪(前向计算、stream 同步、CPU 争用)。connector 已加 `wait_for_layer_load` / `save_kv_layer` 的累计耗时(仅 event log 开启时,`step_end wait_ms=… save_ms=…`),尚未跑(§10)。
