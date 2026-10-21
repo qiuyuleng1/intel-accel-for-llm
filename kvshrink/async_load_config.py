@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class AsyncLoadScheme(str, enum.Enum):
-    """Async KV-load submission scheme (doc/design/async-load-priority.zh-CN.md §4.0)."""
+    """How async KV loads are submitted to and ordered in the load queue."""
 
     # Each async request submits all layers with its own get() call.
     NAIVE = "naive"
@@ -31,6 +31,11 @@ class AsyncLoadScheme(str, enum.Enum):
     PRIORITY_3LEVEL_FIRST_N_BATCH_REQS = "priority_3level_first_n_batch_reqs"
     # Same, one get() per request.
     PRIORITY_3LEVEL_FIRST_N_PER_REQ = "priority_3level_first_n_per_req"
+    # Same as PRIORITY_3LEVEL_FIRST_N_PER_REQ, but the remaining layers are raised to
+    # P0 when the request is promoted instead of when a forward first waits on it.
+    PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE = (
+        "priority_3level_first_n_per_req_promote_raise"
+    )
     # Split submission with two fixed priorities; each level FIFO.
     SPLIT_PRIORITY_2LEVEL = "split_priority_2level"
 
@@ -42,6 +47,7 @@ IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset(
         AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_BATCH_REQS,
         AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
         AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
+        AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE,
     }
 )
 

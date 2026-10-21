@@ -45,6 +45,11 @@ from .async_load_config import (
 
 setup_root_logger(show_pid_tid=False)
 logger = logging.getLogger(__name__)
+# KVSHRINK_ASYNC_LOAD_EVENT_LOG=1 prints the async_load submit / promote /
+# activate lines (logged at DEBUG) for queue profiling, without IAXL_DEBUG,
+# which also turns on extra kvflow work.
+if os.environ.get("KVSHRINK_ASYNC_LOAD_EVENT_LOG", "0") == "1":
+    logger.setLevel(logging.DEBUG)
 
 ReqId = str
 
@@ -250,6 +255,11 @@ class KVShrinkConnector(KVConnectorBase_V1):
         self._next_load_group = 1
         # Worker-side step counter for the async_load submit/promote logs.
         self._load_step = 0
+        # KVSHRINK_ASYNC_LOAD_EVENT_LOG=1 only: forward-thread time of the current
+        # step spent in wait_for_layer_load() and save_kv_layer(), logged at step_end.
+        self._event_log = logger.isEnabledFor(logging.DEBUG)
+        self._step_wait_ns = 0
+        self._step_save_ns = 0
 
         self._async_load_layer_config = load_async_load_layer_config_from_env(
             num_layers=self.num_layers,
@@ -257,7 +267,10 @@ class KVShrinkConnector(KVConnectorBase_V1):
         self._async_load_scheme = load_async_load_scheme_from_env()
         if (
             self._async_load_scheme
-            is AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ
+            in (
+                AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
+                AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE,
+            )
             and iaxl_envs.IAXL_RDMA_ENABLE
         ):
             # Known issue: the remote store has no OMP-Main priority queue.
@@ -551,6 +564,14 @@ class KVShrinkConnector(KVConnectorBase_V1):
         if not isinstance(metadata, KVShrinkConnectorMetadata):
             raise TypeError("Unexpected connector metadata")
         self._load_step += 1
+        logger.debug(
+            "async_load step=%d t=%d step_start reqs=%d",
+            self._load_step,
+            time.monotonic_ns(),
+            len(metadata.scheduled_req_ids),
+        )
+        self._step_wait_ns = 0
+        self._step_save_ns = 0
 
         sync_block_ids: list[int] = []
         sync_block_hashes: list[str] = []
@@ -585,9 +606,9 @@ class KVShrinkConnector(KVConnectorBase_V1):
             AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
         ):
             self._submit_split_loads(async_reqs)
-        elif (
-            self._async_load_scheme
-            is AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ
+        elif self._async_load_scheme in (
+            AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
+            AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE,
         ):
             self._submit_priority_loads(async_reqs)
         elif self._async_load_scheme is AsyncLoadScheme.NAIVE:
@@ -651,7 +672,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 if group is not None:
                     self._store().set_group_priority(group, LOAD_PRIORITY_P0)
             if scheduled or self._early_promoted_tasks:
-                logger.info(
+                logger.debug(
                     "async_load step=%d t=%d activate reqs=%s held=%s",
                     self._load_step,
                     time.monotonic_ns(),
@@ -662,6 +683,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
     def wait_for_layer_load(self, layer_name: str) -> None:
         if not self._current_get_tasks and not self._active_promoted_tasks:
             return
+        start_ns = time.monotonic_ns() if self._event_log else 0
 
         # Wait for the synchronous (batched) loads for this layer.
         if self._current_get_tasks:
@@ -686,6 +708,8 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 raise RuntimeError(
                     f"Failed to load promoted KV cache for layer {layer_name}"
                 )
+        if self._event_log:
+            self._step_wait_ns += time.monotonic_ns() - start_ns
 
         if layer_name == self._last_layer_name:
             self._current_get_tasks = None
@@ -705,6 +729,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
         if not isinstance(metadata, KVShrinkConnectorMetadata):
             raise TypeError("Unexpected connector metadata")
 
+        start_ns = time.monotonic_ns() if self._event_log else 0
         for req_id, request in metadata.reqs_to_save.requests.items():
             if not request.block_ids:
                 continue
@@ -714,6 +739,8 @@ class KVShrinkConnector(KVConnectorBase_V1):
                 layer_names=[layer_name],
             )
             self._current_put_tasks.setdefault(req_id, []).append(tasks)
+        if self._event_log:
+            self._step_save_ns += time.monotonic_ns() - start_ns
 
     def wait_for_save(self) -> None:
         return
@@ -721,6 +748,13 @@ class KVShrinkConnector(KVConnectorBase_V1):
     def get_finished(
         self, finished_req_ids: set[str]
     ) -> tuple[Optional[set[str]], Optional[set[str]]]:
+        logger.debug(
+            "async_load step=%d t=%d step_end wait_ms=%.1f save_ms=%.1f",
+            self._load_step,
+            time.monotonic_ns(),
+            self._step_wait_ns / 1e6,
+            self._step_save_ns / 1e6,
+        )
         # Poll asynchronous load tasks submitted in start_load_kv().
         finished_recving: set[str] = set()
         for req_id in list(self._pending_load_tasks.keys()):
@@ -747,13 +781,23 @@ class KVShrinkConnector(KVConnectorBase_V1):
                     del self._pending_load_layers[req_id]
                     self._early_promoted_tasks[req_id] = tasks
                     finished_recving.add(req_id)
+                    # A promoted request reaches a forward one or two steps later;
+                    # raising its remaining layers now lets them load during those
+                    # steps instead of stalling that forward.
+                    if (
+                        self._async_load_scheme
+                        is AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE
+                    ):
+                        group = self._load_groups.pop(req_id, None)
+                        if group is not None:
+                            self._store().set_group_priority(group, LOAD_PRIORITY_P0)
                     # Only split requests that still have remaining layers to
                     # submit are in _remaining_load_meta.
                     if req_id in self._remaining_load_meta:
                         self._pending_remaining_load_req_ids.append(req_id)
 
         if finished_recving:
-            logger.info(
+            logger.debug(
                 "async_load step=%d t=%d promote reqs=%s",
                 self._load_step,
                 time.monotonic_ns(),
@@ -877,10 +921,11 @@ class KVShrinkConnector(KVConnectorBase_V1):
     def _submit_priority_loads(
         self, async_reqs: list[tuple[ReqId, ReqMeta]]
     ) -> None:
-        # priority_3level_first_n_per_req: one get() per request over all layers, in
+        # priority_3level_first_n_per_req*: one get() per request over all layers, in
         # arrival order. First N layers at P1 so they overtake every waiting tail;
         # the remaining layers at P2, prefetched while the queue is otherwise idle
-        # and raised to P0 by group when a forward first waits on the request.
+        # and raised to P0 by group when a forward first waits on the request
+        # (_promote_raise: when the request is promoted).
         num_layers = len(self._layer_names)
         for req_id, request in async_reqs:
             if request.async_load_layers == -1:
@@ -948,7 +993,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
         self, kind: str, req_ids: list[ReqId], first_layer: int, end_layer: int
     ) -> None:
         # One line per get() call; t uses the same clock as the TaskQueue trace.
-        logger.info(
+        logger.debug(
             "async_load step=%d t=%d submit kind=%s reqs=%s layers=%d-%d",
             self._load_step,
             time.monotonic_ns(),
