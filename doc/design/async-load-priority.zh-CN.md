@@ -683,6 +683,8 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 | async 配置 | `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0`,`..._LAYERS=4` | 固定 N=4,保证单请求也走 async |
 | v0.29 容器(§11.8 起) | `iaxl.vllm.qiuyu-v29`,镜像 `vllm-iaxl-dev-qiuyu-v29`(base `vllm/vllm-openai:v0.29.0`),vllm 0.29.0 / torch 2.13.0+cu130 | v0.23 的容器和镜像保留不动;由 `tests/async_load_dev/build-v29-container.sh` 构建 |
 | 测试脚本 | `tests/async_load_dev/`:`restart-vllm.sh`、`run-queue-and-correctness.sh`、`v29-pipeline.sh`、`gsm8k-split.sh`(`SCHEME=` 选方案,结果 `_data/gsm8k/<方案>/`)、`perf-qwen72b-bench.sh` / `perf-qwen72b-serve.sh`(72B TP=8) | dev 辅助脚本;日志在 `_data/queue-test/logs/` |
+| 分析脚本 | `tests/async_load_dev/analysis/`:§11.11–11.13 用到的临时分析脚本,未按仓库规范整理 | 在仓库根目录运行 |
+| 测试结果副本 | `tests/async_load_dev/results/`:本文引用的 `_data/<路径>` 都以相同相对路径、相同时间戳文件名复制在此;不含 `<label>.serve.log`(换成截到 "Application startup complete" 的 `<label>.serve.startup.log`,即服务配置)和 `*.trace.json.gz` | `_data/` 本机被 `.git/info/exclude` 排除 |
 
 ### 11.3 §7 队列顺序验证:`naive`
 
