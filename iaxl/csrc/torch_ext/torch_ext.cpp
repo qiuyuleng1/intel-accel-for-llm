@@ -550,6 +550,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
                 d["p0_enter_ns"] = e.p0_enter_ns;
                 d["start_ns"] = e.start_ns;
                 d["end_ns"] = e.end_ns;
+                d["release_ns"] = e.release_ns;
                 py::list depth;
                 for (uint32_t n : e.depth)
                     depth.append(n);
@@ -567,9 +568,10 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
         "Each event: label ('<kind>|<description>|<tensor_key>' for OMP-Main zip tasks),\n"
         "priority (level the task ran from, 0..3; 0 = HIGH, 3 = LOW), submit_priority\n"
         "(level passed at submit), group (0 = none), seq (submit order),\n"
-        "enqueue_ns/p0_enter_ns/start_ns/end_ns (steady_clock ns, same clock as\n"
+        "enqueue_ns/p0_enter_ns/start_ns/end_ns/release_ns (steady_clock ns, same clock as\n"
         "time.monotonic_ns(); p0_enter_ns is 0 unless set_group_priority moved the task\n"
-        "into level 0), depth (tasks already waiting in levels 0..3 at submit).\n"
+        "into level 0; release_ns is when the task's callable and its captures were\n"
+        "destroyed), depth (tasks already waiting in levels 0..3 at submit).\n"
         "dropped counts events lost to the buffer cap.",
         py::arg("queue") = "OMP-Main");
 

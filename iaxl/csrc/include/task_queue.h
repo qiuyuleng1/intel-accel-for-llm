@@ -32,6 +32,7 @@ struct TaskTraceEvent {
     int64_t p0_enter_ns;         // set_group_priority() moved the task into P0; 0 if never
     int64_t start_ns;            // worker began running the task
     int64_t end_ns;              // task returned (or threw)
+    int64_t release_ns;          // the task's callable and what it captured were destroyed
     std::array<uint32_t, 4> depth; // tasks already waiting in P0..P3 when this task was submitted
 };
 
@@ -228,7 +229,7 @@ class TaskQueue {
             .count();
     }
 
-    void record_trace(Item &item, int64_t start_ns, int64_t end_ns) {
+    void record_trace(Item &item, int64_t start_ns, int64_t end_ns, int64_t release_ns) {
         std::lock_guard<std::mutex> lock(trace_mutex_);
         if (trace_events_.size() >= TRACE_CAPACITY) {
             trace_dropped_.fetch_add(1, std::memory_order_relaxed);
@@ -237,6 +238,7 @@ class TaskQueue {
         trace_events_.push_back(TaskTraceEvent{std::move(item.label), item.priority,
                                                item.submit_priority, item.group, item.seq,
                                                item.enqueue_ns, item.p0_enter_ns, start_ns, end_ns,
+                                               release_ns,
                                                item.depth});
     }
 
@@ -267,7 +269,11 @@ class TaskQueue {
             }
             const int64_t start_ns = now_ns();
             item.fn();
-            record_trace(item, start_ns, now_ns());
+            const int64_t end_ns = now_ns();
+            // Destroy the callable here (otherwise done when `item` goes out of scope)
+            // so the trace shows how long releasing what the task captured takes.
+            item.fn = nullptr;
+            record_trace(item, start_ns, end_ns, now_ns());
         }
     }
 
