@@ -1,12 +1,16 @@
 #!/bin/bash
-# GSM8K accuracy, split_async_load_submit_first_n_batch_reqs, run twice on one server (dev helper).
+# GSM8K accuracy of async-load scheme $SCHEME (default
+# split_async_load_submit_first_n_batch_reqs), run twice on one server (dev helper).
 # vLLM: container $C (v0.29), Qwen3-32B, TP=2 on GPU4,5, async-load settings from
 # setvars.sh (DYNAMIC=1, map 0-3:0,4-6:4,7-:8). DDR is NOT evicted between runs,
-# so run2 mostly hits the KV saved by run1 and exercises the split load path.
+# so run2 mostly hits the KV saved by run1 and exercises the async load path.
+# KVSHRINK_ASYNC_LOAD_EVENT_LOG=1 logs every load submit / promote, as evidence of
+# the path taken.
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 C=${C:-iaxl.vllm.qiuyu-v29}
 GSM8K_DIR=/home/pese/qiuyu/Al-dsv4/KVCacheClip/internal/daocloud/test/accuracy-gsm8k
-OUT=${OUT:-$REPO/_data/gsm8k-split}
+SCHEME=${SCHEME:-split_async_load_submit_first_n_batch_reqs}
+OUT=${OUT:-$REPO/_data/gsm8k/$SCHEME}
 MODEL=/home/pese/model-space/Qwen3-32B
 cd "$REPO"
 
@@ -24,7 +28,7 @@ for i in $(seq 1 60); do
 done
 
 docker exec $C bash -c "mkdir -p $OUT && chown $(id -u):$(id -g) $OUT"
-docker exec -w "$REPO" -d $C bash -c "export CUDA_VISIBLE_DEVICES=4,5 TP_SIZE=2 VLLM_CPU_OMP_THREADS_BIND='64-95|96-127' PORT=8010 IAXL_API_CONTROLLER_PORT=18710 IAXL_API_WORKER_BASE_PORT=18810 KVSHRINK_ASYNC_LOAD_SCHEME=split_async_load_submit_first_n_batch_reqs; exec ./examples/kvshrink-vllm-serve.sh > /dev/null 2>&1"
+docker exec -w "$REPO" -d $C bash -c "export MODEL=$MODEL CUDA_VISIBLE_DEVICES=4,5 TP_SIZE=2 VLLM_CPU_OMP_THREADS_BIND='64-95|96-127' PORT=8010 IAXL_API_CONTROLLER_PORT=18710 IAXL_API_WORKER_BASE_PORT=18810 KVSHRINK_ASYNC_LOAD_SCHEME=$SCHEME KVSHRINK_ASYNC_LOAD_EVENT_LOG=1; exec ./examples/kvshrink-vllm-serve.sh > /dev/null 2>&1"
 for i in $(seq 1 120); do curl -sf http://localhost:8010/health > /dev/null && break; sleep 5; done
 curl -s -o /dev/null -w 'health=%{http_code}\n' http://localhost:8010/health
 grep -aE "async load scheme|KVSHRINK_VLLM_KV_ASYNC_LOAD|TP_SIZE|VLLM_CPU_OMP" log.kvshrink-vllm | sed -E 's/^.*\] //' | head -12
@@ -45,8 +49,10 @@ for RUN in run1 run2; do
     echo "lookups=$(grep -ac get_num_new_matched_tokens $OUT/$RUN.vllm.log)" \
         "ext_hit=$(grep -a get_num_new_matched_tokens $OUT/$RUN.vllm.log | grep -acv 'externally-cached tokens: 0,')" \
         "async=$(grep -a get_num_new_matched_tokens $OUT/$RUN.vllm.log | grep -ac 'async=True')" \
-        "first_n_submits=$(grep -ac 'submit kind=async reqs' $OUT/$RUN.vllm.log)" \
+        "sync_submits=$(grep -ac 'submit kind=sync reqs' $OUT/$RUN.vllm.log)" \
+        "async_submits=$(grep -ac 'submit kind=async reqs' $OUT/$RUN.vllm.log)" \
         "remaining_submits=$(grep -ac 'submit kind=async_remaining' $OUT/$RUN.vllm.log)" \
+        "promotes=$(grep -ac ' promote reqs=' $OUT/$RUN.vllm.log)" \
         "errors=$(grep -acE 'Traceback|RuntimeError|ValueError' $OUT/$RUN.vllm.log)"
 done
 # Free GPU4,5.
