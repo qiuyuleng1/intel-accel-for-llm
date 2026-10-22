@@ -160,7 +160,7 @@ for req_id, request in async_reqs:
 | `split_async_load_submit_first_n_per_req` | 同上,但头逐个请求提交:每个请求一次 `get()`,按到达顺序;尾仍组 batch 按层提交 | `batch_reqs_async_load_submit` |
 | `priority_3level_first_n_per_req` | 一次提交全部 L 层;队列加 3 级优先级(P0/P1/P2),头逐个请求提交;请求进入 forward(K3 搬入 active)时把它的尾从 P2 调到 P0。已实现(10-14,§11.10) | `batch_reqs_async_load_submit` |
 | `priority_3level_first_n_per_req_promote_raise` | 同上,但 promote 时就把尾调到 P0。已实现(§11.12) | `batch_reqs_async_load_submit` |
-| `priority_3level_first_n_per_req_remaining_by_layer` | 同 `_first_n_per_req`,但同一 step 激活的请求一次提权,尾在 P0 里按层排。10-22 设计,未实现(§4.3 末尾) | `batch_reqs_async_load_submit` |
+| `priority_3level_first_n_per_req_remaining_by_layer` | 同 `_first_n_per_req`,但同一 step 激活的请求与本 step 的 sync 批一次提权,在 P0 里按层排。10-22 设计,未实现(§4.3 末尾) | `batch_reqs_async_load_submit` |
 | `priority_3level_first_n_batch_reqs_remaining_by_layer` | 同上,但同一 step 的头组 batch 按层分段提交。10-22 设计,未实现 | `batch_reqs_async_load_submit` |
 | `split_priority_2level` | 按 `split_async_load_submit` 分两次提交;队列加 2 级固定优先级(P0/P1):头用 P1,尾和 sync 用 P0,P0 内先进先出 | `batch_reqs_async_load_submit` |
 
@@ -247,26 +247,44 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
   - 远程存储(`IAXL_RDMA_ENABLE`,`KVStoreRemote`)没有 OMP-Main 优先级队列:选 `priority_3level_*` 且开远程存储时启动直接报错,以后再处理。
   - 请求在进入 forward 前结束(abort)时,它的尾一直留在 P2,排在所有 P1 后面;结束清理要等这些尾做完,期间该请求的 GPU block 不释放。`naive` / `batch` 下尾是 HIGH,没有这个问题。
 
-**2026-10-22 讨论:尾在 P0 里要按层排(未实现)**
+**2026-10-22 讨论:本次 forward 的 P0 任务(激活请求的尾 + sync 批)按层排(未实现)**
+
+只新增两个方案,都在请求进入 forward 时提权;不做 promote 时提权的按层版本(它会让 P0 跨 step 残留,见下方 sync 批一条的实测)。
 
 - **问题**(代码事实 + 实测):`set_group_priority` 一次提一个组,被提的任务按原顺序追加到 P0 末尾。同一次 forward 激活 A、B 时 P0 是 `[A 的尾][B 的尾]`,forward 算第 k 层要等 B_k,而 B_k 排在 A 的全部尾后面,即已知问题 K1 第 2 点在 P0 里重现。尾在请求激活后等同 sync(forward 逐层等它),所以必须按层排。实测:§11.13 prio 的 10 请求激活步在第一个尾层停了 572 ms,期间 OMP-Main 86% 忙于 P0 解压。
 - **只在提交时按层交错不够**:prio 的尾在请求到达时就以 P2 提交,同一次 forward 激活的请求多半在不同 step 到达,提交时凑不到一起;forward 等的是 P0 里的顺序,它在提权时决定,逐组提权会重新变成按请求排。
 - **做法(做法 A)**:
   1. 队列任务带层号(排序键,无层号为 −1),由 `get()` 透传,层号取该层在全部层中的位置。
-  2. 新增一次提权多个组:持锁把这些组仍在 P1 / P2 排队的任务取出,按(层号,组在参数列表中的先后)稳定排序,追加到 P0 末尾,记 `p0_enter_ns`;正在执行或已完成的任务不动。
-  3. connector 在 K3 激活循环里收集本 step 激活的全部组,循环后调用一次,替代逐请求提权。
+  2. 新增一次提权多个组:持锁把这些组仍在 P0 / P1 / P2 排队(未开始执行)的任务取出,按(层号,组在参数列表中的先后)稳定排序,追加到 P0 末尾,记 `p0_enter_ns`;正在执行或已完成的任务不动。取 P0 里的任务是为了把本 step 的 sync 批一起重排(见下方 sync 批一条)。
+  3. connector 在 K3 激活循环里收集本 step 激活的全部组,加上本 step sync 批的组(放在最前),循环后调用一次,替代逐请求提权;本 step 没有激活请求时不调用(sync 批本身已按层)。
 
   P2 预取保留(§11.10:960 个尾任务中 566 个在提权前已预取完)。P0 在不同批之间仍先进先出,只在同一次提权内部按层排。与 10-14 的关系:"先进 P0 的任务不被后到的插队"不变(10-14 设想的场景——上一个 forward 的尾还在 P0 时来了新的 sync 请求——在 prio 下不会出现,见下方 sync 批一条);"`Item` 不加层号、`get()` 不透传层号、不需要按层排序的单测"这几条对新方案作废。当时只考虑了不同 forward 之间的先后,漏了同一次 forward 激活多个请求时 P0 内的顺序。
 - **不采用**:
   - 尾也跨请求共用任务(原 `_first_n_batch_reqs` 设想):一个尾任务属于多个请求,组号映射要改成一对多,且 A 激活会把同段 B 的尾也提进 P0(这正是 10-14 把提权从 promote 改到进入 forward 时要避免的)。
   - 尾推迟到激活时才按层提交(split 式):丢掉 P2 预取。
-- **头**:两种都实现、实测后取舍。逐请求:先到的请求最早凑齐 N 层、最早 promote;同 step 合并:按 `_first_n_layer_segments()` 分段(各请求 N 不同时不出现混合任务),同 step 的请求同时 promote,任务数少(任务 release 占 OMP-Main 忙碌时间 18–21%,见 [task-release-overhead.zh-CN.md](task-release-overhead.zh-CN.md))。两种都把头、尾分成两次 `get()`;请求的 Task dict = 头任务(可能共用)+ 自己的尾任务,合并方式同 split。
+- **头**:两种都实现、实测后取舍。逐请求:先到的请求最早凑齐 N 层、最早 promote;同 step 合并:按 `_first_n_layer_segments()` 分段(各请求 N 不同时不出现混合任务),同 step 的请求同时 promote,任务数少(任务 release 占 OMP-Main 忙碌时间 18–21%,见 [task-release-overhead.zh-CN.md](task-release-overhead.zh-CN.md))。提交方式:头逐请求的变种沿用现在 prio 的提交(每个请求一次 `get()`,前 N 层 P1、其余 P2,一个组号),只改提权;头合并的变种把头、尾分开提交——头按段合并 `get()`(P1),尾每个请求一次 `get()`(P2,带组号),请求的 Task dict = 头任务(可能共用)+ 自己的尾任务,合并方式同 split。
 - **尾的任务粒度**:一个任务 = (一个请求, 一层),请求间不合并成一个任务。请求到达时一次 `get()` 以 P2 提交它的第 N..L−1 层,一层一个任务,带该请求的组号(与现在的 prio 相同)。请求间的按层顺序在激活时由多组提权排出:同一 step 激活 A、B、C 时 P0 为 `A_N B_N C_N A_{N+1} B_{N+1} C_{N+1} …`。尾不在到达时就跨请求按层提交,是因为同一次 forward 激活的请求多半在不同 step 到达。
-- **名字**:`priority_3level_first_n_per_req_remaining_by_layer`(头逐请求)、`priority_3level_first_n_batch_reqs_remaining_by_layer`(头合并)。预留未实现的 `priority_3level_first_n_batch_reqs` 从枚举中删除。
-- **sync 批要不要一起按层排**:`start_load_kv()` 先以 P0 提交本 step 的 sync 批(一层一个任务,覆盖所有 sync 请求),再提交 async,最后在 K3 循环里提权,所以 P0 是 `[sync 批未执行的部分][提上来的尾]`,forward 第 k 层同样要等 S_k。step 开始时 P0 是否为空:
+- **名字**:`priority_3level_first_n_per_req_remaining_by_layer`(头逐请求)、`priority_3level_first_n_batch_reqs_remaining_by_layer`(头合并)。名字只提到尾,但两个方案都把同 forward 的 sync 批一起按层排(10-22 定,名字不改)。预留未实现的 `priority_3level_first_n_batch_reqs` 从枚举中删除。
+- **sync 批一起按层排(10-22 定,两个新方案内置,不单列方案、不加开关)**:`start_load_kv()` 先以 P0 提交本 step 的 sync 批(一层一个任务,覆盖所有 sync 请求),再提交 async,最后在 K3 循环里提权,所以 P0 是 `[sync 批未执行的部分][提上来的尾]`,forward 第一个尾层要等 sync 批剩下的全部层,即 sync 与尾之间的 K1 第 2 点:
+
+  | 排法 | 提权后 P0 的顺序 | forward 第 N 层(第一个尾层)要等 |
+  |---|---|---|
+  | 现在的 prio | `S_0…S_79 │ A_N…A_79 │ B_N…B_79` | S 剩下的全部层 + A 的全部尾 + B_N |
+  | 只排尾 | `S_0…S_79 │ A_N B_N A_{N+1} B_{N+1} …` | S 剩下的全部层 + A_N + B_N |
+  | 尾与 sync 一起按层(采用) | `S_0…S_{N−1} │ S_N A_N B_N │ S_{N+1} A_{N+1} B_{N+1} …` | S_N + A_N + B_N |
+
+  列说明:`S` 为本 step 的 sync 批,`A`、`B` 为本次 forward 激活的 async 请求,`X_k` 为其第 k 层的解压任务,N 为头层数,共 80 层;`│` 只为分组显示。"要等"指 forward 算第 N 层前 OMP-Main 必须先做完的任务。
+
+  为什么按层对本次 forward 最优(推理):前提 (a) P0 由单个 OMP-Main 串行执行,(b) 提权时 P0 里的任务都属于本次 forward(见下方代码与实测)。forward 开始第 k 层的最早时刻不早于"第 0..k 层全部任务做完",按层排时这批任务对每个 k 都是队列前缀,每层都达到这个下界;sync 请求与 A、B 同在一个 forward,第 k 层本来就要等齐三方,没有损失。
+
+  实现:sync 批提交时也带组号(仍为 P0),多组提权时把它仍在 P0 排队的任务一起取出重排。不采用的替代:把 sync 提交挪到提权之后(FIFO 下 sync 排到尾后面,同样不对);先以低级别提交再一起提权(两步之间 OMP-Main 可能先取 P1)。不加"关掉 sync 合并"的实验开关,性能只在四个 priority 方案之间比较。
+
+  出现频率:`use_async = num_new_tokens > 0 and selected_layers != 0`,固定 N 时没有 sync 请求,只有动态 map 含 0 档时才有(如 map B 在途 ≤ 3)。实测 `hit98diag_20261020_030016` prio rank 0(8k c16,map `0-3:0,4-6:4,7-:8`):有 sync 批的 step 7 个,有激活的 step 71 个,两者同 step 0 个。10-21 的 32k 扫描未开事件日志,无法统计;新方案的性能测试开事件日志统计。
+
+  step 开始时 P0 是否为空(前提 b 的依据):
   - 代码:prio 下进入 P0 的只有 (1) 本 step 的 sync 批(`KVFlow.get()` 不传 `priorities` 时各层都是 0;prio 的 async `get()` 只用 P1 / P2;压缩与解压重试在 P3),(2) K3 激活循环里的 `set_group_priority(…, P0)`,对象是本次 forward 调度的请求。forward 的 `wait_for_layer_load()` 对 sync 批和每个激活请求逐层 `get_wait(wait=True)`,解压任务完成才返回;所以只要该 forward 对每层都调用了 `wait_for_layer_load()`,本 step 进入 P0 的任务在 forward 结束时都已执行完。promote_raise 在 `get_finished()` promote 时就提权,已 promote 但未被调度的请求的尾会跨 step 留在 P0。
   - 实测(`hit98diag_20261020_030016`,8k c16,map `0-3:0,4-6:4,7-:8`,rank 0 / 3 / 7;脚本 `tests/async_load_dev/analysis/p0_at_step_start.py`,统计每个 `step_start` 时刻已进 P0 但未开始执行的解压任务):prio 在 hit 98 / 100 的 802 / 806 个 step 开始时 P0 都是空的;promote_raise 在 hit 98 有 19–20 个、hit 100 有 76–83 个 step 开始时 P0 非空,最多 571 个任务。
-  - 所以对两个新方案,把 sync 批一起按层排就是"本次 forward 要等的全部 P0 任务按层排"。实现只多一点:sync 批提交时也带组号和层号,多组提权时把已在 P0 的该组任务一起取出重排。作为新方案的默认行为、实验开关还是第五个方案,实验后定。
+  - 所以对两个新方案,把 sync 批一起按层排就是"本次 forward 要等的全部 P0 任务按层排"。
 - **实现规模(估计)**:`task_queue.h` 约 60–80 行(现有 `set_group_priority` 的扩展);`zip.cpp` / `torch_ext.cpp` / `flow.py` / `kvstore.py` 透传层号与多组提权接口;connector 约 20–40 行(头合并的变种另加分段,复用 split 代码);单测约 6 项 + TSan;§7 判定脚本认识新的 P0 顺序。
 - **预期(推断)**:实现正确的把握约 85%;实测有提升的把握约 60%——hit 95 / 98 下同一 step 激活多个请求时,第一个尾层的停顿可从数百 ms 降到约(请求数 × 1 ms),省下的是 GPU 空闲时间;hit 100 时加载是瓶颈,两种顺序结束时间接近。同一 step 激活多个请求在 32k c4 / c8 下有多常见,尚未统计。
 
@@ -660,8 +678,8 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] `priority_3level_first_n_per_req`:按 §4.3 末尾 / §8.4 实现(按组提权,请求进入 forward 时提权,`Context` 不改);单测 + TSan 通过;§7 S1、S2 均 PASS,输出正确性通过(§11.10)
 - [ ] 删除预留未实现的 `priority_3level_first_n_batch_reqs` 枚举值(10-22 决定,尾不跨请求共用任务,§4.3 末尾)
 - [ ] `TaskQueue`:任务带层号 + 一次提权多个组并按层排序;`get()` 透传层号;单测 + TSan(§4.3 末尾)
-- [ ] 新方案 `priority_3level_first_n_per_req_remaining_by_layer`、`priority_3level_first_n_batch_reqs_remaining_by_layer`:实现、§7 S1 / S2、输出正确性、GSM8K、32k 性能;sync 批是否一起按层排、最终保留几个 priority 方案,实验后定
-- [ ] 统计 32k c4 / c8 下同一 step 激活多个请求的频率(决定按层提权的收益上限)
+- [ ] 新方案 `priority_3level_first_n_per_req_remaining_by_layer`、`priority_3level_first_n_batch_reqs_remaining_by_layer`(含 sync 批一起按层排):实现、§7 S1 / S2、输出正确性、GSM8K、32k 性能(四个 priority 方案之间比较,开事件日志)
+- [ ] 统计 32k c4 / c8 下同一 step 激活多个请求、以及 sync 与激活同 step 的频率(决定按层提权的收益上限)
 - [ ] 已知问题:`priority_3level_*` 不支持远程存储(`IAXL_RDMA_ENABLE`),目前启动报错,以后处理
 - [ ] 分析:`v29p3-priority-s1` 中两次新请求的头等了 58 / 61 ms(§11.10),原因未查
 - [x] 性能测试:72B 脚本(`perf-qwen72b-bench.sh`)适配 dev 分支与新方案、TP=8 用 GPU0-7;支持动态 map、固定层数(`DYNAMIC=0`)和每格重复次数(§11.12)
@@ -693,7 +711,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - 2026-10-20:72B(TP=8)hit 98 诊断:变慢全部在 store 步,原因未定(§11.13);72B 全矩阵 360 格(prio / raise / batch × 3 个 map + sync,8k / 16k / 32k),无失败(§11.12)。
 - 2026-10-21:prio、raise、batch 的 GSM8K 各 2 次,0.945–0.955,与 split 同水平(§11.11);72B 脚本加固定层数与重复次数,下一轮做 32k 固定层数扫描(§11.12)。
 - 2026-10-21 / 22:32k 固定层数扫描 108 格无失败:N ≤ 8 比 sync 慢,N ≥ 32 的 TTFT 提升在 hit 100 是真实吞吐提升,在 hit 95 / 98 只是 TTFT 与 TPOT 的再分配(§11.14)。
-- 2026-10-22:prio 逐组提权使尾在 P0 里按请求排(K1 第 2 点重现);定下做法 A(任务带层号 + 多组按层提权)、两个新方案名,删除预留的 `priority_3level_first_n_batch_reqs`;按代码与 trace 确认 prio 在 step 开始时 P0 为空(§4.3 末尾)。未改代码。
+- 2026-10-22:prio 逐组提权使尾在 P0 里按请求排(K1 第 2 点重现);定下做法 A(任务带层号 + 多组按层提权)、两个新方案名,删除预留的 `priority_3level_first_n_batch_reqs`;按代码与 trace 确认 prio 在 step 开始时 P0 为空(§4.3 末尾)。随后定:只新增这两个方案(都在进入 forward 时提权);同 forward 的 sync 批一起按层排,作为内置行为,不加开关;名字不改。未改代码。
 
 ### 11.1 公共基础设施
 
