@@ -260,7 +260,8 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 - **不采用**:
   - 尾也跨请求共用任务(原 `_first_n_batch_reqs` 设想):一个尾任务属于多个请求,组号映射要改成一对多,且 A 激活会把同段 B 的尾也提进 P0(这正是 10-14 把提权从 promote 改到进入 forward 时要避免的)。
   - 尾推迟到激活时才按层提交(split 式):丢掉 P2 预取。
-- **头**:两种都实现、实测后取舍。逐请求:先到的请求最早凑齐 N 层、最早 promote;同 step 合并:按 `_first_n_layer_segments()` 分段(各请求 N 不同时不出现混合任务),同 step 的请求同时 promote,任务数少(任务 release 占 OMP-Main 忙碌时间 18–21%,见 [task-release-overhead.zh-CN.md](task-release-overhead.zh-CN.md))。两种都把头、尾分成两次 `get()`;尾逐请求提交,每个请求一个组号;请求的 Task dict = 头任务(可能共用)+ 自己的尾任务,合并方式同 split。
+- **头**:两种都实现、实测后取舍。逐请求:先到的请求最早凑齐 N 层、最早 promote;同 step 合并:按 `_first_n_layer_segments()` 分段(各请求 N 不同时不出现混合任务),同 step 的请求同时 promote,任务数少(任务 release 占 OMP-Main 忙碌时间 18–21%,见 [task-release-overhead.zh-CN.md](task-release-overhead.zh-CN.md))。两种都把头、尾分成两次 `get()`;请求的 Task dict = 头任务(可能共用)+ 自己的尾任务,合并方式同 split。
+- **尾的任务粒度**:一个任务 = (一个请求, 一层),请求间不合并成一个任务。请求到达时一次 `get()` 以 P2 提交它的第 N..L−1 层,一层一个任务,带该请求的组号(与现在的 prio 相同)。请求间的按层顺序在激活时由多组提权排出:同一 step 激活 A、B、C 时 P0 为 `A_N B_N C_N A_{N+1} B_{N+1} C_{N+1} …`。尾不在到达时就跨请求按层提交,是因为同一次 forward 激活的请求多半在不同 step 到达。
 - **名字**:`priority_3level_first_n_per_req_remaining_by_layer`(头逐请求)、`priority_3level_first_n_batch_reqs_remaining_by_layer`(头合并)。预留未实现的 `priority_3level_first_n_batch_reqs` 从枚举中删除。
 - **sync 批要不要一起按层排**:`start_load_kv()` 先以 P0 提交本 step 的 sync 批(一层一个任务,覆盖所有 sync 请求),再提交 async,最后在 K3 循环里提权,所以 P0 是 `[sync 批未执行的部分][提上来的尾]`,forward 第 k 层同样要等 S_k。step 开始时 P0 是否为空:
   - 代码:prio 下进入 P0 的只有 (1) 本 step 的 sync 批(`KVFlow.get()` 不传 `priorities` 时各层都是 0;prio 的 async `get()` 只用 P1 / P2;压缩与解压重试在 P3),(2) K3 激活循环里的 `set_group_priority(…, P0)`,对象是本次 forward 调度的请求。forward 的 `wait_for_layer_load()` 对 sync 批和每个激活请求逐层 `get_wait(wait=True)`,解压任务完成才返回;所以只要该 forward 对每层都调用了 `wait_for_layer_load()`,本 step 进入 P0 的任务在 forward 结束时都已执行完。promote_raise 在 `get_finished()` promote 时就提权,已 promote 但未被调度的请求的尾会跨 step 留在 P0。
