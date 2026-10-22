@@ -352,6 +352,108 @@ static void test_concurrent_raise_and_submit() {
           "concurrent submit and set_group_priority run every task exactly once");
 }
 
+// One forward activates A (group 5) and B (group 6) while this step's sync batch S
+// (group 9) is still in P0: all their waiting tasks end up in P0 ordered by layer.
+static void test_groups_raise_by_order() {
+    TaskQueue queue("TQ-RAISE-ORD");
+    queue.init();
+    queue.set_trace_enabled(true);
+    WorkerGate gate(queue);
+    std::vector<std::future<void>> done;
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "a8", 5, 8));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "a9", 5, 9));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "b8", 6, 8));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "b9", 6, 9));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "c8", 7, 8));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "other"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "s0", 9, 0));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "s8", 9, 8));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "s9", 9, 9));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P1, "d0", 8, 0));
+    const size_t moved = queue.set_groups_priority({9, 5, 6}, TaskQueue::PRIORITY_P0);
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P0, "late"));
+    gate.release();
+    for (auto &f : done)
+        f.get();
+    CHECK(moved == 7, "set_groups_priority returns the number of appended tasks");
+    auto events = flush_and_drain(queue);
+    CHECK(run_order(events) == std::vector<std::string>({"other", "s0", "a8", "b8", "s8", "a9",
+                                                         "b9", "s9", "late", "d0", "c8"}),
+          "groups are appended to P0 by (order_key, seq), behind other P0 tasks");
+    const auto *a8 = find(events, "a8");
+    const auto *s0 = find(events, "s0");
+    const auto *other = find(events, "other");
+    const auto *c8 = find(events, "c8");
+    CHECK(a8 && s0 && a8->p0_enter_ns > 0 && s0->p0_enter_ns == a8->p0_enter_ns,
+          "moved and re-appended tasks share one p0_enter_ns");
+    CHECK(s0 && s0->priority == TaskQueue::PRIORITY_P0 &&
+              s0->submit_priority == TaskQueue::PRIORITY_P0 && s0->order_key == 0,
+          "re-appended P0 task keeps its submit priority and records order_key");
+    CHECK(other && c8 && other->p0_enter_ns == 0 && c8->p0_enter_ns == 0 &&
+              c8->priority == TaskQueue::PRIORITY_P2 && other->order_key == -1,
+          "tasks of other groups are not touched; order_key defaults to -1");
+}
+
+static void test_groups_raise_noop_cases() {
+    TaskQueue queue("TQ-RAISE-ORD-NOOP");
+    queue.init();
+    queue.set_trace_enabled(true);
+    WorkerGate gate(queue);
+    std::vector<std::future<void>> done;
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P3, "zip"));
+    done.push_back(queue.submit([]() {}, TaskQueue::PRIORITY_P2, "tail", 5, 3));
+    CHECK(queue.set_groups_priority({}, TaskQueue::PRIORITY_P0) == 0, "no groups moves nothing");
+    CHECK(queue.set_groups_priority({0, 12345}, TaskQueue::PRIORITY_P0) == 0,
+          "group 0 and unknown groups move nothing");
+    CHECK(queue.set_groups_priority({WorkerGate::kGateGroup}, TaskQueue::PRIORITY_P0) == 0,
+          "running task is not affected");
+    bool rejected = false;
+    try {
+        queue.set_groups_priority({5}, -1);
+    } catch (const std::invalid_argument &) {
+        rejected = true;
+    }
+    CHECK(rejected, "set_groups_priority rejects an invalid priority");
+    CHECK(queue.set_groups_priority({5}, TaskQueue::PRIORITY_P1) == 1, "raise to P1 moves the task");
+    gate.release();
+    for (auto &f : done)
+        f.get();
+    auto events = flush_and_drain(queue);
+    const auto *tail = find(events, "tail");
+    CHECK(tail && tail->priority == TaskQueue::PRIORITY_P1 && tail->p0_enter_ns == 0,
+          "raise to P1 does not record p0_enter_ns");
+    CHECK(run_order(events) == std::vector<std::string>({"tail", "zip"}),
+          "group-0 P3 task stays behind");
+}
+
+static void test_concurrent_groups_raise_and_submit() {
+    TaskQueue queue("TQ-RAISE-ORD-MT");
+    queue.init();
+    constexpr int kThreads = 4;
+    constexpr int kPerThread = 500;
+    std::atomic<int> ran{0};
+    std::vector<std::thread> threads;
+    for (int t = 0; t < kThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            std::vector<std::future<void>> done;
+            for (int i = 0; i < kPerThread; ++i) {
+                const uint64_t group = static_cast<uint64_t>(t * kPerThread + i) / 8 + 1;
+                const int priority = i % 2 ? TaskQueue::PRIORITY_P2 : TaskQueue::PRIORITY_P0;
+                done.push_back(queue.submit([&]() { ran.fetch_add(1); }, priority, "", group,
+                                            kPerThread - i));
+                if (i % 8 == 7)
+                    queue.set_groups_priority({group, group - 1}, TaskQueue::PRIORITY_P0);
+            }
+            for (auto &f : done)
+                f.get();
+        });
+    }
+    for (auto &th : threads)
+        th.join();
+    CHECK(ran.load() == kThreads * kPerThread,
+          "concurrent submit and set_groups_priority run every task exactly once");
+}
+
 int main() {
     test_disabled_by_default();
     test_timestamps_and_order();
@@ -364,6 +466,9 @@ int main() {
     test_raise_noop_cases();
     test_retry_stays_behind_zip();
     test_concurrent_raise_and_submit();
+    test_groups_raise_by_order();
+    test_groups_raise_noop_cases();
+    test_concurrent_groups_raise_and_submit();
 
     if (g_failures) {
         std::fprintf(stderr, "%d check(s) failed\n", g_failures);

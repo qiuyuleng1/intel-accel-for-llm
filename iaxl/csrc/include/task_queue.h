@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -27,9 +28,10 @@ struct TaskTraceEvent {
     int priority;                // level the task was taken from (TaskQueue::PRIORITY_P0..P3)
     int submit_priority;         // level passed to submit()
     uint64_t group;              // group passed to submit(); 0 = no group
+    int64_t order_key;           // order key passed to submit(); -1 = none
     uint64_t seq;                // submit order within this queue
     int64_t enqueue_ns;          // submit() pushed the task
-    int64_t p0_enter_ns;         // set_group_priority() moved the task into P0; 0 if never
+    int64_t p0_enter_ns;         // set_group(s)_priority() last appended the task to P0; 0 if never
     int64_t start_ns;            // worker began running the task
     int64_t end_ns;              // task returned (or threw)
     int64_t release_ns;          // the task's callable and what it captured were destroyed
@@ -72,14 +74,16 @@ class TaskQueue {
     }
 
     // Queue func at the tail of level `priority` (PRIORITY_P0..PRIORITY_P3).
-    // `group` tags the task for set_group_priority(); 0 means no group.
+    // `group` tags the task for set_group_priority() / set_groups_priority(); 0 means
+    // no group. `order_key` orders the task within one set_groups_priority() call
+    // (e.g. its layer index); -1 means none.
     // label is only stored when tracing is enabled; callers may pass an empty string
     // (or build it only if trace_enabled()) to avoid the formatting cost.
     // Throws std::invalid_argument if priority is out of range and std::runtime_error
     // if the queue is not running.
     template <typename F>
     std::future<void> submit(F &&func, int priority = PRIORITY_HIGH, std::string label = {},
-                             uint64_t group = 0) {
+                             uint64_t group = 0, int64_t order_key = -1) {
         check_priority(priority);
         auto task = std::make_shared<std::packaged_task<void()>>(std::forward<F>(func));
         auto future = task->get_future();
@@ -89,6 +93,7 @@ class TaskQueue {
         item.priority = priority;
         item.submit_priority = priority;
         item.group = group;
+        item.order_key = order_key;
         item.traced = trace_enabled_.load(std::memory_order_relaxed);
         if (item.traced) {
             item.label = std::move(label);
@@ -142,6 +147,45 @@ class TaskQueue {
             tasks_[level].swap(kept);
         }
         return moved;
+    }
+
+    // Take every waiting task of `groups` out of level `priority` and the less urgent
+    // levels, sort them by (order_key, seq) and append them to the tail of level
+    // `priority`. Unlike set_group_priority(), tasks of these groups already waiting
+    // in `priority` are taken out too, so they are ordered together with the moved
+    // ones; tasks of other groups keep their place. Tasks already running or finished
+    // are not affected; group 0 is ignored. Tasks appended to P0 record p0_enter_ns.
+    // Returns the number of tasks appended.
+    // Throws std::invalid_argument if priority is out of range.
+    size_t set_groups_priority(const std::vector<uint64_t> &groups, int priority) {
+        check_priority(priority);
+        std::vector<Item> selected;
+        std::lock_guard<std::mutex> lock(mutex_);
+        const int64_t moved_ns = now_ns();
+        for (int level = priority; level < NUM_PRIORITIES; ++level) {
+            std::deque<Item> kept;
+            for (Item &item : tasks_[level]) {
+                if (item.group != 0 &&
+                    std::find(groups.begin(), groups.end(), item.group) != groups.end()) {
+                    selected.push_back(std::move(item));
+                } else {
+                    kept.push_back(std::move(item));
+                }
+            }
+            tasks_[level].swap(kept);
+        }
+        std::sort(selected.begin(), selected.end(), [](const Item &a, const Item &b) {
+            if (a.order_key != b.order_key)
+                return a.order_key < b.order_key;
+            return a.seq < b.seq;
+        });
+        for (Item &item : selected) {
+            item.priority = priority;
+            if (priority == PRIORITY_P0)
+                item.p0_enter_ns = moved_ns;
+            tasks_[priority].push_back(std::move(item));
+        }
+        return selected.size();
     }
 
     // Tracing affects tasks submitted after the call; already-queued tasks keep
@@ -202,6 +246,7 @@ class TaskQueue {
         int priority = PRIORITY_HIGH;
         int submit_priority = PRIORITY_HIGH;
         uint64_t group = 0;
+        int64_t order_key = -1;
         bool traced = false;
         uint64_t seq = 0;
         int64_t enqueue_ns = 0;
@@ -236,10 +281,9 @@ class TaskQueue {
             return;
         }
         trace_events_.push_back(TaskTraceEvent{std::move(item.label), item.priority,
-                                               item.submit_priority, item.group, item.seq,
-                                               item.enqueue_ns, item.p0_enter_ns, start_ns, end_ns,
-                                               release_ns,
-                                               item.depth});
+                                               item.submit_priority, item.group, item.order_key,
+                                               item.seq, item.enqueue_ns, item.p0_enter_ns,
+                                               start_ns, end_ns, release_ns, item.depth});
     }
 
     void worker_loop() {
