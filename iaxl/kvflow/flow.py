@@ -18,7 +18,7 @@ from ..envs import envs
 from ..torch_ext import Record
 from ..torch_ext import Context, GpuTransferDirection
 from ..torch_ext import Mem, Storage
-from ..torch_ext import task_queue_set_group_priority
+from ..torch_ext import task_queue_set_group_priority, task_queue_set_groups_priority
 from .. import torch_ext as _iqt
 from ..utils import cuda_available
 from .scratch_pool import ScratchPool
@@ -289,6 +289,7 @@ class KVFlow:
         description: str = "",
         priorities: Optional[Dict[str, int]] = None,
         group: int = 0,
+        order_keys: Optional[Dict[str, int]] = None,
     ) -> Dict[str, Task]:
         """Submit one decompression task per tensor to the OMP-Main queue.
 
@@ -296,10 +297,15 @@ class KVFlow:
             priorities: OMP-Main level (0..3, 0 most urgent) per tensor key. None
                 submits every task at level 0. When given, it must contain every key
                 of ``tensors``.
-            group: group id for ``set_group_priority``; 0 means no group.
+            group: group id for ``set_group_priority`` / ``set_groups_priority``;
+                0 means no group.
+            order_keys: order of each tensor key's task within
+                ``set_groups_priority`` (KVStore passes the layer index). None
+                gives every task order key -1. When given, it must contain every
+                key of ``tensors``.
 
         Raises:
-            ValueError: ``priorities`` misses a key of ``tensors``.
+            ValueError: ``priorities`` or ``order_keys`` misses a key of ``tensors``.
         """
 
         self._ensure_streams()
@@ -328,6 +334,13 @@ class KVFlow:
                     missing.append(tensor_key)
             if missing:
                 raise ValueError(f"priorities is missing tensor keys {missing}")
+        if order_keys is not None:
+            missing = []
+            for tensor_key in tensors:
+                if tensor_key not in order_keys:
+                    missing.append(tensor_key)
+            if missing:
+                raise ValueError(f"order_keys is missing tensor keys {missing}")
 
         results = {}
         num_chunks = len(chunk_indices)
@@ -354,6 +367,7 @@ class KVFlow:
                     ctx.xfer_wait_cur_stream()
                 first_tensor = False
             priority = 0 if priorities is None else priorities[tensor_key]
+            order_key = -1 if order_keys is None else order_keys[tensor_key]
             ctx.unzip_from_mem(
                 self.mem,
                 label,
@@ -363,6 +377,7 @@ class KVFlow:
                 cpu_tensors,
                 priority=priority,
                 group=group,
+                order_key=order_key,
             )
 
             results[tensor_key] = Task(
@@ -393,6 +408,28 @@ class KVFlow:
             ValueError: ``priority`` is outside 0..3.
         """
         return task_queue_set_group_priority(group, priority)
+
+    def set_groups_priority(self, groups: List[int], priority: int) -> int:
+        """Append the waiting OMP-Main tasks of ``groups`` to level ``priority``.
+
+        Every task of ``groups`` still waiting in level ``priority`` or a less urgent
+        level is taken out, sorted by (order key, submit order) and appended to the
+        tail of ``priority``. Unlike ``set_group_priority``, tasks of these groups
+        already waiting in ``priority`` are re-appended too, so they are ordered
+        together with the moved ones. Tasks of other groups keep their place; running
+        or finished tasks and group 0 are not affected.
+
+        Args:
+            groups: group ids passed to ``get``.
+            priority: target level, 0..3 (0 most urgent).
+
+        Returns:
+            Number of tasks appended.
+
+        Raises:
+            ValueError: ``priority`` is outside 0..3.
+        """
+        return task_queue_set_groups_priority(groups, priority)
 
     @profile_func(lambda self, get_results, *_: f"(count={len(get_results)})")
     def get_wait(

@@ -64,6 +64,10 @@ class KVStoreLocal:
             self.layer_names = list(kv_caches.keys())
         else:
             self.layer_names = layer_names
+        # Order key of each layer's load task (see KVFlow.set_groups_priority).
+        self._layer_order: Dict[str, int] = {}
+        for index, name in enumerate(self.layer_names):
+            self._layer_order[name] = index
 
         self.skip_compression_count = min(
             envs.IAXL_KVSTORE_SKIP_COMPRESSION_LAYERS, len(self.layer_names)
@@ -229,7 +233,11 @@ class KVStoreLocal:
         Args:
             priorities: OMP-Main level (0..3, 0 most urgent) per layer name; None
                 submits every layer at level 0. See ``KVFlow.get``.
-            group: group id for ``set_group_priority``; 0 means no group.
+            group: group id for ``set_group_priority`` / ``set_groups_priority``;
+                0 means no group.
+
+        Each layer's task gets the layer's index in ``self.layer_names`` as its
+        order key, so ``set_groups_priority`` orders tasks by layer.
         """
 
         if self.has_only_mode:
@@ -241,6 +249,9 @@ class KVStoreLocal:
             layer_names = self.layer_names
 
         tensors = {name: self.kv_caches[name] for name in layer_names}
+        order_keys: Dict[str, int] = {}
+        for name in layer_names:
+            order_keys[name] = self._layer_order[name]
 
         return self.tensorzip.get(
             label=self.LABEL,
@@ -251,6 +262,7 @@ class KVStoreLocal:
             description=description,
             priorities=priorities,
             group=group,
+            order_keys=order_keys,
         )
 
     def set_group_priority(self, group: int, priority: int) -> int:
@@ -259,6 +271,13 @@ class KVStoreLocal:
         See ``KVFlow.set_group_priority``. Returns the number of tasks moved.
         """
         return self.tensorzip.set_group_priority(group, priority)
+
+    def set_groups_priority(self, groups: List[int], priority: int) -> int:
+        """Append the waiting load tasks of ``groups`` to level ``priority`` by layer.
+
+        See ``KVFlow.set_groups_priority``. Returns the number of tasks appended.
+        """
+        return self.tensorzip.set_groups_priority(groups, priority)
 
     def get_wait(
         self,

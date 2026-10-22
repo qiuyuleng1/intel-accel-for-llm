@@ -61,6 +61,20 @@ LOAD_PRIORITY_P0 = 0
 LOAD_PRIORITY_P1 = 1
 LOAD_PRIORITY_P2 = 2
 
+# priority_3level_* schemes.
+PRIORITY_SCHEMES = (
+    AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
+    AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE,
+    AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_REMAINING_BY_LAYER,
+    AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_BATCH_REQS_REMAINING_BY_LAYER,
+)
+# Schemes that order a forward's P0 loads (the remaining layers of the requests it
+# first waits on, plus the step's sync batch) by layer when raising them.
+RAISE_BY_LAYER_SCHEMES = (
+    AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_REMAINING_BY_LAYER,
+    AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_BATCH_REQS_REMAINING_BY_LAYER,
+)
+
 
 @dataclass
 class SplitLoadMeta:
@@ -266,11 +280,7 @@ class KVShrinkConnector(KVConnectorBase_V1):
         )
         self._async_load_scheme = load_async_load_scheme_from_env()
         if (
-            self._async_load_scheme
-            in (
-                AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
-                AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE,
-            )
+            self._async_load_scheme in PRIORITY_SCHEMES
             and iaxl_envs.IAXL_RDMA_ENABLE
         ):
             # Known issue: the remote store has no OMP-Main priority queue.
@@ -592,12 +602,20 @@ class KVShrinkConnector(KVConnectorBase_V1):
         # Submit synchronous (blocking) loads first as a single merged batch so
         # they are enqueued ahead of the asynchronous loads for this pass.
         self._current_get_tasks = None
+        raise_by_layer = self._async_load_scheme in RAISE_BY_LAYER_SCHEMES
+        # _remaining_by_layer: the sync batch gets a group so that it can be
+        # ordered by layer together with the tails raised below.
+        sync_group = 0
         if sync_block_ids:
+            if raise_by_layer:
+                sync_group = self._next_load_group
+                self._next_load_group += 1
             self._log_load_submit("sync", sync_req_ids, 0, len(self._layer_names))
             self._current_get_tasks = self._store().get(
                 block_indices=sync_block_ids,
                 block_hashs=sync_block_hashes,
                 description=",".join(sync_req_ids),
+                group=sync_group,
             )
 
         # Asynchronous loads are polled across scheduler steps in get_finished().
@@ -606,10 +624,12 @@ class KVShrinkConnector(KVConnectorBase_V1):
             AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
         ):
             self._submit_split_loads(async_reqs)
-        elif self._async_load_scheme in (
-            AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
-            AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE,
+        elif (
+            self._async_load_scheme
+            is AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_BATCH_REQS_REMAINING_BY_LAYER
         ):
+            self._submit_priority_batch_head_loads(async_reqs)
+        elif self._async_load_scheme in PRIORITY_SCHEMES:
             self._submit_priority_loads(async_reqs)
         elif self._async_load_scheme is AsyncLoadScheme.NAIVE:
             # One get() per request: each request's layers are queued contiguously.
@@ -662,15 +682,30 @@ class KVShrinkConnector(KVConnectorBase_V1):
             for req_id in self._early_promoted_tasks:
                 if req_id in metadata.scheduled_req_ids:
                     scheduled.append(req_id)
+            raise_groups: list[int] = []
             for req_id in scheduled:
                 self._active_promoted_tasks[req_id] = self._early_promoted_tasks.pop(
                     req_id
                 )
-                # priority_3level_*: this forward waits on the request's remaining
-                # layers from now on, so they join P0 behind the work already there.
                 group = self._load_groups.pop(req_id, None)
-                if group is not None:
+                if group is None:
+                    continue
+                if raise_by_layer:
+                    raise_groups.append(group)
+                else:
+                    # priority_3level_*: this forward waits on the request's
+                    # remaining layers from now on, so they join P0 behind the work
+                    # already there.
                     self._store().set_group_priority(group, LOAD_PRIORITY_P0)
+            if raise_groups:
+                # _remaining_by_layer: this forward waits on the remaining layers of
+                # these requests and on the sync batch. One call appends all their
+                # waiting tasks to P0 by layer, so the loads of layer k are done
+                # after those of layers <= k instead of after whole requests. Not
+                # needed without raised tails: the sync batch is already by layer.
+                if sync_group:
+                    raise_groups.append(sync_group)
+                self._store().set_groups_priority(raise_groups, LOAD_PRIORITY_P0)
             if scheduled or self._early_promoted_tasks:
                 logger.debug(
                     "async_load step=%d t=%d activate reqs=%s held=%s",
@@ -958,14 +993,80 @@ class KVShrinkConnector(KVConnectorBase_V1):
             if num_first_n_layers < num_layers:
                 self._load_groups[req_id] = group
 
+    def _submit_priority_batch_head_loads(
+        self, async_reqs: list[tuple[ReqId, ReqMeta]]
+    ) -> None:
+        # priority_3level_first_n_batch_reqs_remaining_by_layer: the first N layers of
+        # this step's requests share one get() per layer segment at P1 (as in
+        # split_async_load_submit_first_n_batch_reqs), so requests of one step are
+        # promoted together with fewer tasks. Each request's remaining layers use
+        # their own get() at P2 with the request's group, so that only the requests
+        # a forward waits on are raised.
+        if not async_reqs:
+            return
+        num_layers = len(self._layer_names)
+        loads: dict[ReqId, SplitLoadMeta] = {}
+        for req_id, request in async_reqs:
+            if request.async_load_layers == -1:
+                # Promoted only after all layers are loaded: no remaining layers.
+                num_first_n_layers = num_layers
+            elif 0 < request.async_load_layers < num_layers:
+                num_first_n_layers = request.async_load_layers
+            else:
+                raise ValueError(
+                    f"async_load_layers of request {req_id} must be -1 or in "
+                    f"[1, {num_layers}), got {request.async_load_layers}"
+                )
+            loads[req_id] = SplitLoadMeta(
+                block_ids=request.block_ids,
+                block_hashes=request.block_hashes,
+                num_first_n_layers=num_first_n_layers,
+            )
+        tasks_by_req = self._submit_layer_segments(
+            _first_n_layer_segments(loads, num_layers),
+            loads,
+            "async",
+            LOAD_PRIORITY_P1,
+        )
+        for req_id, request in async_reqs:
+            # A dict of its own per request (see _submit_layer_segments), so adding
+            # the remaining layers does not touch other requests' dicts.
+            tasks = tasks_by_req[req_id]
+            load = loads[req_id]
+            if load.num_first_n_layers < num_layers:
+                remaining_layer_names = self._layer_names[load.num_first_n_layers :]
+                priorities: dict[str, int] = {}
+                for layer_name in remaining_layer_names:
+                    priorities[layer_name] = LOAD_PRIORITY_P2
+                group = self._next_load_group
+                self._next_load_group += 1
+                self._log_load_submit(
+                    "async_remaining", [req_id], load.num_first_n_layers, num_layers
+                )
+                tasks.update(
+                    self._store().get(
+                        block_indices=load.block_ids,
+                        block_hashs=load.block_hashes,
+                        layer_names=remaining_layer_names,
+                        description=req_id,
+                        priorities=priorities,
+                        group=group,
+                    )
+                )
+                self._load_groups[req_id] = group
+            self._pending_load_tasks[req_id] = tasks
+            self._pending_load_layers[req_id] = request.async_load_layers
+
     def _submit_layer_segments(
         self,
         segments: list[LayerSegment],
         loads: dict[ReqId, SplitLoadMeta],
         log_kind: str,
+        priority: int = LOAD_PRIORITY_P0,
     ) -> dict[ReqId, dict[str, Any]]:
-        # One get() per segment. Returns each request's tasks (layer name -> Task)
-        # over all segments it is in; requests of one segment share its tasks.
+        # One get() per segment, every task at OMP-Main level `priority`. Returns
+        # each request's tasks (layer name -> Task) over all segments it is in;
+        # requests of one segment share its tasks, each in a dict of its own.
         # log_kind only labels the submit log line.
         tasks_by_req: dict[ReqId, dict[str, Any]] = {}
         for req_id in loads:
@@ -976,14 +1077,21 @@ class KVShrinkConnector(KVConnectorBase_V1):
             for req_id in segment.req_ids:
                 block_ids.extend(loads[req_id].block_ids)
                 block_hashes.extend(loads[req_id].block_hashes)
+            segment_layer_names = self._layer_names[segment.start : segment.end]
+            priorities: Optional[dict[str, int]] = None
+            if priority != LOAD_PRIORITY_P0:
+                priorities = {}
+                for layer_name in segment_layer_names:
+                    priorities[layer_name] = priority
             self._log_load_submit(
                 log_kind, segment.req_ids, segment.start, segment.end
             )
             tasks = self._store().get(
                 block_indices=block_ids,
                 block_hashs=block_hashes,
-                layer_names=self._layer_names[segment.start : segment.end],
+                layer_names=segment_layer_names,
                 description=",".join(segment.req_ids),
+                priorities=priorities,
             )
             for req_id in segment.req_ids:
                 tasks_by_req[req_id].update(tasks)

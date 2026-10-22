@@ -27,14 +27,24 @@ class AsyncLoadScheme(str, enum.Enum):
     SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ = "split_async_load_submit_first_n_per_req"
     # Submit all layers in one get() per request: first N layers at level P1, the
     # rest at P2; the request's group is raised to P0 when a forward first waits
-    # on it. First-N-batch-requests variant (not implemented yet).
-    PRIORITY_3LEVEL_FIRST_N_BATCH_REQS = "priority_3level_first_n_batch_reqs"
-    # Same, one get() per request.
+    # on it.
     PRIORITY_3LEVEL_FIRST_N_PER_REQ = "priority_3level_first_n_per_req"
     # Same as PRIORITY_3LEVEL_FIRST_N_PER_REQ, but the remaining layers are raised to
     # P0 when the request is promoted instead of when a forward first waits on it.
     PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE = (
         "priority_3level_first_n_per_req_promote_raise"
+    )
+    # Same as PRIORITY_3LEVEL_FIRST_N_PER_REQ, but the groups of all requests a
+    # forward first waits on and the group of that step's sync batch are raised in
+    # one call that orders their waiting tasks in P0 by layer.
+    PRIORITY_3LEVEL_FIRST_N_PER_REQ_REMAINING_BY_LAYER = (
+        "priority_3level_first_n_per_req_remaining_by_layer"
+    )
+    # Same as PRIORITY_3LEVEL_FIRST_N_PER_REQ_REMAINING_BY_LAYER, but the first N
+    # layers of one step's requests share one get() per layer segment at P1; each
+    # request's remaining layers use their own get() at P2.
+    PRIORITY_3LEVEL_FIRST_N_BATCH_REQS_REMAINING_BY_LAYER = (
+        "priority_3level_first_n_batch_reqs_remaining_by_layer"
     )
     # Split submission with two fixed priorities; each level FIFO.
     SPLIT_PRIORITY_2LEVEL = "split_priority_2level"
@@ -48,6 +58,8 @@ IMPLEMENTED_ASYNC_LOAD_SCHEMES = frozenset(
         AsyncLoadScheme.SPLIT_ASYNC_LOAD_SUBMIT_FIRST_N_PER_REQ,
         AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ,
         AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_PROMOTE_RAISE,
+        AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_PER_REQ_REMAINING_BY_LAYER,
+        AsyncLoadScheme.PRIORITY_3LEVEL_FIRST_N_BATCH_REQS_REMAINING_BY_LAYER,
     }
 )
 
