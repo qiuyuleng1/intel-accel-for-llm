@@ -8,7 +8,10 @@
 # runs once per async-load layer map of $DYNAMIC_MAPS (label
 # <scheme>_L<layers>, e.g. ..._L0-4-8 for "0-3:0,4-6:4,7-:8") and once per fixed
 # layer count of $FIXED_LAYERS (KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0; label
-# <scheme>_N<layers>, ..._Nall for -1). Each scheme / layer setting starts its
+# <scheme>_N<layers>, ..._Nall for -1). Run order: sync first, then layer
+# setting by layer setting, all async schemes of one setting back to back, so an
+# interrupted run still has every scheme of the finished settings, run close in
+# time. Each scheme / layer setting starts its
 # own server with perf-qwen72b-serve.sh; then, for every input length of
 # $INPUT_LENS, it runs a prewarm and $REPEATS times the hit-rate x concurrency
 # matrix with `vllm bench serve` inside the container; the DDR cache is evicted
@@ -35,38 +38,37 @@ CONTROLLER=http://localhost:18710
 # Async schemes still compared plus the sync baseline, in run order (others:
 # naive, split_async_load_submit_first_n_batch_reqs,
 # split_async_load_submit_first_n_per_req).
-# 10-21 round: 32k fixed-layer sweep of priority_3level_first_n_per_req against
-# sync. 20261020_065412 ran prio / promote_raise / batch with maps 8/16, 16/32,
-# 40/79 at 8k / 16k / 32k, hit 80-100, c4-c32.
-SCHEMES=${SCHEMES:-"priority_3level_first_n_per_req sync"}
+# 10-22 round: the two remaining_by_layer schemes against the old prio, batch and
+# sync. 20261021_054543 was the 32k fixed-layer sweep of prio against sync;
+# 20261020_065412 ran prio / promote_raise / batch with maps 8/16, 16/32, 40/79
+# at 8k / 16k / 32k, hit 80-100, c4-c32.
+SCHEMES=${SCHEMES:-"sync priority_3level_first_n_per_req priority_3level_first_n_per_req_remaining_by_layer priority_3level_first_n_batch_reqs_remaining_by_layer batch_reqs_async_load_submit"}
 # KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP values run by every async scheme
 # ("START-END:LAYERS" rules over the number of in-flight requests); sync ignores
 # them and runs once. 20261020_065412: with the map the 32k c4 / c8 cells mixed
 # sync and two layer counts, and the async share of one cell differed by map
 # (32k hit 98 c4: 25 / 47 / 68 % for 8/16, 16/32, 40/79), so the layer count
-# could not be compared on its own. Map 16/32, the recommended one, stays as the
-# reference of the fixed-layer sweep below.
-DYNAMIC_MAPS=${DYNAMIC_MAPS-"0-3:0,4-6:16,7-:32"}
+# could not be compared on its own. 10-22: maps 4/8, 8/16, 16/32; each has a sync
+# tier (0-3 in flight), which the remaining_by_layer schemes raise with the tails.
+DYNAMIC_MAPS=${DYNAMIC_MAPS-"0-3:0,4-6:4,7-:8 0-3:0,4-6:8,7-:16 0-3:0,4-6:16,7-:32"}
 # KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS values run by every async scheme with
 # KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0: every DDR hit loads async and
 # prefill starts after that many layers (-1: after all 80 layers; 1..79 valid).
-FIXED_LAYERS=${FIXED_LAYERS-"4 8 16 32 48 64 -1"}
+FIXED_LAYERS=${FIXED_LAYERS-""}
 # Layer setting of the current server, read by perf-qwen72b-serve.sh: a map or a
 # fixed layer count, at most one of them (both empty: sync).
 export DYNAMIC_MAP=""
 export ASYNC_LOAD_LAYERS=""
 # Input lengths run in order by every server; each + 128 output tokens must fit
 # max-model-len 32765 of kvshrink-vllm-serve.sh.
-INPUT_LENS=${INPUT_LENS:-"32000"}
+INPUT_LENS=${INPUT_LENS:-"8000 16000 32000"}
 OUTPUT_LEN=${OUTPUT_LEN:-128}
-# Hit 80 is left out: at hit 80 every setting had the same end-to-end latency in
-# 20261020_065412 and only moved time between TTFT and TPOT.
-HIT_RATES=${HIT_RATES:-"95 98 100"}
-CONCURRENCIES=${CONCURRENCIES:-"4 8"}
+HIT_RATES=${HIT_RATES:-"80 98 100"}
+CONCURRENCIES=${CONCURRENCIES:-"4 8 16 32"}
 # Runs of the hit-rate x concurrency matrix per input length. The same cell run
 # twice differed by up to 25 % (0.73-1.25 between 10-19 and 10-20), so one run
 # cannot rank settings that are closer than that.
-REPEATS=${REPEATS:-2}
+REPEATS=${REPEATS:-1}
 # Highest concurrency per input length ("input_len:max_concurrency"); larger
 # entries of $CONCURRENCIES are skipped for that length. A load takes
 # 80 layers x (tokens / 16) blocks x 8 KiB of scratch per rank, so 8k c32, 16k
@@ -98,12 +100,20 @@ export DDR_POOL_GB_PER_RANK=${DDR_POOL_GB_PER_RANK:-25}
 export SCRATCH_POOL_GB_PER_RANK=${SCRATCH_POOL_GB_PER_RANK:-16}
 BASE_SEED=${BASE_SEED:-10000}
 # TRACE=1: per measured cell, record the OMP-Main queue trace of all ranks
-# (<tag>.trace.json.gz), save per-request start times / TTFTs in <tag>.json
-# (--save-detailed) and start the server with the async_load step / submit /
-# promote / activate log lines (KVSHRINK_ASYNC_LOAD_EVENT_LOG=1). Profiling
-# only: both add some per-task work, so compare traced runs with traced runs.
+# (<tag>.trace.json.gz) and save per-request start times / TTFTs in <tag>.json
+# (--save-detailed); implies EVENT_LOG=1. Profiling only: it adds some per-task
+# work, so compare traced runs with traced runs.
 TRACE=${TRACE:-0}
-export ASYNC_LOAD_EVENT_LOG=$TRACE
+# EVENT_LOG=1: start every server (sync too, for equal logging cost) with the
+# async_load step_start / step_end (wait_ms, save_ms) / submit / promote /
+# activate log lines (KVSHRINK_ASYNC_LOAD_EVENT_LOG=1): ~2 lines per step per
+# rank, to count per cell the multi-request activations and the steps with both
+# a sync batch and an activation. Runs before 10-22 had it off.
+EVENT_LOG=${EVENT_LOG:-1}
+if [ "$TRACE" = "1" ]; then
+    EVENT_LOG=1
+fi
+export ASYNC_LOAD_EVENT_LOG=$EVENT_LOG
 DETAIL_ARG=""
 if [ "$TRACE" = "1" ]; then
     DETAIL_ARG="--save-detailed"
@@ -502,18 +512,25 @@ fi
 
 echo "out=$OUT schemes=$SCHEMES maps=$DYNAMIC_MAPS fixed_layers=$FIXED_LAYERS input=$INPUT_LENS" \
      "output=$OUTPUT_LEN hit=$HIT_RATES conc=$CONCURRENCIES max_conc=$MAX_CONC_MAP" \
-     "prompts=$PROMPTS_MAP repeats=$REPEATS warmups=$NUM_WARMUPS trace=$TRACE" \
+     "prompts=$PROMPTS_MAP repeats=$REPEATS warmups=$NUM_WARMUPS trace=$TRACE event_log=$EVENT_LOG" \
      "ddr_gb=$DDR_POOL_GB_PER_RANK scratch_gb=$SCRATCH_POOL_GB_PER_RANK"
 for scheme in $SCHEMES; do
     if [ "$scheme" = "sync" ]; then
         run_scheme sync "" ""
-        continue
     fi
-    for dynamic_map in $DYNAMIC_MAPS; do
-        run_scheme "$scheme" "$dynamic_map" ""
+done
+for dynamic_map in $DYNAMIC_MAPS; do
+    for scheme in $SCHEMES; do
+        if [ "$scheme" != "sync" ]; then
+            run_scheme "$scheme" "$dynamic_map" ""
+        fi
     done
-    for layers in $FIXED_LAYERS; do
-        run_scheme "$scheme" "" "$layers"
+done
+for layers in $FIXED_LAYERS; do
+    for scheme in $SCHEMES; do
+        if [ "$scheme" != "sync" ]; then
+            run_scheme "$scheme" "" "$layers"
+        fi
     done
 done
 if [ -s "$FAILED_CELLS" ]; then
