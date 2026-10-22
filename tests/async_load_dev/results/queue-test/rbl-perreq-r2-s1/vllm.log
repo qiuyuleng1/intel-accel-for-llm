@@ -1,0 +1,909 @@
+(APIServer pid=1309048) INFO:     127.0.0.1:34080 - "POST /tokenize HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:34086 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) INFO 10-22 08:41:01,319 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-8b0e941489a33d46-0-92fba872, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=4, async_load_layers=-1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:01,322 [kvshrink_connector.py:577] async_load step=1 t=1128134608335824 step_start reqs=1
+(EngineCore pid=1309224) INFO 10-22 08:41:01,324 [flow.py:141] CUDA/XPU streams created (lazy init, device=cuda)
+(EngineCore pid=1309224) INFO 10-22 08:41:04,047 [scratch_pool.py:38] ScratchPool: 131072 x (32768,) torch.bfloat16 = 8192.00 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 64.00 KB, blocks = 249
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+(EngineCore pid=1309224) DEBUG 10-22 08:41:05,969 [kvshrink_connector.py:786] async_load step=1 t=1128139254689343 step_end wait_ms=0.0 save_ms=4610.9
+(EngineCore pid=1309224) DEBUG 10-22 08:41:05,970 [kvshrink_connector.py:577] async_load step=2 t=1128139256267801 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,067 [kvshrink_connector.py:786] async_load step=2 t=1128139352882854 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,069 [kvshrink_connector.py:577] async_load step=3 t=1128139354994292 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,079 [kvshrink_connector.py:786] async_load step=3 t=1128139365036072 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,114 [kvshrink_connector.py:577] async_load step=4 t=1128139400198856 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,124 [kvshrink_connector.py:786] async_load step=4 t=1128139409793487 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,169 [kvshrink_connector.py:577] async_load step=5 t=1128139454693169 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,178 [kvshrink_connector.py:786] async_load step=5 t=1128139464200979 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,223 [kvshrink_connector.py:577] async_load step=6 t=1128139509431504 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,233 [kvshrink_connector.py:786] async_load step=6 t=1128139518621679 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,278 [kvshrink_connector.py:577] async_load step=7 t=1128139563553634 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,285 [kvshrink_connector.py:786] async_load step=7 t=1128139571388503 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,332 [kvshrink_connector.py:577] async_load step=8 t=1128139618259040 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,340 [kvshrink_connector.py:786] async_load step=8 t=1128139626020890 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,387 [kvshrink_connector.py:577] async_load step=9 t=1128139672795659 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,394 [kvshrink_connector.py:786] async_load step=9 t=1128139680389856 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,442 [kvshrink_connector.py:577] async_load step=10 t=1128139727500859 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,449 [kvshrink_connector.py:786] async_load step=10 t=1128139735094046 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,496 [kvshrink_connector.py:577] async_load step=11 t=1128139782219901 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,504 [kvshrink_connector.py:786] async_load step=11 t=1128139790224621 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,551 [kvshrink_connector.py:577] async_load step=12 t=1128139836922788 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,559 [kvshrink_connector.py:786] async_load step=12 t=1128139844762042 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,606 [kvshrink_connector.py:577] async_load step=13 t=1128139891524268 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,613 [kvshrink_connector.py:786] async_load step=13 t=1128139899434340 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,660 [kvshrink_connector.py:577] async_load step=14 t=1128139946221437 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,668 [kvshrink_connector.py:786] async_load step=14 t=1128139953894821 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,715 [kvshrink_connector.py:577] async_load step=15 t=1128140000753112 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,722 [kvshrink_connector.py:786] async_load step=15 t=1128140008410829 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,770 [kvshrink_connector.py:577] async_load step=16 t=1128140055712142 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,778 [kvshrink_connector.py:786] async_load step=16 t=1128140064074610 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,824 [kvshrink_connector.py:577] async_load step=17 t=1128140110352618 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,833 [kvshrink_connector.py:786] async_load step=17 t=1128140118669792 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,879 [kvshrink_connector.py:577] async_load step=18 t=1128140165214138 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,888 [kvshrink_connector.py:786] async_load step=18 t=1128140173600220 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,934 [kvshrink_connector.py:577] async_load step=19 t=1128140219659320 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,942 [kvshrink_connector.py:786] async_load step=19 t=1128140228025380 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,988 [kvshrink_connector.py:577] async_load step=20 t=1128140274347618 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:06,997 [kvshrink_connector.py:786] async_load step=20 t=1128140282695475 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,043 [kvshrink_connector.py:577] async_load step=21 t=1128140329009771 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,051 [kvshrink_connector.py:786] async_load step=21 t=1128140337361419 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,098 [kvshrink_connector.py:577] async_load step=22 t=1128140383640015 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,106 [kvshrink_connector.py:786] async_load step=22 t=1128140391990452 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,152 [kvshrink_connector.py:577] async_load step=23 t=1128140438335240 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,161 [kvshrink_connector.py:786] async_load step=23 t=1128140446700520 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,207 [kvshrink_connector.py:577] async_load step=24 t=1128140492950426 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,215 [kvshrink_connector.py:786] async_load step=24 t=1128140501283800 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,262 [kvshrink_connector.py:577] async_load step=25 t=1128140547610034 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,270 [kvshrink_connector.py:786] async_load step=25 t=1128140555967102 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,316 [kvshrink_connector.py:577] async_load step=26 t=1128140602271342 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,325 [kvshrink_connector.py:786] async_load step=26 t=1128140610594092 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,371 [kvshrink_connector.py:577] async_load step=27 t=1128140656934655 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,379 [kvshrink_connector.py:786] async_load step=27 t=1128140665329740 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,426 [kvshrink_connector.py:577] async_load step=28 t=1128140711642210 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,434 [kvshrink_connector.py:786] async_load step=28 t=1128140719979489 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,480 [kvshrink_connector.py:577] async_load step=29 t=1128140766207379 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,489 [kvshrink_connector.py:786] async_load step=29 t=1128140774616308 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,535 [kvshrink_connector.py:577] async_load step=30 t=1128140820956713 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,543 [kvshrink_connector.py:786] async_load step=30 t=1128140829228363 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,590 [kvshrink_connector.py:577] async_load step=31 t=1128140875591160 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,598 [kvshrink_connector.py:786] async_load step=31 t=1128140883972130 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,644 [kvshrink_connector.py:577] async_load step=32 t=1128140930324968 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,653 [kvshrink_connector.py:786] async_load step=32 t=1128140938675306 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,699 [kvshrink_connector.py:577] async_load step=33 t=1128140984952934 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,707 [kvshrink_connector.py:786] async_load step=33 t=1128140993325949 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,754 [kvshrink_connector.py:577] async_load step=34 t=1128141039820945 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,762 [kvshrink_connector.py:786] async_load step=34 t=1128141048205840 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,808 [kvshrink_connector.py:577] async_load step=35 t=1128141094313414 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,817 [kvshrink_connector.py:786] async_load step=35 t=1128141102695009 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,863 [kvshrink_connector.py:577] async_load step=36 t=1128141149043458 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,871 [kvshrink_connector.py:786] async_load step=36 t=1128141157383203 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,918 [kvshrink_connector.py:577] async_load step=37 t=1128141203557746 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,926 [kvshrink_connector.py:786] async_load step=37 t=1128141211722664 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,972 [kvshrink_connector.py:577] async_load step=38 t=1128141258147271 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:07,980 [kvshrink_connector.py:786] async_load step=38 t=1128141266042879 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,027 [kvshrink_connector.py:577] async_load step=39 t=1128141312809685 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,035 [kvshrink_connector.py:786] async_load step=39 t=1128141320640894 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,082 [kvshrink_connector.py:577] async_load step=40 t=1128141367657523 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,090 [kvshrink_connector.py:786] async_load step=40 t=1128141375898504 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,136 [kvshrink_connector.py:577] async_load step=41 t=1128141422238463 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,144 [kvshrink_connector.py:786] async_load step=41 t=1128141430399067 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,191 [kvshrink_connector.py:577] async_load step=42 t=1128141476922892 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,199 [kvshrink_connector.py:786] async_load step=42 t=1128141484855940 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,246 [kvshrink_connector.py:577] async_load step=43 t=1128141531502647 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,253 [kvshrink_connector.py:786] async_load step=43 t=1128141539226882 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,300 [kvshrink_connector.py:577] async_load step=44 t=1128141586410060 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,309 [kvshrink_connector.py:786] async_load step=44 t=1128141594775339 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,355 [kvshrink_connector.py:577] async_load step=45 t=1128141641073252 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,364 [kvshrink_connector.py:786] async_load step=45 t=1128141649627431 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,410 [kvshrink_connector.py:577] async_load step=46 t=1128141695729871 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,418 [kvshrink_connector.py:786] async_load step=46 t=1128141704035009 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,464 [kvshrink_connector.py:577] async_load step=47 t=1128141750385440 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,473 [kvshrink_connector.py:786] async_load step=47 t=1128141758760444 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,519 [kvshrink_connector.py:577] async_load step=48 t=1128141805081043 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,527 [kvshrink_connector.py:786] async_load step=48 t=1128141813440215 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,574 [kvshrink_connector.py:577] async_load step=49 t=1128141859698155 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,582 [kvshrink_connector.py:786] async_load step=49 t=1128141868093291 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,629 [kvshrink_connector.py:577] async_load step=50 t=1128141914585903 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,637 [kvshrink_connector.py:786] async_load step=50 t=1128141922962378 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,683 [kvshrink_connector.py:577] async_load step=51 t=1128141969087322 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,691 [kvshrink_connector.py:786] async_load step=51 t=1128141977426717 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,738 [kvshrink_connector.py:577] async_load step=52 t=1128142023791758 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,746 [kvshrink_connector.py:786] async_load step=52 t=1128142032151130 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,792 [kvshrink_connector.py:577] async_load step=53 t=1128142078426493 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,801 [kvshrink_connector.py:786] async_load step=53 t=1128142086751117 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,847 [kvshrink_connector.py:577] async_load step=54 t=1128142133105223 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,855 [kvshrink_connector.py:786] async_load step=54 t=1128142141428275 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,902 [kvshrink_connector.py:577] async_load step=55 t=1128142187805814 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,910 [kvshrink_connector.py:786] async_load step=55 t=1128142196083269 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,957 [kvshrink_connector.py:577] async_load step=56 t=1128142242485118 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:08,965 [kvshrink_connector.py:786] async_load step=56 t=1128142250791188 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,011 [kvshrink_connector.py:577] async_load step=57 t=1128142297106849 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,019 [kvshrink_connector.py:786] async_load step=57 t=1128142305437868 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,066 [kvshrink_connector.py:577] async_load step=58 t=1128142351745292 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,074 [kvshrink_connector.py:786] async_load step=58 t=1128142360074650 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,121 [kvshrink_connector.py:577] async_load step=59 t=1128142406466508 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,129 [kvshrink_connector.py:786] async_load step=59 t=1128142414741448 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,175 [kvshrink_connector.py:577] async_load step=60 t=1128142461114215 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,183 [kvshrink_connector.py:786] async_load step=60 t=1128142469422588 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,230 [kvshrink_connector.py:577] async_load step=61 t=1128142515772507 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,238 [kvshrink_connector.py:786] async_load step=61 t=1128142524072359 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,285 [kvshrink_connector.py:577] async_load step=62 t=1128142570506664 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,293 [kvshrink_connector.py:786] async_load step=62 t=1128142578985202 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,339 [kvshrink_connector.py:577] async_load step=63 t=1128142625063688 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,347 [kvshrink_connector.py:786] async_load step=63 t=1128142633381339 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,394 [kvshrink_connector.py:577] async_load step=64 t=1128142679744966 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,402 [kvshrink_connector.py:786] async_load step=64 t=1128142687899456 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,448 [kvshrink_connector.py:577] async_load step=65 t=1128142734279580 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,456 [kvshrink_connector.py:786] async_load step=65 t=1128142742115949 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,503 [kvshrink_connector.py:577] async_load step=66 t=1128142789058136 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,511 [kvshrink_connector.py:786] async_load step=66 t=1128142796641027 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,558 [kvshrink_connector.py:577] async_load step=67 t=1128142843530033 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,565 [kvshrink_connector.py:786] async_load step=67 t=1128142851046937 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,612 [kvshrink_connector.py:577] async_load step=68 t=1128142898447016 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,621 [kvshrink_connector.py:786] async_load step=68 t=1128142906580584 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,667 [kvshrink_connector.py:577] async_load step=69 t=1128142953115930 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,676 [kvshrink_connector.py:786] async_load step=69 t=1128142961463273 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,722 [kvshrink_connector.py:577] async_load step=70 t=1128143007825533 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,730 [kvshrink_connector.py:786] async_load step=70 t=1128143016169621 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,776 [kvshrink_connector.py:577] async_load step=71 t=1128143062429719 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,785 [kvshrink_connector.py:786] async_load step=71 t=1128143070622593 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,831 [kvshrink_connector.py:577] async_load step=72 t=1128143117199378 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,840 [kvshrink_connector.py:786] async_load step=72 t=1128143125531741 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,886 [kvshrink_connector.py:577] async_load step=73 t=1128143171858769 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,894 [kvshrink_connector.py:786] async_load step=73 t=1128143180208234 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,941 [kvshrink_connector.py:577] async_load step=74 t=1128143226553072 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,949 [kvshrink_connector.py:786] async_load step=74 t=1128143234907072 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:09,995 [kvshrink_connector.py:577] async_load step=75 t=1128143281173635 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,004 [kvshrink_connector.py:786] async_load step=75 t=1128143289498027 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,050 [kvshrink_connector.py:577] async_load step=76 t=1128143335909105 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,058 [kvshrink_connector.py:786] async_load step=76 t=1128143344259388 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,105 [kvshrink_connector.py:577] async_load step=77 t=1128143390538424 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,113 [kvshrink_connector.py:786] async_load step=77 t=1128143398862347 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,159 [kvshrink_connector.py:577] async_load step=78 t=1128143445238362 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,168 [kvshrink_connector.py:786] async_load step=78 t=1128143453556948 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,214 [kvshrink_connector.py:577] async_load step=79 t=1128143499874668 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,222 [kvshrink_connector.py:786] async_load step=79 t=1128143508086793 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,269 [kvshrink_connector.py:577] async_load step=80 t=1128143554529441 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,277 [kvshrink_connector.py:786] async_load step=80 t=1128143562812551 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,323 [kvshrink_connector.py:577] async_load step=81 t=1128143609251418 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,332 [kvshrink_connector.py:786] async_load step=81 t=1128143617508952 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,378 [kvshrink_connector.py:577] async_load step=82 t=1128143664102118 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,386 [kvshrink_connector.py:786] async_load step=82 t=1128143672394392 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,433 [kvshrink_connector.py:577] async_load step=83 t=1128143718597543 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,441 [kvshrink_connector.py:786] async_load step=83 t=1128143726931320 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,487 [kvshrink_connector.py:577] async_load step=84 t=1128143773279298 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,496 [kvshrink_connector.py:786] async_load step=84 t=1128143781594508 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,542 [kvshrink_connector.py:577] async_load step=85 t=1128143827924757 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,550 [kvshrink_connector.py:786] async_load step=85 t=1128143836222674 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,597 [kvshrink_connector.py:577] async_load step=86 t=1128143882649728 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,605 [kvshrink_connector.py:786] async_load step=86 t=1128143890965691 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,651 [kvshrink_connector.py:577] async_load step=87 t=1128143937293742 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,660 [kvshrink_connector.py:786] async_load step=87 t=1128143945566970 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,706 [kvshrink_connector.py:577] async_load step=88 t=1128143991969430 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,714 [kvshrink_connector.py:786] async_load step=88 t=1128144000331958 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,761 [kvshrink_connector.py:577] async_load step=89 t=1128144046607609 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,769 [kvshrink_connector.py:786] async_load step=89 t=1128144054951765 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,815 [kvshrink_connector.py:577] async_load step=90 t=1128144101295493 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,824 [kvshrink_connector.py:786] async_load step=90 t=1128144109613656 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,870 [kvshrink_connector.py:577] async_load step=91 t=1128144155939052 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,878 [kvshrink_connector.py:786] async_load step=91 t=1128144164298907 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,925 [kvshrink_connector.py:577] async_load step=92 t=1128144210626546 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,933 [kvshrink_connector.py:786] async_load step=92 t=1128144218946205 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,979 [kvshrink_connector.py:577] async_load step=93 t=1128144265178889 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:10,987 [kvshrink_connector.py:786] async_load step=93 t=1128144273335475 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,034 [kvshrink_connector.py:577] async_load step=94 t=1128144319708097 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,041 [kvshrink_connector.py:786] async_load step=94 t=1128144327378646 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,088 [kvshrink_connector.py:577] async_load step=95 t=1128144374338038 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,096 [kvshrink_connector.py:786] async_load step=95 t=1128144381944710 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,143 [kvshrink_connector.py:577] async_load step=96 t=1128144429166005 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,151 [kvshrink_connector.py:786] async_load step=96 t=1128144437189568 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,198 [kvshrink_connector.py:577] async_load step=97 t=1128144483887910 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,206 [kvshrink_connector.py:786] async_load step=97 t=1128144492189729 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,253 [kvshrink_connector.py:577] async_load step=98 t=1128144538667405 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,261 [kvshrink_connector.py:786] async_load step=98 t=1128144546905338 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,307 [kvshrink_connector.py:577] async_load step=99 t=1128144593249200 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,315 [kvshrink_connector.py:786] async_load step=99 t=1128144601395426 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,362 [kvshrink_connector.py:577] async_load step=100 t=1128144648105194 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,370 [kvshrink_connector.py:786] async_load step=100 t=1128144656420339 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,417 [kvshrink_connector.py:577] async_load step=101 t=1128144702662972 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,425 [kvshrink_connector.py:786] async_load step=101 t=1128144710993483 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,471 [kvshrink_connector.py:577] async_load step=102 t=1128144757373666 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,480 [kvshrink_connector.py:786] async_load step=102 t=1128144765686210 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,526 [kvshrink_connector.py:577] async_load step=103 t=1128144812059463 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,534 [kvshrink_connector.py:786] async_load step=103 t=1128144820305008 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,581 [kvshrink_connector.py:577] async_load step=104 t=1128144866816267 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,589 [kvshrink_connector.py:786] async_load step=104 t=1128144875222910 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,636 [kvshrink_connector.py:577] async_load step=105 t=1128144921472718 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,644 [kvshrink_connector.py:786] async_load step=105 t=1128144929841340 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,690 [kvshrink_connector.py:577] async_load step=106 t=1128144976180652 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,699 [kvshrink_connector.py:786] async_load step=106 t=1128144984530903 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,745 [kvshrink_connector.py:577] async_load step=107 t=1128145030843376 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,753 [kvshrink_connector.py:786] async_load step=107 t=1128145039156115 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,800 [kvshrink_connector.py:577] async_load step=108 t=1128145085575071 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,808 [kvshrink_connector.py:786] async_load step=108 t=1128145093867801 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,854 [kvshrink_connector.py:577] async_load step=109 t=1128145140252252 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,863 [kvshrink_connector.py:786] async_load step=109 t=1128145148589532 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,909 [kvshrink_connector.py:577] async_load step=110 t=1128145194943929 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,917 [kvshrink_connector.py:786] async_load step=110 t=1128145203262170 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,964 [kvshrink_connector.py:577] async_load step=111 t=1128145249600441 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:11,972 [kvshrink_connector.py:786] async_load step=111 t=1128145257920841 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,018 [kvshrink_connector.py:577] async_load step=112 t=1128145304324208 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,027 [kvshrink_connector.py:786] async_load step=112 t=1128145312616671 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,073 [kvshrink_connector.py:577] async_load step=113 t=1128145358996184 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,081 [kvshrink_connector.py:786] async_load step=113 t=1128145367305073 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,128 [kvshrink_connector.py:577] async_load step=114 t=1128145413854483 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,136 [kvshrink_connector.py:786] async_load step=114 t=1128145422209606 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,182 [kvshrink_connector.py:577] async_load step=115 t=1128145468401934 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,191 [kvshrink_connector.py:786] async_load step=115 t=1128145476733241 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,237 [kvshrink_connector.py:577] async_load step=116 t=1128145523176852 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,246 [kvshrink_connector.py:786] async_load step=116 t=1128145531513654 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,292 [kvshrink_connector.py:577] async_load step=117 t=1128145577781772 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,300 [kvshrink_connector.py:786] async_load step=117 t=1128145586116114 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,347 [kvshrink_connector.py:577] async_load step=118 t=1128145632500667 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,355 [kvshrink_connector.py:786] async_load step=118 t=1128145640820515 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,401 [kvshrink_connector.py:577] async_load step=119 t=1128145687137364 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,410 [kvshrink_connector.py:786] async_load step=119 t=1128145695466951 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,456 [kvshrink_connector.py:577] async_load step=120 t=1128145741804976 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,464 [kvshrink_connector.py:786] async_load step=120 t=1128145749929789 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,510 [kvshrink_connector.py:577] async_load step=121 t=1128145796397296 step_start reqs=1
+(APIServer pid=1309048) INFO 10-22 08:41:12 [loggers.py:310] Engine 000: Avg prompt throughput: 400.0 tokens/s, Avg generation throughput: 11.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 6.7%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,518 [kvshrink_connector.py:786] async_load step=121 t=1128145804356925 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,565 [kvshrink_connector.py:577] async_load step=122 t=1128145851085053 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,573 [kvshrink_connector.py:786] async_load step=122 t=1128145858803734 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,620 [kvshrink_connector.py:577] async_load step=123 t=1128145905629349 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,627 [kvshrink_connector.py:786] async_load step=123 t=1128145913137040 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,675 [kvshrink_connector.py:577] async_load step=124 t=1128145960597263 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,683 [kvshrink_connector.py:786] async_load step=124 t=1128145968778549 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,729 [kvshrink_connector.py:577] async_load step=125 t=1128146015098387 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,737 [kvshrink_connector.py:786] async_load step=125 t=1128146022755154 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,784 [kvshrink_connector.py:577] async_load step=126 t=1128146069842709 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,792 [kvshrink_connector.py:786] async_load step=126 t=1128146077598640 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,839 [kvshrink_connector.py:577] async_load step=127 t=1128146124482727 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,846 [kvshrink_connector.py:786] async_load step=127 t=1128146132330806 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,893 [kvshrink_connector.py:577] async_load step=128 t=1128146179130284 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,901 [kvshrink_connector.py:786] async_load step=128 t=1128146186850927 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,947 [kvshrink_connector.py:577] async_load step=129 t=1128146233382115 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:12,947 [kvshrink_connector.py:786] async_load step=129 t=1128146233458787 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,003 [kvshrink_connector.py:577] async_load step=130 t=1128146289111981 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,003 [kvshrink_connector.py:786] async_load step=130 t=1128146289180797 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:34086 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:34086 - "GET /metrics HTTP/1.1" 200 OK
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,013 [kvshrink_connector.py:577] async_load step=131 t=1128146298656044 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,013 [kvshrink_connector.py:786] async_load step=131 t=1128146298749699 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:34086 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) INFO 10-22 08:41:13,139 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-0-0-86f1e43c, externally-cached tokens: 3984, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,139 [kvshrink_connector.py:577] async_load step=132 t=1128146425268115 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,139 [kvshrink_connector.py:1104] async_load step=132 t=1128146425326775 submit kind=async reqs=cmpl-bench-cf30b5c8-0-0-86f1e43c layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,144 [kvshrink_connector.py:786] async_load step=132 t=1128146429909660 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,145 [kvshrink_connector.py:577] async_load step=133 t=1128146431278725 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,145 [kvshrink_connector.py:786] async_load step=133 t=1128146431322013 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,147 [kvshrink_connector.py:577] async_load step=134 t=1128146432574385 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,147 [kvshrink_connector.py:786] async_load step=134 t=1128146432605165 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,148 [kvshrink_connector.py:577] async_load step=135 t=1128146433822282 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,148 [kvshrink_connector.py:786] async_load step=135 t=1128146433851332 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,148 [kvshrink_connector.py:835] async_load step=135 t=1128146434156482 promote reqs=cmpl-bench-cf30b5c8-0-0-86f1e43c
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,149 [kvshrink_connector.py:577] async_load step=136 t=1128146435423070 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,149 [kvshrink_connector.py:786] async_load step=136 t=1128146435453713 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,152 [kvshrink_connector.py:577] async_load step=137 t=1128146438089032 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,152 [kvshrink_connector.py:710] async_load step=137 t=1128146438178443 activate reqs=cmpl-bench-cf30b5c8-0-0-86f1e43c held=
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,276 [kvshrink_connector.py:786] async_load step=137 t=1128146561482792 step_end wait_ms=116.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,277 [kvshrink_connector.py:577] async_load step=138 t=1128146562563999 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,285 [kvshrink_connector.py:786] async_load step=138 t=1128146570719901 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,286 [kvshrink_connector.py:577] async_load step=139 t=1128146571895273 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,295 [kvshrink_connector.py:786] async_load step=139 t=1128146580920251 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:33086 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) INFO 10-22 08:41:13,334 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-1-0-8c2d4355, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,335 [kvshrink_connector.py:577] async_load step=140 t=1128146620946411 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,335 [kvshrink_connector.py:1104] async_load step=140 t=1128146621083674 submit kind=async reqs=cmpl-bench-cf30b5c8-1-0-8c2d4355 layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,348 [kvshrink_connector.py:786] async_load step=140 t=1128146633991309 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,348 [kvshrink_connector.py:835] async_load step=140 t=1128146634211410 promote reqs=cmpl-bench-cf30b5c8-1-0-8c2d4355
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,388 [kvshrink_connector.py:577] async_load step=141 t=1128146674452030 step_start reqs=1
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,389 [kvshrink_connector.py:710] async_load step=141 t=1128146674515441 activate reqs= held=cmpl-bench-cf30b5c8-1-0-8c2d4355
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,397 [kvshrink_connector.py:786] async_load step=141 t=1128146682997623 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,446 [kvshrink_connector.py:577] async_load step=142 t=1128146732033904 step_start reqs=2
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,446 [kvshrink_connector.py:710] async_load step=142 t=1128146732120118 activate reqs=cmpl-bench-cf30b5c8-1-0-8c2d4355 held=
+(APIServer pid=1309048) INFO:     127.0.0.1:33090 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:33104 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:33118 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,650 [kvshrink_connector.py:786] async_load step=142 t=1128146935725676 step_end wait_ms=3.9 save_ms=187.1
+(EngineCore pid=1309224) INFO 10-22 08:41:13,652 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-2-0-9e4839be, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) INFO 10-22 08:41:13,653 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-3-0-830c23dc, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) INFO 10-22 08:41:13,654 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-4-0-a827af62, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,655 [kvshrink_connector.py:577] async_load step=143 t=1128146941095482 step_start reqs=2
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,655 [kvshrink_connector.py:1104] async_load step=143 t=1128146941211450 submit kind=async reqs=cmpl-bench-cf30b5c8-2-0-9e4839be layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,661 [kvshrink_connector.py:1104] async_load step=143 t=1128146946750053 submit kind=async reqs=cmpl-bench-cf30b5c8-3-0-830c23dc layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,665 [kvshrink_connector.py:1104] async_load step=143 t=1128146951303934 submit kind=async reqs=cmpl-bench-cf30b5c8-4-0-a827af62 layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,680 [kvshrink_connector.py:786] async_load step=143 t=1128146965611105 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,680 [kvshrink_connector.py:835] async_load step=143 t=1128146966088669 promote reqs=cmpl-bench-cf30b5c8-2-0-9e4839be,cmpl-bench-cf30b5c8-3-0-830c23dc,cmpl-bench-cf30b5c8-4-0-a827af62
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,681 [kvshrink_connector.py:577] async_load step=144 t=1128146967149033 step_start reqs=2
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,681 [kvshrink_connector.py:710] async_load step=144 t=1128146967212429 activate reqs= held=cmpl-bench-cf30b5c8-2-0-9e4839be,cmpl-bench-cf30b5c8-3-0-830c23dc,cmpl-bench-cf30b5c8-4-0-a827af62
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,690 [kvshrink_connector.py:786] async_load step=144 t=1128146976420564 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:33130 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) INFO 10-22 08:41:13,729 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-5-0-b8b8847c, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,731 [kvshrink_connector.py:577] async_load step=145 t=1128147017172823 step_start reqs=5
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,731 [kvshrink_connector.py:1104] async_load step=145 t=1128147017248909 submit kind=async reqs=cmpl-bench-cf30b5c8-5-0-b8b8847c layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:13,736 [kvshrink_connector.py:710] async_load step=145 t=1128147021570396 activate reqs=cmpl-bench-cf30b5c8-2-0-9e4839be,cmpl-bench-cf30b5c8-3-0-830c23dc,cmpl-bench-cf30b5c8-4-0-a827af62 held=
+(APIServer pid=1309048) INFO:     127.0.0.1:33146 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:33154 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,140 [kvshrink_connector.py:786] async_load step=145 t=1128147426375661 step_end wait_ms=8.4 save_ms=372.2
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,141 [kvshrink_connector.py:835] async_load step=145 t=1128147426774913 promote reqs=cmpl-bench-cf30b5c8-5-0-b8b8847c
+(EngineCore pid=1309224) INFO 10-22 08:41:14,142 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-6-0-9563d74a, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) INFO 10-22 08:41:14,143 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-7-0-80923cb0, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,145 [kvshrink_connector.py:577] async_load step=146 t=1128147430750519 step_start reqs=5
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,145 [kvshrink_connector.py:1104] async_load step=146 t=1128147430853046 submit kind=async reqs=cmpl-bench-cf30b5c8-6-0-9563d74a layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,150 [kvshrink_connector.py:1104] async_load step=146 t=1128147435662429 submit kind=async reqs=cmpl-bench-cf30b5c8-7-0-80923cb0 layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,154 [kvshrink_connector.py:710] async_load step=146 t=1128147439965380 activate reqs= held=cmpl-bench-cf30b5c8-5-0-b8b8847c
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,165 [kvshrink_connector.py:786] async_load step=146 t=1128147450588645 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,165 [kvshrink_connector.py:835] async_load step=146 t=1128147451140712 promote reqs=cmpl-bench-cf30b5c8-6-0-9563d74a,cmpl-bench-cf30b5c8-7-0-80923cb0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,167 [kvshrink_connector.py:577] async_load step=147 t=1128147453194174 step_start reqs=6
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,167 [kvshrink_connector.py:710] async_load step=147 t=1128147453286509 activate reqs=cmpl-bench-cf30b5c8-5-0-b8b8847c held=cmpl-bench-cf30b5c8-6-0-9563d74a,cmpl-bench-cf30b5c8-7-0-80923cb0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,373 [kvshrink_connector.py:786] async_load step=147 t=1128147659097694 step_end wait_ms=3.1 save_ms=191.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,376 [kvshrink_connector.py:577] async_load step=148 t=1128147661959708 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,376 [kvshrink_connector.py:710] async_load step=148 t=1128147662086149 activate reqs=cmpl-bench-cf30b5c8-6-0-9563d74a,cmpl-bench-cf30b5c8-7-0-80923cb0 held=
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,646 [kvshrink_connector.py:786] async_load step=148 t=1128147932222535 step_end wait_ms=5.2 save_ms=255.2
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,648 [kvshrink_connector.py:577] async_load step=149 t=1128147933549794 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,656 [kvshrink_connector.py:786] async_load step=149 t=1128147942426677 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,658 [kvshrink_connector.py:577] async_load step=150 t=1128147943859832 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,668 [kvshrink_connector.py:786] async_load step=150 t=1128147953816387 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,712 [kvshrink_connector.py:577] async_load step=151 t=1128147997672240 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,721 [kvshrink_connector.py:786] async_load step=151 t=1128148007329449 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,772 [kvshrink_connector.py:577] async_load step=152 t=1128148057821519 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,782 [kvshrink_connector.py:786] async_load step=152 t=1128148067502403 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,832 [kvshrink_connector.py:577] async_load step=153 t=1128148117918572 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,842 [kvshrink_connector.py:786] async_load step=153 t=1128148127657970 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,892 [kvshrink_connector.py:577] async_load step=154 t=1128148178346845 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,902 [kvshrink_connector.py:786] async_load step=154 t=1128148188188893 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,952 [kvshrink_connector.py:577] async_load step=155 t=1128148238208305 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:14,962 [kvshrink_connector.py:786] async_load step=155 t=1128148248035226 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,012 [kvshrink_connector.py:577] async_load step=156 t=1128148298348246 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,022 [kvshrink_connector.py:786] async_load step=156 t=1128148307955256 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,073 [kvshrink_connector.py:577] async_load step=157 t=1128148358473058 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,082 [kvshrink_connector.py:786] async_load step=157 t=1128148368346121 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,133 [kvshrink_connector.py:577] async_load step=158 t=1128148418629383 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,143 [kvshrink_connector.py:786] async_load step=158 t=1128148428636013 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,193 [kvshrink_connector.py:577] async_load step=159 t=1128148478877608 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,203 [kvshrink_connector.py:786] async_load step=159 t=1128148488824990 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,253 [kvshrink_connector.py:577] async_load step=160 t=1128148538872312 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,263 [kvshrink_connector.py:786] async_load step=160 t=1128148548665779 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,313 [kvshrink_connector.py:577] async_load step=161 t=1128148598952002 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,323 [kvshrink_connector.py:786] async_load step=161 t=1128148608842130 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,373 [kvshrink_connector.py:577] async_load step=162 t=1128148659359894 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,383 [kvshrink_connector.py:786] async_load step=162 t=1128148669200221 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,433 [kvshrink_connector.py:577] async_load step=163 t=1128148719271731 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,443 [kvshrink_connector.py:786] async_load step=163 t=1128148729166016 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,494 [kvshrink_connector.py:577] async_load step=164 t=1128148779592151 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,503 [kvshrink_connector.py:786] async_load step=164 t=1128148789453126 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,554 [kvshrink_connector.py:577] async_load step=165 t=1128148839766643 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,564 [kvshrink_connector.py:786] async_load step=165 t=1128148849663692 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,614 [kvshrink_connector.py:577] async_load step=166 t=1128148899685608 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,624 [kvshrink_connector.py:786] async_load step=166 t=1128148909546881 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,674 [kvshrink_connector.py:577] async_load step=167 t=1128148959789699 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,684 [kvshrink_connector.py:786] async_load step=167 t=1128148969689744 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,734 [kvshrink_connector.py:577] async_load step=168 t=1128149019954055 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,744 [kvshrink_connector.py:786] async_load step=168 t=1128149029726656 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,794 [kvshrink_connector.py:577] async_load step=169 t=1128149080162854 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,804 [kvshrink_connector.py:786] async_load step=169 t=1128149089928993 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,855 [kvshrink_connector.py:577] async_load step=170 t=1128149140526077 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,864 [kvshrink_connector.py:786] async_load step=170 t=1128149150378068 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,915 [kvshrink_connector.py:577] async_load step=171 t=1128149200464277 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,924 [kvshrink_connector.py:786] async_load step=171 t=1128149210222744 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,975 [kvshrink_connector.py:577] async_load step=172 t=1128149260685123 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:15,985 [kvshrink_connector.py:786] async_load step=172 t=1128149270456684 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,035 [kvshrink_connector.py:577] async_load step=173 t=1128149320550918 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,044 [kvshrink_connector.py:786] async_load step=173 t=1128149329474415 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,095 [kvshrink_connector.py:577] async_load step=174 t=1128149380994924 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,105 [kvshrink_connector.py:786] async_load step=174 t=1128149390757789 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,155 [kvshrink_connector.py:577] async_load step=175 t=1128149440902797 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,163 [kvshrink_connector.py:786] async_load step=175 t=1128149449451197 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,215 [kvshrink_connector.py:577] async_load step=176 t=1128149500984143 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,224 [kvshrink_connector.py:786] async_load step=176 t=1128149509773138 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,275 [kvshrink_connector.py:577] async_load step=177 t=1128149561093924 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,284 [kvshrink_connector.py:786] async_load step=177 t=1128149569725998 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,336 [kvshrink_connector.py:577] async_load step=178 t=1128149621462804 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,344 [kvshrink_connector.py:786] async_load step=178 t=1128149630087452 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,395 [kvshrink_connector.py:577] async_load step=179 t=1128149681397851 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,404 [kvshrink_connector.py:786] async_load step=179 t=1128149690109097 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,456 [kvshrink_connector.py:577] async_load step=180 t=1128149741748261 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,464 [kvshrink_connector.py:786] async_load step=180 t=1128149750445301 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,516 [kvshrink_connector.py:577] async_load step=181 t=1128149801901506 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,525 [kvshrink_connector.py:786] async_load step=181 t=1128149810550918 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,576 [kvshrink_connector.py:577] async_load step=182 t=1128149861970003 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,585 [kvshrink_connector.py:786] async_load step=182 t=1128149870676531 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,636 [kvshrink_connector.py:577] async_load step=183 t=1128149922129691 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,645 [kvshrink_connector.py:786] async_load step=183 t=1128149930814260 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,696 [kvshrink_connector.py:577] async_load step=184 t=1128149982350093 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,705 [kvshrink_connector.py:786] async_load step=184 t=1128149991236180 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,757 [kvshrink_connector.py:577] async_load step=185 t=1128150042499140 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,765 [kvshrink_connector.py:786] async_load step=185 t=1128150051177255 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,817 [kvshrink_connector.py:577] async_load step=186 t=1128150102860179 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,826 [kvshrink_connector.py:786] async_load step=186 t=1128150111504135 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,877 [kvshrink_connector.py:577] async_load step=187 t=1128150162888999 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,886 [kvshrink_connector.py:786] async_load step=187 t=1128150171520743 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,937 [kvshrink_connector.py:577] async_load step=188 t=1128150223150178 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,946 [kvshrink_connector.py:786] async_load step=188 t=1128150231762829 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:16,997 [kvshrink_connector.py:577] async_load step=189 t=1128150283342364 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,006 [kvshrink_connector.py:786] async_load step=189 t=1128150291986816 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,058 [kvshrink_connector.py:577] async_load step=190 t=1128150343571293 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,066 [kvshrink_connector.py:786] async_load step=190 t=1128150352194534 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,118 [kvshrink_connector.py:577] async_load step=191 t=1128150403871344 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,127 [kvshrink_connector.py:786] async_load step=191 t=1128150412610758 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,178 [kvshrink_connector.py:577] async_load step=192 t=1128150463797347 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,186 [kvshrink_connector.py:786] async_load step=192 t=1128150472140274 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,238 [kvshrink_connector.py:577] async_load step=193 t=1128150523981224 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,246 [kvshrink_connector.py:786] async_load step=193 t=1128150532128875 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,298 [kvshrink_connector.py:577] async_load step=194 t=1128150584365566 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,306 [kvshrink_connector.py:786] async_load step=194 t=1128150592438357 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,358 [kvshrink_connector.py:577] async_load step=195 t=1128150644407662 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,367 [kvshrink_connector.py:786] async_load step=195 t=1128150652509886 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,419 [kvshrink_connector.py:577] async_load step=196 t=1128150704868332 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,427 [kvshrink_connector.py:786] async_load step=196 t=1128150713343017 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,479 [kvshrink_connector.py:577] async_load step=197 t=1128150765013216 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,487 [kvshrink_connector.py:786] async_load step=197 t=1128150773173120 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,539 [kvshrink_connector.py:577] async_load step=198 t=1128150825134201 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,547 [kvshrink_connector.py:786] async_load step=198 t=1128150833449103 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,599 [kvshrink_connector.py:577] async_load step=199 t=1128150885295519 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,607 [kvshrink_connector.py:786] async_load step=199 t=1128150893297661 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,660 [kvshrink_connector.py:577] async_load step=200 t=1128150945716324 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,669 [kvshrink_connector.py:786] async_load step=200 t=1128150954461980 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,720 [kvshrink_connector.py:577] async_load step=201 t=1128151005872915 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,729 [kvshrink_connector.py:786] async_load step=201 t=1128151014560705 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,780 [kvshrink_connector.py:577] async_load step=202 t=1128151066240769 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,789 [kvshrink_connector.py:786] async_load step=202 t=1128151074928000 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,840 [kvshrink_connector.py:577] async_load step=203 t=1128151126364799 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,849 [kvshrink_connector.py:786] async_load step=203 t=1128151135301072 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,901 [kvshrink_connector.py:577] async_load step=204 t=1128151186625072 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,910 [kvshrink_connector.py:786] async_load step=204 t=1128151195579810 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,961 [kvshrink_connector.py:577] async_load step=205 t=1128151246735198 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:17,970 [kvshrink_connector.py:786] async_load step=205 t=1128151255466442 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,021 [kvshrink_connector.py:577] async_load step=206 t=1128151307026029 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,030 [kvshrink_connector.py:786] async_load step=206 t=1128151315699869 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,081 [kvshrink_connector.py:577] async_load step=207 t=1128151367388574 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,090 [kvshrink_connector.py:786] async_load step=207 t=1128151376151836 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,142 [kvshrink_connector.py:577] async_load step=208 t=1128151427489090 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,150 [kvshrink_connector.py:786] async_load step=208 t=1128151436214400 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,202 [kvshrink_connector.py:577] async_load step=209 t=1128151487703923 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,210 [kvshrink_connector.py:786] async_load step=209 t=1128151496457030 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,262 [kvshrink_connector.py:577] async_load step=210 t=1128151548143145 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,271 [kvshrink_connector.py:786] async_load step=210 t=1128151556886552 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,322 [kvshrink_connector.py:577] async_load step=211 t=1128151608202262 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,331 [kvshrink_connector.py:786] async_load step=211 t=1128151616946650 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,383 [kvshrink_connector.py:577] async_load step=212 t=1128151668602995 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,391 [kvshrink_connector.py:786] async_load step=212 t=1128151677333442 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,443 [kvshrink_connector.py:577] async_load step=213 t=1128151728802049 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,452 [kvshrink_connector.py:786] async_load step=213 t=1128151737544503 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,503 [kvshrink_connector.py:577] async_load step=214 t=1128151788939953 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,512 [kvshrink_connector.py:786] async_load step=214 t=1128151797671956 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,563 [kvshrink_connector.py:577] async_load step=215 t=1128151849126073 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,572 [kvshrink_connector.py:786] async_load step=215 t=1128151857785422 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,624 [kvshrink_connector.py:577] async_load step=216 t=1128151909479291 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,632 [kvshrink_connector.py:786] async_load step=216 t=1128151918269556 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,684 [kvshrink_connector.py:577] async_load step=217 t=1128151969575564 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,692 [kvshrink_connector.py:786] async_load step=217 t=1128151978344428 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,744 [kvshrink_connector.py:577] async_load step=218 t=1128152029839692 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,752 [kvshrink_connector.py:786] async_load step=218 t=1128152038100864 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,804 [kvshrink_connector.py:577] async_load step=219 t=1128152089856675 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,812 [kvshrink_connector.py:786] async_load step=219 t=1128152097941296 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,864 [kvshrink_connector.py:577] async_load step=220 t=1128152150108108 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,872 [kvshrink_connector.py:786] async_load step=220 t=1128152158054757 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,924 [kvshrink_connector.py:577] async_load step=221 t=1128152210368305 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,933 [kvshrink_connector.py:786] async_load step=221 t=1128152218661226 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,985 [kvshrink_connector.py:577] async_load step=222 t=1128152270722389 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:18,993 [kvshrink_connector.py:786] async_load step=222 t=1128152279076767 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,045 [kvshrink_connector.py:577] async_load step=223 t=1128152330976299 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,053 [kvshrink_connector.py:786] async_load step=223 t=1128152339211001 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,105 [kvshrink_connector.py:577] async_load step=224 t=1128152391125087 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,113 [kvshrink_connector.py:786] async_load step=224 t=1128152399316114 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,166 [kvshrink_connector.py:577] async_load step=225 t=1128152451497328 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,174 [kvshrink_connector.py:786] async_load step=225 t=1128152460215164 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,226 [kvshrink_connector.py:577] async_load step=226 t=1128152512019761 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,235 [kvshrink_connector.py:786] async_load step=226 t=1128152520746661 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,286 [kvshrink_connector.py:577] async_load step=227 t=1128152571972484 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,295 [kvshrink_connector.py:786] async_load step=227 t=1128152580687270 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,346 [kvshrink_connector.py:577] async_load step=228 t=1128152632397034 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,355 [kvshrink_connector.py:786] async_load step=228 t=1128152641112188 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,407 [kvshrink_connector.py:577] async_load step=229 t=1128152692626675 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,415 [kvshrink_connector.py:786] async_load step=229 t=1128152701339140 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,467 [kvshrink_connector.py:577] async_load step=230 t=1128152752777748 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,475 [kvshrink_connector.py:786] async_load step=230 t=1128152761437321 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,527 [kvshrink_connector.py:577] async_load step=231 t=1128152813021570 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,536 [kvshrink_connector.py:786] async_load step=231 t=1128152821656582 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,587 [kvshrink_connector.py:577] async_load step=232 t=1128152873322798 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,596 [kvshrink_connector.py:786] async_load step=232 t=1128152881944897 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,648 [kvshrink_connector.py:577] async_load step=233 t=1128152933506728 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,656 [kvshrink_connector.py:786] async_load step=233 t=1128152942271584 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,708 [kvshrink_connector.py:577] async_load step=234 t=1128152993926107 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,717 [kvshrink_connector.py:786] async_load step=234 t=1128153002671781 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,768 [kvshrink_connector.py:577] async_load step=235 t=1128153053994654 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,777 [kvshrink_connector.py:786] async_load step=235 t=1128153062635556 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,829 [kvshrink_connector.py:577] async_load step=236 t=1128153114550097 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,837 [kvshrink_connector.py:786] async_load step=236 t=1128153123195958 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,889 [kvshrink_connector.py:577] async_load step=237 t=1128153175071107 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,898 [kvshrink_connector.py:786] async_load step=237 t=1128153183981965 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,950 [kvshrink_connector.py:577] async_load step=238 t=1128153235572128 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:19,958 [kvshrink_connector.py:786] async_load step=238 t=1128153244351912 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,010 [kvshrink_connector.py:577] async_load step=239 t=1128153296288353 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,019 [kvshrink_connector.py:786] async_load step=239 t=1128153305067178 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,071 [kvshrink_connector.py:577] async_load step=240 t=1128153356681573 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,079 [kvshrink_connector.py:786] async_load step=240 t=1128153365330045 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,131 [kvshrink_connector.py:577] async_load step=241 t=1128153417249165 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,140 [kvshrink_connector.py:786] async_load step=241 t=1128153426140190 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,192 [kvshrink_connector.py:577] async_load step=242 t=1128153477939798 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,201 [kvshrink_connector.py:786] async_load step=242 t=1128153486731980 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,252 [kvshrink_connector.py:577] async_load step=243 t=1128153538270148 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,261 [kvshrink_connector.py:786] async_load step=243 t=1128153546924276 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,313 [kvshrink_connector.py:577] async_load step=244 t=1128153598793392 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,321 [kvshrink_connector.py:786] async_load step=244 t=1128153607093429 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,373 [kvshrink_connector.py:577] async_load step=245 t=1128153659226945 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,381 [kvshrink_connector.py:786] async_load step=245 t=1128153667205997 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,434 [kvshrink_connector.py:577] async_load step=246 t=1128153719595726 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,442 [kvshrink_connector.py:786] async_load step=246 t=1128153727502343 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,494 [kvshrink_connector.py:577] async_load step=247 t=1128153780211389 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,502 [kvshrink_connector.py:786] async_load step=247 t=1128153788455898 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,555 [kvshrink_connector.py:577] async_load step=248 t=1128153840787561 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,563 [kvshrink_connector.py:786] async_load step=248 t=1128153849093934 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,615 [kvshrink_connector.py:577] async_load step=249 t=1128153901288959 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,624 [kvshrink_connector.py:786] async_load step=249 t=1128153909518030 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,676 [kvshrink_connector.py:577] async_load step=250 t=1128153961932894 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,684 [kvshrink_connector.py:786] async_load step=250 t=1128153970070959 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,736 [kvshrink_connector.py:577] async_load step=251 t=1128154022446685 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,745 [kvshrink_connector.py:786] async_load step=251 t=1128154031199474 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,797 [kvshrink_connector.py:577] async_load step=252 t=1128154082999630 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,806 [kvshrink_connector.py:786] async_load step=252 t=1128154091793435 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,858 [kvshrink_connector.py:577] async_load step=253 t=1128154143528137 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,866 [kvshrink_connector.py:786] async_load step=253 t=1128154152296603 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,918 [kvshrink_connector.py:577] async_load step=254 t=1128154204079801 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,927 [kvshrink_connector.py:786] async_load step=254 t=1128154212847215 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,979 [kvshrink_connector.py:577] async_load step=255 t=1128154264736053 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:20,988 [kvshrink_connector.py:786] async_load step=255 t=1128154273504783 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,039 [kvshrink_connector.py:577] async_load step=256 t=1128154325190925 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,048 [kvshrink_connector.py:786] async_load step=256 t=1128154333889954 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,100 [kvshrink_connector.py:577] async_load step=257 t=1128154385615573 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,108 [kvshrink_connector.py:786] async_load step=257 t=1128154394342173 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,160 [kvshrink_connector.py:577] async_load step=258 t=1128154446411623 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,169 [kvshrink_connector.py:786] async_load step=258 t=1128154455139415 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,221 [kvshrink_connector.py:577] async_load step=259 t=1128154506730967 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,230 [kvshrink_connector.py:786] async_load step=259 t=1128154515541752 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,281 [kvshrink_connector.py:577] async_load step=260 t=1128154567435589 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,290 [kvshrink_connector.py:786] async_load step=260 t=1128154576111168 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,342 [kvshrink_connector.py:577] async_load step=261 t=1128154628020480 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,351 [kvshrink_connector.py:786] async_load step=261 t=1128154636805117 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,402 [kvshrink_connector.py:577] async_load step=262 t=1128154688442399 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,411 [kvshrink_connector.py:786] async_load step=262 t=1128154697207459 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,463 [kvshrink_connector.py:577] async_load step=263 t=1128154748962118 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,472 [kvshrink_connector.py:786] async_load step=263 t=1128154757735145 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,524 [kvshrink_connector.py:577] async_load step=264 t=1128154809489597 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,532 [kvshrink_connector.py:786] async_load step=264 t=1128154818252171 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,584 [kvshrink_connector.py:577] async_load step=265 t=1128154870044732 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,593 [kvshrink_connector.py:786] async_load step=265 t=1128154878765039 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,645 [kvshrink_connector.py:577] async_load step=266 t=1128154930698605 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,653 [kvshrink_connector.py:786] async_load step=266 t=1128154939420319 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:34086 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) INFO 10-22 08:41:21,704 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-8-0-9924b693, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,705 [kvshrink_connector.py:577] async_load step=267 t=1128154991454220 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,706 [kvshrink_connector.py:1104] async_load step=267 t=1128154991546090 submit kind=async reqs=cmpl-bench-cf30b5c8-8-0-9924b693 layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,719 [kvshrink_connector.py:786] async_load step=267 t=1128155005148092 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,719 [kvshrink_connector.py:835] async_load step=267 t=1128155005317507 promote reqs=cmpl-bench-cf30b5c8-8-0-9924b693
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,765 [kvshrink_connector.py:577] async_load step=268 t=1128155050508436 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,765 [kvshrink_connector.py:710] async_load step=268 t=1128155050579067 activate reqs= held=cmpl-bench-cf30b5c8-8-0-9924b693
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,774 [kvshrink_connector.py:786] async_load step=268 t=1128155059513700 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,826 [kvshrink_connector.py:577] async_load step=269 t=1128155112367639 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:21,826 [kvshrink_connector.py:710] async_load step=269 t=1128155112449275 activate reqs=cmpl-bench-cf30b5c8-8-0-9924b693 held=
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,052 [kvshrink_connector.py:786] async_load step=269 t=1128155338084812 step_end wait_ms=4.1 save_ms=210.3
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,054 [kvshrink_connector.py:577] async_load step=270 t=1128155339926836 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,064 [kvshrink_connector.py:786] async_load step=270 t=1128155349709583 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,066 [kvshrink_connector.py:577] async_load step=271 t=1128155351508280 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,075 [kvshrink_connector.py:786] async_load step=271 t=1128155361346959 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:33086 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) INFO 10-22 08:41:22,116 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-9-0-b2dce4cd, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,118 [kvshrink_connector.py:577] async_load step=272 t=1128155403694406 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,118 [kvshrink_connector.py:1104] async_load step=272 t=1128155403819776 submit kind=async reqs=cmpl-bench-cf30b5c8-9-0-b2dce4cd layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,132 [kvshrink_connector.py:786] async_load step=272 t=1128155417902433 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,132 [kvshrink_connector.py:835] async_load step=272 t=1128155418197018 promote reqs=cmpl-bench-cf30b5c8-9-0-b2dce4cd
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,176 [kvshrink_connector.py:577] async_load step=273 t=1128155462172630 step_start reqs=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,176 [kvshrink_connector.py:710] async_load step=273 t=1128155462236050 activate reqs= held=cmpl-bench-cf30b5c8-9-0-b2dce4cd
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,186 [kvshrink_connector.py:786] async_load step=273 t=1128155471857374 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,238 [kvshrink_connector.py:577] async_load step=274 t=1128155523593036 step_start reqs=5
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,238 [kvshrink_connector.py:710] async_load step=274 t=1128155523670492 activate reqs=cmpl-bench-cf30b5c8-9-0-b2dce4cd held=
+(APIServer pid=1309048) INFO:     127.0.0.1:33090 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:33104 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:33118 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,449 [kvshrink_connector.py:786] async_load step=274 t=1128155734844418 step_end wait_ms=4.1 save_ms=194.9
+(EngineCore pid=1309224) INFO 10-22 08:41:22,454 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-10-0-a1a8941b, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) INFO 10-22 08:41:22,455 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-11-0-8339d8cb, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) INFO 10-22 08:41:22,456 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-12-0-8010e280, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,457 [kvshrink_connector.py:577] async_load step=275 t=1128155743126746 step_start reqs=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,457 [kvshrink_connector.py:1104] async_load step=275 t=1128155743251189 submit kind=async reqs=cmpl-bench-cf30b5c8-10-0-a1a8941b layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,462 [kvshrink_connector.py:1104] async_load step=275 t=1128155748268669 submit kind=async reqs=cmpl-bench-cf30b5c8-11-0-8339d8cb layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,466 [kvshrink_connector.py:1104] async_load step=275 t=1128155752318873 submit kind=async reqs=cmpl-bench-cf30b5c8-12-0-8010e280 layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,480 [kvshrink_connector.py:786] async_load step=275 t=1128155766094527 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,481 [kvshrink_connector.py:835] async_load step=275 t=1128155766495336 promote reqs=cmpl-bench-cf30b5c8-10-0-a1a8941b,cmpl-bench-cf30b5c8-11-0-8339d8cb,cmpl-bench-cf30b5c8-12-0-8010e280
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,482 [kvshrink_connector.py:577] async_load step=276 t=1128155767920487 step_start reqs=2
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,482 [kvshrink_connector.py:710] async_load step=276 t=1128155767990117 activate reqs= held=cmpl-bench-cf30b5c8-10-0-a1a8941b,cmpl-bench-cf30b5c8-11-0-8339d8cb,cmpl-bench-cf30b5c8-12-0-8010e280
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,491 [kvshrink_connector.py:786] async_load step=276 t=1128155777272261 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:33130 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO 10-22 08:41:22 [loggers.py:310] Engine 000: Avg prompt throughput: 188.8 tokens/s, Avg generation throughput: 103.8 tokens/s, Running: 4 reqs, Waiting: 3 reqs, Deferred: 3 reqs, GPU KV cache usage: 51.9%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 88.4%
+(EngineCore pid=1309224) INFO 10-22 08:41:22,531 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-13-0-9939819d, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,533 [kvshrink_connector.py:577] async_load step=277 t=1128155818805553 step_start reqs=5
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,533 [kvshrink_connector.py:1104] async_load step=277 t=1128155818884037 submit kind=async reqs=cmpl-bench-cf30b5c8-13-0-9939819d layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,537 [kvshrink_connector.py:710] async_load step=277 t=1128155823426405 activate reqs=cmpl-bench-cf30b5c8-10-0-a1a8941b,cmpl-bench-cf30b5c8-11-0-8339d8cb,cmpl-bench-cf30b5c8-12-0-8010e280 held=
+(APIServer pid=1309048) INFO:     127.0.0.1:33154 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:33146 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,945 [kvshrink_connector.py:786] async_load step=277 t=1128156231015294 step_end wait_ms=9.5 save_ms=373.8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,946 [kvshrink_connector.py:835] async_load step=277 t=1128156231549905 promote reqs=cmpl-bench-cf30b5c8-13-0-9939819d
+(EngineCore pid=1309224) INFO 10-22 08:41:22,949 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-14-0-b40b68e7, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) INFO 10-22 08:41:22,950 [kvshrink_connector.py:379] get_num_new_matched_tokens, req-cmpl-bench-cf30b5c8-15-0-928bc0a0, externally-cached tokens: 3792, locally-cached tokens: 0, async=True, selected_load_layers=4, async_load_layers=4
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,951 [kvshrink_connector.py:577] async_load step=278 t=1128156237060956 step_start reqs=5
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,951 [kvshrink_connector.py:1104] async_load step=278 t=1128156237163754 submit kind=async reqs=cmpl-bench-cf30b5c8-14-0-b40b68e7 layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,956 [kvshrink_connector.py:1104] async_load step=278 t=1128156242356509 submit kind=async reqs=cmpl-bench-cf30b5c8-15-0-928bc0a0 layers=0-63
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,961 [kvshrink_connector.py:710] async_load step=278 t=1128156246743851 activate reqs= held=cmpl-bench-cf30b5c8-13-0-9939819d
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,971 [kvshrink_connector.py:786] async_load step=278 t=1128156257271590 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,972 [kvshrink_connector.py:835] async_load step=278 t=1128156257806569 promote reqs=cmpl-bench-cf30b5c8-14-0-b40b68e7,cmpl-bench-cf30b5c8-15-0-928bc0a0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,974 [kvshrink_connector.py:577] async_load step=279 t=1128156259933696 step_start reqs=6
+(EngineCore pid=1309224) DEBUG 10-22 08:41:22,974 [kvshrink_connector.py:710] async_load step=279 t=1128156260046787 activate reqs=cmpl-bench-cf30b5c8-13-0-9939819d held=cmpl-bench-cf30b5c8-14-0-b40b68e7,cmpl-bench-cf30b5c8-15-0-928bc0a0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,179 [kvshrink_connector.py:786] async_load step=279 t=1128156464929883 step_end wait_ms=3.2 save_ms=190.8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,182 [kvshrink_connector.py:577] async_load step=280 t=1128156467793553 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,182 [kvshrink_connector.py:710] async_load step=280 t=1128156467915980 activate reqs=cmpl-bench-cf30b5c8-14-0-b40b68e7,cmpl-bench-cf30b5c8-15-0-928bc0a0 held=
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,452 [kvshrink_connector.py:786] async_load step=280 t=1128156737636784 step_end wait_ms=6.3 save_ms=253.8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,453 [kvshrink_connector.py:577] async_load step=281 t=1128156739015632 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,462 [kvshrink_connector.py:786] async_load step=281 t=1128156747751698 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,463 [kvshrink_connector.py:577] async_load step=282 t=1128156749194834 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,473 [kvshrink_connector.py:786] async_load step=282 t=1128156758993589 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,516 [kvshrink_connector.py:577] async_load step=283 t=1128156801633916 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,525 [kvshrink_connector.py:786] async_load step=283 t=1128156811344713 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,576 [kvshrink_connector.py:577] async_load step=284 t=1128156861738927 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,585 [kvshrink_connector.py:786] async_load step=284 t=1128156871442263 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,636 [kvshrink_connector.py:577] async_load step=285 t=1128156921892190 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,646 [kvshrink_connector.py:786] async_load step=285 t=1128156931839413 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,696 [kvshrink_connector.py:577] async_load step=286 t=1128156982265775 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,706 [kvshrink_connector.py:786] async_load step=286 t=1128156992147148 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,756 [kvshrink_connector.py:577] async_load step=287 t=1128157042138576 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,766 [kvshrink_connector.py:786] async_load step=287 t=1128157051712369 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,816 [kvshrink_connector.py:577] async_load step=288 t=1128157102297184 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,826 [kvshrink_connector.py:786] async_load step=288 t=1128157111858632 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,876 [kvshrink_connector.py:577] async_load step=289 t=1128157162449657 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,886 [kvshrink_connector.py:786] async_load step=289 t=1128157172131849 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,937 [kvshrink_connector.py:577] async_load step=290 t=1128157222566848 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,947 [kvshrink_connector.py:786] async_load step=290 t=1128157232927447 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:23,997 [kvshrink_connector.py:577] async_load step=291 t=1128157282883462 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,007 [kvshrink_connector.py:786] async_load step=291 t=1128157292546968 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,057 [kvshrink_connector.py:577] async_load step=292 t=1128157342911103 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,067 [kvshrink_connector.py:786] async_load step=292 t=1128157352835421 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,117 [kvshrink_connector.py:577] async_load step=293 t=1128157403075453 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,127 [kvshrink_connector.py:786] async_load step=293 t=1128157412896213 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,178 [kvshrink_connector.py:577] async_load step=294 t=1128157463454216 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,187 [kvshrink_connector.py:786] async_load step=294 t=1128157473312474 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,237 [kvshrink_connector.py:577] async_load step=295 t=1128157523394768 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,247 [kvshrink_connector.py:786] async_load step=295 t=1128157533284807 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,298 [kvshrink_connector.py:577] async_load step=296 t=1128157583708942 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,308 [kvshrink_connector.py:786] async_load step=296 t=1128157593500142 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,358 [kvshrink_connector.py:577] async_load step=297 t=1128157643919868 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,368 [kvshrink_connector.py:786] async_load step=297 t=1128157653839375 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,418 [kvshrink_connector.py:577] async_load step=298 t=1128157703851802 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,428 [kvshrink_connector.py:786] async_load step=298 t=1128157713672468 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,478 [kvshrink_connector.py:577] async_load step=299 t=1128157764067679 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,488 [kvshrink_connector.py:786] async_load step=299 t=1128157773911391 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,538 [kvshrink_connector.py:577] async_load step=300 t=1128157824201381 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,548 [kvshrink_connector.py:786] async_load step=300 t=1128157834023014 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,598 [kvshrink_connector.py:577] async_load step=301 t=1128157884400544 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,608 [kvshrink_connector.py:786] async_load step=301 t=1128157894251230 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,659 [kvshrink_connector.py:577] async_load step=302 t=1128157944738199 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,669 [kvshrink_connector.py:786] async_load step=302 t=1128157954576669 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,719 [kvshrink_connector.py:577] async_load step=303 t=1128158004669768 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,729 [kvshrink_connector.py:786] async_load step=303 t=1128158014469580 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,779 [kvshrink_connector.py:577] async_load step=304 t=1128158064938178 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,789 [kvshrink_connector.py:786] async_load step=304 t=1128158074725983 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,839 [kvshrink_connector.py:577] async_load step=305 t=1128158125050217 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,849 [kvshrink_connector.py:786] async_load step=305 t=1128158134793290 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,899 [kvshrink_connector.py:577] async_load step=306 t=1128158185054370 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,908 [kvshrink_connector.py:786] async_load step=306 t=1128158193892768 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,959 [kvshrink_connector.py:577] async_load step=307 t=1128158245277990 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:24,968 [kvshrink_connector.py:786] async_load step=307 t=1128158254139559 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,019 [kvshrink_connector.py:577] async_load step=308 t=1128158305328388 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,028 [kvshrink_connector.py:786] async_load step=308 t=1128158313990846 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,079 [kvshrink_connector.py:577] async_load step=309 t=1128158365433333 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,088 [kvshrink_connector.py:786] async_load step=309 t=1128158374038128 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,140 [kvshrink_connector.py:577] async_load step=310 t=1128158425887350 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,149 [kvshrink_connector.py:786] async_load step=310 t=1128158434554801 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,200 [kvshrink_connector.py:577] async_load step=311 t=1128158485881478 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,209 [kvshrink_connector.py:786] async_load step=311 t=1128158494532659 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,260 [kvshrink_connector.py:577] async_load step=312 t=1128158546278633 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,269 [kvshrink_connector.py:786] async_load step=312 t=1128158554992132 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,321 [kvshrink_connector.py:577] async_load step=313 t=1128158606467612 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,329 [kvshrink_connector.py:786] async_load step=313 t=1128158615217471 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,381 [kvshrink_connector.py:577] async_load step=314 t=1128158666537901 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,389 [kvshrink_connector.py:786] async_load step=314 t=1128158675149423 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,441 [kvshrink_connector.py:577] async_load step=315 t=1128158726664239 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,449 [kvshrink_connector.py:786] async_load step=315 t=1128158735379582 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,501 [kvshrink_connector.py:577] async_load step=316 t=1128158786896151 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,510 [kvshrink_connector.py:786] async_load step=316 t=1128158795515815 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,561 [kvshrink_connector.py:577] async_load step=317 t=1128158847060882 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,570 [kvshrink_connector.py:786] async_load step=317 t=1128158855723155 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,622 [kvshrink_connector.py:577] async_load step=318 t=1128158907481109 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,630 [kvshrink_connector.py:786] async_load step=318 t=1128158916213203 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,682 [kvshrink_connector.py:577] async_load step=319 t=1128158967502743 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,690 [kvshrink_connector.py:786] async_load step=319 t=1128158976231380 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,742 [kvshrink_connector.py:577] async_load step=320 t=1128159027735615 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,751 [kvshrink_connector.py:786] async_load step=320 t=1128159036495169 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,802 [kvshrink_connector.py:577] async_load step=321 t=1128159087914525 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,811 [kvshrink_connector.py:786] async_load step=321 t=1128159096646291 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,862 [kvshrink_connector.py:577] async_load step=322 t=1128159148173145 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,871 [kvshrink_connector.py:786] async_load step=322 t=1128159156918747 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,922 [kvshrink_connector.py:577] async_load step=323 t=1128159208453932 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,931 [kvshrink_connector.py:786] async_load step=323 t=1128159217148899 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,982 [kvshrink_connector.py:577] async_load step=324 t=1128159268399946 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:25,991 [kvshrink_connector.py:786] async_load step=324 t=1128159276686786 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,043 [kvshrink_connector.py:577] async_load step=325 t=1128159328608261 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,051 [kvshrink_connector.py:786] async_load step=325 t=1128159336978388 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,103 [kvshrink_connector.py:577] async_load step=326 t=1128159389170260 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,112 [kvshrink_connector.py:786] async_load step=326 t=1128159397894448 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,163 [kvshrink_connector.py:577] async_load step=327 t=1128159449167566 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,172 [kvshrink_connector.py:786] async_load step=327 t=1128159457816179 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,224 [kvshrink_connector.py:577] async_load step=328 t=1128159509648182 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,232 [kvshrink_connector.py:786] async_load step=328 t=1128159518165556 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,284 [kvshrink_connector.py:577] async_load step=329 t=1128159569794755 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,293 [kvshrink_connector.py:786] async_load step=329 t=1128159578525469 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,344 [kvshrink_connector.py:577] async_load step=330 t=1128159629885819 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,353 [kvshrink_connector.py:786] async_load step=330 t=1128159638613653 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,404 [kvshrink_connector.py:577] async_load step=331 t=1128159690105197 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,413 [kvshrink_connector.py:786] async_load step=331 t=1128159698840947 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,464 [kvshrink_connector.py:577] async_load step=332 t=1128159750383112 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,473 [kvshrink_connector.py:786] async_load step=332 t=1128159759149348 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,525 [kvshrink_connector.py:577] async_load step=333 t=1128159810564550 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,533 [kvshrink_connector.py:786] async_load step=333 t=1128159819278282 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,585 [kvshrink_connector.py:577] async_load step=334 t=1128159870923707 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,594 [kvshrink_connector.py:786] async_load step=334 t=1128159879650748 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,645 [kvshrink_connector.py:577] async_load step=335 t=1128159930999995 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,654 [kvshrink_connector.py:786] async_load step=335 t=1128159939657578 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,705 [kvshrink_connector.py:577] async_load step=336 t=1128159991292529 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,714 [kvshrink_connector.py:786] async_load step=336 t=1128159999905453 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,766 [kvshrink_connector.py:577] async_load step=337 t=1128160051487381 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,774 [kvshrink_connector.py:786] async_load step=337 t=1128160060170548 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,826 [kvshrink_connector.py:577] async_load step=338 t=1128160111721540 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,834 [kvshrink_connector.py:786] async_load step=338 t=1128160120416839 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,886 [kvshrink_connector.py:577] async_load step=339 t=1128160172103734 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,895 [kvshrink_connector.py:786] async_load step=339 t=1128160180736867 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,946 [kvshrink_connector.py:577] async_load step=340 t=1128160232256032 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:26,955 [kvshrink_connector.py:786] async_load step=340 t=1128160240951155 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,007 [kvshrink_connector.py:577] async_load step=341 t=1128160292464138 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,015 [kvshrink_connector.py:786] async_load step=341 t=1128160301174526 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,067 [kvshrink_connector.py:577] async_load step=342 t=1128160352874538 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,076 [kvshrink_connector.py:786] async_load step=342 t=1128160361633846 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,127 [kvshrink_connector.py:577] async_load step=343 t=1128160412889902 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,136 [kvshrink_connector.py:786] async_load step=343 t=1128160421498233 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,187 [kvshrink_connector.py:577] async_load step=344 t=1128160473360649 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,196 [kvshrink_connector.py:786] async_load step=344 t=1128160482039967 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,248 [kvshrink_connector.py:577] async_load step=345 t=1128160533553117 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,256 [kvshrink_connector.py:786] async_load step=345 t=1128160542292440 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,308 [kvshrink_connector.py:577] async_load step=346 t=1128160593715899 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,316 [kvshrink_connector.py:786] async_load step=346 t=1128160602422849 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,368 [kvshrink_connector.py:577] async_load step=347 t=1128160653902139 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,377 [kvshrink_connector.py:786] async_load step=347 t=1128160662548388 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,428 [kvshrink_connector.py:577] async_load step=348 t=1128160714226382 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,437 [kvshrink_connector.py:786] async_load step=348 t=1128160722945676 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,488 [kvshrink_connector.py:577] async_load step=349 t=1128160774425941 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,497 [kvshrink_connector.py:786] async_load step=349 t=1128160783151626 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,549 [kvshrink_connector.py:577] async_load step=350 t=1128160834853191 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,558 [kvshrink_connector.py:786] async_load step=350 t=1128160843581949 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,609 [kvshrink_connector.py:577] async_load step=351 t=1128160894910995 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,618 [kvshrink_connector.py:786] async_load step=351 t=1128160903591837 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,669 [kvshrink_connector.py:577] async_load step=352 t=1128160955183261 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,678 [kvshrink_connector.py:786] async_load step=352 t=1128160963795811 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,729 [kvshrink_connector.py:577] async_load step=353 t=1128161015412228 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,738 [kvshrink_connector.py:786] async_load step=353 t=1128161023980586 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,790 [kvshrink_connector.py:577] async_load step=354 t=1128161075681269 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,798 [kvshrink_connector.py:786] async_load step=354 t=1128161084320259 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,850 [kvshrink_connector.py:577] async_load step=355 t=1128161136082158 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,859 [kvshrink_connector.py:786] async_load step=355 t=1128161144815876 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,910 [kvshrink_connector.py:577] async_load step=356 t=1128161196215259 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,919 [kvshrink_connector.py:786] async_load step=356 t=1128161204891897 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,971 [kvshrink_connector.py:577] async_load step=357 t=1128161256464641 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:27,979 [kvshrink_connector.py:786] async_load step=357 t=1128161265198559 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,031 [kvshrink_connector.py:577] async_load step=358 t=1128161316956160 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,040 [kvshrink_connector.py:786] async_load step=358 t=1128161325709712 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,091 [kvshrink_connector.py:577] async_load step=359 t=1128161376929387 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,100 [kvshrink_connector.py:786] async_load step=359 t=1128161385654025 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,151 [kvshrink_connector.py:577] async_load step=360 t=1128161437317567 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,160 [kvshrink_connector.py:786] async_load step=360 t=1128161445956030 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,212 [kvshrink_connector.py:577] async_load step=361 t=1128161497620241 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,220 [kvshrink_connector.py:786] async_load step=361 t=1128161506301831 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,272 [kvshrink_connector.py:577] async_load step=362 t=1128161557765519 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,280 [kvshrink_connector.py:786] async_load step=362 t=1128161566354654 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,332 [kvshrink_connector.py:577] async_load step=363 t=1128161617996798 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,341 [kvshrink_connector.py:786] async_load step=363 t=1128161626621036 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,392 [kvshrink_connector.py:577] async_load step=364 t=1128161678320617 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,401 [kvshrink_connector.py:786] async_load step=364 t=1128161687064207 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,453 [kvshrink_connector.py:577] async_load step=365 t=1128161738485537 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,461 [kvshrink_connector.py:786] async_load step=365 t=1128161747126952 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,513 [kvshrink_connector.py:577] async_load step=366 t=1128161798960440 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,522 [kvshrink_connector.py:786] async_load step=366 t=1128161807686073 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,573 [kvshrink_connector.py:577] async_load step=367 t=1128161859081290 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,582 [kvshrink_connector.py:786] async_load step=367 t=1128161867821078 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,634 [kvshrink_connector.py:577] async_load step=368 t=1128161919680767 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,642 [kvshrink_connector.py:786] async_load step=368 t=1128161928447269 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,694 [kvshrink_connector.py:577] async_load step=369 t=1128161980174346 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,703 [kvshrink_connector.py:786] async_load step=369 t=1128161988890530 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,755 [kvshrink_connector.py:577] async_load step=370 t=1128162040776223 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,764 [kvshrink_connector.py:786] async_load step=370 t=1128162049535150 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,815 [kvshrink_connector.py:577] async_load step=371 t=1128162101437054 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,824 [kvshrink_connector.py:786] async_load step=371 t=1128162110171108 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,876 [kvshrink_connector.py:577] async_load step=372 t=1128162161836700 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,885 [kvshrink_connector.py:786] async_load step=372 t=1128162170616484 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,936 [kvshrink_connector.py:577] async_load step=373 t=1128162222365826 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,945 [kvshrink_connector.py:786] async_load step=373 t=1128162231175854 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:28,997 [kvshrink_connector.py:577] async_load step=374 t=1128162283121313 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,006 [kvshrink_connector.py:786] async_load step=374 t=1128162291903134 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,057 [kvshrink_connector.py:577] async_load step=375 t=1128162343432135 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,066 [kvshrink_connector.py:786] async_load step=375 t=1128162352244161 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,118 [kvshrink_connector.py:577] async_load step=376 t=1128162404176580 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,127 [kvshrink_connector.py:786] async_load step=376 t=1128162412963686 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,179 [kvshrink_connector.py:577] async_load step=377 t=1128162464694631 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,188 [kvshrink_connector.py:786] async_load step=377 t=1128162473465281 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,239 [kvshrink_connector.py:577] async_load step=378 t=1128162525110117 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,248 [kvshrink_connector.py:786] async_load step=378 t=1128162533791495 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,300 [kvshrink_connector.py:577] async_load step=379 t=1128162585616369 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,308 [kvshrink_connector.py:786] async_load step=379 t=1128162594413968 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,360 [kvshrink_connector.py:577] async_load step=380 t=1128162646170951 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,369 [kvshrink_connector.py:786] async_load step=380 t=1128162655096402 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,421 [kvshrink_connector.py:577] async_load step=381 t=1128162706592039 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,429 [kvshrink_connector.py:786] async_load step=381 t=1128162715252270 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,481 [kvshrink_connector.py:577] async_load step=382 t=1128162767338928 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,490 [kvshrink_connector.py:786] async_load step=382 t=1128162776104302 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,542 [kvshrink_connector.py:577] async_load step=383 t=1128162827688785 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,551 [kvshrink_connector.py:786] async_load step=383 t=1128162836485845 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,602 [kvshrink_connector.py:577] async_load step=384 t=1128162888335816 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,611 [kvshrink_connector.py:786] async_load step=384 t=1128162897107024 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,663 [kvshrink_connector.py:577] async_load step=385 t=1128162948826542 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,672 [kvshrink_connector.py:786] async_load step=385 t=1128162957624655 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,723 [kvshrink_connector.py:577] async_load step=386 t=1128163009412753 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,732 [kvshrink_connector.py:786] async_load step=386 t=1128163018180359 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,784 [kvshrink_connector.py:577] async_load step=387 t=1128163070073787 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,793 [kvshrink_connector.py:786] async_load step=387 t=1128163078734360 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,845 [kvshrink_connector.py:577] async_load step=388 t=1128163130529561 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,853 [kvshrink_connector.py:786] async_load step=388 t=1128163139270867 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,905 [kvshrink_connector.py:577] async_load step=389 t=1128163191091266 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,914 [kvshrink_connector.py:786] async_load step=389 t=1128163199960692 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,966 [kvshrink_connector.py:577] async_load step=390 t=1128163251708620 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:29,974 [kvshrink_connector.py:786] async_load step=390 t=1128163260260546 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,026 [kvshrink_connector.py:577] async_load step=391 t=1128163312098596 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,035 [kvshrink_connector.py:786] async_load step=391 t=1128163320669679 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,087 [kvshrink_connector.py:577] async_load step=392 t=1128163372919024 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,096 [kvshrink_connector.py:786] async_load step=392 t=1128163381722730 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,148 [kvshrink_connector.py:577] async_load step=393 t=1128163433491206 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,156 [kvshrink_connector.py:786] async_load step=393 t=1128163442273213 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,208 [kvshrink_connector.py:577] async_load step=394 t=1128163493900823 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,217 [kvshrink_connector.py:786] async_load step=394 t=1128163502687059 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,268 [kvshrink_connector.py:577] async_load step=395 t=1128163554398666 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,277 [kvshrink_connector.py:786] async_load step=395 t=1128163563104128 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,329 [kvshrink_connector.py:577] async_load step=396 t=1128163615086988 step_start reqs=8
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,338 [kvshrink_connector.py:786] async_load step=396 t=1128163623814616 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,390 [kvshrink_connector.py:577] async_load step=397 t=1128163675581292 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,398 [kvshrink_connector.py:786] async_load step=397 t=1128163684334862 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,450 [kvshrink_connector.py:577] async_load step=398 t=1128163736326812 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,459 [kvshrink_connector.py:786] async_load step=398 t=1128163745234868 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,510 [kvshrink_connector.py:577] async_load step=399 t=1128163795676389 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,518 [kvshrink_connector.py:786] async_load step=399 t=1128163804451172 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,569 [kvshrink_connector.py:577] async_load step=400 t=1128163855328794 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,578 [kvshrink_connector.py:786] async_load step=400 t=1128163864096177 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,629 [kvshrink_connector.py:577] async_load step=401 t=1128163914656844 step_start reqs=7
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,637 [kvshrink_connector.py:786] async_load step=401 t=1128163923415226 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,688 [kvshrink_connector.py:577] async_load step=402 t=1128163974248683 step_start reqs=6
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,697 [kvshrink_connector.py:786] async_load step=402 t=1128163982981943 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,748 [kvshrink_connector.py:577] async_load step=403 t=1128164033741796 step_start reqs=6
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,756 [kvshrink_connector.py:786] async_load step=403 t=1128164042412377 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,807 [kvshrink_connector.py:577] async_load step=404 t=1128164092570867 step_start reqs=6
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,815 [kvshrink_connector.py:786] async_load step=404 t=1128164101329632 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,865 [kvshrink_connector.py:577] async_load step=405 t=1128164151309432 step_start reqs=3
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,874 [kvshrink_connector.py:786] async_load step=405 t=1128164160302658 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,924 [kvshrink_connector.py:577] async_load step=406 t=1128164210120351 step_start reqs=3
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,933 [kvshrink_connector.py:786] async_load step=406 t=1128164219023656 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,980 [kvshrink_connector.py:577] async_load step=407 t=1128164266020849 step_start reqs=2
+(EngineCore pid=1309224) DEBUG 10-22 08:41:30,989 [kvshrink_connector.py:786] async_load step=407 t=1128164275245132 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:31,036 [kvshrink_connector.py:577] async_load step=408 t=1128164321665245 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:31,036 [kvshrink_connector.py:786] async_load step=408 t=1128164321755859 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:31,092 [kvshrink_connector.py:577] async_load step=409 t=1128164377839116 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:31,092 [kvshrink_connector.py:786] async_load step=409 t=1128164377915671 step_end wait_ms=0.0 save_ms=0.0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:31,095 [kvshrink_connector.py:577] async_load step=410 t=1128164380689581 step_start reqs=0
+(EngineCore pid=1309224) DEBUG 10-22 08:41:31,095 [kvshrink_connector.py:786] async_load step=410 t=1128164380771672 step_end wait_ms=0.0 save_ms=0.0
+(APIServer pid=1309048) INFO:     127.0.0.1:34086 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO:     127.0.0.1:33086 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=1309048) INFO 10-22 08:41:32 [loggers.py:310] Engine 000: Avg prompt throughput: 124.8 tokens/s, Avg generation throughput: 101.9 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 89.5%

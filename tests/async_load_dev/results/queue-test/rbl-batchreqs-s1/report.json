@@ -1,0 +1,221 @@
+{
+  "scheme": "priority_3level_first_n_batch_reqs_remaining_by_layer",
+  "scenario": "s1",
+  "hit_requests": 16,
+  "hit_async": 16,
+  "hit_sync": 0,
+  "submissions": 24,
+  "trace_events": 2016,
+  "structure_errors": [],
+  "inversions": 0,
+  "inversion_samples": [],
+  "steps_with_multiple_async_reqs": 4,
+  "case_a_async_behind_earlier_async": 2,
+  "case_b_sync_behind_earlier_async": 0,
+  "p0_raise_calls": 5,
+  "p0_raise_calls_multi_group": 4,
+  "p0_raise_calls_with_sync": 0,
+  "per_submission": [
+    {
+      "step": 132,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.014195,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 132,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 6.980586,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 138,
+      "kind": "async",
+      "reqs": 3,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.016141,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 138,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 17.427571,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 138,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 73.954228,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 138,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 71.286981,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 140,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.906293,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 151
+      }
+    },
+    {
+      "step": 140,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 292.168742,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 151
+      }
+    },
+    {
+      "step": 141,
+      "kind": "async",
+      "reqs": 3,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.056168,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 141,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 17.336978,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 141,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 125.745114,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 141,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 228.262423,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 267,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.016596,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 267,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 6.107894,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 270,
+      "kind": "async",
+      "reqs": 3,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.218975,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 270,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 18.349841,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 270,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 75.642933,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 270,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 73.849762,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 272,
+      "kind": "async",
+      "reqs": 1,
+      "first_layer": 0,
+      "first_task_wait_ms": 0.948298,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 151
+      }
+    },
+    {
+      "step": 272,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 290.507707,
+      "ahead_from_earlier_steps": {
+        "async_tail_promoted": 151
+      }
+    },
+    {
+      "step": 273,
+      "kind": "async",
+      "reqs": 3,
+      "first_layer": 0,
+      "first_task_wait_ms": 1.414946,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 273,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 20.14081,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 273,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 127.967778,
+      "ahead_from_earlier_steps": {}
+    },
+    {
+      "step": 273,
+      "kind": "async_remaining",
+      "reqs": 1,
+      "first_layer": 4,
+      "first_task_wait_ms": 225.045396,
+      "ahead_from_earlier_steps": {}
+    }
+  ],
+  "verdict": "PASS"
+}
