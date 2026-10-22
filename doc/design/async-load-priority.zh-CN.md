@@ -685,8 +685,9 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - [x] 删除预留未实现的 `priority_3level_first_n_batch_reqs` 枚举值(10-22 决定,尾不跨请求共用任务,§4.3 末尾)
 - [x] `TaskQueue`:任务带层号 + 一次提权多个组并按层排序;`get()` 透传层号;单测 + TSan(§4.3 末尾)
 - [x] 新方案 `priority_3level_first_n_per_req_remaining_by_layer`、`priority_3level_first_n_batch_reqs_remaining_by_layer`(含 sync 批一起按层排):实现、§7 S1 / S2、输出正确性(§11.15)
-- [ ] 上面两个新方案:GSM8K、32k 性能(四个 priority 方案之间比较,开事件日志)
-- [ ] `..._batch_reqs_remaining_by_layer` 下"sync 批与激活的尾一起按层排"没有在 GPU 上被覆盖(§11.15);该路径与 `..._per_req_remaining_by_layer` 共用代码,后者已覆盖
+- [x] 上面两个新方案:GSM8K(TP=2)0.955–0.960,TP=2 输出正确性 S1 / S2 通过(§11.15)
+- [ ] 上面两个新方案:32k 性能(四个 priority 方案之间比较,开事件日志)
+- [ ] "sync 批与激活的尾一起按层排":只在 TP=1 的 `rbl-perreq-s2` 队列测试中出现 2 次;`_batch_reqs_` 下与 TP=2 下(GSM8K、正确性检查)都没有被覆盖,输出正确性也未在该路径上验证(§11.15)
 - [ ] 统计 32k c4 / c8 下同一 step 激活多个请求、以及 sync 与激活同 step 的频率(决定按层提权的收益上限)
 - [ ] 已知问题:`priority_3level_*` 不支持远程存储(`IAXL_RDMA_ENABLE`),目前启动报错,以后处理
 - [ ] 分析:`v29p3-priority-s1` 中两次新请求的头等了 58 / 61 ms(§11.10),原因未查
@@ -720,7 +721,7 @@ T2、T4 由 §7 的 S1 覆盖(S1 开头的 8 个请求同时到达对应 T4,后�
 - 2026-10-21:prio、raise、batch 的 GSM8K 各 2 次,0.945–0.955,与 split 同水平(§11.11);72B 脚本加固定层数与重复次数,下一轮做 32k 固定层数扫描(§11.12)。
 - 2026-10-21 / 22:32k 固定层数扫描 108 格无失败:N ≤ 8 比 sync 慢,N ≥ 32 的 TTFT 提升在 hit 100 是真实吞吐提升,在 hit 95 / 98 只是 TTFT 与 TPOT 的再分配(§11.14)。
 - 2026-10-22:prio 逐组提权使尾在 P0 里按请求排(K1 第 2 点重现);定下做法 A(任务带层号 + 多组按层提权)、两个新方案名,删除预留的 `priority_3level_first_n_batch_reqs`;按代码与 trace 确认 prio 在 step 开始时 P0 为空(§4.3 末尾)。随后定:只新增这两个方案(都在进入 forward 时提权);同 forward 的 sync 批一起按层排,作为内置行为,不加开关;名字不改。未改代码。
-- 2026-10-22:实现两个新方案(`TaskQueue` 任务带层号 + `set_groups_priority`,透传到 `KVStore.get()`,connector 与判定脚本),单测 48 项 + TSan 通过;GPU7 上 §7 S1、S2 与输出正确性无 FAIL,所有提权都按层号执行;`restart-vllm.sh` 补开事件日志(§11.15)。
+- 2026-10-22:实现两个新方案(`TaskQueue` 任务带层号 + `set_groups_priority`,透传到 `KVStore.get()`,connector 与判定脚本),单测 48 项 + TSan 通过;GPU7 上 §7 S1、S2 与输出正确性无 FAIL,所有提权都按层号执行;`restart-vllm.sh` 补开事件日志(§11.15)。随后 TP=2:GSM8K 两次 0.955 / 0.955(per_req)、0.955 / 0.960(batch_reqs);输出正确性 S1 / S2 均通过;`restart-vllm.sh` 支持 `TP`,`run-queue-and-correctness.sh` 支持 `QUEUE=0`(§11.15)。
 
 ### 11.1 公共基础设施
 
@@ -1188,4 +1189,31 @@ rebase 结果:只有 `setvars.sh` 一处冲突(基础镜像用上游 v0.29.0,开
 
 - 所有提权都按层号执行,多组提权时各请求的尾按层交错执行(切换 80–229 次,按请求排只会有 1–4 次)。§4.3 末尾说的 K1 第 2 点(提权后 P0 里按请求排)在这两个方案下消除。
 - "sync 批与激活的尾一起按层排"只在 `rbl-perreq-s2` 出现(2 次);`_batch_reqs_` 三轮都没有出现(sync 请求到达的 step 恰好没有激活 async 请求)。两个方案的这段代码相同(`start_load_kv()` 的 K3 循环之后)。
-- 未测:TTFT / 吞吐、GSM8K(§10)。
+
+**GSM8K(TP=2)**:配置与 §11.11 相同(Qwen3-32B bf16,TP=2 在 GPU4、5,map `0-3:0,4-6:4,7-:8`,200 题,并发 50,temperature 0,同一服务连跑 2 次、中间不清 DDR,开事件日志),connector md5 `4dafb666`。结果 `_data/gsm8k/<方案>/`。
+
+| 方案 | 运行 | 答对 / 总数 | mean_acc | 命中外部缓存的请求 | 外部加载 token 平均 / 最少 / 最多 | 选到的 N(请求数) | sync / async / async_remaining 提交行 | 多请求激活行 | 报错行 | 乱码 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| per_req | run1 | 191 / 200 | **0.955** | 198 / 200 | 570 / 0 / 576 | N=0:3,N=4:3,N=8:194 | 2 / 394 / 0 | 82 | 0 | 0 |
+| per_req | run2 | 191 / 200 | **0.955** | 200 / 200 | 653 / 608 / 720 | 同上 | 4 / 394 / 0 | 108 | 0 | 0 |
+| batch_reqs | run1 | 191 / 200 | **0.955** | 199 / 200 | 573 / 0 / 576 | 同上 | 2 / 182 / 394 | 86 | 0 | 0 |
+| batch_reqs | run2 | 192 / 200 | **0.960** | 200 / 200 | 653 / 608 / 720 | 同上 | 4 / 170 / 394 | 100 | 0 | 0 |
+
+列说明:per_req / batch_reqs 分别是 `priority_3level_first_n_per_req_remaining_by_layer` / `priority_3level_first_n_batch_reqs_remaining_by_layer`;"sync / async / async_remaining 提交行"= vLLM log 中三种 `submit kind=` 的行数,两个 TP rank 合计(per_req 每个 async 请求一次 `get()`,头尾同一次,197 × 2 = 394;batch_reqs 的头按 step 合并,尾每请求一次);"多请求激活行"= `activate reqs=` 中含 ≥ 2 个请求的行数,两个 rank 合计,每行对应一次多组按层提权;其余同 §11.9、§11.11。
+
+- 准确率 0.955–0.960,与 split(0.955 / 0.950)、prio / raise / batch(0.945–0.955)同水平。同一方案两次逐题比:per_req 最终答案相同 191 / 200、对错不同 2 题;batch_reqs 相同 192 / 200、对错不同 3 题(未开 batch invariant,推断为运行间波动,同 §11.9)。
+- TP=2 下多组提权大量发生(每次 41–54 次 / rank);sync 批与激活同 step 的次数为 0(sync 只在开头 1–2 个 step 出现),GSM8K 没有覆盖"sync 批一起按层排"。
+
+**输出正确性(TP=2)**:GPU4、5,`VLLM_BATCH_INVARIANT=1`,检查方法与上面相同(`QUEUE=0 TP=2 GPU=4,5 CPU_BIND='64-95|96-127' run-queue-and-correctness.sh`)。每轮 log 中有 `Worker_TP0` / `Worker_TP1` 两个进程,两个 rank 的 activate 行数相同。
+
+| 运行名 | 方案 | 服务配置 | 4 个请求的路径(rank 0) | 与参考逐字节一致 | 乱码 | 结论 |
+|---|---|---|---|---|---|---|
+| `tp2-perreq-s1-correctness` | per_req | S1 | 4 个 async;step 73 一次激活 2 个请求(多组按层提权),另 1 个 held 一个 step | 4 / 4 | 无 | PASS |
+| `tp2-perreq-s2-correctness` | per_req | S2 | 3 个 sync + 1 个 async(sync 与激活不在同一 step) | 4 / 4 | 无 | PASS |
+| `tp2-batchreqs-s1-correctness` | batch_reqs | S1 | 4 个 async;step 70 两个请求的头合成一次提交,step 74 一次激活 2 个请求 | 4 / 4 | 无 | PASS |
+| `tp2-batchreqs-s2-correctness` | batch_reqs | S2 | 3 个 sync + 1 个 async(sync 与激活不在同一 step) | 4 / 4 | 无 | PASS |
+
+列说明同 §11.6 的输出正确性表;参考请求 `externally-cached tokens` = 0,4 个命中请求各 4960。
+
+- TP=2 下未覆盖:"sync 批与激活的尾一起按层排"(GSM8K 与正确性检查都没有遇到),见 §10。
+- 未测:TTFT / 吞吐(§10)。
