@@ -1223,24 +1223,24 @@ rebase 结果:只有 `setvars.sh` 一处冲突(基础镜像用上游 v0.29.0,开
 
 ### 11.16 72B 性能:两个 remaining_by_layer 新方案(10-22)
 
-配置:与 §11.12 相同的 72B TP=8 环境;方案 sync / prio / rbl_pr / rbl_br / batch,分别是 `KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0` / `priority_3level_first_n_per_req` / `priority_3level_first_n_per_req_remaining_by_layer` / `priority_3level_first_n_batch_reqs_remaining_by_layer` / `batch_reqs_async_load_submit`;map 4/8、8/16、16/32(`0-3:0,4-6:<a>,7-:<b>`);输入 8k / 16k / 32k,hit 80 / 98 / 100,c4–c32(16k 最多 c16,32k 最多 c8),每格 1 次;13 个 server × 27 格 = 351 格,10-22 10:10 – 10-23 01:24,无失败格、无重启。运行顺序:sync,然后按 map,同一 map 的 4 个 async 方案连着跑。所有 server(含 sync)开 `KVSHRINK_ASYNC_LOAD_EVENT_LOG=1`。结果 `_data/perf-qwen72b/20261022_101029/`;分析脚本 `tests/async_load_dev/analysis/round1022.py`(性能)、`events1022.py`(事件日志),输出另存为结果目录下的 `analysis_*.txt`。
+配置:与 §11.12 相同的 72B TP=8 环境;方案 sync / prio / rbl_pr / rbl_br / batch,分别是 `KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0` / `priority_3level_first_n_per_req` / `priority_3level_first_n_per_req_remaining_by_layer` / `priority_3level_first_n_batch_reqs_remaining_by_layer` / `batch_reqs_async_load_submit`;map(`KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1` 下的 `KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP`,格式"在途请求数区间:先加载的层数",0 表示走 sync)取 `0-3:0,4-6:4,7-:8`、`0-3:0,4-6:8,7-:16`、`0-3:0,4-6:16,7-:32`;本节与 §11.17 的 map 列都是该变量的值;输入 8k / 16k / 32k,hit 80 / 98 / 100,c4–c32(16k 最多 c16,32k 最多 c8),每格 1 次;13 个 server × 27 格 = 351 格,10-22 10:10 – 10-23 01:24,无失败格、无重启。运行顺序:sync,然后按 map,同一 map 的 4 个 async 方案连着跑。所有 server(含 sync)开 `KVSHRINK_ASYNC_LOAD_EVENT_LOG=1`。结果 `_data/perf-qwen72b/20261022_101029/`;分析脚本 `tests/async_load_dev/analysis/round1022.py`(性能)、`events1022.py`(事件日志),输出另存为结果目录下的 `analysis_*.txt`。
 
 **各配置相对 sync**(实测,27 格几何平均):
 
 | 配置 | TTFT | p95 TTFT | TPOT | 端到端 | 时长 | TTFT 优于 sync 的格 | 最差格 |
 |---|---|---|---|---|---|---|---|
-| prio 4/8 | −10% | +2% | +7% | +2% | +2% | 18 / 27 | +15%(8k h98 c16) |
-| rbl_pr 4/8 | −13% | −5% | +8% | +2% | +2% | 19 / 27 | +14%(8k h80 c32) |
-| rbl_br 4/8 | −11% | −3% | +7% | +1% | +2% | 21 / 27 | +17%(8k h80 c32) |
-| batch 4/8 | −21% | −4% | +8% | +1% | +1% | 23 / 27 | +13%(8k h80 c32) |
-| prio 8/16 | −19% | −3% | +8% | +1% | +2% | 18 / 27 | +18%(8k h98 c16) |
-| rbl_pr 8/16 | −22% | −6% | +8% | +0% | +1% | 22 / 27 | +14%(8k h80 c32) |
-| rbl_br 8/16 | −21% | −5% | +9% | +1% | +1% | 20 / 27 | +18%(8k h80 c32) |
-| batch 8/16 | −24% | −4% | +7% | −1% | −0% | 22 / 27 | +11%(8k h80 c32) |
-| prio 16/32 | −24% | −5% | +7% | −1% | −0% | 24 / 27 | +30%(16k h80 c16) |
-| rbl_pr 16/32 | −24% | −5% | +7% | −0% | +0% | 23 / 27 | +31%(16k h80 c16) |
-| rbl_br 16/32 | −25% | −3% | +8% | −0% | +0% | 22 / 27 | +31%(16k h80 c16) |
-| batch 16/32 | −25% | −2% | +7% | −1% | −0% | 23 / 27 | +31%(16k h80 c16) |
+| prio `0-3:0,4-6:4,7-:8` | −10% | +2% | +7% | +2% | +2% | 18 / 27 | +15%(8k h98 c16) |
+| rbl_pr `0-3:0,4-6:4,7-:8` | −13% | −5% | +8% | +2% | +2% | 19 / 27 | +14%(8k h80 c32) |
+| rbl_br `0-3:0,4-6:4,7-:8` | −11% | −3% | +7% | +1% | +2% | 21 / 27 | +17%(8k h80 c32) |
+| batch `0-3:0,4-6:4,7-:8` | −21% | −4% | +8% | +1% | +1% | 23 / 27 | +13%(8k h80 c32) |
+| prio `0-3:0,4-6:8,7-:16` | −19% | −3% | +8% | +1% | +2% | 18 / 27 | +18%(8k h98 c16) |
+| rbl_pr `0-3:0,4-6:8,7-:16` | −22% | −6% | +8% | +0% | +1% | 22 / 27 | +14%(8k h80 c32) |
+| rbl_br `0-3:0,4-6:8,7-:16` | −21% | −5% | +9% | +1% | +1% | 20 / 27 | +18%(8k h80 c32) |
+| batch `0-3:0,4-6:8,7-:16` | −24% | −4% | +7% | −1% | −0% | 22 / 27 | +11%(8k h80 c32) |
+| prio `0-3:0,4-6:16,7-:32` | −24% | −5% | +7% | −1% | −0% | 24 / 27 | +30%(16k h80 c16) |
+| rbl_pr `0-3:0,4-6:16,7-:32` | −24% | −5% | +7% | −0% | +0% | 23 / 27 | +31%(16k h80 c16) |
+| rbl_br `0-3:0,4-6:16,7-:32` | −25% | −3% | +8% | −0% | +0% | 22 / 27 | +31%(16k h80 c16) |
+| batch `0-3:0,4-6:16,7-:32` | −25% | −2% | +7% | −1% | −0% | 23 / 27 | +31%(16k h80 c16) |
 
 列说明:每格"该配置 ÷ sync",对 27 格取几何平均后减 1,负数为更好;"端到端"= 平均 TTFT + 127 × 平均 TPOT;"时长"= bench 的 `duration`;"最差格"= 平均 TTFT 相对 sync 变慢最多的格(h 命中率,c 并发)。
 
@@ -1248,60 +1248,60 @@ rebase 结果:只有 `setvars.sh` 一处冲突(基础镜像用上游 v0.29.0,开
 
 | 配置 | hit 80 | hit 98 | hit 100 |
 |---|---|---|---|
-| prio 4/8 | −7 / +1% | −3 / +5% | −19 / −0% |
-| rbl_pr 4/8 | −8 / +1% | −10 / +3% | −21 / +2% |
-| rbl_br 4/8 | −8 / +1% | −9 / +3% | −17 / +1% |
-| batch 4/8 | −8 / +1% | −12 / +3% | −38 / −2% |
-| prio 8/16 | −9 / +0% | −1 / +6% | −41 / −2% |
-| rbl_pr 8/16 | −8 / +1% | −12 / +3% | −40 / −2% |
-| rbl_br 8/16 | −7 / +1% | −16 / +3% | −36 / −1% |
-| batch 8/16 | −9 / +1% | −13 / +2% | −43 / −5% |
-| prio 16/32 | −7 / +1% | −14 / +3% | −46 / −5% |
-| rbl_pr 16/32 | −5 / +1% | −14 / +3% | −46 / −5% |
-| rbl_br 16/32 | −7 / +1% | −21 / +3% | −43 / −4% |
-| batch 16/32 | −6 / +1% | −21 / +3% | −44 / −6% |
+| prio `0-3:0,4-6:4,7-:8` | −7 / +1% | −3 / +5% | −19 / −0% |
+| rbl_pr `0-3:0,4-6:4,7-:8` | −8 / +1% | −10 / +3% | −21 / +2% |
+| rbl_br `0-3:0,4-6:4,7-:8` | −8 / +1% | −9 / +3% | −17 / +1% |
+| batch `0-3:0,4-6:4,7-:8` | −8 / +1% | −12 / +3% | −38 / −2% |
+| prio `0-3:0,4-6:8,7-:16` | −9 / +0% | −1 / +6% | −41 / −2% |
+| rbl_pr `0-3:0,4-6:8,7-:16` | −8 / +1% | −12 / +3% | −40 / −2% |
+| rbl_br `0-3:0,4-6:8,7-:16` | −7 / +1% | −16 / +3% | −36 / −1% |
+| batch `0-3:0,4-6:8,7-:16` | −9 / +1% | −13 / +2% | −43 / −5% |
+| prio `0-3:0,4-6:16,7-:32` | −7 / +1% | −14 / +3% | −46 / −5% |
+| rbl_pr `0-3:0,4-6:16,7-:32` | −5 / +1% | −14 / +3% | −46 / −5% |
+| rbl_br `0-3:0,4-6:16,7-:32` | −7 / +1% | −21 / +3% | −43 / −4% |
+| batch `0-3:0,4-6:16,7-:32` | −6 / +1% | −21 / +3% | −44 / −6% |
 
 **方案两两比较**(同 map 同格的 TTFT 之比,27 格几何平均;"前向等待"= rank 0 各 step `step_end` 的 `wait_ms` 之和,27 格合计之比):
 
 | 比较 | map | TTFT | 前者更快的格 | 单格范围 | 端到端 | 前向等待 |
 |---|---|---|---|---|---|---|
-| rbl_pr / prio | 4/8 | −4% | 18 / 27 | 0.78–1.09 | +0% | 0.83 |
-| rbl_pr / prio | 8/16 | −3% | 20 / 27 | 0.77–1.16 | −1% | 0.86 |
-| rbl_pr / prio | 16/32 | +0% | 10 / 27 | 0.87–1.19 | +0% | 0.92 |
-| rbl_br / prio | 4/8 | −1% | 18 / 27 | 0.82–1.22 | −0% | 0.84 |
-| rbl_br / prio | 8/16 | −2% | 12 / 27 | 0.53–1.15 | −0% | 0.87 |
-| rbl_br / prio | 16/32 | −1% | 9 / 27 | 0.65–1.30 | +1% | 0.88 |
+| rbl_pr / prio | `0-3:0,4-6:4,7-:8` | −4% | 18 / 27 | 0.78–1.09 | +0% | 0.83 |
+| rbl_pr / prio | `0-3:0,4-6:8,7-:16` | −3% | 20 / 27 | 0.77–1.16 | −1% | 0.86 |
+| rbl_pr / prio | `0-3:0,4-6:16,7-:32` | +0% | 10 / 27 | 0.87–1.19 | +0% | 0.92 |
+| rbl_br / prio | `0-3:0,4-6:4,7-:8` | −1% | 18 / 27 | 0.82–1.22 | −0% | 0.84 |
+| rbl_br / prio | `0-3:0,4-6:8,7-:16` | −2% | 12 / 27 | 0.53–1.15 | −0% | 0.87 |
+| rbl_br / prio | `0-3:0,4-6:16,7-:32` | −1% | 9 / 27 | 0.65–1.30 | +1% | 0.88 |
 | rbl_br / rbl_pr | 全部 | +1% | 33 / 81 | 0.61–1.34 | — | — |
-| batch / prio | 4/8 | −12% | 19 / 27 | 0.55–1.06 | −1% | 0.60 |
-| batch / prio | 8/16 | −6% | 19 / 27 | 0.71–1.14 | −2% | 0.66 |
-| batch / prio | 16/32 | −1% | 8 / 27 | 0.64–1.18 | −0% | 0.84 |
-| rbl_br / batch | 4/8 | +12% | 8 / 27 | 0.87–1.86 | +1% | 1.40 |
-| rbl_br / batch | 8/16 | +4% | 10 / 27 | 0.56–1.37 | +2% | 1.32 |
-| rbl_br / batch | 16/32 | +0% | 10 / 27 | 0.55–1.53 | +1% | 1.04 |
+| batch / prio | `0-3:0,4-6:4,7-:8` | −12% | 19 / 27 | 0.55–1.06 | −1% | 0.60 |
+| batch / prio | `0-3:0,4-6:8,7-:16` | −6% | 19 / 27 | 0.71–1.14 | −2% | 0.66 |
+| batch / prio | `0-3:0,4-6:16,7-:32` | −1% | 8 / 27 | 0.64–1.18 | −0% | 0.84 |
+| rbl_br / batch | `0-3:0,4-6:4,7-:8` | +12% | 8 / 27 | 0.87–1.86 | +1% | 1.40 |
+| rbl_br / batch | `0-3:0,4-6:8,7-:16` | +4% | 10 / 27 | 0.56–1.37 | +2% | 1.32 |
+| rbl_br / batch | `0-3:0,4-6:16,7-:32` | +0% | 10 / 27 | 0.55–1.53 | +1% | 1.04 |
 
 **前向等待(秒,rank 0,各命中率 9 格合计,含每格 5 个 warmup;实测)**:
 
 | map | 命中率 | sync | prio | rbl_pr | rbl_br | batch |
 |---|---|---|---|---|---|---|
-| 4/8 | 98 | 12.7 | 37.6 | 14.9 | 14.9 | 15.2 |
-| 4/8 | 100 | 98.5 | 106.3 | 102.7 | 103.9 | 67.5 |
-| 8/16 | 98 | 12.7 | 33.3 | 14.2 | 13.8 | 15.9 |
-| 8/16 | 100 | 98.5 | 93.3 | 93.4 | 95.0 | 64.6 |
-| 16/32 | 98 | 12.7 | 16.7 | 13.0 | 11.9 | 16.3 |
-| 16/32 | 100 | 98.5 | 60.1 | 57.3 | 55.5 | 47.8 |
+| `0-3:0,4-6:4,7-:8` | 98 | 12.7 | 37.6 | 14.9 | 14.9 | 15.2 |
+| `0-3:0,4-6:4,7-:8` | 100 | 98.5 | 106.3 | 102.7 | 103.9 | 67.5 |
+| `0-3:0,4-6:8,7-:16` | 98 | 12.7 | 33.3 | 14.2 | 13.8 | 15.9 |
+| `0-3:0,4-6:8,7-:16` | 100 | 98.5 | 93.3 | 93.4 | 95.0 | 64.6 |
+| `0-3:0,4-6:16,7-:32` | 98 | 12.7 | 16.7 | 13.0 | 11.9 | 16.3 |
+| `0-3:0,4-6:16,7-:32` | 100 | 98.5 | 60.1 | 57.3 | 55.5 | 47.8 |
 
 列说明:hit 80 下各配置 8.6–10.9 s,差别小,未列;sync 只有一组数据,各 map 行重复。每个配置每个命中率约 10.3k 个 step,其中一次激活 ≥ 2 个请求的 step 63–145 个,sync 批与激活同 step 的只有 0–12 个。
 
-**噪声与事件日志开销**(实测,与 10-20 那一轮相同配置相同格比较平均 TTFT):sync、prio 8/16、prio 16/32、batch 8/16、batch 16/32 共 135 对,中位数 1.00,118 对在 ±10% 内、131 对在 ±20% 内;"配置 ÷ sync"两轮之比的几何平均 −1% ~ +2%。其中 sync 两轮(10-20 未开事件日志、本轮开)27 对中位数 1.00、25 对在 ±10% 内,看不出事件日志的开销。
+**噪声与事件日志开销**(实测,与 10-20 那一轮相同配置相同格比较平均 TTFT):sync、prio `0-3:0,4-6:8,7-:16`、prio `0-3:0,4-6:16,7-:32`、batch `0-3:0,4-6:8,7-:16`、batch `0-3:0,4-6:16,7-:32` 共 135 对,中位数 1.00,118 对在 ±10% 内、131 对在 ±20% 内;"配置 ÷ sync"两轮之比的几何平均 −1% ~ +2%。其中 sync 两轮(10-20 未开事件日志、本轮开)27 对中位数 1.00、25 对在 ±10% 内,看不出事件日志的开销。
 
 实测结论:
 
-- 新方案修好了 prio 在 hit 98 的问题:map 4/8、8/16 下 prio 的 hit 98 TTFT 只比 sync 快 1–3%,rbl_pr / rbl_br 快 9–16%;对应的前向等待从 33–38 s 降到 14–15 s(与 batch 同水平)。差别集中在 c8 及以上的格(如 32k c8 map 4/8:prio 12.7 s,rbl 2.9 s;TTFT 4147 → 3378 ms),包括 sync 批与激活同 step 次数为 0 的格(8k c32:4.8 → 1.9 s)。
-- 全部 81 格合计,rbl_pr / prio 为 −2%、rbl_br / prio 为 −2%,在两轮之间的漂移(±1–2%)附近;map 16/32 下四个方案整体相同(−24% ~ −25%)。
+- 新方案修好了 prio 在 hit 98 的问题:map `0-3:0,4-6:4,7-:8`、`0-3:0,4-6:8,7-:16` 下 prio 的 hit 98 TTFT 只比 sync 快 1–3%,rbl_pr / rbl_br 快 9–16%;对应的前向等待从 33–38 s 降到 14–15 s(与 batch 同水平)。差别集中在 c8 及以上的格(如 32k c8 map `0-3:0,4-6:4,7-:8`:prio 12.7 s,rbl 2.9 s;TTFT 4147 → 3378 ms),包括 sync 批与激活同 step 次数为 0 的格(8k c32:4.8 → 1.9 s)。
+- 全部 81 格合计,rbl_pr / prio 为 −2%、rbl_br / prio 为 −2%,在两轮之间的漂移(±1–2%)附近;map `0-3:0,4-6:16,7-:32` 下四个方案整体相同(−24% ~ −25%)。
 - rbl_pr 与 rbl_br 分不出高下(+1%,33 / 81)。
-- batch 不比任何 priority 方案差:map 4/8、8/16 下明显更好(比 prio 快 12% / 6%,rbl_br 比 batch 慢 12% / 4%),主要在 hit 100(4/8:batch −38%,三个 priority 方案 −17% ~ −21%),hit 100 的前向等待也比 prio 少 31–36%;map 16/32 下与其他方案相同。
+- batch 不比任何 priority 方案差:map `0-3:0,4-6:4,7-:8`、`0-3:0,4-6:8,7-:16` 下明显更好(比 prio 快 12% / 6%,rbl_br 比 batch 慢 12% / 4%),主要在 hit 100(`0-3:0,4-6:4,7-:8`:batch −38%,三个 priority 方案 −17% ~ −21%),hit 100 的前向等待也比 prio 少 31–36%;map `0-3:0,4-6:16,7-:32` 下与其他方案相同。
 - 端到端与时长:所有配置相对 sync 在 −1% ~ +2% 之间,只有 hit 100 为 −2% ~ −6%;与 §11.12、§11.14 一致,TTFT 的提升在 hit 80 / 98 主要是 TTFT 与 TPOT 的再分配。
-- 最好的配置:map 16/32 下任意方案,或 batch 8/16(TTFT −24% ~ −25%)。
+- 最好的配置:map `0-3:0,4-6:16,7-:32` 下任意方案,或 batch `0-3:0,4-6:8,7-:16`(TTFT −24% ~ −25%)。
 
 推断:
 
@@ -1313,21 +1313,21 @@ rebase 结果:只有 `setvars.sh` 一处冲突(基础镜像用上游 v0.29.0,开
 
 | 组合 | 平均 TTFT | 10-20 TTFT / 端到端 / p95 | 10-22 TTFT / 端到端 / p95 |
 |---|---|---|---|
-| raise 16/32 | −25.2% | −25.2 / −2.2 / −4.4% | — |
-| rbl_br 16/32 | −25.0% | — | −25.0 / −0.0 / −2.7% |
-| batch 16/32 | −24.9% | −24.6 / −1.4 / −1.8% | −25.2 / −0.9 / −2.2% |
-| raise 8/16 | −24.9% | −24.9 / −0.9 / −2.7% | — |
-| prio 16/32 | −24.9% | −25.4 / −0.2 / −6.2% | −24.4 / −0.6 / −5.1% |
-| batch 8/16 | −24.4% | −25.1 / −0.9 / −5.4% | −23.6 / −0.6 / −3.8% |
-| rbl_pr 16/32 | −24.0% | — | −24.0 / −0.2 / −5.2% |
+| raise `0-3:0,4-6:16,7-:32` | −25.2% | −25.2 / −2.2 / −4.4% | — |
+| rbl_br `0-3:0,4-6:16,7-:32` | −25.0% | — | −25.0 / −0.0 / −2.7% |
+| batch `0-3:0,4-6:16,7-:32` | −24.9% | −24.6 / −1.4 / −1.8% | −25.2 / −0.9 / −2.2% |
+| raise `0-3:0,4-6:8,7-:16` | −24.9% | −24.9 / −0.9 / −2.7% | — |
+| prio `0-3:0,4-6:16,7-:32` | −24.9% | −25.4 / −0.2 / −6.2% | −24.4 / −0.6 / −5.1% |
+| batch `0-3:0,4-6:8,7-:16` | −24.4% | −25.1 / −0.9 / −5.4% | −23.6 / −0.6 / −3.8% |
+| rbl_pr `0-3:0,4-6:16,7-:32` | −24.0% | — | −24.0 / −0.2 / −5.2% |
 
-列说明:"平均 TTFT"= 有数据的各轮几何平均相对 sync 再取平均;raise = `priority_3level_first_n_per_req_promote_raise`(只在 10-20 跑过);map 40/79 的三个方案为 −22.4% ~ −23.3%,map 4/8 为 −10% ~ −21%。
+列说明:"平均 TTFT"= 有数据的各轮几何平均相对 sync 再取平均;raise = `priority_3level_first_n_per_req_promote_raise`(只在 10-20 跑过);map `0-3:0,4-6:40,7-:79` 的三个方案为 −22.4% ~ −23.3%,map `0-3:0,4-6:4,7-:8` 为 −10% ~ −21%。
 
-- map:每个方案的最优 map 都是 16/32(batch 的 8/16 与之持平);40/79 与 4/8 都更差。
-- 方案:16/32 下五个方案相差 1.2 个百分点(−24.0% ~ −25.2%),而同一组合两轮之间就差 0.6–1.5 个百分点(prio 16/32:−25.4 / −24.4;batch 16/32:−24.6 / −25.2;batch 8/16:−25.1 / −23.6),数据分不出唯一最优的方案。端到端都在 0 ~ −2%。
-- 若只选一个(推断):按同一轮(10-22)比较,prio / rbl_pr / rbl_br 在各自最优 map(都是 16/32)下 TTFT −24.4 / −24.0 / −25.0%、p95 −5.1 / −5.2 / −2.7%,前向等待 1 : 0.92 : 0.88。prio 的"两轮都复现"只是因为它跑过两轮,不是更好的证据;新方案在最优 map 下与 prio 打平,在较小 map 下明显更好(见上面 hit 98),优先选新方案。
+- map:每个方案的最优 map 都是 `0-3:0,4-6:16,7-:32`(batch 的 `0-3:0,4-6:8,7-:16` 与之持平);`0-3:0,4-6:40,7-:79` 与 `0-3:0,4-6:4,7-:8` 都更差。
+- 方案:`0-3:0,4-6:16,7-:32` 下五个方案相差 1.2 个百分点(−24.0% ~ −25.2%),而同一组合两轮之间就差 0.6–1.5 个百分点(prio `0-3:0,4-6:16,7-:32`:−25.4 / −24.4;batch `0-3:0,4-6:16,7-:32`:−24.6 / −25.2;batch `0-3:0,4-6:8,7-:16`:−25.1 / −23.6),数据分不出唯一最优的方案。端到端都在 0 ~ −2%。
+- 若只选一个(推断):按同一轮(10-22)比较,prio / rbl_pr / rbl_br 在各自最优 map(都是 `0-3:0,4-6:16,7-:32`)下 TTFT −24.4 / −24.0 / −25.0%、p95 −5.1 / −5.2 / −2.7%,前向等待 1 : 0.92 : 0.88。prio 的"两轮都复现"只是因为它跑过两轮,不是更好的证据;新方案在最优 map 下与 prio 打平,在较小 map 下明显更好(见上面 hit 98),优先选新方案。
 
-**rbl_pr 与 rbl_br,各自最优 map(都是 16/32,在 4/8、8/16、16/32 中选;40/79 未测)**(实测,10-22 同一轮逐格配对,"rbl_br ÷ rbl_pr"的几何平均):
+**rbl_pr 与 rbl_br,各自最优 map(都是 `0-3:0,4-6:16,7-:32`,在 `0-3:0,4-6:4,7-:8`、`0-3:0,4-6:8,7-:16`、`0-3:0,4-6:16,7-:32` 中选;`0-3:0,4-6:40,7-:79` 未测)**(实测,10-22 同一轮逐格配对,"rbl_br ÷ rbl_pr"的几何平均):
 
 | 范围 | TTFT | rbl_br 更快的格 | 单格范围 | p95 TTFT | TPOT | 端到端 |
 |---|---|---|---|---|---|---|
@@ -1364,19 +1364,19 @@ step_end     wait_ms = 80 层等待时间之和
 
 <table>
 <thead>
-<tr><th rowspan="2">map</th><th rowspan="2">方案</th><th colspan="4">hit 98</th><th colspan="4">hit 100</th></tr>
+<tr><th rowspan="2">map<br>(<code>KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP</code>)</th><th rowspan="2">方案</th><th colspan="4">hit 98</th><th colspan="4">hit 100</th></tr>
 <tr><th>(1)</th><th>(2)</th><th>(3)</th><th>合计</th><th>(1)</th><th>(2)</th><th>(3)</th><th>合计</th></tr>
 </thead>
 <tbody>
-<tr><td>4/8</td><td>prio</td><td>629</td><td>266</td><td>307</td><td>1202</td><td>328</td><td>259</td><td>540</td><td>1127</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>622</td><td>204</td><td>76</td><td>902</td><td>295</td><td>265</td><td>533</td><td>1093</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>634</td><td>233</td><td>75</td><td>942</td><td>336</td><td>255</td><td>640</td><td>1231</td></tr>
-<tr><td>8/16</td><td>prio</td><td>746</td><td>189</td><td>310</td><td>1245</td><td>390</td><td>125</td><td>197</td><td>713</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>621</td><td>279</td><td>59</td><td>959</td><td>380</td><td>127</td><td>193</td><td>700</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>588</td><td>103</td><td>69</td><td>760</td><td>383</td><td>99</td><td>358</td><td>840</td></tr>
-<tr><td>16/32</td><td>prio</td><td>741</td><td>192</td><td>67</td><td>999</td><td>392</td><td>96</td><td>96</td><td>584</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>758</td><td>124</td><td>41</td><td>923</td><td>393</td><td>89</td><td>96</td><td>578</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>612</td><td>165</td><td>38</td><td>816</td><td>404</td><td>115</td><td>149</td><td>668</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>629</td><td>266</td><td>307</td><td>1202</td><td>328</td><td>259</td><td>540</td><td>1127</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>622</td><td>204</td><td>76</td><td>902</td><td>295</td><td>265</td><td>533</td><td>1093</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>634</td><td>233</td><td>75</td><td>942</td><td>336</td><td>255</td><td>640</td><td>1231</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>746</td><td>189</td><td>310</td><td>1245</td><td>390</td><td>125</td><td>197</td><td>713</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>621</td><td>279</td><td>59</td><td>959</td><td>380</td><td>127</td><td>193</td><td>700</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>588</td><td>103</td><td>69</td><td>760</td><td>383</td><td>99</td><td>358</td><td>840</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>741</td><td>192</td><td>67</td><td>999</td><td>392</td><td>96</td><td>96</td><td>584</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>758</td><td>124</td><td>41</td><td>923</td><td>393</td><td>89</td><td>96</td><td>578</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>612</td><td>165</td><td>38</td><td>816</td><td>404</td><td>115</td><td>149</td><td>668</td></tr>
 </tbody>
 </table>
 
@@ -1386,91 +1386,91 @@ step_end     wait_ms = 80 层等待时间之和
 
 <table>
 <thead>
-<tr><th rowspan="2">map</th><th rowspan="2">方案</th><th rowspan="2">input len</th><th rowspan="2">并发</th><th colspan="4">hit 98</th><th colspan="4">hit 100</th><th rowspan="2">请求数<br>hit 98 / 100</th></tr>
+<tr><th rowspan="2">map<br>(<code>KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP</code>)</th><th rowspan="2">方案</th><th rowspan="2">input len</th><th rowspan="2">并发</th><th colspan="4">hit 98</th><th colspan="4">hit 100</th><th rowspan="2">请求数<br>hit 98 / 100</th></tr>
 <tr><th>(1)</th><th>(2)</th><th>(3)</th><th>合计</th><th>(1)</th><th>(2)</th><th>(3)</th><th>合计</th></tr>
 </thead>
 <tbody>
-<tr><td>4/8</td><td>prio</td><td>8k</td><td>4</td><td>56</td><td>27</td><td>13</td><td>96</td><td>66</td><td>33</td><td>66</td><td>164</td><td>22 / 23</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>8k</td><td>4</td><td>79</td><td>27</td><td>15</td><td>122</td><td>65</td><td>30</td><td>51</td><td>146</td><td>25 / 28</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>8k</td><td>4</td><td>149</td><td>29</td><td>15</td><td>192</td><td>63</td><td>30</td><td>56</td><td>150</td><td>27 / 28</td></tr>
-<tr><td>4/8</td><td>prio</td><td>8k</td><td>8</td><td>237</td><td>72</td><td>114</td><td>423</td><td>75</td><td>80</td><td>257</td><td>411</td><td>63 / 63</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>8k</td><td>8</td><td>188</td><td>71</td><td>42</td><td>301</td><td>89</td><td>70</td><td>140</td><td>299</td><td>62 / 63</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>8k</td><td>8</td><td>205</td><td>70</td><td>42</td><td>317</td><td>91</td><td>91</td><td>241</td><td>423</td><td>62 / 63</td></tr>
-<tr><td>4/8</td><td>prio</td><td>8k</td><td>16</td><td>546</td><td>154</td><td>140</td><td>840</td><td>164</td><td>216</td><td>352</td><td>732</td><td>95 / 95</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>8k</td><td>16</td><td>429</td><td>202</td><td>54</td><td>684</td><td>125</td><td>196</td><td>398</td><td>718</td><td>95 / 95</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>8k</td><td>16</td><td>456</td><td>200</td><td>54</td><td>710</td><td>255</td><td>140</td><td>430</td><td>824</td><td>95 / 95</td></tr>
-<tr><td>4/8</td><td>prio</td><td>8k</td><td>32</td><td>917</td><td>429</td><td>311</td><td>1656</td><td>321</td><td>499</td><td>594</td><td>1414</td><td>159 / 159</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>8k</td><td>32</td><td>766</td><td>382</td><td>85</td><td>1233</td><td>360</td><td>437</td><td>857</td><td>1654</td><td>159 / 159</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>8k</td><td>32</td><td>812</td><td>378</td><td>89</td><td>1279</td><td>365</td><td>441</td><td>842</td><td>1648</td><td>159 / 159</td></tr>
-<tr><td>4/8</td><td>prio</td><td>16k</td><td>4</td><td>299</td><td>30</td><td>22</td><td>352</td><td>280</td><td>38</td><td>172</td><td>491</td><td>22 / 24</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>16k</td><td>4</td><td>302</td><td>29</td><td>27</td><td>357</td><td>290</td><td>39</td><td>163</td><td>492</td><td>22 / 24</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>16k</td><td>4</td><td>301</td><td>28</td><td>22</td><td>351</td><td>345</td><td>43</td><td>175</td><td>564</td><td>22 / 21</td></tr>
-<tr><td>4/8</td><td>prio</td><td>16k</td><td>8</td><td>438</td><td>133</td><td>395</td><td>966</td><td>364</td><td>109</td><td>332</td><td>806</td><td>55 / 63</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>16k</td><td>8</td><td>505</td><td>71</td><td>80</td><td>656</td><td>346</td><td>114</td><td>280</td><td>740</td><td>55 / 63</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>16k</td><td>8</td><td>431</td><td>78</td><td>79</td><td>588</td><td>330</td><td>92</td><td>646</td><td>1068</td><td>58 / 63</td></tr>
-<tr><td>4/8</td><td>prio</td><td>16k</td><td>16</td><td>628</td><td>529</td><td>335</td><td>1492</td><td>412</td><td>339</td><td>830</td><td>1581</td><td>95 / 95</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>16k</td><td>16</td><td>953</td><td>238</td><td>94</td><td>1285</td><td>435</td><td>525</td><td>651</td><td>1611</td><td>95 / 95</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>16k</td><td>16</td><td>904</td><td>426</td><td>86</td><td>1416</td><td>458</td><td>455</td><td>846</td><td>1759</td><td>95 / 95</td></tr>
-<tr><td>4/8</td><td>prio</td><td>32k</td><td>4</td><td>1469</td><td>27</td><td>41</td><td>1537</td><td>678</td><td>39</td><td>340</td><td>1057</td><td>9 / 9</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>32k</td><td>4</td><td>1473</td><td>27</td><td>42</td><td>1543</td><td>679</td><td>38</td><td>354</td><td>1071</td><td>9 / 9</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>32k</td><td>4</td><td>1475</td><td>28</td><td>42</td><td>1544</td><td>675</td><td>38</td><td>312</td><td>1025</td><td>9 / 9</td></tr>
-<tr><td>4/8</td><td>prio</td><td>32k</td><td>8</td><td>826</td><td>95</td><td>1028</td><td>1948</td><td>770</td><td>116</td><td>1123</td><td>2010</td><td>49 / 59</td></tr>
-<tr><td>4/8</td><td>rbl_pr</td><td>32k</td><td>8</td><td>836</td><td>77</td><td>148</td><td>1062</td><td>376</td><td>115</td><td>770</td><td>1261</td><td>49 / 63</td></tr>
-<tr><td>4/8</td><td>rbl_br</td><td>32k</td><td>8</td><td>925</td><td>77</td><td>152</td><td>1154</td><td>519</td><td>187</td><td>990</td><td>1696</td><td>49 / 63</td></tr>
-<tr><td>8/16</td><td>prio</td><td>8k</td><td>4</td><td>149</td><td>29</td><td>14</td><td>192</td><td>64</td><td>29</td><td>57</td><td>151</td><td>27 / 28</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>8k</td><td>4</td><td>98</td><td>26</td><td>13</td><td>136</td><td>67</td><td>32</td><td>73</td><td>172</td><td>21 / 23</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>8k</td><td>4</td><td>149</td><td>30</td><td>14</td><td>193</td><td>46</td><td>27</td><td>67</td><td>140</td><td>29 / 26</td></tr>
-<tr><td>8/16</td><td>prio</td><td>8k</td><td>8</td><td>221</td><td>139</td><td>39</td><td>399</td><td>121</td><td>58</td><td>56</td><td>235</td><td>63 / 63</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>8k</td><td>8</td><td>220</td><td>140</td><td>26</td><td>387</td><td>107</td><td>53</td><td>63</td><td>223</td><td>63 / 63</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>8k</td><td>8</td><td>207</td><td>72</td><td>39</td><td>317</td><td>105</td><td>58</td><td>85</td><td>248</td><td>62 / 63</td></tr>
-<tr><td>8/16</td><td>prio</td><td>8k</td><td>16</td><td>443</td><td>105</td><td>211</td><td>759</td><td>230</td><td>109</td><td>131</td><td>470</td><td>95 / 95</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>8k</td><td>16</td><td>421</td><td>229</td><td>47</td><td>697</td><td>209</td><td>113</td><td>122</td><td>444</td><td>95 / 95</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>8k</td><td>16</td><td>515</td><td>72</td><td>55</td><td>642</td><td>216</td><td>77</td><td>285</td><td>578</td><td>95 / 95</td></tr>
-<tr><td>8/16</td><td>prio</td><td>8k</td><td>32</td><td>1014</td><td>302</td><td>493</td><td>1809</td><td>516</td><td>181</td><td>218</td><td>916</td><td>159 / 159</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>8k</td><td>32</td><td>745</td><td>456</td><td>69</td><td>1270</td><td>459</td><td>186</td><td>217</td><td>862</td><td>159 / 159</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>8k</td><td>32</td><td>528</td><td>106</td><td>108</td><td>742</td><td>462</td><td>173</td><td>476</td><td>1111</td><td>159 / 159</td></tr>
-<tr><td>8/16</td><td>prio</td><td>16k</td><td>4</td><td>302</td><td>27</td><td>21</td><td>350</td><td>259</td><td>27</td><td>175</td><td>462</td><td>22 / 27</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>16k</td><td>4</td><td>323</td><td>29</td><td>21</td><td>373</td><td>252</td><td>30</td><td>165</td><td>448</td><td>21 / 27</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>16k</td><td>4</td><td>267</td><td>28</td><td>21</td><td>316</td><td>286</td><td>29</td><td>181</td><td>495</td><td>25 / 24</td></tr>
-<tr><td>8/16</td><td>prio</td><td>16k</td><td>8</td><td>569</td><td>51</td><td>344</td><td>963</td><td>440</td><td>99</td><td>173</td><td>712</td><td>55 / 63</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>16k</td><td>8</td><td>555</td><td>111</td><td>59</td><td>724</td><td>393</td><td>130</td><td>158</td><td>681</td><td>58 / 63</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>16k</td><td>8</td><td>580</td><td>165</td><td>52</td><td>797</td><td>427</td><td>85</td><td>258</td><td>771</td><td>58 / 63</td></tr>
-<tr><td>8/16</td><td>prio</td><td>16k</td><td>16</td><td>1223</td><td>147</td><td>354</td><td>1724</td><td>483</td><td>238</td><td>230</td><td>952</td><td>95 / 95</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>16k</td><td>16</td><td>895</td><td>356</td><td>72</td><td>1323</td><td>469</td><td>178</td><td>220</td><td>868</td><td>95 / 95</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>16k</td><td>16</td><td>1106</td><td>131</td><td>93</td><td>1330</td><td>520</td><td>110</td><td>546</td><td>1177</td><td>95 / 95</td></tr>
-<tr><td>8/16</td><td>prio</td><td>32k</td><td>4</td><td>1471</td><td>28</td><td>40</td><td>1539</td><td>316</td><td>50</td><td>383</td><td>749</td><td>9 / 25</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>32k</td><td>4</td><td>1474</td><td>27</td><td>39</td><td>1540</td><td>439</td><td>53</td><td>380</td><td>872</td><td>9 / 19</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>32k</td><td>4</td><td>868</td><td>51</td><td>41</td><td>960</td><td>381</td><td>50</td><td>369</td><td>800</td><td>16 / 21</td></tr>
-<tr><td>8/16</td><td>prio</td><td>32k</td><td>8</td><td>801</td><td>449</td><td>467</td><td>1717</td><td>620</td><td>47</td><td>357</td><td>1025</td><td>53 / 63</td></tr>
-<tr><td>8/16</td><td>rbl_pr</td><td>32k</td><td>8</td><td>863</td><td>295</td><td>109</td><td>1268</td><td>715</td><td>93</td><td>362</td><td>1170</td><td>49 / 63</td></tr>
-<tr><td>8/16</td><td>rbl_br</td><td>32k</td><td>8</td><td>712</td><td>147</td><td>56</td><td>914</td><td>640</td><td>54</td><td>442</td><td>1136</td><td>63 / 63</td></tr>
-<tr><td>16/32</td><td>prio</td><td>8k</td><td>4</td><td>89</td><td>28</td><td>9</td><td>126</td><td>109</td><td>32</td><td>36</td><td>177</td><td>22 / 27</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>8k</td><td>4</td><td>94</td><td>27</td><td>11</td><td>132</td><td>107</td><td>33</td><td>36</td><td>175</td><td>21 / 27</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>8k</td><td>4</td><td>83</td><td>54</td><td>8</td><td>145</td><td>96</td><td>47</td><td>27</td><td>170</td><td>21 / 27</td></tr>
-<tr><td>16/32</td><td>prio</td><td>8k</td><td>8</td><td>286</td><td>54</td><td>24</td><td>364</td><td>150</td><td>49</td><td>42</td><td>241</td><td>62 / 63</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>8k</td><td>8</td><td>268</td><td>44</td><td>20</td><td>333</td><td>154</td><td>50</td><td>40</td><td>245</td><td>63 / 63</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>8k</td><td>8</td><td>301</td><td>45</td><td>25</td><td>371</td><td>158</td><td>52</td><td>72</td><td>282</td><td>63 / 63</td></tr>
-<tr><td>16/32</td><td>prio</td><td>8k</td><td>16</td><td>469</td><td>117</td><td>35</td><td>621</td><td>195</td><td>107</td><td>22</td><td>324</td><td>95 / 95</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>8k</td><td>16</td><td>487</td><td>71</td><td>29</td><td>588</td><td>211</td><td>100</td><td>31</td><td>342</td><td>95 / 95</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>8k</td><td>16</td><td>350</td><td>70</td><td>31</td><td>451</td><td>222</td><td>90</td><td>70</td><td>381</td><td>95 / 95</td></tr>
-<tr><td>16/32</td><td>prio</td><td>8k</td><td>32</td><td>924</td><td>230</td><td>62</td><td>1216</td><td>409</td><td>176</td><td>48</td><td>633</td><td>159 / 159</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>8k</td><td>32</td><td>843</td><td>202</td><td>43</td><td>1087</td><td>419</td><td>136</td><td>59</td><td>615</td><td>159 / 159</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>8k</td><td>32</td><td>672</td><td>293</td><td>39</td><td>1003</td><td>490</td><td>212</td><td>199</td><td>900</td><td>159 / 159</td></tr>
-<tr><td>16/32</td><td>prio</td><td>16k</td><td>4</td><td>326</td><td>29</td><td>19</td><td>373</td><td>276</td><td>29</td><td>153</td><td>458</td><td>22 / 27</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>16k</td><td>4</td><td>833</td><td>26</td><td>18</td><td>877</td><td>277</td><td>30</td><td>147</td><td>453</td><td>9 / 27</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>16k</td><td>4</td><td>324</td><td>30</td><td>17</td><td>371</td><td>282</td><td>34</td><td>137</td><td>453</td><td>22 / 27</td></tr>
-<tr><td>16/32</td><td>prio</td><td>16k</td><td>8</td><td>694</td><td>166</td><td>132</td><td>993</td><td>457</td><td>48</td><td>105</td><td>610</td><td>55 / 63</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>16k</td><td>8</td><td>685</td><td>142</td><td>48</td><td>875</td><td>442</td><td>54</td><td>91</td><td>586</td><td>55 / 63</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>16k</td><td>8</td><td>682</td><td>107</td><td>55</td><td>844</td><td>416</td><td>96</td><td>84</td><td>596</td><td>55 / 63</td></tr>
-<tr><td>16/32</td><td>prio</td><td>16k</td><td>16</td><td>882</td><td>292</td><td>51</td><td>1225</td><td>553</td><td>97</td><td>113</td><td>763</td><td>95 / 95</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>16k</td><td>16</td><td>959</td><td>106</td><td>46</td><td>1112</td><td>525</td><td>112</td><td>106</td><td>743</td><td>95 / 95</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>16k</td><td>16</td><td>904</td><td>127</td><td>56</td><td>1087</td><td>538</td><td>118</td><td>145</td><td>801</td><td>95 / 95</td></tr>
-<tr><td>16/32</td><td>prio</td><td>32k</td><td>4</td><td>1471</td><td>25</td><td>34</td><td>1531</td><td>415</td><td>37</td><td>328</td><td>780</td><td>9 / 27</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>32k</td><td>4</td><td>1471</td><td>25</td><td>35</td><td>1531</td><td>422</td><td>35</td><td>317</td><td>774</td><td>9 / 24</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>32k</td><td>4</td><td>1479</td><td>27</td><td>35</td><td>1541</td><td>376</td><td>34</td><td>325</td><td>735</td><td>9 / 27</td></tr>
-<tr><td>16/32</td><td>prio</td><td>32k</td><td>8</td><td>1314</td><td>379</td><td>197</td><td>1889</td><td>744</td><td>52</td><td>253</td><td>1049</td><td>54 / 63</td></tr>
-<tr><td>16/32</td><td>rbl_pr</td><td>32k</td><td>8</td><td>1459</td><td>165</td><td>84</td><td>1708</td><td>754</td><td>62</td><td>247</td><td>1063</td><td>50 / 63</td></tr>
-<tr><td>16/32</td><td>rbl_br</td><td>32k</td><td>8</td><td>822</td><td>321</td><td>39</td><td>1182</td><td>690</td><td>84</td><td>273</td><td>1048</td><td>63 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>8k</td><td>4</td><td>56</td><td>27</td><td>13</td><td>96</td><td>66</td><td>33</td><td>66</td><td>164</td><td>22 / 23</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>8k</td><td>4</td><td>79</td><td>27</td><td>15</td><td>122</td><td>65</td><td>30</td><td>51</td><td>146</td><td>25 / 28</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>8k</td><td>4</td><td>149</td><td>29</td><td>15</td><td>192</td><td>63</td><td>30</td><td>56</td><td>150</td><td>27 / 28</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>8k</td><td>8</td><td>237</td><td>72</td><td>114</td><td>423</td><td>75</td><td>80</td><td>257</td><td>411</td><td>63 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>8k</td><td>8</td><td>188</td><td>71</td><td>42</td><td>301</td><td>89</td><td>70</td><td>140</td><td>299</td><td>62 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>8k</td><td>8</td><td>205</td><td>70</td><td>42</td><td>317</td><td>91</td><td>91</td><td>241</td><td>423</td><td>62 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>8k</td><td>16</td><td>546</td><td>154</td><td>140</td><td>840</td><td>164</td><td>216</td><td>352</td><td>732</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>8k</td><td>16</td><td>429</td><td>202</td><td>54</td><td>684</td><td>125</td><td>196</td><td>398</td><td>718</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>8k</td><td>16</td><td>456</td><td>200</td><td>54</td><td>710</td><td>255</td><td>140</td><td>430</td><td>824</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>8k</td><td>32</td><td>917</td><td>429</td><td>311</td><td>1656</td><td>321</td><td>499</td><td>594</td><td>1414</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>8k</td><td>32</td><td>766</td><td>382</td><td>85</td><td>1233</td><td>360</td><td>437</td><td>857</td><td>1654</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>8k</td><td>32</td><td>812</td><td>378</td><td>89</td><td>1279</td><td>365</td><td>441</td><td>842</td><td>1648</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>16k</td><td>4</td><td>299</td><td>30</td><td>22</td><td>352</td><td>280</td><td>38</td><td>172</td><td>491</td><td>22 / 24</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>16k</td><td>4</td><td>302</td><td>29</td><td>27</td><td>357</td><td>290</td><td>39</td><td>163</td><td>492</td><td>22 / 24</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>16k</td><td>4</td><td>301</td><td>28</td><td>22</td><td>351</td><td>345</td><td>43</td><td>175</td><td>564</td><td>22 / 21</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>16k</td><td>8</td><td>438</td><td>133</td><td>395</td><td>966</td><td>364</td><td>109</td><td>332</td><td>806</td><td>55 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>16k</td><td>8</td><td>505</td><td>71</td><td>80</td><td>656</td><td>346</td><td>114</td><td>280</td><td>740</td><td>55 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>16k</td><td>8</td><td>431</td><td>78</td><td>79</td><td>588</td><td>330</td><td>92</td><td>646</td><td>1068</td><td>58 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>16k</td><td>16</td><td>628</td><td>529</td><td>335</td><td>1492</td><td>412</td><td>339</td><td>830</td><td>1581</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>16k</td><td>16</td><td>953</td><td>238</td><td>94</td><td>1285</td><td>435</td><td>525</td><td>651</td><td>1611</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>16k</td><td>16</td><td>904</td><td>426</td><td>86</td><td>1416</td><td>458</td><td>455</td><td>846</td><td>1759</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>32k</td><td>4</td><td>1469</td><td>27</td><td>41</td><td>1537</td><td>678</td><td>39</td><td>340</td><td>1057</td><td>9 / 9</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>32k</td><td>4</td><td>1473</td><td>27</td><td>42</td><td>1543</td><td>679</td><td>38</td><td>354</td><td>1071</td><td>9 / 9</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>32k</td><td>4</td><td>1475</td><td>28</td><td>42</td><td>1544</td><td>675</td><td>38</td><td>312</td><td>1025</td><td>9 / 9</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>prio</td><td>32k</td><td>8</td><td>826</td><td>95</td><td>1028</td><td>1948</td><td>770</td><td>116</td><td>1123</td><td>2010</td><td>49 / 59</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_pr</td><td>32k</td><td>8</td><td>836</td><td>77</td><td>148</td><td>1062</td><td>376</td><td>115</td><td>770</td><td>1261</td><td>49 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:4,7-:8</code></td><td>rbl_br</td><td>32k</td><td>8</td><td>925</td><td>77</td><td>152</td><td>1154</td><td>519</td><td>187</td><td>990</td><td>1696</td><td>49 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>8k</td><td>4</td><td>149</td><td>29</td><td>14</td><td>192</td><td>64</td><td>29</td><td>57</td><td>151</td><td>27 / 28</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>8k</td><td>4</td><td>98</td><td>26</td><td>13</td><td>136</td><td>67</td><td>32</td><td>73</td><td>172</td><td>21 / 23</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>8k</td><td>4</td><td>149</td><td>30</td><td>14</td><td>193</td><td>46</td><td>27</td><td>67</td><td>140</td><td>29 / 26</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>8k</td><td>8</td><td>221</td><td>139</td><td>39</td><td>399</td><td>121</td><td>58</td><td>56</td><td>235</td><td>63 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>8k</td><td>8</td><td>220</td><td>140</td><td>26</td><td>387</td><td>107</td><td>53</td><td>63</td><td>223</td><td>63 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>8k</td><td>8</td><td>207</td><td>72</td><td>39</td><td>317</td><td>105</td><td>58</td><td>85</td><td>248</td><td>62 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>8k</td><td>16</td><td>443</td><td>105</td><td>211</td><td>759</td><td>230</td><td>109</td><td>131</td><td>470</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>8k</td><td>16</td><td>421</td><td>229</td><td>47</td><td>697</td><td>209</td><td>113</td><td>122</td><td>444</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>8k</td><td>16</td><td>515</td><td>72</td><td>55</td><td>642</td><td>216</td><td>77</td><td>285</td><td>578</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>8k</td><td>32</td><td>1014</td><td>302</td><td>493</td><td>1809</td><td>516</td><td>181</td><td>218</td><td>916</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>8k</td><td>32</td><td>745</td><td>456</td><td>69</td><td>1270</td><td>459</td><td>186</td><td>217</td><td>862</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>8k</td><td>32</td><td>528</td><td>106</td><td>108</td><td>742</td><td>462</td><td>173</td><td>476</td><td>1111</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>16k</td><td>4</td><td>302</td><td>27</td><td>21</td><td>350</td><td>259</td><td>27</td><td>175</td><td>462</td><td>22 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>16k</td><td>4</td><td>323</td><td>29</td><td>21</td><td>373</td><td>252</td><td>30</td><td>165</td><td>448</td><td>21 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>16k</td><td>4</td><td>267</td><td>28</td><td>21</td><td>316</td><td>286</td><td>29</td><td>181</td><td>495</td><td>25 / 24</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>16k</td><td>8</td><td>569</td><td>51</td><td>344</td><td>963</td><td>440</td><td>99</td><td>173</td><td>712</td><td>55 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>16k</td><td>8</td><td>555</td><td>111</td><td>59</td><td>724</td><td>393</td><td>130</td><td>158</td><td>681</td><td>58 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>16k</td><td>8</td><td>580</td><td>165</td><td>52</td><td>797</td><td>427</td><td>85</td><td>258</td><td>771</td><td>58 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>16k</td><td>16</td><td>1223</td><td>147</td><td>354</td><td>1724</td><td>483</td><td>238</td><td>230</td><td>952</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>16k</td><td>16</td><td>895</td><td>356</td><td>72</td><td>1323</td><td>469</td><td>178</td><td>220</td><td>868</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>16k</td><td>16</td><td>1106</td><td>131</td><td>93</td><td>1330</td><td>520</td><td>110</td><td>546</td><td>1177</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>32k</td><td>4</td><td>1471</td><td>28</td><td>40</td><td>1539</td><td>316</td><td>50</td><td>383</td><td>749</td><td>9 / 25</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>32k</td><td>4</td><td>1474</td><td>27</td><td>39</td><td>1540</td><td>439</td><td>53</td><td>380</td><td>872</td><td>9 / 19</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>32k</td><td>4</td><td>868</td><td>51</td><td>41</td><td>960</td><td>381</td><td>50</td><td>369</td><td>800</td><td>16 / 21</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>prio</td><td>32k</td><td>8</td><td>801</td><td>449</td><td>467</td><td>1717</td><td>620</td><td>47</td><td>357</td><td>1025</td><td>53 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_pr</td><td>32k</td><td>8</td><td>863</td><td>295</td><td>109</td><td>1268</td><td>715</td><td>93</td><td>362</td><td>1170</td><td>49 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:8,7-:16</code></td><td>rbl_br</td><td>32k</td><td>8</td><td>712</td><td>147</td><td>56</td><td>914</td><td>640</td><td>54</td><td>442</td><td>1136</td><td>63 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>8k</td><td>4</td><td>89</td><td>28</td><td>9</td><td>126</td><td>109</td><td>32</td><td>36</td><td>177</td><td>22 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>8k</td><td>4</td><td>94</td><td>27</td><td>11</td><td>132</td><td>107</td><td>33</td><td>36</td><td>175</td><td>21 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>8k</td><td>4</td><td>83</td><td>54</td><td>8</td><td>145</td><td>96</td><td>47</td><td>27</td><td>170</td><td>21 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>8k</td><td>8</td><td>286</td><td>54</td><td>24</td><td>364</td><td>150</td><td>49</td><td>42</td><td>241</td><td>62 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>8k</td><td>8</td><td>268</td><td>44</td><td>20</td><td>333</td><td>154</td><td>50</td><td>40</td><td>245</td><td>63 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>8k</td><td>8</td><td>301</td><td>45</td><td>25</td><td>371</td><td>158</td><td>52</td><td>72</td><td>282</td><td>63 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>8k</td><td>16</td><td>469</td><td>117</td><td>35</td><td>621</td><td>195</td><td>107</td><td>22</td><td>324</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>8k</td><td>16</td><td>487</td><td>71</td><td>29</td><td>588</td><td>211</td><td>100</td><td>31</td><td>342</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>8k</td><td>16</td><td>350</td><td>70</td><td>31</td><td>451</td><td>222</td><td>90</td><td>70</td><td>381</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>8k</td><td>32</td><td>924</td><td>230</td><td>62</td><td>1216</td><td>409</td><td>176</td><td>48</td><td>633</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>8k</td><td>32</td><td>843</td><td>202</td><td>43</td><td>1087</td><td>419</td><td>136</td><td>59</td><td>615</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>8k</td><td>32</td><td>672</td><td>293</td><td>39</td><td>1003</td><td>490</td><td>212</td><td>199</td><td>900</td><td>159 / 159</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>16k</td><td>4</td><td>326</td><td>29</td><td>19</td><td>373</td><td>276</td><td>29</td><td>153</td><td>458</td><td>22 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>16k</td><td>4</td><td>833</td><td>26</td><td>18</td><td>877</td><td>277</td><td>30</td><td>147</td><td>453</td><td>9 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>16k</td><td>4</td><td>324</td><td>30</td><td>17</td><td>371</td><td>282</td><td>34</td><td>137</td><td>453</td><td>22 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>16k</td><td>8</td><td>694</td><td>166</td><td>132</td><td>993</td><td>457</td><td>48</td><td>105</td><td>610</td><td>55 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>16k</td><td>8</td><td>685</td><td>142</td><td>48</td><td>875</td><td>442</td><td>54</td><td>91</td><td>586</td><td>55 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>16k</td><td>8</td><td>682</td><td>107</td><td>55</td><td>844</td><td>416</td><td>96</td><td>84</td><td>596</td><td>55 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>16k</td><td>16</td><td>882</td><td>292</td><td>51</td><td>1225</td><td>553</td><td>97</td><td>113</td><td>763</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>16k</td><td>16</td><td>959</td><td>106</td><td>46</td><td>1112</td><td>525</td><td>112</td><td>106</td><td>743</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>16k</td><td>16</td><td>904</td><td>127</td><td>56</td><td>1087</td><td>538</td><td>118</td><td>145</td><td>801</td><td>95 / 95</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>32k</td><td>4</td><td>1471</td><td>25</td><td>34</td><td>1531</td><td>415</td><td>37</td><td>328</td><td>780</td><td>9 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>32k</td><td>4</td><td>1471</td><td>25</td><td>35</td><td>1531</td><td>422</td><td>35</td><td>317</td><td>774</td><td>9 / 24</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>32k</td><td>4</td><td>1479</td><td>27</td><td>35</td><td>1541</td><td>376</td><td>34</td><td>325</td><td>735</td><td>9 / 27</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>prio</td><td>32k</td><td>8</td><td>1314</td><td>379</td><td>197</td><td>1889</td><td>744</td><td>52</td><td>253</td><td>1049</td><td>54 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_pr</td><td>32k</td><td>8</td><td>1459</td><td>165</td><td>84</td><td>1708</td><td>754</td><td>62</td><td>247</td><td>1063</td><td>50 / 63</td></tr>
+<tr><td><code>0-3:0,4-6:16,7-:32</code></td><td>rbl_br</td><td>32k</td><td>8</td><td>822</td><td>321</td><td>39</td><td>1182</td><td>690</td><td>84</td><td>273</td><td>1048</td><td>63 / 63</td></tr>
 </tbody>
 </table>
 
