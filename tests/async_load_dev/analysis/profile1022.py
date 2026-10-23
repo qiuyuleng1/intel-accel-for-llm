@@ -173,6 +173,36 @@ for cfg in order:
                     n += 1
         cols.append(f"{a / n:.0f} / {b / n:.0f} / {c / n:.0f} / {(a + b + c) / n:.0f} ({n})")
     print(f"{cfg} | {' | '.join(cols)}")
+print("\nper cell timeline (markdown): (1) / (2) / (3) / sum ms for hit 98 and hit 100; n = async requests")
+print("| map | 方案 | input len | 并发 | hit 98 (1) | hit 98 (2) | hit 98 (3) | hit 98 合计 | "
+      "hit 100 (1) | hit 100 (2) | hit 100 (3) | hit 100 合计 | n hit 98 / 100 |")
+print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+for mp in ("4/8", "8/16", "16/32"):
+    for n_in in (8000, 16000, 32000):
+        for conc in (4, 8, 16, 32):
+            for sch in ("prio", "rbl_pr", "rbl_br"):
+                cols = []
+                counts = []
+                for hit in (98, 100):
+                    v = req_cells.get((f"{sch} {mp}", n_in, hit, conc))
+                    if v is None:
+                        cols = None
+                        break
+                    if not v:
+                        cols += ["-", "-", "-", "-"]
+                        counts.append("0")
+                        continue
+                    a = b = c = 0.0
+                    for rq in v:
+                        a += (rq["pro"] - rq["sub"]) / 1e6
+                        b += (rq["act"] - rq["pro"]) / 1e6
+                        c += rq["act_wait"]
+                    k = len(v)
+                    cols += [f"{a / k:.0f}", f"{b / k:.0f}", f"{c / k:.0f}", f"{(a + b + c) / k:.0f}"]
+                    counts.append(str(k))
+                if cols is None:
+                    continue
+                print(f"| {mp} | {sch} | {n_in // 1000}k | {conc} | {' | '.join(cols)} | {' / '.join(counts)} |")
 print("\nper-cell paired total wait (a vs b): a lower / higher cells, geomean of a/b over cells with b > 0")
 for mp in ("4/8", "8/16", "16/32"):
     for a, b in (("rbl_pr", "prio"), ("rbl_br", "prio"), ("rbl_br", "rbl_pr")):
