@@ -1,0 +1,397 @@
+   10488.1 S23161 submit kind=sync reqs=cmpl-a39446558f208287-0-883ceb8d,cmpl-95134055d6c4c1a1-0-ab3ffe4b layers=0-79
+   15934.0 S23161 end dur=5446 n=3 wait=17.1
+   15935.8 S23162 submit kind=async reqs=cmpl-a8a10e600f7ad9e4-0-95ac6048 layers=0-79
+   15961.1 S23162 submit kind=async reqs=cmpl-a3440d1788bcfbd3-0-8fe163e1 layers=0-79
+   20879.7 S23162 promote reqs=cmpl-a3440d1788bcfbd3-0-8fe163e1,cmpl-a8a10e600f7ad9e4-0-95ac6048
+   20881.1 S23163 activate reqs= held=cmpl-a8a10e600f7ad9e4-0-95ac6048,cmpl-a3440d1788bcfbd3-0-8fe163e1
+   20946.8 S23164 activate reqs=cmpl-a8a10e600f7ad9e4-0-95ac6048,cmpl-a3440d1788bcfbd3-0-8fe163e1 held=
+   21026.5 S23164 end dur=80 n=5 wait=34.0
+   26058.3 S23295 submit kind=sync reqs=r0 layers=0-79
+   26321.2 S23295 end dur=263 n=1 wait=216.3
+   26359.9 S23297 submit kind=sync reqs=r1,r2 layers=0-79
+   26411.2 S23297 submit kind=async reqs=r3 layers=0-79
+   26436.6 S23297 submit kind=async reqs=r4 layers=0-79
+   26462.3 S23297 submit kind=async reqs=r5 layers=0-79
+   26488.2 S23297 submit kind=async reqs=r6 layers=0-79
+   26869.3 S23297 end dur=510 n=3 wait=322.1
+   26871.5 S23298 submit kind=async reqs=r7 layers=0-79
+   26921.9 S23298 promote reqs=r4,r3
+   26924.1 S23299 submit kind=async reqs=r8 layers=0-79
+   26949.4 S23299 submit kind=async reqs=r9 layers=0-79
+   26974.6 S23299 submit kind=async reqs=r10 layers=0-79
+   27000.3 S23299 submit kind=async reqs=r11 layers=0-79
+   27035.3 S23299 submit kind=async reqs=r12 layers=0-79
+   27060.5 S23299 submit kind=async reqs=r13 layers=0-79
+   27086.0 S23299 submit kind=async reqs=r14 layers=0-79
+   27111.4 S23299 submit kind=async reqs=r15 layers=0-79
+   27144.0 S23299 activate reqs= held=r3,r4
+   27180.8 S23299 promote reqs=r5,r6,r7,r8
+   27185.0 S23300 activate reqs=r3 held=r4,r5,r6,r7,r8
+   27422.4 S23300 end dur=238 n=4 wait=216.4
+   27432.9 S23301 activate reqs=r4,r5,r6,r7,r8 held=
+   28417.3 S23301 end dur=985 n=9 wait=955.3
+   28421.2 S23301 promote reqs=r9
+   28423.0 S23302 activate reqs= held=r9
+   28467.2 S23303 activate reqs= held=r9
+   28534.7 S23303 promote reqs=r10,r11
+   28538.8 S23304 activate reqs=r9 held=r10,r11
+   28746.1 S23304 end dur=207 n=10 wait=187.2
+   28750.0 S23305 activate reqs=r10 held=r11
+   28961.1 S23305 end dur=211 n=11 wait=190.8
+   28962.7 S23306 activate reqs= held=r11
+   29003.1 S23306 promote reqs=r12
+   29004.5 S23307 activate reqs= held=r11,r12
+   29068.1 S23307 promote reqs=r13
+   29071.8 S23308 activate reqs=r11 held=r12,r13
+   29280.1 S23308 end dur=208 n=12 wait=184.6
+   29284.1 S23309 activate reqs=r12 held=r13
+   29490.2 S23309 end dur=206 n=13 wait=186.8
+   29491.7 S23310 activate reqs= held=r13
+   29522.5 S23310 promote reqs=r14
+   29523.8 S23311 activate reqs= held=r13,r14
+   29581.9 S23311 promote reqs=r15
+   29585.4 S23312 activate reqs=r13 held=r14,r15
+   29761.4 S23312 end dur=176 n=14 wait=151.7
+   29764.9 S23313 activate reqs=r14 held=r15
+   29964.4 S23313 end dur=200 n=15 wait=180.8
+   29965.5 S23314 activate reqs= held=r15
+   30021.7 S23315 activate reqs= held=r15
+   30086.8 S23316 activate reqs= held=r15
+   30155.2 S23317 activate reqs=r15 held=
+   30248.1 S23317 end dur=93 n=16 wait=17.4
+   36845.5 S23425 submit kind=async reqs=r16 layers=0-79
+   36910.9 S23425 promote reqs=r16
+   36912.4 S23426 activate reqs= held=r16
+   36976.6 S23427 submit kind=async reqs=r17 layers=0-79
+   37003.6 S23427 activate reqs=r16 held=
+   37136.6 S23427 end dur=160 n=14 wait=114.7
+   37138.3 S23428 submit kind=async reqs=r18 layers=0-79
+   37215.5 S23428 promote reqs=r17,r18
+   37216.9 S23429 activate reqs= held=r17,r18
+   37266.5 S23430 activate reqs=r17,r18 held=
+   37620.3 S23430 end dur=354 n=10 wait=330.4
+   37622.0 S23431 submit kind=async reqs=r19 layers=0-79
+   37677.9 S23431 promote reqs=r19
+   37680.0 S23432 submit kind=async reqs=r20 layers=0-79
+   37705.6 S23432 submit kind=async reqs=r21 layers=0-79
+   37731.2 S23432 submit kind=async reqs=r22 layers=0-79
+   37756.3 S23432 submit kind=async reqs=r23 layers=0-79
+   37789.5 S23432 submit kind=async reqs=r24 layers=0-79
+   37814.9 S23432 activate reqs= held=r19
+   37851.9 S23432 promote reqs=r20,r21,r22
+   37855.9 S23433 activate reqs=r19 held=r20,r21,r22
+   38062.0 S23433 end dur=206 n=9 wait=186.4
+   38067.7 S23434 submit kind=async reqs=r25 layers=0-79
+   38094.4 S23434 activate reqs=r20,r21 held=r22
+   38493.9 S23434 end dur=426 n=11 wait=376.5
+   38495.9 S23435 submit kind=async reqs=r26 layers=0-79
+   38521.8 S23435 activate reqs= held=r22
+   38553.7 S23435 promote reqs=r23
+   38557.4 S23436 activate reqs=r22 held=r23
+   38762.0 S23436 end dur=205 n=11 wait=182.2
+   38765.9 S23437 activate reqs=r23 held=
+   38973.5 S23437 end dur=208 n=11 wait=187.9
+   38975.4 S23438 submit kind=async reqs=r27 layers=0-79
+   39027.9 S23438 promote reqs=r24
+   39029.5 S23439 submit kind=async reqs=r28 layers=0-79
+   39054.9 S23439 activate reqs= held=r24
+   39089.5 S23439 promote reqs=r25
+   39093.4 S23440 activate reqs=r24 held=r25
+   39301.7 S23440 end dur=208 n=11 wait=188.3
+   39305.7 S23441 activate reqs=r25 held=
+   39512.6 S23441 end dur=207 n=11 wait=186.8
+   39514.5 S23442 submit kind=async reqs=r29 layers=0-79
+   39574.5 S23442 promote reqs=r26,r27
+   39576.1 S23443 submit kind=async reqs=r30 layers=0-79
+   39601.8 S23443 activate reqs= held=r26,r27
+   39632.4 S23443 promote reqs=r28
+   39636.0 S23444 activate reqs=r26 held=r27,r28
+   39842.4 S23444 end dur=206 n=12 wait=187.3
+   39846.3 S23445 activate reqs=r27 held=r28
+   40051.3 S23445 end dur=205 n=12 wait=186.4
+   40053.1 S23446 activate reqs= held=r28
+   40082.0 S23447 submit kind=async reqs=r31 layers=0-79
+   40108.0 S23447 activate reqs= held=r28
+   40151.4 S23447 promote reqs=r29,r30
+   40154.9 S23448 activate reqs=r28 held=r29,r30
+   40360.1 S23448 end dur=205 n=13 wait=185.7
+   40364.1 S23449 activate reqs=r29 held=r30
+   40562.7 S23449 end dur=199 n=14 wait=180.7
+   40564.2 S23450 activate reqs= held=r30
+   40595.1 S23451 activate reqs= held=r30
+   40661.5 S23451 promote reqs=r31
+   40664.9 S23452 activate reqs=r30 held=r31
+   40807.4 S23452 end dur=143 n=15 wait=112.9
+   40810.8 S23453 activate reqs=r31 held=
+   41007.2 S23453 end dur=196 n=16 wait=178.3
+   47253.0 S23557 submit kind=async reqs=r32 layers=0-79
+   47325.7 S23557 promote reqs=r32
+   47327.2 S23558 activate reqs= held=r32
+   47394.0 S23559 activate reqs=r32 held=
+   47507.3 S23559 end dur=113 n=14 wait=72.9
+   47508.9 S23560 submit kind=async reqs=r33 layers=0-79
+   47631.8 S23560 promote reqs=r33
+   47633.7 S23561 submit kind=async reqs=r34 layers=0-79
+   47661.0 S23561 activate reqs= held=r33
+   47702.6 S23561 promote reqs=r34
+   47706.3 S23562 activate reqs=r33 held=r34
+   47821.3 S23562 end dur=115 n=12 wait=72.3
+   47825.3 S23563 submit kind=async reqs=r35 layers=0-79
+   47851.9 S23563 activate reqs=r34 held=
+   48057.8 S23563 end dur=233 n=13 wait=185.5
+   48059.9 S23564 submit kind=async reqs=r36 layers=0-79
+   48086.1 S23564 submit kind=async reqs=r37 layers=0-79
+   48144.4 S23564 promote reqs=r35,r36
+   48145.8 S23565 activate reqs= held=r35,r36
+   48205.9 S23565 promote reqs=r37
+   48211.5 S23566 submit kind=async reqs=r38 layers=0-79
+   48237.1 S23566 activate reqs=r35,r36 held=r37
+   48621.5 S23566 end dur=410 n=13 wait=354.5
+   48625.7 S23567 submit kind=async reqs=r39 layers=0-79
+   48652.0 S23567 activate reqs=r37 held=
+   48859.8 S23567 end dur=234 n=14 wait=186.6
+   48863.8 S23567 promote reqs=r38
+   48865.8 S23568 activate reqs= held=r38
+   48896.7 S23569 activate reqs=r38 held=
+   49102.0 S23569 end dur=205 n=13 wait=182.4
+   49126.5 S23570 promote reqs=r39
+   49127.8 S23571 submit kind=async reqs=r40 layers=0-79
+   49154.3 S23571 submit kind=async reqs=r41 layers=0-79
+   49179.5 S23571 activate reqs= held=r39
+   49206.0 S23571 promote reqs=r40
+   49207.2 S23572 activate reqs= held=r39,r40
+   49269.2 S23572 promote reqs=r41
+   49274.3 S23573 activate reqs=r39,r40 held=r41
+   49631.0 S23573 end dur=357 n=13 wait=334.1
+   49635.2 S23574 submit kind=async reqs=r42 layers=0-79
+   49662.2 S23574 activate reqs=r41 held=
+   49861.7 S23574 end dur=227 n=14 wait=179.4
+   49863.6 S23575 submit kind=async reqs=r43 layers=0-79
+   49943.3 S23575 promote reqs=r42,r43
+   49945.0 S23576 activate reqs= held=r42,r43
+   50000.5 S23577 activate reqs=r42 held=r43
+   50144.0 S23577 end dur=144 n=13 wait=113.8
+   50147.4 S23578 activate reqs=r43 held=
+   50347.9 S23578 end dur=201 n=14 wait=180.6
+   50349.7 S23579 submit kind=async reqs=r44 layers=0-79
+   50376.8 S23579 submit kind=async reqs=r45 layers=0-79
+   50455.2 S23579 promote reqs=r44,r45
+   50456.9 S23580 activate reqs= held=r44,r45
+   50512.8 S23581 activate reqs=r44 held=r45
+   50662.5 S23581 end dur=150 n=13 wait=120.1
+   50666.4 S23582 activate reqs=r45 held=
+   50869.7 S23582 end dur=203 n=14 wait=183.1
+   50871.6 S23583 submit kind=async reqs=r46 layers=0-79
+   50898.6 S23583 submit kind=async reqs=r47 layers=0-79
+   50987.6 S23583 promote reqs=r46,r47
+   50989.5 S23584 activate reqs= held=r46,r47
+   51050.3 S23585 activate reqs=r46 held=r47
+   51181.6 S23585 end dur=131 n=15 wait=99.5
+   51185.3 S23586 activate reqs=r47 held=
+   51385.5 S23586 end dur=200 n=16 wait=181.1
+   57734.3 S23689 submit kind=async reqs=r48 layers=0-79
+   57805.8 S23689 promote reqs=r48
+   57807.3 S23690 activate reqs= held=r48
+   57875.7 S23691 activate reqs=r48 held=
+   57990.1 S23691 end dur=114 n=14 wait=66.8
+   57991.6 S23692 submit kind=async reqs=r49 layers=0-79
+   58118.1 S23692 promote reqs=r49
+   58119.8 S23693 submit kind=async reqs=r50 layers=0-79
+   58147.0 S23693 activate reqs= held=r49
+   58183.7 S23693 promote reqs=r50
+   58187.7 S23694 activate reqs=r49 held=r50
+   58302.7 S23694 end dur=115 n=13 wait=52.2
+   58306.7 S23695 activate reqs=r50 held=
+   58502.9 S23695 end dur=196 n=13 wait=106.5
+   58504.7 S23696 submit kind=async reqs=r51 layers=0-79
+   58531.7 S23696 submit kind=async reqs=r52 layers=0-79
+   58617.7 S23696 promote reqs=r51,r52
+   58619.6 S23697 submit kind=async reqs=r53 layers=0-79
+   58645.2 S23697 activate reqs= held=r51,r52
+   58678.2 S23697 promote reqs=r53
+   58683.8 S23698 activate reqs=r51,r52 held=r53
+   59069.5 S23698 end dur=386 n=14 wait=362.5
+   59073.6 S23699 submit kind=async reqs=r54 layers=0-79
+   59100.6 S23699 activate reqs=r53 held=
+   59303.0 S23699 end dur=229 n=15 wait=182.0
+   59342.1 S23700 promote reqs=r54
+   59343.5 S23701 activate reqs= held=r54
+   59399.2 S23702 activate reqs= held=r54
+   59465.6 S23703 submit kind=async reqs=r55 layers=0-79
+   59492.7 S23703 activate reqs=r54 held=
+   59562.1 S23703 end dur=97 n=13 wait=32.6
+   59563.6 S23704 submit kind=async reqs=r56 layers=0-79
+   59702.9 S23704 promote reqs=r55,r56
+   59704.7 S23705 submit kind=async reqs=r57 layers=0-79
+   59731.6 S23705 activate reqs= held=r55,r56
+   59772.4 S23705 promote reqs=r57
+   59778.0 S23706 activate reqs=r55,r56 held=r57
+   60098.7 S23706 end dur=321 n=13 wait=298.3
+   60102.9 S23707 submit kind=async reqs=r58 layers=0-79
+   60129.7 S23707 activate reqs=r57 held=
+   60334.0 S23707 end dur=231 n=14 wait=183.5
+   60335.9 S23708 submit kind=async reqs=r59 layers=0-79
+   60409.0 S23708 promote reqs=r58
+   60410.6 S23709 activate reqs= held=r58
+   60475.2 S23709 promote reqs=r59
+   60479.0 S23710 activate reqs=r58 held=r59
+   60620.3 S23710 end dur=141 n=13 wait=110.9
+   60624.2 S23711 submit kind=async reqs=r60 layers=0-79
+   60651.2 S23711 activate reqs=r59 held=
+   60853.8 S23711 end dur=230 n=14 wait=182.3
+   60855.8 S23712 submit kind=async reqs=r61 layers=0-79
+   60940.9 S23712 promote reqs=r60,r61
+   60942.5 S23713 activate reqs= held=r60,r61
+   61001.3 S23714 activate reqs=r60 held=r61
+   61140.5 S23714 end dur=139 n=13 wait=101.2
+   61144.4 S23715 submit kind=async reqs=r62 layers=0-79
+   61171.6 S23715 activate reqs=r61 held=
+   61377.8 S23715 end dur=233 n=14 wait=186.1
+   61379.7 S23716 submit kind=async reqs=r63 layers=0-79
+   61463.5 S23716 promote reqs=r62,r63
+   61465.2 S23717 activate reqs= held=r62,r63
+   61531.4 S23718 activate reqs=r62 held=r63
+   61659.1 S23718 end dur=128 n=15 wait=97.6
+   61662.6 S23719 activate reqs=r63 held=
+   61860.1 S23719 end dur=198 n=16 wait=179.4
+   68047.8 S23821 submit kind=async reqs=r64 layers=0-79
+   68113.2 S23821 promote reqs=r64
+   68114.4 S23822 activate reqs= held=r64
+   68183.8 S23823 activate reqs=r64 held=
+   68303.2 S23823 end dur=120 n=14 wait=66.5
+   68304.7 S23824 submit kind=async reqs=r65 layers=0-79
+   68434.5 S23824 promote reqs=r65
+   68436.4 S23825 submit kind=async reqs=r66 layers=0-79
+   68463.4 S23825 activate reqs= held=r65
+   68496.3 S23825 promote reqs=r66
+   68500.0 S23826 activate reqs=r65 held=r66
+   68616.5 S23826 end dur=117 n=13 wait=82.3
+   68620.2 S23827 activate reqs=r66 held=
+   68818.8 S23827 end dur=199 n=13 wait=144.4
+   68820.6 S23828 submit kind=async reqs=r67 layers=0-79
+   68848.0 S23828 submit kind=async reqs=r68 layers=0-79
+   68909.5 S23828 promote reqs=r67
+   68911.3 S23829 submit kind=async reqs=r69 layers=0-79
+   68936.8 S23829 activate reqs= held=r67
+   68970.3 S23829 promote reqs=r68
+   68974.1 S23830 activate reqs=r67 held=r68
+   69180.2 S23830 end dur=206 n=14 wait=186.7
+   69184.2 S23831 activate reqs=r68 held=
+   69394.2 S23831 end dur=210 n=14 wait=189.8
+   69426.7 S23832 promote reqs=r69
+   69428.1 S23833 submit kind=async reqs=r70 layers=0-79
+   69455.1 S23833 activate reqs= held=r69
+   69498.7 S23833 promote reqs=r70
+   69502.1 S23834 activate reqs=r69 held=r70
+   69666.2 S23834 end dur=164 n=13 wait=137.9
+   69670.1 S23835 activate reqs=r70 held=
+   69873.2 S23835 end dur=203 n=13 wait=183.6
+   69875.2 S23836 submit kind=async reqs=r71 layers=0-79
+   69902.6 S23836 submit kind=async reqs=r72 layers=0-79
+   69956.7 S23836 promote reqs=r71
+   69958.4 S23837 submit kind=async reqs=r73 layers=0-79
+   69983.7 S23837 activate reqs= held=r71
+   70019.4 S23837 promote reqs=r72
+   70023.0 S23838 activate reqs=r71 held=r72
+   70231.4 S23838 end dur=209 n=13 wait=184.5
+   70235.4 S23839 activate reqs=r72 held=
+   70444.7 S23839 end dur=209 n=13 wait=188.9
+   70446.6 S23840 submit kind=async reqs=r74 layers=0-79
+   70500.3 S23840 promote reqs=r73
+   70501.6 S23841 submit kind=async reqs=r75 layers=0-79
+   70527.6 S23841 activate reqs= held=r73
+   70570.4 S23841 promote reqs=r74,r75
+   70574.1 S23842 activate reqs=r73 held=r74,r75
+   70774.9 S23842 end dur=201 n=13 wait=178.5
+   70778.9 S23843 activate reqs=r74 held=r75
+   70982.3 S23843 end dur=204 n=13 wait=183.8
+   70986.4 S23844 submit kind=async reqs=r76 layers=0-79
+   71013.3 S23844 activate reqs=r75 held=
+   71215.3 S23844 end dur=229 n=14 wait=181.8
+   71217.2 S23845 submit kind=async reqs=r77 layers=0-79
+   71290.2 S23845 promote reqs=r76
+   71291.7 S23846 activate reqs= held=r76
+   71354.5 S23846 promote reqs=r77
+   71357.8 S23847 activate reqs=r76 held=r77
+   71501.2 S23847 end dur=143 n=13 wait=115.0
+   71505.0 S23848 submit kind=async reqs=r78 layers=0-79
+   71531.8 S23848 activate reqs=r77 held=
+   71737.8 S23848 end dur=233 n=14 wait=185.9
+   71739.7 S23849 submit kind=async reqs=r79 layers=0-79
+   71817.1 S23849 promote reqs=r78,r79
+   71818.6 S23850 activate reqs= held=r78,r79
+   71881.9 S23851 activate reqs=r78 held=r79
+   72017.3 S23851 end dur=136 n=15 wait=101.7
+   72020.8 S23852 activate reqs=r79 held=
+   72220.1 S23852 end dur=199 n=16 wait=180.1
+   78243.1 S23953 submit kind=async reqs=r80 layers=0-79
+   78312.3 S23953 promote reqs=r80
+   78313.6 S23954 activate reqs= held=r80
+   78378.2 S23955 activate reqs=r80 held=
+   78501.4 S23955 end dur=123 n=14 wait=90.2
+   78503.0 S23956 submit kind=async reqs=r81 layers=0-79
+   78638.1 S23956 promote reqs=r81
+   78640.0 S23957 submit kind=async reqs=r82 layers=0-79
+   78666.8 S23957 activate reqs= held=r81
+   78702.9 S23957 promote reqs=r82
+   78706.8 S23958 activate reqs=r81 held=r82
+   78809.4 S23958 end dur=103 n=14 wait=52.7
+   78813.3 S23959 activate reqs=r82 held=
+   79013.3 S23959 end dur=200 n=14 wait=167.9
+   79015.0 S23960 submit kind=async reqs=r83 layers=0-79
+   79093.1 S23960 promote reqs=r83
+   79094.9 S23961 submit kind=async reqs=r84 layers=0-79
+   79121.2 S23961 activate reqs= held=r83
+   79164.2 S23961 promote reqs=r84
+   79168.0 S23962 activate reqs=r83 held=r84
+   79328.7 S23962 end dur=161 n=14 wait=131.0
+   79332.7 S23963 activate reqs=r84 held=
+   79535.6 S23963 end dur=203 n=14 wait=183.4
+   79537.3 S23964 submit kind=async reqs=r85 layers=0-79
+   79597.5 S23964 promote reqs=r85
+   79599.3 S23965 submit kind=async reqs=r86 layers=0-79
+   79625.0 S23965 activate reqs= held=r85
+   79658.2 S23965 promote reqs=r86
+   79659.7 S23966 activate reqs= held=r85,r86
+   79722.1 S23967 activate reqs=r85,r86 held=
+   80054.9 S23967 end dur=333 n=14 wait=305.2
+   80056.7 S23968 submit kind=async reqs=r87 layers=0-79
+   80119.8 S23968 promote reqs=r87
+   80121.4 S23969 submit kind=async reqs=r88 layers=0-79
+   80147.2 S23969 activate reqs= held=r87
+   80186.7 S23969 promote reqs=r88
+   80190.2 S23970 activate reqs=r87 held=r88
+   80367.4 S23970 end dur=177 n=14 wait=152.4
+   80371.3 S23971 activate reqs=r88 held=
+   80573.6 S23971 end dur=202 n=14 wait=182.4
+   80575.4 S23972 submit kind=async reqs=r89 layers=0-79
+   80650.0 S23972 promote reqs=r89
+   80651.6 S23973 submit kind=async reqs=r90 layers=0-79
+   80677.8 S23973 activate reqs= held=r89
+   80717.9 S23973 promote reqs=r90
+   80721.6 S23974 submit kind=async reqs=r91 layers=0-79
+   80747.3 S23974 activate reqs=r89 held=r90
+   80920.3 S23974 end dur=199 n=14 wait=153.3
+   80924.5 S23975 activate reqs=r90 held=
+   81129.8 S23975 end dur=205 n=14 wait=186.1
+   81186.5 S23976 promote reqs=r91
+   81188.0 S23977 submit kind=async reqs=r92 layers=0-79
+   81214.5 S23977 activate reqs= held=r91
+   81252.9 S23977 promote reqs=r92
+   81256.5 S23978 activate reqs=r91 held=r92
+   81411.3 S23978 end dur=155 n=14 wait=123.5
+   81415.4 S23979 submit kind=async reqs=r93 layers=0-79
+   81441.6 S23979 activate reqs=r92 held=
+   81645.6 S23979 end dur=230 n=14 wait=183.3
+   81704.1 S23980 promote reqs=r93
+   81705.5 S23981 submit kind=async reqs=r94 layers=0-79
+   81732.1 S23981 activate reqs= held=r93
+   81769.0 S23981 promote reqs=r94
+   81770.3 S23982 activate reqs= held=r93,r94
+   81841.2 S23983 submit kind=async reqs=r95 layers=0-79
+   81867.5 S23983 activate reqs=r93,r94 held=
+   82160.3 S23983 end dur=319 n=15 wait=270.2
+   82220.9 S23984 promote reqs=r95
+   82222.2 S23985 activate reqs= held=r95
+   82282.5 S23986 activate reqs=r95 held=
+   82386.6 S23986 end dur=104 n=16 wait=64.6
