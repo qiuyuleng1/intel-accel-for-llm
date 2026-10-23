@@ -1,0 +1,1208 @@
+branch=perf/async-load-optimization-dev commit=d95de71
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink CPU rank 4: GPU=4 PCI=00000000:B8:00.0 NUMA=1 CPUs=64-79
+KVShrink CPU rank 5: GPU=5 PCI=00000000:B9:00.0 NUMA=1 CPUs=80-95
+KVShrink CPU rank 6: GPU=6 PCI=00000000:C8:00.0 NUMA=1 CPUs=96-111
+KVShrink CPU rank 7: GPU=7 PCI=00000000:C9:00.0 NUMA=1 CPUs=112-127
+0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+KVShrink QAT rank 0: indices=0 devices=0000:01:00.0(numa=0)
+KVShrink QAT rank 1: indices=1 devices=0000:06:00.0(numa=0)
+KVShrink QAT rank 2: indices=2 devices=0000:0b:00.0(numa=0)
+KVShrink QAT rank 3: indices=3 devices=0000:10:00.0(numa=0)
+KVShrink QAT rank 4: indices=4 devices=0000:81:00.0(numa=1)
+KVShrink QAT rank 5: indices=5 devices=0000:86:00.0(numa=1)
+KVShrink QAT rank 6: indices=6 devices=0000:8b:00.0(numa=1)
+KVShrink QAT rank 7: indices=7 devices=0000:90:00.0(numa=1)
+0|1|2|3|4|5|6|7
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+KVShrink GPU rank 4: index=4 pci=00000000:B8:00.0 numa=1
+KVShrink GPU rank 4: DSA=dsa8 WQ=wq8.0
+KVShrink GPU rank 5: index=5 pci=00000000:B9:00.0 numa=1
+KVShrink GPU rank 5: DSA=dsa10 WQ=wq10.0
+KVShrink GPU rank 6: index=6 pci=00000000:C8:00.0 numa=1
+KVShrink GPU rank 6: DSA=dsa12 WQ=wq12.0
+KVShrink GPU rank 7: index=7 pci=00000000:C9:00.0 numa=1
+KVShrink GPU rank 7: DSA=dsa14 WQ=wq14.0
+wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+out=/home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029 schemes=sync priority_3level_first_n_per_req priority_3level_first_n_per_req_remaining_by_layer priority_3level_first_n_batch_reqs_remaining_by_layer batch_reqs_async_load_submit maps=0-3:0,4-6:4,7-:8 0-3:0,4-6:8,7-:16 0-3:0,4-6:16,7-:32 fixed_layers= input=8000 16000 32000 output=128 hit=80 98 100 conc=4 8 16 32 max_conc=16000:16 32000:8 prompts=1:16 4:32 8:64 16:96 32:160 repeats=1 warmups=5 trace=0 event_log=1 ddr_gb=25 scratch_gb=16
+===== label=sync map=none fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=484G available=483G
+    Node 0, zone   Normal  95533 119518 117925 119367 109571  96819  83242  68509  49363  30168  15747 
+    Node 1, zone   Normal 117725 125067 125251 126407 116113 103169  86243  67047  45026  29905  13700 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/sync.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- sync_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=3435.61 median_ttft=4350.51 p95_ttft=4361.26 ms
+    --- sync_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=6027.46 median_ttft=6495.44 p95_ttft=7607.26 ms
+    --- sync_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9499.82 median_ttft=10719.18 p95_ttft=16031.14 ms
+    --- sync_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync map=none fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=13860.72 median_ttft=13682.77 p95_ttft=25333.32 ms
+    --- sync_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=538.85 median_ttft=646.03 p95_ttft=665.16 ms
+    --- sync_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=1041.11 median_ttft=1150.41 p95_ttft=1181.0 ms
+    --- sync_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1532.6 median_ttft=1287.4 p95_ttft=2291.77 ms
+    --- sync_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync map=none fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=3143.27 median_ttft=3944.7 p95_ttft=4243.21 ms
+    --- sync_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=415.12 median_ttft=475.74 p95_ttft=550.27 ms
+    --- sync_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=610.43 median_ttft=547.93 p95_ttft=939.28 ms
+    --- sync_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=1157.41 median_ttft=1527.49 p95_ttft=1800.32 ms
+    --- sync_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> sync map=none fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=2193.03 median_ttft=2230.46 p95_ttft=3389.16 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- sync_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=6452.25 median_ttft=7822.09 p95_ttft=8828.69 ms
+    --- sync_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10804.82 median_ttft=13111.33 p95_ttft=15190.88 ms
+    --- sync_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=13235.02 median_ttft=10755.55 p95_ttft=23942.4 ms
+    --- sync_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=929.85 median_ttft=1111.65 p95_ttft=1120.73 ms
+    --- sync_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=2042.88 median_ttft=2271.14 p95_ttft=2288.55 ms
+    --- sync_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=3059.49 median_ttft=2441.47 p95_ttft=4515.55 ms
+    --- sync_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=849.81 median_ttft=1010.74 p95_ttft=1069.86 ms
+    --- sync_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=1693.72 median_ttft=1871.69 p95_ttft=1945.18 ms
+    --- sync_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> sync map=none fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=2485.47 median_ttft=3230.76 p95_ttft=3643.48 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- sync_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=12172.15 median_ttft=11661.46 p95_ttft=18716.47 ms
+    --- sync_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=18672.55 median_ttft=21267.79 p95_ttft=29742.93 ms
+    --- sync_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1844.75 median_ttft=2217.57 p95_ttft=2228.14 ms
+    --- sync_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3928.54 median_ttft=4384.51 p95_ttft=4423.04 ms
+    --- sync_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> sync map=none fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1715.51 median_ttft=2050.85 p95_ttft=2129.76 ms
+    --- sync_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> sync map=none fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=3149.47 median_ttft=3285.19 p95_ttft=3848.58 ms
+===== label=priority_3level_first_n_per_req_L0-4-8 map=0-3:0,4-6:4,7-:8 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=485G available=483G
+    Node 0, zone   Normal  64625  76542  73617  75764  67386  56520  47627  39787  29801  21675  33305 
+    Node 1, zone   Normal  90504 104140  97737  98733  89316  78440  66038  52127  36339  27828  21683 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_per_req_L0-4-8.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2212.31 median_ttft=2310.22 p95_ttft=3451.54 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=6221.81 median_ttft=8698.35 p95_ttft=8718.51 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9226.56 median_ttft=8998.81 p95_ttft=14405.23 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=15727.7 median_ttft=18195.99 p95_ttft=29736.12 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=444.47 median_ttft=472.85 p95_ttft=607.74 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=983.4 median_ttft=1056.92 p95_ttft=1276.92 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1768.98 median_ttft=1796.65 p95_ttft=2508.31 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=3275.48 median_ttft=3160.36 p95_ttft=4870.48 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=321.05 median_ttft=314.83 p95_ttft=476.26 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=606.98 median_ttft=675.57 p95_ttft=1081.44 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=1051.98 median_ttft=1047.75 p95_ttft=2074.07 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=2098.54 median_ttft=2454.85 p95_ttft=3986.98 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4519.37 median_ttft=4590.34 p95_ttft=6891.35 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10208.42 median_ttft=12327.84 p95_ttft=15416.35 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=14155.76 median_ttft=15368.07 p95_ttft=24655.02 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=711.97 median_ttft=729.45 p95_ttft=997.58 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=2080.69 median_ttft=2716.83 p95_ttft=2984.87 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=3121.08 median_ttft=3610.43 p95_ttft=5577.27 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=542.72 median_ttft=504.42 p95_ttft=867.54 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=1071.62 median_ttft=1031.38 p95_ttft=1653.4 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=2151.42 median_ttft=2121.63 p95_ttft=4013.7 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-4-8_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=11446.66 median_ttft=10750.95 p95_ttft=18386.86 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=19283.84 median_ttft=21422.31 p95_ttft=30687.02 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1734.6 median_ttft=1896.32 p95_ttft=2406.91 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=4147.15 median_ttft=5651.41 p95_ttft=5955.03 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1369.15 median_ttft=1589.91 p95_ttft=1711.26 ms
+    --- priority_3level_first_n_per_req_L0-4-8_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=2619.4 median_ttft=3038.09 p95_ttft=3587.5 ms
+===== label=priority_3level_first_n_per_req_remaining_by_layer_L0-4-8 map=0-3:0,4-6:4,7-:8 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=485G available=483G
+    Node 0, zone   Normal  70821  82367  79244  80158  70321  59369  49274  40455  29645  20349  33586 
+    Node 1, zone   Normal  89806 100007  93350  96089  84847  73782  62693  50273  36949  26306  23030 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_per_req_remaining_by_layer_L0-4-8.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2197.46 median_ttft=2297.16 p95_ttft=3423.57 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=6204.47 median_ttft=8679.61 p95_ttft=8713.02 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9928.52 median_ttft=8820.6 p95_ttft=15383.67 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=15820.57 median_ttft=18213.56 p95_ttft=25655.41 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=433.03 median_ttft=451.64 p95_ttft=678.54 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=977.09 median_ttft=1265.32 p95_ttft=1280.24 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1567.53 median_ttft=1357.41 p95_ttft=2373.06 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2991.37 median_ttft=3355.7 p95_ttft=4397.23 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=315.98 median_ttft=306.02 p95_ttft=469.67 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=537.48 median_ttft=585.36 p95_ttft=774.63 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=1096.92 median_ttft=1223.1 p95_ttft=1758.98 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=2280.59 median_ttft=2723.04 p95_ttft=3460.52 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4363.44 median_ttft=4589.33 p95_ttft=6734.06 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10894.52 median_ttft=11357.95 p95_ttft=17655.75 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=14120.59 median_ttft=15384.66 p95_ttft=25247.02 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=710.7 median_ttft=726.86 p95_ttft=1020.08 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1741.65 median_ttft=2251.24 p95_ttft=2334.42 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=3079.17 median_ttft=2778.16 p95_ttft=4598.0 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=568.66 median_ttft=550.64 p95_ttft=875.26 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=999.39 median_ttft=986.57 p95_ttft=1651.53 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=2161.47 median_ttft=2317.64 p95_ttft=3612.43 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=10444.69 median_ttft=10688.67 p95_ttft=13901.52 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=17234.21 median_ttft=18460.97 p95_ttft=27915.64 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1749.99 median_ttft=1915.96 p95_ttft=2416.43 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3378.14 median_ttft=4450.15 p95_ttft=4582.66 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1388.09 median_ttft=1618.95 p95_ttft=1701.37 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-4-8_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=2050.44 median_ttft=2375.1 p95_ttft=3248.61 ms
+===== label=priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8 map=0-3:0,4-6:4,7-:8 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=485G
+    Node 0, zone   Normal  63168  77835  74023  75746  66333  55929  46477  38942  30441  20742  33973 
+    Node 1, zone   Normal  93971 108615 102232 104085  90587  77214  64036  51038  36582  24638  23827 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2197.14 median_ttft=2296.26 p95_ttft=3429.03 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=6207.35 median_ttft=8679.49 p95_ttft=8707.32 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=10020.97 median_ttft=10871.46 p95_ttft=16121.87 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=16250.1 median_ttft=16281.7 p95_ttft=29681.76 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=488.8 median_ttft=523.14 p95_ttft=671.45 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=975.31 median_ttft=1265.75 p95_ttft=1274.49 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1575.15 median_ttft=1382.36 p95_ttft=2415.68 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2991.86 median_ttft=3415.3 p95_ttft=4376.45 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=305.41 median_ttft=291.26 p95_ttft=461.26 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=601.74 median_ttft=698.56 p95_ttft=881.34 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=1130.74 median_ttft=1119.37 p95_ttft=2009.5 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=2161.79 median_ttft=2520.82 p95_ttft=3379.48 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4323.1 median_ttft=4605.83 p95_ttft=6741.66 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=11143.42 median_ttft=12338.84 p95_ttft=17572.44 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=14062.62 median_ttft=15441.21 p95_ttft=24969.02 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=711.82 median_ttft=729.62 p95_ttft=999.38 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1731.22 median_ttft=2237.6 p95_ttft=2321.89 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=3019.75 median_ttft=2576.75 p95_ttft=4635.27 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=576.27 median_ttft=543.83 p95_ttft=872.44 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=1309.42 median_ttft=1714.57 p95_ttft=1754.1 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=2220.47 median_ttft=2123.72 p95_ttft=3963.47 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=10135.52 median_ttft=10687.55 p95_ttft=13872.76 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=17482.25 median_ttft=18451.07 p95_ttft=30234.68 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1732.23 median_ttft=1896.91 p95_ttft=2411.11 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3389.05 median_ttft=4476.63 p95_ttft=4577.16 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1360.86 median_ttft=1586.35 p95_ttft=1675.63 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-4-8_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=2338.22 median_ttft=2488.16 p95_ttft=3384.64 ms
+===== label=batch_reqs_async_load_submit_L0-4-8 map=0-3:0,4-6:4,7-:8 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  60215  72742  70963  73612  64840  56273  47063  39414  30949  20910  33720 
+    Node 1, zone   Normal  83355  98936  93990  96025  86662  75322  63734  51082  35616  24392  24469 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/batch_reqs_async_load_submit_L0-4-8.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2173.91 median_ttft=2303.65 p95_ttft=3439.09 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5498.6 median_ttft=7568.36 p95_ttft=7681.38 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9734.82 median_ttft=10406.43 p95_ttft=15037.58 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=15703.35 median_ttft=16228.2 p95_ttft=29693.73 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=445.11 median_ttft=461.88 p95_ttft=635.93 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=907.68 median_ttft=1140.74 p95_ttft=1153.52 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1509.92 median_ttft=1833.49 p95_ttft=2297.68 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2868.19 median_ttft=3543.95 p95_ttft=4221.74 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=328.12 median_ttft=318.11 p95_ttft=487.8 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=484.7 median_ttft=469.02 p95_ttft=959.14 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=677.21 median_ttft=543.24 p95_ttft=1867.92 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1163.47 median_ttft=1023.45 p95_ttft=3112.04 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4322.2 median_ttft=4606.02 p95_ttft=6735.58 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10718.37 median_ttft=12305.07 p95_ttft=15415.2 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=14686.14 median_ttft=15384.04 p95_ttft=24666.38 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=713.7 median_ttft=730.51 p95_ttft=998.32 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1695.65 median_ttft=2025.33 p95_ttft=2238.2 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=2723.45 median_ttft=3282.7 p95_ttft=4456.38 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=540.34 median_ttft=533.65 p95_ttft=857.46 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=840.6 median_ttft=869.96 p95_ttft=1783.35 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1241.94 median_ttft=835.55 p95_ttft=3795.29 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-4-8_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=11605.49 median_ttft=10732.53 p95_ttft=18378.16 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=19172.95 median_ttft=21656.95 p95_ttft=30710.76 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1734.54 median_ttft=1895.34 p95_ttft=2400.68 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3580.94 median_ttft=4463.5 p95_ttft=4847.54 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1389.49 median_ttft=1612.59 p95_ttft=1735.09 ms
+    --- batch_reqs_async_load_submit_L0-4-8_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:4,7-:8 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1656.87 median_ttft=1437.31 p95_ttft=3688.38 ms
+===== label=priority_3level_first_n_per_req_L0-8-16 map=0-3:0,4-6:8,7-:16 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  61334  74665  72411  74288  65664  57010  47826  39640  30727  19935  34125 
+    Node 1, zone   Normal  76692  95068  91601  94770  83723  73588  62405  50083  36483  25333  24126 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_per_req_L0-8-16.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2197.56 median_ttft=2293.71 p95_ttft=3441.6 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5177.07 median_ttft=6576.38 p95_ttft=7673.24 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9728.2 median_ttft=10412.53 p95_ttft=15009.44 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=15787.6 median_ttft=18186.78 p95_ttft=25590.24 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=490.13 median_ttft=524.3 p95_ttft=677.41 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=927.09 median_ttft=1154.55 p95_ttft=1275.68 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1812.18 median_ttft=2413.69 p95_ttft=2818.48 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=3631.49 median_ttft=3581.64 p95_ttft=6007.89 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=309.33 median_ttft=295.89 p95_ttft=463.54 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=453.34 median_ttft=425.27 p95_ttft=881.5 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=718.1 median_ttft=611.29 p95_ttft=1716.02 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1308.57 median_ttft=1071.53 p95_ttft=3202.6 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4367.29 median_ttft=4600.87 p95_ttft=6734.69 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=11286.85 median_ttft=12302.72 p95_ttft=17553.46 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=14620.99 median_ttft=14517.34 p95_ttft=26018.85 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=711.45 median_ttft=728.39 p95_ttft=996.24 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=2070.55 median_ttft=2677.6 p95_ttft=2879.25 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=3585.07 median_ttft=3880.15 p95_ttft=5373.76 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=536.47 median_ttft=515.29 p95_ttft=876.88 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=857.8 median_ttft=822.8 p95_ttft=1462.89 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1292.54 median_ttft=1033.9 p95_ttft=3175.92 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-8-16_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=10045.27 median_ttft=10296.65 p95_ttft=13829.42 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=19627.74 median_ttft=21437.31 p95_ttft=32383.74 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1732.95 median_ttft=1897.21 p95_ttft=2399.89 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3797.0 median_ttft=4441.1 p95_ttft=5651.48 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1076.11 median_ttft=1048.59 p95_ttft=1752.7 ms
+    --- priority_3level_first_n_per_req_L0-8-16_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1348.17 median_ttft=1134.03 p95_ttft=2822.69 ms
+===== label=priority_3level_first_n_per_req_remaining_by_layer_L0-8-16 map=0-3:0,4-6:8,7-:16 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  59625  73581  71416  74293  65505  56631  47436  39700  31289  21823  33085 
+    Node 1, zone   Normal  83028 100506  96032  98045  83539  74917  63985  51501  34508  24775  24518 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_per_req_remaining_by_layer_L0-8-16.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2196.46 median_ttft=2294.59 p95_ttft=3423.66 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5179.16 median_ttft=6578.7 p95_ttft=7672.81 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9456.44 median_ttft=8744.37 p95_ttft=15384.04 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=15768.53 median_ttft=17125.38 p95_ttft=29730.74 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=446.19 median_ttft=454.83 p95_ttft=632.99 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=919.26 median_ttft=1155.89 p95_ttft=1173.3 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1610.8 median_ttft=1444.59 p95_ttft=2378.9 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2784.11 median_ttft=2737.6 p95_ttft=4034.27 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=324.46 median_ttft=308.29 p95_ttft=473.03 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=438.36 median_ttft=393.95 p95_ttft=780.94 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=709.71 median_ttft=593.07 p95_ttft=1714.95 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1297.75 median_ttft=1022.46 p95_ttft=3480.41 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4317.63 median_ttft=4590.47 p95_ttft=6737.12 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=11384.39 median_ttft=12327.52 p95_ttft=17569.01 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=14726.62 median_ttft=15538.13 p95_ttft=26748.42 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=700.79 median_ttft=731.74 p95_ttft=1045.18 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1630.35 median_ttft=2001.79 p95_ttft=2319.47 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=2901.52 median_ttft=3350.49 p95_ttft=4369.48 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=535.69 median_ttft=514.44 p95_ttft=883.35 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=846.08 median_ttft=811.59 p95_ttft=1419.45 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1203.46 median_ttft=899.12 p95_ttft=3106.58 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=11611.46 median_ttft=10734.28 p95_ttft=18383.8 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=19191.63 median_ttft=20923.05 p95_ttft=30317.55 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1732.56 median_ttft=1892.22 p95_ttft=2402.5 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3301.17 median_ttft=4168.01 p95_ttft=4631.02 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1106.64 median_ttft=1050.45 p95_ttft=1726.54 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-8-16_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1526.09 median_ttft=1456.92 p95_ttft=2783.73 ms
+===== label=priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16 map=0-3:0,4-6:8,7-:16 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  58300  77081  74552  74660  67163  57980  48953  40699  32075  20736  33117 
+    Node 1, zone   Normal  79527  93113  89475  93921  82200  73125  61987  49905  36159  25715  24128 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2196.67 median_ttft=2295.37 p95_ttft=3426.23 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5587.99 median_ttft=7651.43 p95_ttft=7679.89 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=10009.07 median_ttft=10860.18 p95_ttft=16105.81 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=16323.97 median_ttft=18307.42 p95_ttft=29643.54 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=482.95 median_ttft=484.86 p95_ttft=613.75 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=983.01 median_ttft=1267.88 p95_ttft=1287.7 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1601.53 median_ttft=1725.29 p95_ttft=2343.73 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=3120.97 median_ttft=3805.81 p95_ttft=4446.31 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=309.36 median_ttft=299.37 p95_ttft=461.11 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=485.73 median_ttft=447.89 p95_ttft=897.0 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=826.32 median_ttft=645.62 p95_ttft=2038.47 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1507.4 median_ttft=1171.72 p95_ttft=3591.25 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4317.53 median_ttft=4604.7 p95_ttft=6729.99 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=11253.02 median_ttft=12314.61 p95_ttft=17553.84 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=15425.16 median_ttft=15571.63 p95_ttft=26995.39 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=686.7 median_ttft=724.24 p95_ttft=948.99 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1635.85 median_ttft=1802.34 p95_ttft=2351.56 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=3118.9 median_ttft=3363.02 p95_ttft=4527.95 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=542.14 median_ttft=523.12 p95_ttft=882.68 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=927.65 median_ttft=886.37 p95_ttft=1758.02 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1444.82 median_ttft=1229.95 p95_ttft=3964.36 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=10043.72 median_ttft=10282.84 p95_ttft=13812.36 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=19716.54 median_ttft=21731.59 p95_ttft=32354.76 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1461.03 median_ttft=1733.86 p95_ttft=1909.69 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=2017.84 median_ttft=1938.82 p95_ttft=3563.45 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1092.03 median_ttft=1023.17 p95_ttft=1683.46 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-8-16_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1461.22 median_ttft=1154.27 p95_ttft=3408.91 ms
+===== label=batch_reqs_async_load_submit_L0-8-16 map=0-3:0,4-6:8,7-:16 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  59436  72728  68869  71959  64434  55420  47013  39678  31233  21181  33546 
+    Node 1, zone   Normal  75696  96010  95015  98884  86032  76622  65032  52323  37799  25518  23072 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/batch_reqs_async_load_submit_L0-8-16.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2205.42 median_ttft=2297.07 p95_ttft=3434.57 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5178.07 median_ttft=6577.38 p95_ttft=7685.96 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9570.19 median_ttft=10815.23 p95_ttft=14511.52 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=15320.81 median_ttft=16178.3 p95_ttft=29651.85 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=440.91 median_ttft=456.44 p95_ttft=626.86 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=771.85 median_ttft=870.16 p95_ttft=1021.6 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1565.74 median_ttft=1999.34 p95_ttft=2308.43 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2749.98 median_ttft=3006.97 p95_ttft=3652.04 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=325.28 median_ttft=317.03 p95_ttft=462.01 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=470.54 median_ttft=434.26 p95_ttft=983.7 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=625.98 median_ttft=455.96 p95_ttft=1879.48 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1102.66 median_ttft=694.72 p95_ttft=2984.38 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4319.89 median_ttft=4604.07 p95_ttft=6736.76 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10537.33 median_ttft=12303.71 p95_ttft=15433.12 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=13632.58 median_ttft=12275.27 p95_ttft=24595.74 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=741.23 median_ttft=736.26 p95_ttft=1145.23 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1875.54 median_ttft=1894.27 p95_ttft=2619.8 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=2554.55 median_ttft=2778.39 p95_ttft=4726.08 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=532.06 median_ttft=527.87 p95_ttft=877.25 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=771.77 median_ttft=505.73 p95_ttft=1792.89 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1108.64 median_ttft=687.49 p95_ttft=3719.64 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-8-16_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=11426.92 median_ttft=10723.5 p95_ttft=18367.38 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=19942.34 median_ttft=21661.69 p95_ttft=32391.62 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1722.79 median_ttft=1889.98 p95_ttft=2396.0 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3584.48 median_ttft=4185.07 p95_ttft=5226.04 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1036.5 median_ttft=1013.93 p95_ttft=1666.89 ms
+    --- batch_reqs_async_load_submit_L0-8-16_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:8,7-:16 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1475.19 median_ttft=1317.74 p95_ttft=3558.64 ms
+===== label=priority_3level_first_n_per_req_L0-16-32 map=0-3:0,4-6:16,7-:32 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  58709  71379  68817  71058  63955  54467  46571  39290  30984  21270  33691 
+    Node 1, zone   Normal  75977  97234  93226  97201  84419  75496  63668  50923  36186  25290  23931 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_per_req_L0-16-32.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2188.31 median_ttft=2296.71 p95_ttft=3386.3 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5258.67 median_ttft=6549.63 p95_ttft=7698.76 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9015.12 median_ttft=9736.84 p95_ttft=15361.78 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=14907.07 median_ttft=15123.61 p95_ttft=28621.62 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=468.37 median_ttft=503.69 p95_ttft=652.21 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=881.42 median_ttft=1026.78 p95_ttft=1142.8 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1503.4 median_ttft=1770.68 p95_ttft=2266.83 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2801.99 median_ttft=3328.01 p95_ttft=4255.7 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=337.77 median_ttft=330.23 p95_ttft=491.05 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=456.55 median_ttft=423.59 p95_ttft=776.42 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=637.93 median_ttft=500.49 p95_ttft=1648.45 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1003.17 median_ttft=628.23 p95_ttft=3588.81 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4334.84 median_ttft=4630.73 p95_ttft=6743.54 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10592.07 median_ttft=12241.31 p95_ttft=15363.83 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=17255.07 median_ttft=19677.91 p95_ttft=26863.91 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=728.28 median_ttft=756.47 p95_ttft=1014.51 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1769.89 median_ttft=2133.18 p95_ttft=2563.63 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=2394.72 median_ttft=2285.53 p95_ttft=4567.37 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=516.0 median_ttft=486.1 p95_ttft=881.48 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=686.04 median_ttft=543.88 p95_ttft=1433.63 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1061.16 median_ttft=740.87 p95_ttft=3205.9 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_L0-16-32_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=11432.76 median_ttft=10730.46 p95_ttft=18370.48 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=21525.13 median_ttft=21655.39 p95_ttft=37064.51 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1726.94 median_ttft=1884.05 p95_ttft=2392.83 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3182.4 median_ttft=3694.56 p95_ttft=5126.4 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1030.53 median_ttft=1014.15 p95_ttft=1695.87 ms
+    --- priority_3level_first_n_per_req_L0-16-32_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1257.15 median_ttft=1009.12 p95_ttft=2841.16 ms
+===== label=priority_3level_first_n_per_req_remaining_by_layer_L0-16-32 map=0-3:0,4-6:16,7-:32 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  57136  70027  67711  71524  64119  53994  46490  39198  30970  22969  32883 
+    Node 1, zone   Normal  81835  97270  93726  97953  86920  76695  64399  49305  33885  25759  24329 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_per_req_remaining_by_layer_L0-16-32.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2203.89 median_ttft=2296.85 p95_ttft=3438.63 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5290.3 median_ttft=6573.87 p95_ttft=7763.02 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9997.87 median_ttft=11863.28 p95_ttft=15020.53 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=15051.7 median_ttft=16209.62 p95_ttft=28643.1 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=456.78 median_ttft=479.49 p95_ttft=645.85 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=854.83 median_ttft=901.3 p95_ttft=1127.07 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1440.51 median_ttft=1661.06 p95_ttft=1964.18 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2442.11 median_ttft=2434.23 p95_ttft=4437.85 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=338.4 median_ttft=336.85 p95_ttft=494.78 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=465.48 median_ttft=424.67 p95_ttft=782.58 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=658.46 median_ttft=520.24 p95_ttft=1795.36 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=976.78 median_ttft=579.52 p95_ttft=3331.94 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4342.29 median_ttft=4635.04 p95_ttft=6768.41 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10635.34 median_ttft=12260.19 p95_ttft=15376.23 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=17299.62 median_ttft=19713.83 p95_ttft=26854.41 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=865.36 median_ttft=976.27 p95_ttft=1303.88 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1663.23 median_ttft=2016.81 p95_ttft=2372.25 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=2527.05 median_ttft=2712.15 p95_ttft=4386.84 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=514.59 median_ttft=483.52 p95_ttft=880.81 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=680.2 median_ttft=538.91 p95_ttft=1437.63 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1041.37 median_ttft=737.17 p95_ttft=3343.8 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=11435.59 median_ttft=10739.55 p95_ttft=18383.39 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=21677.31 median_ttft=21405.38 p95_ttft=37120.22 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1730.75 median_ttft=1893.25 p95_ttft=2400.03 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3320.1 median_ttft=4192.97 p95_ttft=4681.7 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1041.6 median_ttft=983.75 p95_ttft=1705.34 ms
+    --- priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_per_req_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1256.91 median_ttft=1003.77 p95_ttft=2781.44 ms
+===== label=priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32 map=0-3:0,4-6:16,7-:32 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=485G
+    Node 0, zone   Normal  69957  82444  77403  78800  68068  58156  49265  41432  32567  21367  32468 
+    Node 1, zone   Normal  75551  96470  92643  95519  86948  77205  65646  52077  36266  23307  24565 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2199.66 median_ttft=2292.06 p95_ttft=3439.58 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5690.53 median_ttft=7623.95 p95_ttft=7650.32 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9983.32 median_ttft=11845.05 p95_ttft=15007.38 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=14851.01 median_ttft=15089.2 p95_ttft=28622.53 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=439.39 median_ttft=450.71 p95_ttft=662.01 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=906.61 median_ttft=1108.63 p95_ttft=1128.17 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1274.66 median_ttft=1177.96 p95_ttft=2474.85 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2275.47 median_ttft=2293.66 p95_ttft=3929.32 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=339.7 median_ttft=334.0 p95_ttft=496.64 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=502.12 median_ttft=464.11 p95_ttft=938.6 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=670.04 median_ttft=479.85 p95_ttft=2101.39 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1304.64 median_ttft=1037.72 p95_ttft=3629.01 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4389.6 median_ttft=4634.03 p95_ttft=6756.41 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=11428.83 median_ttft=12302.77 p95_ttft=17551.79 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=17290.59 median_ttft=17595.54 p95_ttft=28292.45 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=724.8 median_ttft=755.69 p95_ttft=1010.84 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1726.7 median_ttft=2090.76 p95_ttft=2356.98 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=2721.85 median_ttft=2531.88 p95_ttft=4812.05 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=525.35 median_ttft=495.42 p95_ttft=888.81 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=733.81 median_ttft=557.0 p95_ttft=1860.29 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1087.82 median_ttft=740.51 p95_ttft=4042.64 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=8525.11 median_ttft=9185.58 p95_ttft=13855.76 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=21611.43 median_ttft=22729.22 p95_ttft=35364.79 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1734.49 median_ttft=1899.98 p95_ttft=2413.9 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=2072.93 median_ttft=2019.38 p95_ttft=3804.72 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1006.06 median_ttft=959.48 p95_ttft=1687.54 ms
+    --- priority_3level_first_n_batch_reqs_remaining_by_layer_L0-16-32_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> priority_3level_first_n_batch_reqs_remaining_by_layer map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1291.42 median_ttft=996.73 p95_ttft=3488.42 ms
+===== label=batch_reqs_async_load_submit_L0-16-32 map=0-3:0,4-6:16,7-:32 fixed_layers=none connector_md5=4dafb666 =====
+    reclaimed host memory: free=487G available=486G
+    Node 0, zone   Normal  61374  76397  72425  73768  66291  56060  47670  40200  31714  21261  33168 
+    Node 1, zone   Normal  69482  91032  89266  93534  83040  74533  63003  50980  36762  25597  23792 
+health=200
+    serve log -> /home/pese/qiuyu/intel-accel-for-llm-1008/_data/perf-qwen72b/20261022_101029/batch_reqs_async_load_submit_L0-16-32.serve.log
+    prewarm: input=8000 conc=32 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=4 repeat=1: mean_ttft=2204.24 median_ttft=2297.44 p95_ttft=3454.96 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=8 repeat=1: mean_ttft=5305.83 median_ttft=6560.44 p95_ttft=7653.66 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=16 repeat=1: mean_ttft=9995.52 median_ttft=11876.67 p95_ttft=15028.65 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr80_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=80 conc=32 repeat=1: mean_ttft=14169.44 median_ttft=13188.41 p95_ttft=28590.7 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=4 repeat=1: mean_ttft=464.5 median_ttft=500.0 p95_ttft=647.57 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=8 repeat=1: mean_ttft=866.66 median_ttft=1012.21 p95_ttft=1112.32 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=16 repeat=1: mean_ttft=1240.22 median_ttft=1238.47 p95_ttft=2560.41 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr98_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=98 conc=32 repeat=1: mean_ttft=2100.17 median_ttft=1882.71 p95_ttft=3851.11 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=4 repeat=1: mean_ttft=331.61 median_ttft=331.33 p95_ttft=477.72 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=8 repeat=1: mean_ttft=484.43 median_ttft=449.25 p95_ttft=950.03 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=16 repeat=1: mean_ttft=641.53 median_ttft=470.69 p95_ttft=1969.54 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in8000_hr100_c32 prompts=160 ---
+Successful requests:                     160       
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=8000 hit=100 conc=32 repeat=1: mean_ttft=1124.37 median_ttft=729.75 p95_ttft=3453.65 ms
+    prewarm: input=16000 conc=16 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=4 repeat=1: mean_ttft=4335.06 median_ttft=4628.84 p95_ttft=6746.85 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=8 repeat=1: mean_ttft=10621.73 median_ttft=12250.24 p95_ttft=15357.51 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr80_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=80 conc=16 repeat=1: mean_ttft=17329.35 median_ttft=19747.42 p95_ttft=26784.63 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=4 repeat=1: mean_ttft=728.06 median_ttft=756.07 p95_ttft=1012.98 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=8 repeat=1: mean_ttft=1130.88 median_ttft=1095.84 p95_ttft=2041.34 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr98_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=98 conc=16 repeat=1: mean_ttft=2567.17 median_ttft=2935.62 p95_ttft=4826.36 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=4 repeat=1: mean_ttft=523.04 median_ttft=494.68 p95_ttft=884.99 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=8 repeat=1: mean_ttft=741.52 median_ttft=533.15 p95_ttft=1837.93 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in16000_hr100_c16 prompts=96 ---
+Successful requests:                     96        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=16000 hit=100 conc=16 repeat=1: mean_ttft=1061.89 median_ttft=620.88 p95_ttft=3816.92 ms
+    prewarm: input=32000 conc=8 prompts=64 hit=100
+    --- batch_reqs_async_load_submit_L0-16-32_in32000_hr80_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=4 repeat=1: mean_ttft=11441.54 median_ttft=10743.3 p95_ttft=18385.77 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in32000_hr80_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=80 conc=8 repeat=1: mean_ttft=21796.13 median_ttft=22783.92 p95_ttft=36650.36 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in32000_hr98_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=4 repeat=1: mean_ttft=1730.02 median_ttft=1892.62 p95_ttft=2399.34 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in32000_hr98_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=98 conc=8 repeat=1: mean_ttft=3765.21 median_ttft=4335.53 p95_ttft=5318.08 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in32000_hr100_c4 prompts=32 ---
+Successful requests:                     32        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=4 repeat=1: mean_ttft=1089.62 median_ttft=1014.52 p95_ttft=1724.49 ms
+    --- batch_reqs_async_load_submit_L0-16-32_in32000_hr100_c8 prompts=64 ---
+Successful requests:                     64        
+    -> batch_reqs_async_load_submit map=0-3:0,4-6:16,7-:32 fixed=none input=32000 hit=100 conc=8 repeat=1: mean_ttft=1270.47 median_ttft=934.37 p95_ttft=3555.61 ms
+ALL_DONE
