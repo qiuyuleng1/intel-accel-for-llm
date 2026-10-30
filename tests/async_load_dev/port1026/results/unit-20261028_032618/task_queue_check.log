@@ -1,0 +1,15 @@
+  order: p0a,p0b,p1a,p2a,p2b,p3a
+PASS: most urgent level first, FIFO within a level
+PASS: HIGH / LOW aliases are P0 / P3
+  order (sort=0): X,S0,S1,S2,A2,A0,A1,P1,B0,C0,B1 (moved 3)
+PASS: bundle id 0 is never moved
+PASS: returns the number of tasks moved from less urgent levels
+PASS: set_bundles_priority alone appends in queue order, no sorting
+  order (sort=1): X,S0,A0,S1,A1,S2,A2,P1,B0,C0,B1 (moved 3)
+PASS: bundle id 0 is never moved
+PASS: returns the number of tasks moved from less urgent levels
+PASS: sort_priority_level: stable by sort key within P0 only; others keep place
+  order: g_p0,p1,g_p2 (moved 1)
+PASS: never moves a task to a less urgent level
+PASS: out-of-range priority throws std::invalid_argument
+ALL PASS (0 failures)

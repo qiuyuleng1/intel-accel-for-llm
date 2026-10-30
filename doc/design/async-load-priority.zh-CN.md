@@ -147,6 +147,22 @@ for req_id, request in async_reqs:
 
 安全性:请求只在被调度的那次 forward 里被等;在 split 下,它的尾在 promote 后的下一次 `start_load_kv()` 就已提交,不会晚于它被调度的那个 step,所以不会出现 `key not in get_results`。
 
+### 已知问题 K4:sync 批在与尾一起按层重排之前,可能已被执行了一部分
+
+适用于 `priority_3level_first_n_per_req_remaining_by_layer`(10-26 提到 1026 的 PR 分支 `perf/async-load-optimization`)。读代码得出,未实测。
+
+**现象**:`start_load_kv()` 先用一次 `get()` 把 sync 批的所有层提交到 P0(带 sync 批的 `bundle_id`),之后才调用 `set_bundles_priority([被提权请求的 bundle_id..., sync 批的 bundle_id], P0)`,把 sync 批和尾一起取出、按(层号,提交顺序)排序后接到 P0 末尾。sync 批的每层任务一进 P0,worker 就可以执行;已经开始或完成的任务,`set_bundles_priority()` 不再移动。所以只有剩余那部分 sync 批和尾按层交错。
+
+**可能被提前执行的时间段**:sync 批 `get()` 逐层提交的过程中,以及它与提权调用之间。PR 分支已把提权调用挪到新 async 请求的 `get()` 之前,去掉了后一段里最长的部分(72B 上每次 async `get()` 主机耗时中位数约 13 ms,见 §11.18.4),但 sync 批 `get()` 本身那段仍在。
+
+**影响(推断)**:sync 批按层号先进先出执行,被提前执行的总是它最低的几层。只到第 N 层以下时无影响(尾从第 N 层开始);超过第 N 层时,会出现"sync 的高层已完成、forward 还在低层等尾",只影响效率,不影响正确性。被提前执行了多少层未测。
+
+**彻底的改法(未做,改动大)**:TaskQueue 增加一个 worker 不取任务的"挂起级";sync 批先以挂起级提交,再由一次 `set_bundles_priority()` 和尾一起按层放入 P0;本 step 有 sync 批时,即使没有尾要提权也必须调用一次来放行。
+
+**验证**:10-27 的测试要覆盖"提权与 sync 批在同一 step"的情况(10-26 的正确性测试与 GSM8K 中这种情况出现 0 次),到时看 sync 批被提前执行了多少层。
+
+**10-27 实测**(§11.19 定向测试,提权已挪到新 async 请求的 `get()` 之前):122 次试验中 3 次出现"提权与 sync 批同 step"(两个 rank 各 3 行);提权前 sync 批已解压完的层数为 2、2、3(rank 0)与 2、2、2(rank 1),都是从第 0 层起连续的,低于 N = 16,即本场景下 K4 没有造成影响。局限:只有 1 个约 5k token 的 sync 请求、TP=2 Qwen3-32B、QAT 解压;更大的 sync 批或更快的解压未测。
+
 
 ## 4. 方案
 
@@ -232,7 +248,7 @@ P2 存在的唯一理由:让 B 的头(P1)能压过 A 尚未 promote 的尾。若
 
 - **优先级存放在哪**:存在 `TaskQueue` 的排队条目 `Item` 上,不存进 `Context`。`Context`(每层一次 `get()` 生成的解压 / 拷贝对象,由 Python `Task.ctx` 持有)不加字段,只把参数原样往下传:connector → `KVStore.get` → `KVFlow.get` → `Context::unzip_from_mem` → `omp_queue().submit`。理由:排队顺序本来由队列管,优先级放在队列里,"按优先级取任务"和"改优先级"在同一个类、同一把锁内完成;不需要 §8.4 原方案的共享优先级 cell,也就没有 cell 的生命周期和 `Context` 手写 move 漏字段的问题。
 - **任务粒度**:`Item` 是队列里的一个任务 = 一次 `get()` 中一层的解压任务,覆盖这次 `get()` 涉及的所有请求的 block。`_first_n_per_req` 下一次 `get()` 只含一个请求,所以一个 `Item` = (一个请求, 一层);`_first_n_batch_reqs` 下一个 `Item` = (同 step 一批请求, 一层)。
-- **怎么改优先级(按组提权)**:每个任务带一个组号。`_first_n_per_req` 下一个请求一次 `get()`,组号就是请求的编号(Python 生成,记 `req_id → 组号`,请求结束时随现有清理一起删)。请求进入 forward 时(10-14 改,见下方补充)connector 调一次 `set_group_priority(组号, P0)`,队列持锁把该组仍在 P2 排队的任务移到 P0;此时头已执行完,不在队列里。已在执行或已完成的任务不受影响。队列不维护组表,无需清理。与原 cell 方案相比:原方案 promote 时 Python 要对该请求每个尾层的 `Task.ctx` 各调一次 `set_priority`(L−N 次 Python→C++ 调用);按组提权只调一次,由队列在锁内扫 P2 把同组的 L−N 个 `Item` 移走,逐个移动的工作仍在,但都在 C++ 内一次完成。不属于任何组的任务(sync 批、压缩、H2D/D2H 拷贝)组号为 0,提权不会碰到。
+- **怎么改优先级(按组提权)**:每个任务带一个组号。`_first_n_per_req` 下一个请求一次 `get()`,组号就是请求的编号(Python 生成,记 `req_id → 组号`,请求结束时随现有清理一起删)。请求进入 forward 时(10-14 改,见下方补充)connector 调一次 `set_group_priority(组号, P0)`,队列持锁把该组仍在 P2 排队的任务移到 P0;此时头已执行完,不在队列里。已在执行或已完成的任务不受影响。队列不维护组表,无需清理。与原 cell 方案相比:原方案 promote 时 Python 要对该请求每个尾层的 `Task.ctx` 各调一次 `set_priority`(L−N 次 Python→C++ 调用);按组提权只调一次,由队列在锁内扫 P2 把同组的 L−N 个 `Item` 移走,逐个移动的工作仍在,但都在 C++ 内一次完成。不属于任何组的任务(sync 批、压缩、H2D/D2H 拷贝)组号为 0,提权不会碰到。(10-27 试过改由 TaskQueue 发号、每次 `get()` 一个,10-28 讨论后不采用,PR 仍由 connector 发号,见 §11.19。)
 - **`Item` 字段**:现有 `fn / label / priority / traced / seq / enqueue_ns / high_depth / low_depth`;`priority` 改为 0..3(P0..P3);新增 `group`(组号);新增 `submit_priority`(提交时的优先级,trace 用,`priority` 记执行时的);`high_depth / low_depth` 换成 4 个数(入队时 P0..P3 各排着几个)。
 - **P0 内顺序:先进先出,不按层号排序(10-14 定,适用于所有带 P0 的方案;10-22 对 `_remaining_by_layer` 新方案部分作废,见本节末尾)**:10-08 原设计是"P0 按 layer 号跨请求交错",用意是:A 的尾(A5..A63)已在 P0,本 step 来了 sync 请求 C,先进先出时 C0 要排在 A 的尾后面;按层号排则 C0..C4 先做、之后 A/C 按层交替,让 A、C 同一次 forward 能更早开始。不做的理由:C 的第 0 层排在更早进入 P0 的 A 的尾后面是预期行为,先到的先加载完;我们不追求把先后到达的请求凑成一个大 batch 同时就绪。不做省掉的东西:`Item` 不加层号字段;P0 用普通 deque,不需要有序容器;`get()` / `unzip_from_mem` 不透传层号;判定脚本的排序键不含层号;不需要按层排序的单测。
 - **`_first_n_batch_reqs` 变种(以后做;10-22 作废,见本节末尾)**:同一 step 内各请求 N 不同时(按到达时的在途数查映射表,可能一个 N=4、一个 N=8),按层合并会出现"同一层对 A 是尾、对 B 是头"的混合任务。做法:复用 split 的 `_first_n_layer_segments()` / `_remaining_layer_segments()` 分段,每个任务要么是头要么是尾,不出现混合任务。
@@ -1515,3 +1531,280 @@ step_end     wait_ms = 80 层等待时间之和
 - 固定层数没有 8k / 16k 的数据,8k / 16k 上无法比较。
 
 推断:32k 下固定 N = 48 与 map `0-3:0,4-6:16,7-:32` 打平,固定层数没有明显优势,且需要按输入长度选 N;建议保留动态 map(`0-3:0,4-6:16,7-:32`)。若要拿到 c8 下 N = 48 的那部分收益,可以试 `0-3:0,4-6:16,7-:48`(§11.14 已提,未测)。
+
+### 11.18 profiling 打点与统计口径清单(10-23 整理,待讨论)
+
+本节列出 10-22 那一轮(`_data/perf-qwen72b/20261022_101029`)用到的全部时间打点、它们的存放形式,以及由它们算出的指标的准确定义和已知缺陷,供后续讨论口径。"一次 bench 运行"= 一次 `vllm bench serve` 调用,即上文表中的一格(输入长度、命中率、并发各取一个值);它的结果文件共用前缀 `<label>_in<输入长度>_hr<命中率>_c<并发>`,例如 `priority_3level_first_n_per_req_remaining_by_layer_L0-16-32_in16000_hr98_c16`,下称"运行前缀"。
+
+#### 11.18.1 数据来源与存放形式
+
+结论:10-22 这一轮所有逐 step、逐请求的时间只来自 serve.log 里的 Python 文本日志行(下表 ①),没有任何结构化文件;C++ 侧没有产出任何时间数据;客户端 JSON 只有汇总值。
+
+| 数据源 | 语言 | 开关 | 存放形式 | 10-22 是否有数据 |
+|---|---|---|---|---|
+| ① connector 事件行 `async_load step=… t=…` | Python | `KVSHRINK_ASYNC_LOAD_EVENT_LOG=1`(bench 脚本 `EVENT_LOG` 默认 1) | `logger.debug` 写 vLLM 进程 stdout,`perf-qwen72b-serve.sh` 把它重定向到 `_data/perf-qwen72b/<时间戳>/<label>.serve.log`;8 个 rank、EngineCore、APIServer 混写在同一文件,行首 `(Worker_TP<r> pid=…)` | 有(每个 label 一个文件,例如 rbl_pr `0-3:0,4-6:16,7-:32` 为 86 MB) |
+| ② 调度器命中行 `get_num_new_matched_tokens` | Python(EngineCore 进程) | 无开关,INFO 恒开 | 同上 serve.log | 有 |
+| ③ vLLM 每 10 s 统计行 `Avg prompt throughput…` | Python(vLLM 自带,APIServer) | 恒开 | 同上 serve.log | 有,分析未用 |
+| ④ C++ TaskQueue trace | C++ | bench 脚本 `TRACE=1` | 见 §11.18.5 | **关**,目录中没有任何 trace 文件(实测) |
+| ⑤ C++ 压缩 / 解压吞吐计数 `g_metrics` | C++ | HTTP `/v1/cache/metrics?enable=1` | 进程内累计计数器,HTTP 读取 | 关 |
+| ⑥ NVTX / torch RecordFunction 区间(C++ `PROFILE_SCOPE*`,Python `profile_func`) | C++ / Python | `IAXL_PROFILE_MODE=nvtx` 或 `full`,并需 nsys / torch profiler 抓取 | 外部 profiler 文件 | 关(serve 脚本写死 `IAXL_PROFILE_MODE=disabled`) |
+| ⑦ bench 客户端结果 | Python(`vllm bench serve`) | 恒开 | 每次 bench 运行一个 `<运行前缀>.json`、一个 `<运行前缀>.log`(客户端 stdout);汇总 `summary.csv` | 有;JSON 只有 mean / median / p95 / std 等汇总值,**没有逐请求 TTFT**(没加 `--save-detailed`,实测 JSON 的 key) |
+
+列说明:"数据源"= 打点或统计的名称;"语言"= 打点写在 Python 还是 C++ 代码里;"开关"= 开启它需要设置的东西;"存放形式"= 数据落在哪里、什么格式;"10-22 是否有数据"= `20261022_101029` 这一轮的实际情况。
+
+#### 11.18.2 serve.log 中的打点(全部为 Python)
+
+行样例:
+
+```
+(Worker_TP6 pid=1705968) DEBUG 10-22 21:58:47,370 [kvshrink_connector.py:835] async_load step=3 t=1176000655544499 promote reqs=…
+```
+
+每行都有的字段:
+
+- `Worker_TP<r>`:rank。
+- `10-22 21:58:47,370`:Python logging 的墙钟时间,精度 ms。分析脚本只用它把请求划进某次 bench 运行。
+- `step=`:该 rank 的 `_load_step`,每调用一次 `start_load_kv()` 加 1。8 个 rank 对齐:两个 serve.log 中被提权的请求分别有 1947 / 1947、1929 / 1929 个在 8 个 rank 上 step 号相同(实测)。
+- `t=`:`time.monotonic_ns()`,即整机共享的 CLOCK_MONOTONIC,跨 rank、跨进程可直接相减;与 C++ TaskQueue trace 是同一个时钟。
+
+| 行类型 | 代码位置(`kvshrink/kvshrink_connector.py`) | 打点时刻(在一个 step 中的位置) | 其余字段含义 | 注意 |
+|---|---|---|---|---|
+| `step_start` | `start_load_kv()` 开头 | vLLM 调 `_model_forward()` 之前(`vllm/v1/worker/kv_connector_model_runner_mixin.py` 第 88 行) | `reqs` = 本 step 调度的全部请求数,含 decode | |
+| `submit` | `_log_load_submit()` | 每次调用 `get()` **之前**打一行 | `kind` 见 §11.18.3;`reqs` = 本次 `get()` 覆盖的请求;`layers=a-b` = 层范围 | `t` 不含 `get()` 本身的主机耗时(实测见 §11.18.4) |
+| `activate` | `start_load_kv()` 末尾 | 本 step 所有 submit 与 `set_group(s)_priority()` 之后、forward 之前;只在本 step 有 forward 且有被提权或 held 请求时打 | `reqs` = 本 step 被提权(尾移入 P0)的 async 请求;`held` = 已 promote 但本 step 未被调度的请求 | `t` 不是 forward 开始时刻;`t` 减 `step_start` = 本 step 全部 submit 的主机耗时 |
+| `step_end` | `get_finished()` 开头 | `_model_forward()` 在主机侧返回之后(mixin 第 98 行,`finally` 里) | 带 `wait_ms`、`save_ms`(下两行) | 主机时刻;vLLM 在这之间不做 CUDA 同步,**此刻 GPU 是否已算完本 step 未验证** |
+| `wait_ms` | `wait_for_layer_load()` 内累加,在 `step_end` 行输出 | | 本 step 80 层中 forward 线程阻塞在 `get_wait(wait=True)` 的主机时间之和;等的是 sync 批 + 本 step 所有被提权请求的尾 | 整个 step 共享,不分请求 |
+| `save_ms` | `save_kv_layer()` 内累加 | | 本 step 提交 put 任务的主机耗时 | 不是存储完成时间 |
+| `promote` | `get_finished()` 轮询循环之后 | step 末,每 step 只轮询一次 | `reqs` = 这次轮询发现头已完成(解压任务完成且 H2D 拷贝完成,`get_wait(wait=False)`)的 async 请求 | **是"被发现完成"的时刻,不是完成时刻**,按 step 取整 |
+| `get_num_new_matched_tokens` | `get_num_new_matched_tokens()`,EngineCore 进程,INFO | 调度器考虑该请求时 | `externally-cached tokens` = DDR 命中需加载的 token 数;`locally-cached tokens` = vLLM 本地前缀缓存命中 token 数;`async`;`selected_load_layers` = map 按在途请求数 `len(_req_states)` 查得的层数(0 = sync);`async_load_layers` = N(−1 = 非 async) | 没有 `t=`,只有墙钟;同一请求可能出现多次(每次调度尝试一次),分析脚本取最后一次 |
+
+列说明:"行类型"= 日志行里 `t=` 后的关键字;"代码位置"= 打这一行的函数;"打点时刻"= 这一行在一个 step 执行流程中的位置;"其余字段含义"= 通用字段以外的字段;"注意"= 容易误读的地方。
+
+#### 11.18.3 submit 行的 kind
+
+代码里只有 3 种 kind:`sync`、`async`、`async_remaining`。每行对应一次 `get()` 调用。10-22 这一轮 5 个方案各自打出的 submit 行:
+
+| 方案 | `kind=sync` | `kind=async` | `kind=async_remaining` |
+|---|---|---|---|
+| sync 基线(`KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0`) | 每 step 至多 1 行:本 step 所有 sync 请求合成的 sync 批,`layers=0-79`,P0 | 无 | 无 |
+| `priority_3level_first_n_per_req` | 同上 | 每个 async 请求 1 行(1 次 `get()`),`layers=0-79`;这一次 `get()` 里头为 P1、尾为 P2 | 无 |
+| `priority_3level_first_n_per_req_remaining_by_layer` | 同上 | 同上一行 | 无 |
+| `priority_3level_first_n_batch_reqs_remaining_by_layer` | 同上 | 本 step 所有 async 请求的头合并提交,P1,按层段每段 1 行;N 不同时切成多段,例如 N = 16 和 N = 32:`layers=0-15` 一段含两个请求,`layers=16-31` 一段只含 N = 32 的请求 | 同一 step 紧接着,每个请求 1 行,`layers=N-79`,P2 |
+| `batch_reqs_async_load_submit` | 同上 | 本 step 所有 async 请求合成 1 次 `get()`,`layers=0-79`,P0 | 无 |
+
+列说明:"方案"= `KVSHRINK_ASYNC_LOAD_SCHEME` 全名;后三列 = 该方案是否打这种 kind 的行、一行代表哪些请求和哪些层、任务进入 TaskQueue 的哪一级(由 `get()` 的 `priorities` 参数决定,不传时全部层为 P0)。
+
+#### 11.18.4 `get()` 的主机耗时(实测)
+
+`get()` 在 forward 线程上执行,为每层建解压任务并入队,入队后即返回,不等加载完成(`iaxl/csrc/torch_ext/zip.cpp` `unzip_from_mem()`)。submit 行的 `t` 在调用之前,所以同一 step 后面请求的 `t` 会被前面所有 `get()` 推后;这些 `get()` 都在 forward 之前执行,计入该 step 的主机时间。
+
+量法:rank 0,map `0-3:0,4-6:16,7-:32`,该 serve.log 内所有输入长度、命中率、并发(含 prewarm)混合;只取"同一 step 里一个 submit 行到下一个 submit 行"的间隔。
+
+| 方案 | 前一行 kind | 次数 | p10 (ms) | p50 (ms) | p90 (ms) |
+|---|---|---|---|---|---|
+| `priority_3level_first_n_per_req` | async | 803 | 9.1 | 13.0 | 27.5 |
+| `priority_3level_first_n_per_req` | sync | 67 | 17.2 | 27.4 | 104.5 |
+| `priority_3level_first_n_per_req_remaining_by_layer` | async | 822 | 8.8 | 13.0 | 28.2 |
+| `priority_3level_first_n_per_req_remaining_by_layer` | sync | 75 | 18.3 | 27.3 | 102.5 |
+| `priority_3level_first_n_batch_reqs_remaining_by_layer` | async | 1180 | 3.2 | 10.3 | 22.2 |
+| `priority_3level_first_n_batch_reqs_remaining_by_layer` | async_remaining | 861 | 5.3 | 7.6 | 19.8 |
+| `priority_3level_first_n_batch_reqs_remaining_by_layer` | sync | 67 | 17.7 | 39.8 | 104.1 |
+| `batch_reqs_async_load_submit` | sync | 60 | 17.9 | 37.0 | 100.1 |
+
+列说明:"前一行 kind"= 被测的这次 `get()` 是哪种 submit;"次数"= 样本数;p10 / p50 / p90 = 这一行到同 step 下一个 submit 行的 `t` 差的分位数。间隔内主要是这次 `get()`,另含两行之间少量 Python 代码(例如为下一个请求建每层优先级的 dict),未单独测。一个 step 的最后一个 submit 不计入:它的下一行是 `activate`(中间夹着调整优先级的调用)或 `step_end`(中间夹着整个 forward)。`batch_reqs_async_load_submit` 每 step 只有一行 async,后面没有 submit 行,所以没有 async 的数据。
+
+#### 11.18.5 C++ TaskQueue trace(10-22 未开)
+
+- 记录:打开后,每个 rank 的 vLLM 进程里,C++ TaskQueue 每执行完一个任务,就把它的时间戳追加到进程内存里的一个数组;运行中不写文件。
+- 取出:bench 脚本在每次 bench 运行开始前调 HTTP `GET /v1/cache/queue_trace?queue=OMP-Main&enable=1`(端口 18710),清空旧记录并打开记录;该次运行结束后再调一次(`enable=0`),接口把记录以 JSON 返回并关闭记录,脚本写成 `<运行前缀>.trace.json` 再 gzip 为 `<运行前缀>.trace.json.gz`。只在 `TRACE=1` 时执行。
+- 字段:`enqueue_ns`(入队)、`p0_enter_ns`(被 `set_group(s)_priority()` 移入 P0 的时刻,0 = 未移)、`start_ns` / `end_ns`(worker 开始 / 结束执行)、`release_ns`(callable 析构),以及 priority、submit_priority、group、order_key、seq、depth[4]。时钟与 `t=` 相同。
+- label:OMP-Main 的解压任务为 `unzip|<请求 id 列表>|<层>`;H2D / D2H 队列的任务**没有 label**。
+- 关键语义:一个解压任务 = 一次 `get()` 的一层,内容是取缓存 + 解压 + **提交** H2D 拷贝和 CUDA event 记录到 H2D 队列(`zip.cpp` `UnzipFromMemWork::execute()`、`xfer.cpp` `xfer_finish()`)。所以解压任务的 `end_ns` = 解压完、H2D 已提交,**不是**数据已到 GPU。一层真正可用 = 解压任务完成,且 H2D 队列的 `xfer_finish` 任务已执行、CUDA event 已完成(`iaxl/kvflow/flow.py` `get_wait()` 判断的就是这两个条件)。
+
+#### 11.18.6 由打点算出的指标
+
+脚本 `tests/async_load_dev/analysis/req_profile1022.py`(收集)与 `req_analyze1022.py`(计算)。每请求原始量(均取自 §11.18.2):`sub` = rank 0 第一个含该请求的 `submit kind=async` 行的 `t`;`pro[r]` = rank r 第一个含该请求的 `promote` 行的 `t`,`pro_max` = 8 个 rank 中最大值,所在 step 为 `pro_step_max`;`act` = rank 0 含该请求的 `activate reqs=` 行的 `t`,所在 step 为 `act_step`(提权 step)。
+
+| 指标 | 公式 | 实际含义 | 缺陷 / 状态 |
+|---|---|---|---|
+| (1) `p1_max` | `pro_max − sub` | rank 0 准备提交头 → 最慢 rank 在 step 末轮询发现头已完成 | **不是头的加载时长**:hit 80 / 98 下 63–99% 的头在提交所在 step 内已完成,此时 (1) ≈ 提交所在 step 的剩余时长 |
+| (2) `p2_max` | `act − pro_max` | 最慢 rank 发现完成 → rank 0 打出提权行 | hit 98 / 100 下恒为 2 个 step(async scheduling),≈ 中间一个 step 的时长 + 两次 step 间隙 + 提权 step 中 activate 行之前的 submit 耗时 |
+| (3) `p3_max` | 提权 step 的 `wait_ms`,8 rank 取最大 | 提权 step 里 forward 线程等加载的总阻塞时间 | 同 step 所有被提权请求和 sync 批共同造成;**同 step 每个请求都全额计入,按请求求和会重复计算** |
+| `p1_r0` / `p2_r0` / `p3_r0` | 同上,只用 rank 0 | 旧口径,§11.16 的 (1)(2)(3) 用的是这一套 | 应弃用;rank 0 会把 (2) 夸大(例:71 ms 算成 115 ms) |
+| `k` | rank 0 提权 step 的 `activate reqs` 中的请求数 | 同一 step 被提权的 async 请求数 | **不含 sync 请求**,也不含 decode;含 sync 的版本待重算 |
+| `share` | `p3_max / k` | (3) 平摊到每个被提权请求 | 分母不含 sync,同上 |
+| `total` | rank 0 提权 step 的 `step_end` − `sub` | 提交 → 提权 step 结束 | `step_end` 时 GPU 是否算完未验证 |
+| `dur` | rank 0 提权 step 的 `step_end − step_start` | 提权 step 的主机时长 | 同上 |
+| `rem` | rank 0 提交所在 step 的 `step_end` − `sub` | 提交 → 提交所在 step 结束 | |
+| `same_step` | rank 0 的 promote step 是否等于提交 step(是 1 否 0,取平均) | 头是否在提交所在 step 内就被发现完成 | |
+| `skew_steps` | `pro_step_max` − rank 0 的 promote step | 各 rank 间 promote step 的差距 | |
+| `gap` / `gap_max` / `gap_gt2` | `act_step − pro_step_max` | 最晚 promote 到提权隔几个 step;`gap_gt2` = gap > 2 的占比 | hit 80 下 7–15% 的请求 gap > 2,原因推测为 token 预算,**未验证** |
+| `sub_*` / `mid_*` | 提交所在 step / `pro_step_max + 1` 那个 step | `dur` = rank 0 step 时长;`wait` = 8 rank 最大 `wait_ms`;`k` = 该 step 的 async 提权数;`sync` = 该 step 的 sync 请求数;`n` = 该 step 的 `step_start reqs`(含 decode) | |
+| `between_dur` | rank 0 提权 step 的 `step_start` − rank 0 `pro_step_max` 那个 step 的 `step_end` | promote 所在 step 结束 → 提权 step 开始 | |
+| `act_pre` | `act` − rank 0 提权 step 的 `step_start` | 提权 step 中 activate 行之前的主机耗时(主要是 submit) | |
+| `interstep` | 只取 gap = 2 的请求:`(between_dur − mid_dur) / 2` | 相邻两 step 之间(`step_end` → 下一个 `step_start`)的平均主机空档 | |
+| `pk` | 同一次 bench 运行中 `pro_step_max` 与本请求相同的请求数 | 同一 step 一起被 promote 的请求数 | |
+| `N` / `tokens` | 取自 `get_num_new_matched_tokens` 行 | `async_load_layers` / `externally-cached tokens` | |
+
+列说明:"指标"= 分析输出的列名;"公式"= 用上面的原始量怎么算(时间单位 ms,step 差单位为个);"实际含义"= 这个数到底量的是什么;"缺陷 / 状态"= 已知问题和未完成事项。
+
+样本选取规则(也影响上面的数):
+
+- 时间窗:一次 bench 运行的时间窗 = (上一次运行的 `<运行前缀>.json` 修改时间,或该输入长度 prewarm.log 的修改时间, 本次 `<运行前缀>.json` 修改时间];请求按 rank 0 第一个 async submit 行的墙钟归入某次运行。
+- 只保留 8 个 rank 都有 promote、且 rank 0 有 activate 的请求。
+- 没有过滤 ready-check / warmup 请求(id 不以 `cmpl-bench-` 开头):实测 rbl_pr `0-3:0,4-6:16,7-:32` 的 serve.log 中 rank 0 async 请求 1947 个,其中 46 个(2.4%)不是 bench 测量请求,可能混入统计。
+
+#### 11.18.7 目前测不到或含义未定的地方
+
+1. 头的真实加载完成时刻:没有数据,promote 只是轮询时刻。可选:(a) `TRACE=1`,能拿到每层解压任务的开始 / 结束(含请求 id 和层),但结束不含 H2D 完成;(b) 再开 H2D 队列的 trace,但其任务没有 label,只能按顺序对应,不可靠;(c) 新加打点:C++ 在 `xfer_finish` 执行时记 ns,promote 时 Python 输出头中最晚的完成时刻(需改 C++)。
+2. `step_end` 时 GPU 是否已算完:未验证;影响 `dur`、`sub_dur`、`mid_dur` 等"step 时长"是否等于 GPU forward 时长。
+3. `k` 不含 sync 请求:待重算。
+4. 客户端没有逐请求 TTFT:无法把服务端时间线与客户端 TTFT 逐请求对上;`TRACE=1` 时会加 `--save-detailed`,其 JSON 是否含请求 id 未核对。
+5. 待定:(1) 是否改成两个量——头的实际加载时长(需新打点)和头加载跨越的 step 时长;第 1 条用哪种做法;`k` 的新定义。
+
+### 11.19 PR 分支(1026)的验证(10-26 – 10-28)
+
+**验证状态(10-28)**:分支 `perf/async-load-optimization` 当前为 `6742331`(3 个提交,已 rebase 到上游 main `dde3b4f`,已 push)。
+
+- **dense 模型(Qwen3-32B,TP=2)+ async 验证完成**:正确性(16 个并发命中逐字节一致、无乱码)、提权与 sync 批同 step 的定向测试、GSM8K(async 与 sync 基线准确率一致),rebase 后回归通过。
+- **hybrid 模型(Qwen3.5-27B,48 GDN + 16 attention,TP=2)+ async 验证完成**:正确性(默认 map 与 map `0-:4` 各 3 轮,命中 19600 token,答对 17 / 17,无乱码,尾层提权路径覆盖)、GSM8K 16-shot max_tokens 8192 准确率 0.97 / 0.98,无乱码、无报错。
+- 未测:远端 KVStore、性能、hybrid 的原生 vLLM GSM8K 基线。
+
+详细过程与数据见下文各段。
+
+代码:`~/qiuyu/intel-accel-for-llm-1026` 分支 `perf/async-load-optimization`,基于 main `b8629c6`(含 hybrid GDN/Mamba 支持),提交 `2cb57c0`。只含 `priority_3level_first_n_per_req_remaining_by_layer`(不再有方案开关和 naive)、K3 修复(`scheduled_req_ids`)、TaskQueue 4 级 + `bundle_id`(原 group,与 vLLM 的 KV cache group 撞名后改名)/ `order_key` / `set_bundles_priority()`、远端 KVStore 透传(按要求未测);默认 map 改为 `0-3:0,4-6:8,7-:16`;提权调用挪到新 async 请求的 `get()` 之前(见 §3 K4)。不含 trace、事件日志、其他方案、测试代码。
+
+环境:容器 `iaxl.vllm.qiuyu-1026`(镜像 `vllm-iaxl-dev-qiuyu-1026:1.5.1`,按 README 构建),Qwen3-32B bf16,TP=2 在 GPU0、1(setvars 按 NUMA 自动选 CPU / QAT)。测试脚本在 `tests/async_load_dev/port1026/`;服务用测试子类 `traced_kvshrink_connector`(每次提权打一行 `raise_trace`,另读 sync 批各层的 `unzip_is_complete()`,不改变行为)。每次起服务前 `drop_caches` + `compact`:10-26 第一次正确性运行时,QAT usdm 申请 4 MB 连续内存失败(内核 `page allocation failure: order:10`),整个服务退出,与代码无关。
+
+**单项检查**(实测):TaskQueue 独立检查(4 级顺序、`set_bundles_priority` 按层交错、bundle id 0 不动、不降级、越界报错)在宿主机 g++ 11 下全部通过,ThreadSanitizer 0 告警;`rpc_check.py`(远端报文里的每层优先级与 `bundle_id`、daemon 转发、`SET_BUNDLES_PRIORITY`)11 项全部通过。
+
+**正确性**(10-27,`2cb57c0`,`VLLM_BATCH_INVARIANT=1`,默认 map;每轮 1 个参考请求 + 同时发出的 16 个命中请求):
+
+| 轮 | prompt token | 参考请求外部命中 token | 命中请求与参考逐字节一致 | 每个命中请求外部命中 token | 乱码 | async(N=8 / N=16) | sync 命中 | 提权行 | 被提权请求 | 移动任务数 | 报错行 | 判定 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 4963 | 0 | 16 / 16 | 4960 | 0 | 13(3 / 10) | 3 | 6 | 26 | 1187 | 0 | PASS |
+| 2 | 4963 | 0 | 16 / 16 | 4960 | 0 | 13(3 / 10) | 3 | 4 | 26 | 1160 | 0 | PASS |
+| 3 | 4963 | 0 | 16 / 16 | 4960 | 0 | 13(3 / 10) | 3 | 6 | 26 | 1012 | 0 | PASS |
+
+列说明:"乱码"= 17 个输出中 U+FFFD 与非法控制字符个数;"async / sync 命中"= 调度器日志中每个请求最后一次决策(在途 1–3 走 sync,4–6 走 N=8,≥ 7 走 N=16,与 map 一致);"提权行"= `raise_trace` 行数,两个 rank 合计,一行 = 一次 `set_bundles_priority()` 调用;"被提权请求"= 这些调用提权的请求数,两个 rank 合计(13 × 2);"移动任务数"= 被移入 P0 时仍在排队的任务数;"报错行"= Traceback / Error / IAXL check failed 行数。10-26 改名前的代码(提权在新 async `get()` 之后)同样 3 轮 PASS。
+
+**提权与 sync 批同 step 的定向测试**(10-27,`sync_raise_check.py`;map `0-1:16,2-:0`,即在途 1 个走 async N=16、≥ 2 个走 sync;A、B 两个约 5k token 的 prompt 各发一次作参考,之后每次试验发 A,隔 d ms 发 B,d = 0–120 ms 每 2 ms,各 2 遍):
+
+| 试验次数 | A 走 async N=16 且 B 走 sync | A、B 均与参考逐字节一致 | 乱码 | A / B 外部命中 token | 提权行 | 其中同 step 有 sync 批 | 提权前 sync 批已解压完的层(均自第 0 层连续) | 超过 N = 16 的次数 | 判定 |
+|---|---|---|---|---|---|---|---|---|---|
+| 122 | 122 | 122 | 0 | 4960 / 4960 | 244 | 6(3 次 × 2 rank) | 2–3 层 | 0 | PASS |
+
+列说明:"A 走 async N=16 且 B 走 sync"= 调度器决策符合设计的试验数;"提权行"两个 rank 合计(每次试验 A 都被提权,122 × 2);"同 step 有 sync 批"= 提权时 `_current_get_tasks` 非空的行数;"提权前已解压完的层"= 调用 `set_bundles_priority()` 前 sync 批 64 层中 `unzip_is_complete()` 为真的层数,正在执行的层不计。参考请求外部命中均为 0。
+
+- 同 step 只出现 3 次:A 被提权的 step 与 B 第一次被调度的 step 只在很窄的时间窗内重合(推断:A 在途时每 step 没有 forward,step 很短)。
+- K4 实测见 §3 已知问题 K4:3 次都只提前完成 2–3 层,远低于 N = 16。
+
+**GSM8K**(10-26,改名前的代码,提权在新 async `get()` 之后;200 题,并发 50,temperature 0,同一服务连跑两次;sync = `KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0`,作同一 build 的基线):
+
+| 模式 | 运行 | 答对 / 总数 | mean_acc | 外部命中请求 | async(N=8 / N=16) | 提权行 | 被提权请求 | 移动任务数 | 报错行 | 乱码 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| async | run1 | 191 / 200 | **0.955** | 199 / 200 | 197(3 / 194) | 200 | 394 | 2012 | 0 | 0 |
+| async | run2 | 189 / 200 | **0.945** | 200 / 200 | 197(3 / 194) | 240 | 394 | 3938 | 0 | 0 |
+| sync | run1 | 189 / 200 | **0.945** | 198 / 200 | 0 | 0 | 0 | 0 | 0 | 0 |
+| sync | run2 | 191 / 200 | **0.955** | 200 / 200 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+| 对比 | 最终答案相同 | 对错翻转的题 | 输出全文相同 |
+|---|---|---|---|
+| async run1 vs run2 | 190 / 200 | 4:7、62、93、122 | 37 / 200 |
+| sync run1 vs run2 | 189 / 200 | 4:7、62、87、161 | 35 / 200 |
+| async run1 vs sync run1 | 191 / 200 | 2:87、93 | 32 / 200 |
+| async run2 vs sync run2 | 190 / 200 | 2:122、161 | 36 / 200 |
+
+列说明:"乱码"= 200 条输出中 U+FFFD 与非法控制字符个数;对比表口径同 §11.11。async 与 sync 都是 0.945 / 0.955,sync 两次之间同样翻转 4 题(7、62 两种模式都翻转);推断为运行间波动(未开 batch invariant)。10-27 的改动(改名、提权挪位置)只改变加载任务的先后,不改加载的数据,未重跑 GSM8K。
+
+**排序显式化**(10-27 下午,提交 `3e68116`):`order_key` 改名 `sort_key`,注明只被排序函数读取、各级平时先进先出;`set_bundles_priority()` 不再排序,只把这些 bundle 在更低级别排队的任务按原顺序移到目标级末尾;新增 `sort_priority_level(priority)`,对该级排队任务按 `sort_key` 稳定排序(去掉 `seq`);远端新增 RPC `SORT_PRIORITY_LEVEL`。connector 提权改为两步:`set_bundles_priority(被提权请求, P0)` 后 `sort_priority_level(P0)`;sync 批不再带 `bundle_id`(它本来就在 P0,由排序和尾交错)。检查(实测):TaskQueue 独立检查全部通过(含"只提权不排序"和"提权后排序"两种顺序),ThreadSanitizer 0 告警;`rpc_check` 13 项通过;正确性 1 轮(同上配置)PASS:命中请求 16 / 16 逐字节一致,外部命中 4960 token,乱码 0,async 13(N=8 3 个、N=16 10 个),提权行 6,被提权请求 26,移动任务 1205,报错行 0。按要求未跑 GSM8K 与定向测试。
+
+**bundle_id 改由 TaskQueue 发号(10-28 讨论后不采用)**(10-27 晚,在 `3e68116` 之上试做,未提交):1026 已复原到 `3e68116`(扩展已重编),代码存两处:1026 的 `stash@{0}`("bundle-id-from-taskqueue (abandoned 10-28)",7 个文件,不含 `setvars.sh`)和 `tests/async_load_dev/port1026/abandoned-bundle-id-from-taskqueue/1026-vs-3e68116.patch`(在 `3e68116` 上 `git apply` 即可恢复);同目录存有配套的 4 个测试脚本(`traced_kvshrink_connector.py`、`rpc_check.py`、`task_queue_check.cpp`、`pipeline-1026.sh`),`port1026/` 下的同名脚本已改回 `3e68116` 的接口(复原后 TaskQueue 检查全部通过、TSan 0 告警、`rpc_check` 13 项通过)。以下为试做时的设计与实测记录。原来 connector 用计数器给每个 async 请求发号,有尾层时记 `req_id → 号`(`_load_bundle_ids`),提权时查号,请求结束时清理。现在 `TaskQueue::new_bundle_id()`(原子计数,从 1 开始,0 = 无)发号;`KVFlow.get()` 每次调用取一个号,传给本次每层的 `unzip_from_mem`,并记在返回的 `Task.bundle_id`;存储层接口改为 `set_tasks_priority(get_results, priority)`,从这些 Task 收集号、去重后调 `set_bundles_priority`。connector 删掉 `_next_load_bundle_id`、`_load_bundle_ids`、`has_remaining_layers`、`get()` 的 `bundle_id` 参数和结束清理,提权时直接传被调度请求的 Task dict(就是该请求 `get()` 返回、经 `_pending_load_tasks` → `_early_promoted_tasks` 传下来的同一个 dict)。
+
+- 号与 Context 的关系:Context 是一次 `get()` 中每层一个,一个 Context 只提交一个解压任务;一个号覆盖一次 `get()` 的所有层。非 hybrid 一个 async 请求只调一次 `get()`,即一个请求一个号;hybrid 一个请求调两次(attention、mamba),两个号,提权时一起提;sync 批那次 `get()` 也拿到号,但不会被提权。
+- 行为差别:原来没有尾层的请求不调提权;现在照样调用,移动 0 个。
+- 远端:GET 报文头去掉 `bundle_id`(`<IHHHHQ` → `<IHHHH`);RPC 14 改名 `SET_TASKS_PRIORITY`,客户端发这些 Task 的 job_id(去重排序),daemon 用 `self.jobs` 查出 daemon 端的 Task dict 再调 `set_tasks_priority`;job 已被 `poll_done()` 删除(全部层完成)时跳过。号由 daemon 进程的 TaskQueue 发,多个客户端共用一个 daemon 时也不重复。
+
+检查(实测):
+
+| 检查 | 结果 |
+|---|---|
+| TaskQueue 独立检查 | 全部通过;新增 1 项:8 线程并发各取 20000 个号,全部非 0 且不重复 |
+| ThreadSanitizer | 0 告警(需 `setarch -R` 关 ASLR,否则 TSan 报 unexpected memory mapping 直接退出,与代码无关) |
+| `rpc_check.py` | 13 项通过(不带 bundle_id 的报文头往返;daemon 只把仍存在的 job 的 Task 交给 `set_tasks_priority`;客户端发去重排序的 job_id) |
+| 正确性 1 轮(`correctness-20261027_080340`,配置同上) | PASS:参考外部命中 0;命中请求 16 / 16 逐字节一致,每个外部命中 4960 token;乱码 0;async 13(N=8 3 个、N=16 10 个);提权行 4,被提权请求 26,移动任务 910,报错行 0;4 行均 `bundles` = `raised_reqs`(6、6、7、7) |
+| 定向测试(`sync-raise-20261027_080722`,配置同上) | PASS:122 次试验均 A 走 async N=16、B 走 sync;A、B 均与参考逐字节一致 122 / 122,外部命中均 4960 token;乱码 0;提权行 244,其中同 step 有 sync 批 2 行(1 次 × 2 rank),提权前 sync 批已解压完 3 / 2 层(均自第 0 层连续,< N=16);244 行均 `bundles` = `raised_reqs`;每行移动 0–47 个(≤ 64 − 16 = 48);报错行 0 |
+
+列说明:"bundles"= 被提权 Task 中不同号的个数(`traced_kvshrink_connector` 统计),等于 `raised_reqs` 说明非 hybrid 下每个请求恰好一个号;"移动"= 调用时仍在 P1–P3 排队、被移入 P0 的任务数(`3e68116` 起不含 sync 批,10-27 上午那次定向测试的 102–106 含 sync 批的重排)。未跑 GSM8K(本次只改号的来源,提上来的任务集合不变)。
+
+**两处小改动后的完整回归**(10-28,`3e68116` + 未提交的两处小改动,均不改变行为):① connector 的 `set(scheduler_output.num_scheduled_tokens)` 改为 `.keys()` 并加一行注释(该字段是以 req id 为键的 dict);② `TaskQueue` 的级别常量由 `static constexpr int` 改为匿名 `enum`(值不变),`torch_ext.cpp` 中 `unzip_from_mem` 的默认参数随之改为 `static_cast<int>(TaskQueue::PRIORITY_HIGH)`——不转换时编译通过但导入模块报 `arg(): could not convert default argument into a Python object`(实测,pybind11 3.1.0 无法转换未注册的匿名 enum)。结果目录 `tests/async_load_dev/port1026/results/` 下 `unit-20261028_032618`、`correctness-20261028_032637`、`sync-raise-20261028_033006`、`gsm8k-20261028_034603`。
+
+| 检查 | 结果 |
+|---|---|
+| TaskQueue 独立检查(`-Wall -Wextra`) | 全部通过,无编译警告;TSan 0 告警 |
+| `rpc_check.py` | 13 项通过 |
+| 正确性 3 轮(配置同上) | 每轮 PASS:参考外部命中 0;命中请求 16 / 16 逐字节一致,每个外部命中 4960 token;乱码 0;三轮合计 async 39(N=8 9 个、N=16 30 个),提权行 14,被提权请求 78,移动任务 3583,报错行 0 |
+| 定向测试(配置同上) | PASS:122 次试验均 A 走 async N=16、B 走 sync;A、B 均与参考逐字节一致 122 / 122,外部命中均 4960 token;乱码 0;提权行 244,同 step 有 sync 批 4 行(2 次 × 2 rank),提权前 sync 批已解压完均为 2 层(自第 0 层连续);每行移动 ≤ 47;报错行 0 |
+
+GSM8K(200 题,并发 50,temperature 0,同一服务连跑两次;sync = `KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0`):
+
+| 模式 | 运行 | 答对 / 总数 | mean_acc | 外部命中请求 | 每请求外部命中 token(中位数) | async(N=8 / N=16) | 提权行 | 被提权请求 | 移动任务数 | 报错行 | 乱码 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| async | run1 | 191 / 200 | **0.955** | 199 / 200 | 576 | 197(3 / 194) | 218 | 394 | 0 | 0 | 0 |
+| async | run2 | 194 / 200 | **0.970** | 200 / 200 | 656 | 197(3 / 194) | 232 | 394 | 4214 | 0 | 0 |
+| sync | run1 | 191 / 200 | **0.955** | 199 / 200 | — | 0 | 0 | 0 | 0 | 0 | 0 |
+| sync | run2 | 188 / 200 | **0.940** | 200 / 200 | — | 0 | 0 | 0 | 0 | 0 | 0 |
+
+| 对比 | 最终答案相同 | 对错翻转的题 | 输出全文相同 |
+|---|---|---|---|
+| async run1 vs run2 | 189 / 200 | 9:2、12、40、85、153、161、163、181、184 | 40 / 200 |
+| sync run1 vs run2 | 188 / 200 | 7:2、7、12、40、98、138、181 | 33 / 200 |
+| async run1 vs sync run1 | 189 / 200 | 6:62、85、147、153、161、163 | 47 / 200 |
+| async run2 vs sync run2 | 189 / 200 | 6:7、62、98、138、147、184 | 38 / 200 |
+
+列说明同上;"每请求外部命中 token"只统计 async 服务。async 与 sync 的 4 个分数在 0.940–0.970 之间,sync 自身两次之间也翻转 7 题(未开 batch invariant),推断为运行间波动。run1 移动任务数为 0:run1 每个请求只命中共享的 few-shot 前缀(576 token,36 个 block),218 行提权全部移动 0 个,即尾层在提权前都已解压完(实测);与 10-26 run1 的 2012 不直接可比(当时代码在新 async `get()` 之后提权,且计数含从 P0 取出重排的任务),未进一步分析。
+
+**观察:`[KVClip] cache miss on unzip (will retry)`**(实测):GSM8K async 服务 5888 行、sync 服务 84 行,全部出现在 run1,run2 为 0;涉及的 block 分别为 16 个和 1 个,全是共享前缀;没有 `cache key missing after retry`(重试都成功),报错行 0,分数与乱码见上表。正确性测试与定向测试的服务日志中为 0。机制(读代码):解压任务在 Mem 里找不到某个 block 时,以 `PRIORITY_LOW`(P3)重新提交自己一次,排在已提交的压缩任务之后,重试仍找不到才报错(1026 `iaxl/csrc/torch_ext/zip.cpp` 的 `UnzipFromMemWork::execute`);即命中的 block 的压缩(put)还没完成时就被 get。10-26 的 GSM8K 日志里这类行为 0,但不能据此认为当时没有发生(推断):这些行用 `std::cout` 输出,服务的 stdout 重定向到文件时按块缓冲,今天 sync 日志里出现一行被另一个 rank 的输出从中间截断(`... (will retADF_UIO_PROXY err ...`),说明是按块写出;服务被 SIGTERM 结束时未满一块的内容可能丢失。同理,`ADF_UIO_PROXY err: ... Error reading /dev/qat_dev_processes` 只出现在今天 GSM8K 的日志里,也可能只是被刷出。两处小改动不涉及这条路径(推断),未在纯 `3e68116` 上重跑对比。
+
+**提交并 rebase 到上游 main**(10-28):两处小改动提交为 `2c9b47a`(一行 commit msg);本地加 `upstream` remote(`intel/intel-accel-for-llm`),分支 rebase 到上游 main `dde3b4f`(#41,hybrid 不开 prefix caching 时用 vLLM 插件把 `mamba_cache_mode` 改为 `align`),无冲突,`git range-diff` 显示 3 个提交改动不变(`35f2cfa`、`6d9535e`、`6742331`),只是 connector 行号后移 15 行;容器内重编,插件 `kvshrink = kvshrink.vllm_patch:register` 已注册。未 push(远端分支需 `--force-with-lease`)。10 分钟回归(`rebase-regress-1028.sh`):
+
+| 检查 | 结果 |
+|---|---|
+| 正确性 3 轮(`correctness-20261028_052604`,配置同上) | 每轮 PASS:命中请求 16 / 16 逐字节一致,外部命中 4960 token,乱码 0;合计 async 39(N=8 9 个、N=16 30 个),提权行 22,被提权请求 78,移动任务 2905,报错行 0 |
+| GSM8K async run1(`gsm8k-rebase-20261028_052929`,配置同上 async run1) | 193 / 200,**0.965**;外部命中 199 / 200;async 197(3 / 194);提权行 218,移动任务 40;报错行 0;乱码 0;与 rebase 前 async run1(0.955)相比最终答案相同 189 / 200,翻转 8 题 |
+| 插件对非 hybrid 模型的作用 | 两个服务的日志中插件只打印 "registered",没有 "prefix caching ... overriding" 或 "skipping validate_mamba_block_size";connector 打印 `has_mamba=False, mamba_cache_mode='none'` |
+
+GSM8K run1 同样有 `cache miss on unzip (will retry)` 2959 行,无报错。未跑定向测试、GSM8K run2 与 sync 基线(rebase 未改提权代码;时间限制)。
+
+**hybrid 模型验证:Qwen3.5-27B(10-28 验证完成)**(分支 `6742331`,含上游 `dde3b4f` 的插件)。模型 64 层 = 48 层 GDN(线性注意力,走 mamba 状态)+ 16 层 full attention;TP=2;容器原先只挂载 Qwen3-32B,已改 `start-1026-container.sh` 只读挂载该模型后重建容器。
+
+- 启动(实测):插件把 `mamba_cache_mode` 由 `'none'` 改为 `'align'`;vLLM 为让 attention 页不小于 mamba 页,把 block_size 设为 **784**;connector 注册 64 层(48 mamba);KV 容量 1,071,688 token。
+- `VLLM_BATCH_INVARIANT=1` 时 vLLM 直接拒绝启动(`RuntimeError: VLLM batch_invariant mode is not supported for GDN_ATTN`),因此 hybrid 测试均关闭 batch invariant;按 10-28 讨论,判据改为"输出合理、无乱码",精度看 GSM8K。
+- hybrid 没有 sync 加载:map 选出的 N 加上 48 个 mamba 层(0 也变为 48),所以默认 map `0-3:0,4-6:8,7-:16` 在 hybrid 上是 N = 48 / 56 / 64(64 = 无尾层);sync 批与提权同 step 的定向测试不适用。
+
+| 测试 | 每轮各请求的 N | 每轮结果 | 3 轮合计 |
+|---|---|---|---|
+| 默认 map(`hybrid-default-20261028_071612`) | 48 ×3,56 ×3,64 ×10 | 外部命中 19600 token(25 个 block);与参考相同 16 / 16;答对 17 / 17;乱码 0 | 提权行 30,移动任务 283,报错 0 |
+| map `0-:4`(`hybrid-tail12-20261028_071612`) | 52 ×16(12 层 attention 尾层) | 同上 | 提权行 46,移动任务 671,报错 0 |
+
+列说明:每轮 1 个参考请求 + 16 个并发命中请求,prompt 20025 token(1000 条记录);"与参考相同"= 命中输出与参考逐字节相同的个数(未要求,但实测全部相同);"答对"= 包括参考在内 17 个输出中,第一行含 prompt 里 Record 0042 的传感器与读数的个数(该记录位于被加载的前缀中,由 `hybrid_round_summary.py` 核对);其余列口径同上。
+
+GSM8K(`gsm8k-hybrid-20261028_072356`,200 题,并发 50,temperature 0,max_tokens 2048,带 connector、默认 map;按要求未跑原生 vLLM 基线):标准 4-shot 的 prompt 用 Qwen3.5 tokenizer 实测 640–750 token,不满一个 784-token block,不会产生任何外部命中,因此改为 16-shot(prompt 3324–3434 token)。
+
+| 运行 | 答对 / 总数 | mean_acc | 外部命中请求(每个 3136 token = 4 个 block) | N=48 / 56 / 64 | 被截断(`stop_reason=max_tokens`) | 答错中被截断的 | 乱码 | 报错 |
+|---|---|---|---|---|---|---|---|---|
+| run1 | 170 / 200 | **0.85** | 199 / 200 | 2 / 3 / 194 | 70 | 30 / 30 | 0 | 0 |
+| run2 | 163 / 200 | **0.815** | 200 / 200 | 3 / 3 / 194 | 70 | 37 / 37 | 0 | 0 |
+
+列说明:"被截断"= 输出达到 2048 token 上限的题数;"答错中被截断的"= 答错的题里被截断的数目。答错的题全部是被截断的(实测),未截断的 130 题两次都全部答对;即分数受 2048 token 上限限制(Qwen3.5 的推理输出长,中位数约 1.6–1.7k token),不是加载出错的迹象(推断)。run1 vs run2:最终答案相同 161 / 200,翻转 27 题,输出全文相同 32 / 200(未开 batch invariant)。日志中唯一一行 Traceback 是测试结束停服务时的 `EngineDeadError`。
+
+同配置把 max_tokens 提到 8192(`gsm8k-hybrid-8k-20261028_073934`,`gsm8k-1026.sh` 新增 `MAX_TOKENS`):
+
+| 运行 | 答对 / 总数 | mean_acc | 外部命中请求(每个 3136 token) | 仍被截断(8192) | 答错 | 其中被截断 / 未截断 | 2048 时被截断的 70 题现在答对 | 乱码 | 报错 |
+|---|---|---|---|---|---|---|---|---|---|
+| run1 | 194 / 200 | **0.97** | 199 / 200 | 5 | 6 | 5 / 1 | 64 | 0 | 0 |
+| run2 | 196 / 200 | **0.98** | 200 / 200 | 3 | 4 | 3 / 1 | 66 | 0 | 0 |
+
+列说明:"仍被截断"= 输出达到 8192 上限的题数;"答错"中"未截断"的 1 题两次都是第 12 题(模型算出 90 / 7.5 = 12 年,标准答案 13,是推理错误,两次相同);被截断的题结尾都是反复自我检查("Wait, I'll check ..."),没有乱码。输出 token 中位数约 1.6k、p90 约 4.1k。run1 vs run2:最终答案相同 194 / 200,翻转 4 题(2、14、85、146,都是接近或达到上限的题),输出全文相同 30 / 200。报错 0,无 `cache miss on unzip`。
+
+未测:远端 KVStore、性能;hybrid 的原生 vLLM GSM8K 基线(按要求未跑)。

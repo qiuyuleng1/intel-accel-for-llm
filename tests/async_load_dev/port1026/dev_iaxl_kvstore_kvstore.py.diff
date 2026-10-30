@@ -1,0 +1,115 @@
+diff --git a/iaxl/kvstore/kvstore.py b/iaxl/kvstore/kvstore.py
+index e006be8..8fa5f06 100644
+--- a/iaxl/kvstore/kvstore.py
++++ b/iaxl/kvstore/kvstore.py
+@@ -64,6 +64,10 @@ class KVStoreLocal:
+             self.layer_names = list(kv_caches.keys())
+         else:
+             self.layer_names = layer_names
++        # Order key of each layer's load task (see KVFlow.set_groups_priority).
++        self._layer_order: Dict[str, int] = {}
++        for index, name in enumerate(self.layer_names):
++            self._layer_order[name] = index
+ 
+         self.skip_compression_count = min(
+             envs.IAXL_KVSTORE_SKIP_COMPRESSION_LAYERS, len(self.layer_names)
+@@ -147,6 +151,11 @@ class KVStoreLocal:
+             mgmt_register(
+                 "GET", "/v1/cache/metrics", lambda params, s=self: s.metrics(params)
+             )
++            mgmt_register(
++                "GET",
++                "/v1/cache/queue_trace",
++                lambda params, s=self: s.queue_trace(params),
++            )
+         self._mgmt_server = start_mgmt_server(
+             role=role, rank=self.rank, num_workers=self.tp_size
+         )
+@@ -216,7 +225,20 @@ class KVStoreLocal:
+         block_hashs: List[str],
+         layer_names: Optional[List[str]] = None,
+         description: str = "",
++        priorities: Optional[Dict[str, int]] = None,
++        group: int = 0,
+     ) -> Dict[str, Task]:
++        """Load blocks of ``layer_names`` (all layers if None) from the DDR pool.
++
++        Args:
++            priorities: OMP-Main level (0..3, 0 most urgent) per layer name; None
++                submits every layer at level 0. See ``KVFlow.get``.
++            group: group id for ``set_group_priority`` / ``set_groups_priority``;
++                0 means no group.
++
++        Each layer's task gets the layer's index in ``self.layer_names`` as its
++        order key, so ``set_groups_priority`` orders tasks by layer.
++        """
+ 
+         if self.has_only_mode:
+             raise RuntimeError(
+@@ -227,6 +249,9 @@ class KVStoreLocal:
+             layer_names = self.layer_names
+ 
+         tensors = {name: self.kv_caches[name] for name in layer_names}
++        order_keys: Dict[str, int] = {}
++        for name in layer_names:
++            order_keys[name] = self._layer_order[name]
+ 
+         return self.tensorzip.get(
+             label=self.LABEL,
+@@ -235,8 +260,25 @@ class KVStoreLocal:
+             chunk_indices=block_indices,
+             chunk_labels=block_hashs,
+             description=description,
++            priorities=priorities,
++            group=group,
++            order_keys=order_keys,
+         )
+ 
++    def set_group_priority(self, group: int, priority: int) -> int:
++        """Raise the waiting load tasks of ``group`` to OMP-Main level ``priority``.
++
++        See ``KVFlow.set_group_priority``. Returns the number of tasks moved.
++        """
++        return self.tensorzip.set_group_priority(group, priority)
++
++    def set_groups_priority(self, groups: List[int], priority: int) -> int:
++        """Append the waiting load tasks of ``groups`` to level ``priority`` by layer.
++
++        See ``KVFlow.set_groups_priority``. Returns the number of tasks appended.
++        """
++        return self.tensorzip.set_groups_priority(groups, priority)
++
+     def get_wait(
+         self,
+         get_results: Dict[str, Task],
+@@ -303,6 +345,30 @@ class KVStoreLocal:
+         result["rank"] = self.rank
+         return result
+ 
++    def queue_trace(self, params: Optional[dict] = None) -> dict:
++        """Return and clear per-task timings of a C++ TaskQueue.
++
++        Args:
++            params: optional ``queue`` (``OMP-Main`` default, ``H2D``, ``D2H``) and
++                ``enable`` (``1``/``0``). ``enable`` is applied after draining, so
++                ``enable=1`` also discards events left from an earlier session.
++
++        Returns:
++            ``{"queue", "enabled", "dropped", "events", "rank"}``; see
++            ``torch_ext.task_queue_trace_drain`` for the event fields.
++        """
++        from ..torch_ext import task_queue_trace_drain, task_queue_trace_set_enabled
++
++        params = params or {}
++        queue = str(params.get("queue", "OMP-Main"))
++        result = task_queue_trace_drain(queue)
++        if "enable" in params:
++            enable = str(params["enable"]).lower() in ("1", "true", "yes", "on")
++            task_queue_trace_set_enabled(queue, enable)
++            result["enabled"] = enable
++        result["rank"] = self.rank
++        return result
++
+     def persist(self, max_count: int) -> dict:
+         if self.has_only_mode:
+             return {"error": "persist() not available in has-only mode (scheduler)"}

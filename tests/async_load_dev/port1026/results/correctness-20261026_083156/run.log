@@ -1,0 +1,23 @@
+branch=perf/async-load-optimization connector_md5=dbf72632 conc=16 rounds=3
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+===== round 1 =====
+check_exit=1
+lookups=1 reqs=1 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=6
+===== round 2 =====
+check_exit=1
+lookups=0 reqs=0 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+===== round 3 =====
+check_exit=1
+lookups=0 reqs=0 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+===== whole server log =====
+lookups=1 reqs=1 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=6
+ALL_DONE

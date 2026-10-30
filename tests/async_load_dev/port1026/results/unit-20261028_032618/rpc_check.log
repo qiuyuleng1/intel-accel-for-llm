@@ -1,0 +1,15 @@
+PASS: GET payload with priorities and bundle id round-trips
+PASS: payload without priorities round-trips
+PASS: SET_BUNDLES_PRIORITY / SORT_PRIORITY_LEVEL appended; old numbers unchanged
+PASS: daemon GET forwards per-layer priorities and bundle id
+PASS: daemon GET without priorities forwards None / bundle id 0
+PASS: daemon PUT unchanged
+PASS: daemon rejects a priority count that differs from the layer count
+PASS: daemon SET_BUNDLES_PRIORITY calls KVStore.set_bundles_priority
+PASS: daemon SORT_PRIORITY_LEVEL calls KVStore.sort_priority_level
+PASS: client GET sends one level per requested layer, in layer_idx order
+PASS: client GET rejects priorities missing a requested layer
+PASS: client set_bundles_priority sends [bundle_ids, priority]
+PASS: client sort_priority_level sends [priority]
+ALL PASS
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=OFF exponent_only=OFF lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled

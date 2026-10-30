@@ -1,0 +1,486 @@
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-31
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=32-63
+KVShrink QAT rank 0: indices=0,1,2,3 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0) 0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 1: indices=4,5,6,7 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1) 0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+vLLM configuration:
+  MODEL=/media/model-space/Qwen3-32B
+  TP_SIZE=2
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=0
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_DSA_DEVICES=disabled
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=32,32
+  IAXL_QAT_INSTANCE_NUM=4
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+INFO 10-28 05:26:22 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+(APIServer pid=1099903) INFO 10-28 05:26:22 [api_utils.py:347] 
+(APIServer pid=1099903) INFO 10-28 05:26:22 [api_utils.py:347]        █     █     █▄   ▄█
+(APIServer pid=1099903) INFO 10-28 05:26:22 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0
+(APIServer pid=1099903) INFO 10-28 05:26:22 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /media/model-space/Qwen3-32B
+(APIServer pid=1099903) INFO 10-28 05:26:22 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=1099903) INFO 10-28 05:26:22 [api_utils.py:347] 
+(APIServer pid=1099903) INFO 10-28 05:26:22 [api_utils.py:286] non-default args: {'model_tag': '/media/model-space/Qwen3-32B', 'port': 8010, 'model': '/media/model-space/Qwen3-32B', 'trust_remote_code': True, 'max_model_len': 32765, 'tensor_parallel_size': 2, 'gpu_memory_utilization': 0.8, 'enable_prefix_caching': False, 'kv_transfer_config': KVTransferConfig(kv_connector='KVShrinkConnector', engine_id='6f64ae9c-bd5e-4d30-a062-240d56591bca', kv_buffer_device='cuda', kv_buffer_size=1000000000.0, kv_role='kv_both', kv_rank=None, kv_parallel_size=1, kv_ip='127.0.0.1', kv_port=14579, kv_connector_extra_config={}, kv_connector_module_path='traced_kvshrink_connector', enable_permute_local_kv=False, kv_load_failure_policy='fail')}
+(APIServer pid=1099903) INFO 10-28 05:26:22 [model.py:684] Resolved architecture: Qwen3ForCausalLM
+(APIServer pid=1099903) INFO 10-28 05:26:22 [model.py:2021] Using max model len 32765
+(APIServer pid=1099903) INFO 10-28 05:26:22 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=8192.
+(APIServer pid=1099903) INFO 10-28 05:26:22 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1099903) WARNING 10-28 05:26:22 [vllm.py:1573] KV connector KVShrinkConnector requires PIECEWISE CUDA graph mode due to layerwise async operations that cannot be captured in CUDA graphs. Overriding cudagraph_mode from FULL_AND_PIECEWISE to PIECEWISE.
+(EngineCore pid=1100126) INFO 10-28 05:26:31 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+(EngineCore pid=1100126) INFO 10-28 05:26:31 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/media/model-space/Qwen3-32B', speculative_config=None, tokenizer='/media/model-space/Qwen3-32B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=32765, download_dir=None, load_format=auto, tensor_parallel_size=2, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/media/model-space/Qwen3-32B, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::qwen4_exp_compute_ple_ngram_ids', 'vllm::qwen4_exp_ple_short_conv', 'vllm::qwen4_exp_qsa_with_output', 'vllm::linear_attention', 'vllm::qwen_gdn_attention_core', 'vllm::qwen_gdn_attention_core_fused_norm_packed', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.PIECEWISE: 1>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=1100126) WARNING 10-28 05:26:31 [network_utils.py:37] The environment variable HOST_IP is deprecated and ignored, as it is often used by Docker and other software to interact with the container's network stack. Please use VLLM_HOST_IP instead to set the IP address for vLLM processes to communicate with each other.
+(EngineCore pid=1100126) INFO 10-28 05:26:31 [multiproc_executor.py:153] DP group leader: node_rank=0, node_rank_within_dp=0, master_addr=127.0.0.1, mq_connect_ip=10.239.11.147 (local), world_size=2, local_world_size=2
+INFO 10-28 05:26:38 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+INFO 10-28 05:26:39 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+[W1028 05:26:43.210797860 Context.cpp:597] Warning: torch.backends.cuda.preferred_blas_library is an experimental feature. If you see any error or unexpected behavior when this flag is set please file an issue on GitHub. (function operator())
+(Worker pid=1100167) INFO 10-28 05:26:43 [parallel_state.py:1775] world_size=2 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_9bfea2153b314b1da4ed4de5d531d7d3 backend=nccl
+[W1028 05:26:44.631441325 Context.cpp:597] Warning: torch.backends.cuda.preferred_blas_library is an experimental feature. If you see any error or unexpected behavior when this flag is set please file an issue on GitHub. (function operator())
+(Worker pid=1100168) INFO 10-28 05:26:44 [parallel_state.py:1775] world_size=2 rank=1 local_rank=1 distributed_init_method=file:///tmp/vllm_dist_9bfea2153b314b1da4ed4de5d531d7d3 backend=nccl
+(Worker pid=1100167) INFO 10-28 05:26:44 [pynccl.py:113] vLLM is using nccl==2.30.7
+(Worker pid=1100167) INFO 10-28 05:26:44 [cuda_communicator.py:269] Using ['PYNCCL'] all-reduce backends (in dispatch order) for group 'tp:0' out of potential backends: ['FLASHINFER', 'NCCL_SYMM_MEM', 'QUICK_REDUCE', 'AITER_CUSTOM', 'CUSTOM', 'SYMM_MEM', 'PYNCCL'].
+(Worker pid=1100167) INFO 10-28 05:26:44 [parallel_state.py:2119] rank 0 in world size 2 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(Worker pid=1100167) INFO 10-28 05:26:44 [gpu_worker.py:429] Using V2 Model Runner
+(Worker_TP0 pid=1100167) INFO 10-28 05:26:46 [model_runner.py:382] Loading model from scratch...
+(Worker_TP0 pid=1100167) INFO 10-28 05:26:46 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(Worker_TP0 pid=1100167) INFO 10-28 05:26:46 [flash_attn.py:897] Using FlashAttention version 2
+(Worker_TP0 pid=1100167) INFO 10-28 05:26:46 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 61.02 GiB. Available RAM: 478.00 GiB.
+(Worker_TP0 pid=1100167) INFO 10-28 05:26:46 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:   0% Completed | 0/17 [00:00<?, ?it/s]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:   6% Completed | 1/17 [00:00<00:13,  1.21it/s]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  12% Completed | 2/17 [00:01<00:13,  1.07it/s]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  18% Completed | 3/17 [00:03<00:15,  1.10s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  24% Completed | 4/17 [00:04<00:15,  1.16s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  29% Completed | 5/17 [00:05<00:14,  1.20s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  35% Completed | 6/17 [00:06<00:13,  1.22s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  41% Completed | 7/17 [00:08<00:12,  1.22s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  47% Completed | 8/17 [00:09<00:11,  1.23s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  53% Completed | 9/17 [00:10<00:09,  1.23s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  59% Completed | 10/17 [00:11<00:08,  1.23s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  65% Completed | 11/17 [00:13<00:07,  1.23s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  71% Completed | 12/17 [00:14<00:06,  1.25s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  76% Completed | 13/17 [00:15<00:04,  1.24s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  82% Completed | 14/17 [00:16<00:03,  1.24s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  88% Completed | 15/17 [00:18<00:02,  1.25s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards:  94% Completed | 16/17 [00:19<00:01,  1.27s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards: 100% Completed | 17/17 [00:20<00:00,  1.18s/it]
+(Worker_TP0 pid=1100167) Loading safetensors checkpoint shards: 100% Completed | 17/17 [00:20<00:00,  1.20s/it]
+(Worker_TP0 pid=1100167) 
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:06 [default_loader.py:430] Loading weights took 20.42 seconds
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:07 [model_runner.py:404] Model loading took 30.59 GiB memory and 21.898504 seconds
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:07 [model_runner.py:404] Model loading took 30.59 GiB memory and 21.697923 seconds
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:07 [topk_topp_sampler.py:62] Using FlashInfer for top-p & top-k sampling.
+(EngineCore pid=1100126) WARNING 10-28 05:27:07 [torch_utils.py:265] OMP_NUM_THREADS=4 is set; leaving Torch threads at 4 for serving. Multi-threaded torch CPU ops during serving can degrade performance through spin-wait contention and cgroup CPU-quota throttling.
+(EngineCore pid=1100126) INFO 10-28 05:27:07 [utils.py:306] Using LBNHC KV cache layout.
+(Worker_TP1 pid=1100168) /usr/local/lib/python3.12/dist-packages/torch/_dynamo/variables/functions.py:2590: UserWarning: Dynamo detected a call to a `functools.lru_cache`-wrapped function at 'batch_invariant.py:145'. Dynamo ignores the cache wrapper and directly traces the wrapped function. Silent incorrectness is only a *potential* risk, not something we have observed. Enable TORCH_LOGS=+dynamo for a DEBUG stack trace.
+(Worker_TP1 pid=1100168) 
+(Worker_TP1 pid=1100168) This call originates from:
+(Worker_TP1 pid=1100168)   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/determinism/batch_invariant.py", line 145, in matmul_persistent
+(Worker_TP1 pid=1100168)     NUM_SMS = num_compute_units(a.device.index)
+(Worker_TP1 pid=1100168)               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP1 pid=1100168) 
+(Worker_TP1 pid=1100168)   torch._dynamo.utils.warn_once(msg)
+(Worker_TP0 pid=1100167) /usr/local/lib/python3.12/dist-packages/torch/_dynamo/variables/functions.py:2590: UserWarning: Dynamo detected a call to a `functools.lru_cache`-wrapped function at 'batch_invariant.py:145'. Dynamo ignores the cache wrapper and directly traces the wrapped function. Silent incorrectness is only a *potential* risk, not something we have observed. Enable TORCH_LOGS=+dynamo for a DEBUG stack trace.
+(Worker_TP0 pid=1100167) 
+(Worker_TP0 pid=1100167) This call originates from:
+(Worker_TP0 pid=1100167)   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/determinism/batch_invariant.py", line 145, in matmul_persistent
+(Worker_TP0 pid=1100167)     NUM_SMS = num_compute_units(a.device.index)
+(Worker_TP0 pid=1100167)               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP0 pid=1100167) 
+(Worker_TP0 pid=1100167)   torch._dynamo.utils.warn_once(msg)
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:23 [backends.py:1094] Using cache directory: /root/.cache/vllm/torch_compile_cache/18054b255d/rank_0_0/backbone for vLLM's torch.compile
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:23 [backends.py:1155] Dynamo bytecode transform time: 15.61 s
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:25 [backends.py:292] Directly load the compiled graph(s) for compile range (1, 8192) from the cache, took 1.954 s
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:33 [monitor.py:53] torch.compile and initial profiling/warmup run together took 26.02 s in total
+(Worker_TP0 pid=1100167) Capturing CUDA graphs (PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):   2%|▏         | 1/51 [00:00<00:36,  1.38it/s]Capturing CUDA graphs (PIECEWISE):   4%|▍         | 2/51 [00:01<00:36,  1.33it/s]Capturing CUDA graphs (PIECEWISE):   6%|▌         | 3/51 [00:01<00:26,  1.83it/s]Capturing CUDA graphs (PIECEWISE):   8%|▊         | 4/51 [00:02<00:21,  2.23it/s]Capturing CUDA graphs (PIECEWISE):  10%|▉         | 5/51 [00:02<00:18,  2.50it/s]Capturing CUDA graphs (PIECEWISE):  12%|█▏        | 6/51 [00:03<00:24,  1.86it/s]Capturing CUDA graphs (PIECEWISE):  14%|█▎        | 7/51 [00:03<00:20,  2.17it/s]Capturing CUDA graphs (PIECEWISE):  16%|█▌        | 8/51 [00:03<00:17,  2.44it/s]Capturing CUDA graphs (PIECEWISE):  18%|█▊        | 9/51 [00:04<00:14,  2.84it/s]Capturing CUDA graphs (PIECEWISE):  20%|█▉        | 10/51 [00:04<00:20,  1.96it/s]Capturing CUDA graphs (PIECEWISE):  22%|██▏       | 11/51 [00:05<00:16,  2.36it/s]Capturing CUDA graphs (PIECEWISE):  24%|██▎       | 12/51 [00:05<00:14,  2.74it/s]Capturing CUDA graphs (PIECEWISE):  25%|██▌       | 13/51 [00:05<00:12,  3.09it/s]Capturing CUDA graphs (PIECEWISE):  27%|██▋       | 14/51 [00:05<00:11,  3.29it/s]Capturing CUDA graphs (PIECEWISE):  29%|██▉       | 15/51 [00:06<00:16,  2.24it/s]Capturing CUDA graphs (PIECEWISE):  31%|███▏      | 16/51 [00:06<00:13,  2.60it/s]Capturing CUDA graphs (PIECEWISE):  33%|███▎      | 17/51 [00:07<00:11,  2.98it/s]Capturing CUDA graphs (PIECEWISE):  35%|███▌      | 18/51 [00:07<00:09,  3.30it/s]Capturing CUDA graphs (PIECEWISE):  37%|███▋      | 19/51 [00:07<00:09,  3.24it/s]Capturing CUDA graphs (PIECEWISE):  39%|███▉      | 20/51 [00:08<00:12,  2.42it/s]Capturing CUDA graphs (PIECEWISE):  41%|████      | 21/51 [00:08<00:10,  2.80it/s]Capturing CUDA graphs (PIECEWISE):  43%|████▎     | 22/51 [00:08<00:09,  3.14it/s]Capturing CUDA graphs (PIECEWISE):  45%|████▌     | 23/51 [00:08<00:08,  3.44it/s]Capturing CUDA graphs (PIECEWISE):  47%|████▋     | 24/51 [00:09<00:08,  3.29it/s]Capturing CUDA graphs (PIECEWISE):  49%|████▉     | 25/51 [00:09<00:10,  2.45it/s]Capturing CUDA graphs (PIECEWISE):  51%|█████     | 26/51 [00:10<00:08,  2.81it/s]Capturing CUDA graphs (PIECEWISE):  53%|█████▎    | 27/51 [00:10<00:07,  3.15it/s]Capturing CUDA graphs (PIECEWISE):  55%|█████▍    | 28/51 [00:10<00:06,  3.43it/s]Capturing CUDA graphs (PIECEWISE):  57%|█████▋    | 29/51 [00:11<00:06,  3.16it/s]Capturing CUDA graphs (PIECEWISE):  59%|█████▉    | 30/51 [00:11<00:08,  2.42it/s]Capturing CUDA graphs (PIECEWISE):  61%|██████    | 31/51 [00:11<00:07,  2.78it/s]Capturing CUDA graphs (PIECEWISE):  63%|██████▎   | 32/51 [00:12<00:06,  3.11it/s]Capturing CUDA graphs (PIECEWISE):  65%|██████▍   | 33/51 [00:12<00:05,  3.31it/s]Capturing CUDA graphs (PIECEWISE):  67%|██████▋   | 34/51 [00:13<00:07,  2.18it/s]Capturing CUDA graphs (PIECEWISE):  69%|██████▊   | 35/51 [00:13<00:06,  2.56it/s]Capturing CUDA graphs (PIECEWISE):  71%|███████   | 36/51 [00:13<00:05,  2.93it/s]Capturing CUDA graphs (PIECEWISE):  73%|███████▎  | 37/51 [00:13<00:04,  3.26it/s]Capturing CUDA graphs (PIECEWISE):  75%|███████▍  | 38/51 [00:14<00:03,  3.55it/s]Capturing CUDA graphs (PIECEWISE):  76%|███████▋  | 39/51 [00:14<00:05,  2.20it/s]Capturing CUDA graphs (PIECEWISE):  78%|███████▊  | 40/51 [00:15<00:04,  2.58it/s]Capturing CUDA graphs (PIECEWISE):  80%|████████  | 41/51 [00:15<00:03,  2.95it/s]Capturing CUDA graphs (PIECEWISE):  82%|████████▏ | 42/51 [00:15<00:02,  3.29it/s]Capturing CUDA graphs (PIECEWISE):  84%|████████▍ | 43/51 [00:15<00:02,  3.59it/s]Capturing CUDA graphs (PIECEWISE):  86%|████████▋ | 44/51 [00:16<00:03,  2.18it/s]Capturing CUDA graphs (PIECEWISE):  88%|████████▊ | 45/51 [00:16<00:02,  2.58it/s]Capturing CUDA graphs (PIECEWISE):  90%|█████████ | 46/51 [00:17<00:01,  2.95it/s]Capturing CUDA graphs (PIECEWISE):  92%|█████████▏| 47/51 [00:17<00:01,  3.28it/s]Capturing CUDA graphs (PIECEWISE):  94%|█████████▍| 48/51 [00:17<00:00,  3.56it/s]Capturing CUDA graphs (PIECEWISE):  96%|█████████▌| 49/51 [00:18<00:00,  2.51it/s]Capturing CUDA graphs (PIECEWISE):  98%|█████████▊| 50/51 [00:18<00:00,  2.89it/s](Worker_TP1 pid=1100168) INFO 10-28 05:27:53 [model_runner.py:960] Graph capturing finished in 19 secs, took 0.88 GiB
+Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:18<00:00,  3.22it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:18<00:00,  2.72it/s]
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:53 [model_runner.py:960] Graph capturing finished in 19 secs, took 0.88 GiB
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54 [gpu_worker.py:625] Available KV cache memory: 33.44 GiB
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54 [gpu_worker.py:640] CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.8000 is equivalent to --gpu-memory-utilization=0.7894 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.8106. To disable, set VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54 [gpu_worker.py:640] CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.8000 is equivalent to --gpu-memory-utilization=0.7894 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.8106. To disable, set VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+(EngineCore pid=1100126) INFO 10-28 05:27:54 [kv_cache_utils.py:2032] GPU KV cache size: 273,926 tokens, Maximum concurrency for 32,765 tokens per request: 8.36x
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54 [factory.py:62] Creating v1 connector with name: KVShrinkConnector and engine_id: 6f64ae9c-bd5e-4d30-a062-240d56591bca
+(Worker_TP0 pid=1100167) WARNING 10-28 05:27:54 [base.py:203] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,431 [kvshrink_connector.py:153] KVShrinkConnector(WORKER): block_size=16, has_mamba=False, mamba_cache_mode='none', prefix caching=False
+(Worker_TP0 pid=1100167) WARNING 10-28 05:27:54,431 [kvshrink_connector.py:178] Dense model: reading DP size from the DP_SIZE env var (1) because vLLM resets data_parallel_size to 1 for dense models.
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,431 [kvshrink_connector.py:248] Bound rank 0: IAXL_CPU_OMP_THREADS_BIND=0-31
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,431 [affinity.py:42] Bound rank 0 to CPUs [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54 [factory.py:62] Creating v1 connector with name: KVShrinkConnector and engine_id: 6f64ae9c-bd5e-4d30-a062-240d56591bca
+(Worker_TP1 pid=1100168) WARNING 10-28 05:27:54 [base.py:203] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,431 [affinity.py:58] Bound rank 0: IAXL_QAT_DEVICES=0,1,2,3
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,432 [kvshrink_connector.py:153] KVShrinkConnector(WORKER): block_size=16, has_mamba=False, mamba_cache_mode='none', prefix caching=False
+(Worker_TP1 pid=1100168) WARNING 10-28 05:27:54,432 [kvshrink_connector.py:178] Dense model: reading DP size from the DP_SIZE env var (1) because vLLM resets data_parallel_size to 1 for dense models.
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,432 [kvshrink_connector.py:248] Bound rank 1: IAXL_CPU_OMP_THREADS_BIND=32-63
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,432 [affinity.py:42] Bound rank 1 to CPUs [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,432 [affinity.py:58] Bound rank 1: IAXL_QAT_DEVICES=4,5,6,7
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,442 [flow.py:74] Cache size 47 GB
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,445 [flow.py:74] Cache size 47 GB
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled
+[Record] Cleaned up 997 unpersisted records from previous run
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,446 [flow.py:82] C++ Record initialized at _data/kvcache/compressed/Qwen3-32B_rank1/chunks.db
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,446 [flow.py:94] Using accelerator: cuda
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,447 [flow.py:121] Initialized: persist_dir=Qwen3-32B_rank1, cache_size_gb=47.61, compression=True
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,447 [kvstore.py:112] KVStore initialized successfully: model_name=Qwen3-32B, rank=1, has_only_mode=False, num_layers=64, block_dim=0, block_shape=(16384,), pool_size_gb=47.61, persist_dir=Qwen3-32B_rank1
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,447 [api.py:61] Worker server started on port 18811 (rank 1)
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54,447 [kvshrink_connector.py:554] Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled
+[Record] Cleaned up 997 unpersisted records from previous run
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,448 [flow.py:82] C++ Record initialized at _data/kvcache/compressed/Qwen3-32B_rank0/chunks.db
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,449 [flow.py:94] Using accelerator: cuda
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,449 [flow.py:121] Initialized: persist_dir=Qwen3-32B_rank0, cache_size_gb=47.61, compression=True
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,449 [kvstore.py:112] KVStore initialized successfully: model_name=Qwen3-32B, rank=0, has_only_mode=False, num_layers=64, block_dim=0, block_shape=(16384,), pool_size_gb=47.61, persist_dir=Qwen3-32B_rank0
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,450 [api.py:61] Worker server started on port 18810 (rank 0)
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54,450 [kvshrink_connector.py:554] Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54 [kernel_warmup.py:124] JIT kernel warmup starting.
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54 [kernel_warmup.py:134] JIT kernel warmup finished in 0.00s.
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54 [kernel_warmup.py:124] JIT kernel warmup starting.
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54 [kernel_warmup.py:134] JIT kernel warmup finished in 0.00s.
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54 [kernel_warmup.py:309] Using FlashInfer autotune cache file: /root/.cache/vllm/flashinfer_autotune_cache/0.6.18/120f/99893dbf4d9a6d3c1e1f20463f259990654eff4b9ec7ad699691b788ac3bd48e/autotune_configs.json
+(Worker_TP1 pid=1100168) 2026-10-28 05:27:54,851 - INFO - autotuner.py:2789 - flashinfer.jit: [Autotuner]: Loaded 0 configs from /root/.cache/vllm/flashinfer_autotune_cache/0.6.18/120f/99893dbf4d9a6d3c1e1f20463f259990654eff4b9ec7ad699691b788ac3bd48e/autotune_configs.json
+(Worker_TP0 pid=1100167) 2026-10-28 05:27:54,851 - INFO - autotuner.py:2789 - flashinfer.jit: [Autotuner]: Loaded 0 configs from /root/.cache/vllm/flashinfer_autotune_cache/0.6.18/120f/99893dbf4d9a6d3c1e1f20463f259990654eff4b9ec7ad699691b788ac3bd48e/autotune_configs.json
+(Worker_TP1 pid=1100168) 2026-10-28 05:27:54,851 - INFO - autotuner.py:972 - flashinfer.jit: [Autotuner]: Autotuning process starts ...
+(Worker_TP0 pid=1100167) 2026-10-28 05:27:54,851 - INFO - autotuner.py:972 - flashinfer.jit: [Autotuner]: Autotuning process starts ...
+(Worker_TP1 pid=1100168) INFO 10-28 05:27:54 [kernel_warmup.py:266] Running FlashInfer autotune with 8192 tokens.
+(Worker_TP0 pid=1100167) INFO 10-28 05:27:54 [kernel_warmup.py:266] Running FlashInfer autotune with 8192 tokens.
+(Worker_TP1 pid=1100168) 2026-10-28 05:27:55,033 - INFO - autotuner.py:995 - flashinfer.jit: [Autotuner]: Autotuning process ends
+(Worker_TP0 pid=1100167) 2026-10-28 05:27:55,071 - INFO - autotuner.py:995 - flashinfer.jit: [Autotuner]: Autotuning process ends
+(Worker_TP0 pid=1100167) 2026-10-28 05:27:55,076 - INFO - autotuner.py:2652 - flashinfer.jit: [Autotuner]: Saved 0 configs to /root/.cache/vllm/flashinfer_autotune_cache/0.6.18/120f/99893dbf4d9a6d3c1e1f20463f259990654eff4b9ec7ad699691b788ac3bd48e/autotune_configs.json (0 new, 0 from previous config)
+(Worker_TP0 pid=1100167) Capturing CUDA graphs (PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):   2%|▏         | 1/51 [00:00<00:14,  3.53it/s]Capturing CUDA graphs (PIECEWISE):   4%|▍         | 2/51 [00:00<00:14,  3.44it/s]Capturing CUDA graphs (PIECEWISE):   6%|▌         | 3/51 [00:01<00:27,  1.76it/s]Capturing CUDA graphs (PIECEWISE):   8%|▊         | 4/51 [00:01<00:21,  2.22it/s]Capturing CUDA graphs (PIECEWISE):  10%|▉         | 5/51 [00:02<00:17,  2.59it/s]Capturing CUDA graphs (PIECEWISE):  12%|█▏        | 6/51 [00:02<00:15,  2.83it/s]Capturing CUDA graphs (PIECEWISE):  14%|█▎        | 7/51 [00:03<00:23,  1.85it/s]Capturing CUDA graphs (PIECEWISE):  16%|█▌        | 8/51 [00:03<00:20,  2.14it/s]Capturing CUDA graphs (PIECEWISE):  18%|█▊        | 9/51 [00:03<00:16,  2.54it/s]Capturing CUDA graphs (PIECEWISE):  20%|█▉        | 10/51 [00:04<00:14,  2.90it/s]Capturing CUDA graphs (PIECEWISE):  22%|██▏       | 11/51 [00:04<00:20,  2.00it/s]Capturing CUDA graphs (PIECEWISE):  24%|██▎       | 12/51 [00:05<00:16,  2.34it/s]Capturing CUDA graphs (PIECEWISE):  25%|██▌       | 13/51 [00:05<00:13,  2.73it/s]Capturing CUDA graphs (PIECEWISE):  27%|██▋       | 14/51 [00:05<00:12,  3.05it/s]Capturing CUDA graphs (PIECEWISE):  29%|██▉       | 15/51 [00:05<00:10,  3.33it/s]Capturing CUDA graphs (PIECEWISE):  31%|███▏      | 16/51 [00:06<00:16,  2.15it/s]Capturing CUDA graphs (PIECEWISE):  33%|███▎      | 17/51 [00:06<00:13,  2.61it/s]Capturing CUDA graphs (PIECEWISE):  35%|███▌      | 18/51 [00:07<00:10,  3.07it/s]Capturing CUDA graphs (PIECEWISE):  37%|███▋      | 19/51 [00:07<00:09,  3.51it/s]Capturing CUDA graphs (PIECEWISE):  39%|███▉      | 20/51 [00:07<00:08,  3.73it/s]Capturing CUDA graphs (PIECEWISE):  41%|████      | 21/51 [00:07<00:10,  2.98it/s]Capturing CUDA graphs (PIECEWISE):  43%|████▎     | 22/51 [00:08<00:11,  2.63it/s]Capturing CUDA graphs (PIECEWISE):  45%|████▌     | 23/51 [00:08<00:09,  3.08it/s]Capturing CUDA graphs (PIECEWISE):  47%|████▋     | 24/51 [00:08<00:07,  3.49it/s]Capturing CUDA graphs (PIECEWISE):  49%|████▉     | 25/51 [00:09<00:06,  3.85it/s]Capturing CUDA graphs (PIECEWISE):  51%|█████     | 26/51 [00:09<00:06,  4.14it/s]Capturing CUDA graphs (PIECEWISE):  53%|█████▎    | 27/51 [00:10<00:10,  2.35it/s]Capturing CUDA graphs (PIECEWISE):  55%|█████▍    | 28/51 [00:10<00:08,  2.70it/s]Capturing CUDA graphs (PIECEWISE):  57%|█████▋    | 29/51 [00:10<00:07,  3.03it/s]Capturing CUDA graphs (PIECEWISE):  59%|█████▉    | 30/51 [00:10<00:06,  3.31it/s]Capturing CUDA graphs (PIECEWISE):  61%|██████    | 31/51 [00:11<00:05,  3.52it/s]Capturing CUDA graphs (PIECEWISE):  63%|██████▎   | 32/51 [00:11<00:08,  2.19it/s]Capturing CUDA graphs (PIECEWISE):  65%|██████▍   | 33/51 [00:12<00:06,  2.61it/s]Capturing CUDA graphs (PIECEWISE):  67%|██████▋   | 34/51 [00:12<00:05,  3.04it/s]Capturing CUDA graphs (PIECEWISE):  69%|██████▊   | 35/51 [00:12<00:04,  3.35it/s]Capturing CUDA graphs (PIECEWISE):  71%|███████   | 36/51 [00:12<00:04,  3.59it/s]Capturing CUDA graphs (PIECEWISE):  73%|███████▎  | 37/51 [00:13<00:06,  2.17it/s]Capturing CUDA graphs (PIECEWISE):  75%|███████▍  | 38/51 [00:13<00:04,  2.63it/s]Capturing CUDA graphs (PIECEWISE):  76%|███████▋  | 39/51 [00:14<00:03,  3.08it/s]Capturing CUDA graphs (PIECEWISE):  78%|███████▊  | 40/51 [00:14<00:03,  3.51it/s]Capturing CUDA graphs (PIECEWISE):  80%|████████  | 41/51 [00:14<00:02,  3.70it/s]Capturing CUDA graphs (PIECEWISE):  82%|████████▏ | 42/51 [00:15<00:03,  2.26it/s]Capturing CUDA graphs (PIECEWISE):  84%|████████▍ | 43/51 [00:15<00:02,  2.70it/s]Capturing CUDA graphs (PIECEWISE):  86%|████████▋ | 44/51 [00:15<00:02,  3.15it/s]Capturing CUDA graphs (PIECEWISE):  88%|████████▊ | 45/51 [00:15<00:01,  3.55it/s]Capturing CUDA graphs (PIECEWISE):  90%|█████████ | 46/51 [00:16<00:01,  3.92it/s]Capturing CUDA graphs (PIECEWISE):  92%|█████████▏| 47/51 [00:16<00:00,  4.20it/s]Capturing CUDA graphs (PIECEWISE):  94%|█████████▍| 48/51 [00:17<00:01,  2.35it/s]Capturing CUDA graphs (PIECEWISE):  96%|█████████▌| 49/51 [00:17<00:00,  2.71it/s]Capturing CUDA graphs (PIECEWISE):  98%|█████████▊| 50/51 [00:17<00:00,  3.05it/s](Worker_TP1 pid=1100168) INFO 10-28 05:28:14 [model_runner.py:960] Graph capturing finished in 20 secs, took 0.10 GiB
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:14 [gpu_worker.py:797] CUDA graph pool memory: 0.1 GiB (actual), 0.88 GiB (estimated), difference: 0.79 GiB (804.0%).
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:14 [gpu_worker.py:860] Free memory on device (82.19/83.05 GiB) on startup. Desired GPU memory utilization is (0.8, 66.44 GiB). Actual usage is 31.23 GiB for consumed memory (weights + non-torch), 1.77 GiB for peak activation, and 0.1 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=35647054132` (33.2 GiB) to fit into requested memory, or `--kv-cache-memory=52554477056` (48.95 GiB) to fully utilize gpu memory. Current kv cache memory in use is 33.44 GiB.
+Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:17<00:00,  3.31it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:17<00:00,  2.85it/s]
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:14 [model_runner.py:960] Graph capturing finished in 20 secs, took 0.10 GiB
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:14 [gpu_worker.py:797] CUDA graph pool memory: 0.1 GiB (actual), 0.88 GiB (estimated), difference: 0.79 GiB (804.0%).
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:14 [gpu_worker.py:860] Free memory on device (82.19/83.05 GiB) on startup. Desired GPU memory utilization is (0.8, 66.44 GiB). Actual usage is 31.23 GiB for consumed memory (weights + non-torch), 1.77 GiB for peak activation, and 0.1 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=35647054132` (33.2 GiB) to fit into requested memory, or `--kv-cache-memory=52554477056` (48.95 GiB) to fully utilize gpu memory. Current kv cache memory in use is 33.44 GiB.
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:17 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:17 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:17 [torch_utils.py:265] OMP_NUM_THREADS=4 is set; leaving Torch threads at 4 for serving. Multi-threaded torch CPU ops during serving can degrade performance through spin-wait contention and cgroup CPU-quota throttling.
+(EngineCore pid=1100126) INFO 10-28 05:28:17 [core.py:361] init engine (profile, create kv cache, warmup model) took 70.47 s (compilation: 26.08 s)
+(EngineCore pid=1100126) INFO 10-28 05:28:19 [factory.py:62] Creating v1 connector with name: KVShrinkConnector and engine_id: 6f64ae9c-bd5e-4d30-a062-240d56591bca
+(EngineCore pid=1100126) WARNING 10-28 05:28:19 [base.py:203] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+(EngineCore pid=1100126) INFO 10-28 05:28:19,994 [kvshrink_connector.py:153] KVShrinkConnector(SCHEDULER): block_size=16, has_mamba=False, mamba_cache_mode='none', prefix caching=False
+(EngineCore pid=1100126) WARNING 10-28 05:28:19,994 [kvshrink_connector.py:178] Dense model: reading DP size from the DP_SIZE env var (1) because vLLM resets data_parallel_size to 1 for dense models.
+(EngineCore pid=1100126) INFO 10-28 05:28:19,995 [flow.py:82] C++ Record initialized at _data/kvcache/compressed/Qwen3-32B_rank0/chunks.db
+(EngineCore pid=1100126) INFO 10-28 05:28:19,995 [flow.py:85] Initialized in has-only mode: persist_dir=Qwen3-32B_rank0
+(EngineCore pid=1100126) INFO 10-28 05:28:19,995 [kvstore.py:112] KVStore initialized successfully: model_name=Qwen3-32B, rank=0, has_only_mode=True, num_layers=64, block_dim=None, block_shape=None, pool_size_gb=0.00, persist_dir=Qwen3-32B_rank0
+(EngineCore pid=1100126) INFO 10-28 05:28:19,996 [api.py:49] Controller server started on port 18710 (workers: 2, base_port: 18810)
+(EngineCore pid=1100126) INFO 10-28 05:28:20 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1099903) INFO 10-28 05:28:20 [entry.py:135] Supported tasks: ['generate']
+(APIServer pid=1099903) INFO 10-28 05:28:20 [hf.py:547] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this.
+(APIServer pid=1099903) WARNING 10-28 05:28:20 [model.py:1759] Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+(APIServer pid=1099903) INFO 10-28 05:28:20 [entry.py:139] Starting vLLM server on http://0.0.0.0:8010
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:61] Available routes are:
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /openapi.json, Methods: GET, HEAD
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /docs, Methods: GET, HEAD
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /docs/oauth2-redirect, Methods: GET, HEAD
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /redoc, Methods: GET, HEAD
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /load, Methods: GET
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /version, Methods: GET
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /health, Methods: GET
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /metrics, Methods: GET
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /tokenize, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /detokenize, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/models, Methods: GET
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /ping, Methods: GET
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /ping, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /invocations, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/chat/completions, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/chat/completions/batch, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/responses, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/responses/{response_id}, Methods: GET
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/responses/{response_id}/cancel, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/completions, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/messages, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/messages/count_tokens, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /generative_scoring, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /scale_elastic_ep, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /is_scaling_elastic_ep, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/chat/completions/render, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/messages/render, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/completions/render, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/chat/completions/derender, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /v1/completions/derender, Methods: POST
+(APIServer pid=1099903) INFO 10-28 05:28:20 [launcher.py:70] Route: /inference/v1/generate, Methods: POST
+(APIServer pid=1099903) INFO:     Started server process [1099903]
+(APIServer pid=1099903) INFO:     Waiting for application startup.
+(APIServer pid=1099903) INFO:     Application startup complete.
+(APIServer pid=1099903) INFO:     127.0.0.1:37424 - "GET /health HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37426 - "GET /health HTTP/1.1" 200 OK
+(EngineCore pid=1100126) INFO 10-28 05:28:22,294 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a53d91b89ec51483-0-b25a9e54, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:22,300 [flow.py:152] CUDA/XPU streams created (lazy init, device=cuda)
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:22,300 [flow.py:152] CUDA/XPU streams created (lazy init, device=cuda)
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:25,201 [scratch_pool.py:38] ScratchPool: 262144 x (16384,) torch.bfloat16 = 8192.00 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 32.00 KB, blocks = 310
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+[kv_zip] block_size=32768 B segment_size=32768 B segments=1
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:25,218 [scratch_pool.py:38] ScratchPool: 262144 x (16384,) torch.bfloat16 = 8192.00 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 32.00 KB, blocks = 310
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+[kv_zip] block_size=32768 B segment_size=32768 B segments=1
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=4,5,6,7
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=0,1,2,3
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[0] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[1] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[2] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[3] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[0] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[select] instance[4] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[1] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[select] instance[5] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[2] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[select] instance[6] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[3] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[select] instance[7] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[4] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[select] instance[8] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[5] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[select] instance[9] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[6] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[select] instance[10] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[7] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[select] instance[11] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[8] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[12] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[select] instance[9] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[13] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[select] instance[10] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[14] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[select] instance[11] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[15] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[qat_zip] init done: 16 instance(s) on devices=0,1,2,3  cnv_strict=0
+[select] instance[12] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[13] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[14] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[15] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[qat_zip] init done: 16 instance(s) on devices=4,5,6,7  cnv_strict=0
+(APIServer pid=1099903) INFO 10-28 05:28:30 [loggers.py:310] Engine 000: Avg prompt throughput: 467.3 tokens/s, Avg generation throughput: 4.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 1.8%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(APIServer pid=1099903) INFO:     127.0.0.1:37430 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1100126) INFO 10-28 05:28:37,365 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bab9001ec26a6745-0-91ed9cc3, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:28:37,369 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a305cd42bbd667b7-0-884c9a97, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:28:37,473 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-809168fa7f47dc8e-0-ba040afc, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:28:37,474 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-bcf2fca3d24c6be0-0-a080e3ca, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:28:37,476 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b0a519401eba1396-0-a159cd47, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:28:37,478 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-99ab116d7df58e14-0-9aabe4a5, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:28:37,479 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-8a1a4e10bfe71fe0-0-a03e03d6, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,481 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-9bc234fd758c92d5-0-86dee5cf, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,483 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-ae608fdb81d94f31-0-a3de6c85, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,484 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b38ae36999d4c7b6-0-a06a73af, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,486 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a78e7b02aa8097ed-0-b99b142d, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,487 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a3291020c096a833-0-a4e60b1a, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,490 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-808babb114b59d6e-0-b28e37c0, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,492 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b446b530cf314089-0-82d42a7c, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,494 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b25020f6c404680d-0-90f06e30, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:37,496 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-837ce0ec9cf70376-0-a5272fca, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:37,901 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=5 sync_batch=0 bundles=5 moved=264 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:37,902 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=5 sync_batch=0 bundles=5 moved=264 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:38,521 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=5 sync_batch=0 bundles=5 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:38,521 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=5 sync_batch=0 bundles=5 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:38,619 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=3 sync_batch=0 bundles=3 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:38,621 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=3 sync_batch=0 bundles=3 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(APIServer pid=1099903) INFO 10-28 05:28:40 [loggers.py:310] Engine 000: Avg prompt throughput: 4.8 tokens/s, Avg generation throughput: 41.5 tokens/s, Running: 16 reqs, Waiting: 0 reqs, GPU KV cache usage: 29.2%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 94.1%
+(APIServer pid=1099903) INFO:     127.0.0.1:36992 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36998 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37012 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37016 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37030 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37042 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37048 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37052 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37062 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37076 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37084 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37088 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37094 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37096 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37108 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:37118 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1100126) INFO 10-28 05:28:46,684 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-aaa6c54dd65d520c-0-ae156106, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=1099903) INFO 10-28 05:28:50 [loggers.py:310] Engine 000: Avg prompt throughput: 496.3 tokens/s, Avg generation throughput: 65.7 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 1.8%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 88.8%
+(APIServer pid=1099903) INFO:     127.0.0.1:38046 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1100126) INFO 10-28 05:28:58,841 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b51473950cade75f-0-bd7c9e96, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:28:58,954 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-84ec35c7b5c0cfea-0-8c392f41, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:28:58,956 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b7593d97327b4f0d-0-a63d7991, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:28:58,957 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-936c780cf68bfdc5-0-858c307f, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:28:58,958 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-8a6e83f04649dd14-0-a5b436c8, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:28:58,960 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a9d01e3c6a1d2ce4-0-8c31c9e6, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:28:58,961 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a467f16d0fe5ac4e-0-b191dc9b, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,962 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-99ea039ef2077787-0-8f077d03, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,963 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b75f530e93160b63-0-bc315fed, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,965 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-967a6315586331eb-0-9df0676a, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,966 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b83d7684f6570fb3-0-b9d47935, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,967 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-9523ffa60e0a6a06-0-9650856f, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,969 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b95f2933fde9bcdf-0-98aca8a1, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,970 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a0a35607eb9ffc61-0-90b71001, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,971 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-ad625929e6b3517e-0-ba0feaaa, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:28:58,972 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-9769b9dd5ea4e302-0-9f2cff75, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,156 [flow.py:175] ScratchPool exhausted: waited 5.271 ms (4 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,158 [flow.py:175] ScratchPool exhausted: waited 5.754 ms (4 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,161 [flow.py:175] ScratchPool exhausted: waited 4.721 ms (3 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,165 [flow.py:175] ScratchPool exhausted: waited 6.450 ms (5 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,168 [flow.py:175] ScratchPool exhausted: waited 5.556 ms (5 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,173 [flow.py:175] ScratchPool exhausted: waited 6.662 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,175 [flow.py:175] ScratchPool exhausted: waited 6.141 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,179 [flow.py:175] ScratchPool exhausted: waited 5.653 ms (5 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,181 [flow.py:175] ScratchPool exhausted: waited 5.502 ms (5 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,186 [flow.py:175] ScratchPool exhausted: waited 6.162 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,187 [flow.py:175] ScratchPool exhausted: waited 5.968 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,193 [flow.py:175] ScratchPool exhausted: waited 5.895 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,194 [flow.py:175] ScratchPool exhausted: waited 5.995 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,199 [flow.py:175] ScratchPool exhausted: waited 5.401 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,201 [flow.py:175] ScratchPool exhausted: waited 5.670 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,205 [flow.py:175] ScratchPool exhausted: waited 5.660 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,206 [flow.py:175] ScratchPool exhausted: waited 5.077 ms (5 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,212 [flow.py:175] ScratchPool exhausted: waited 5.613 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,213 [flow.py:175] ScratchPool exhausted: waited 5.664 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:28:59,219 [flow.py:175] ScratchPool exhausted: waited 5.454 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,219 [flow.py:175] ScratchPool exhausted: waited 6.798 ms (7 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:28:59,226 [flow.py:175] ScratchPool exhausted: waited 6.676 ms (7 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:59,449 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=6 sync_batch=0 bundles=6 moved=312 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:59,449 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=6 sync_batch=0 bundles=6 moved=312 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:59,766 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=5 sync_batch=0 bundles=5 moved=233 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:59,769 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=5 sync_batch=0 bundles=5 moved=240 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:28:59,976 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=1 sync_batch=0 bundles=1 moved=47 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:28:59,982 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=1 sync_batch=0 bundles=1 moved=40 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:29:00,125 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=1 sync_batch=0 bundles=1 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:29:00,125 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=1 sync_batch=0 bundles=1 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(APIServer pid=1099903) INFO 10-28 05:29:00 [loggers.py:310] Engine 000: Avg prompt throughput: 4.8 tokens/s, Avg generation throughput: 20.9 tokens/s, Running: 16 reqs, Waiting: 0 reqs, GPU KV cache usage: 29.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 94.1%
+(APIServer pid=1099903) INFO:     127.0.0.1:36748 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36762 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36770 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36776 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36792 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36804 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36816 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36822 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36824 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36836 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36848 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36862 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36868 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36870 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36878 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:36894 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1100126) INFO 10-28 05:29:08,171 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-86190138220de8d5-0-ab8d1dd7, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=1099903) INFO 10-28 05:29:10 [loggers.py:310] Engine 000: Avg prompt throughput: 496.3 tokens/s, Avg generation throughput: 86.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 1.8%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 91.4%
+(APIServer pid=1099903) INFO:     127.0.0.1:51120 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=1100126) INFO 10-28 05:29:20,332 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-92f7360eec4b4de5-0-8fb73a8d, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:29:20,456 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b185078506091782-0-92b21333, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:29:20,457 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-9463eb3243450f88-0-9cd3b8b5, externally-cached tokens: 4960, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=1100126) INFO 10-28 05:29:20,458 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a177c9d478a713c5-0-820a4378, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:29:20,459 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-8c603d52d4ae8536-0-9dbce4db, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:29:20,460 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a507b5868612f66a-0-b3dee547, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=8, async_load_layers=8
+(EngineCore pid=1100126) INFO 10-28 05:29:20,461 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-967df0389425fca8-0-8af57099, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,462 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-8be206e89002ebd5-0-9c20e187, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,463 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-802c13d05dcf2321-0-b4e9bb07, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,464 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-95e64d0567abe49b-0-ae33b598, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,465 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-80b970439a1b2e07-0-bca09c9e, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,466 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-8f1572ca66f6f9a6-0-a56c510e, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,467 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-b0e3d286860a79dc-0-a14dbc67, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,468 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-a9987506e6d0d537-0-ab4ac280, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,470 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-8aa80ec7e4a5a0f7-0-885665d2, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(EngineCore pid=1100126) INFO 10-28 05:29:20,471 [kvshrink_connector.py:333] get_num_new_matched_tokens, req-cmpl-9e50ae6135865876-0-96e43153, externally-cached tokens: 4960, locally-cached tokens: 0, async=True, selected_load_layers=16, async_load_layers=16
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,657 [flow.py:175] ScratchPool exhausted: waited 5.776 ms (4 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,664 [flow.py:175] ScratchPool exhausted: waited 6.138 ms (5 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,665 [flow.py:175] ScratchPool exhausted: waited 5.360 ms (4 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,671 [flow.py:175] ScratchPool exhausted: waited 6.675 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,672 [flow.py:175] ScratchPool exhausted: waited 6.039 ms (5 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,679 [flow.py:175] ScratchPool exhausted: waited 5.715 ms (5 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,679 [flow.py:175] ScratchPool exhausted: waited 7.042 ms (7 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,685 [flow.py:175] ScratchPool exhausted: waited 5.668 ms (5 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,686 [flow.py:175] ScratchPool exhausted: waited 6.056 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,692 [flow.py:175] ScratchPool exhausted: waited 6.080 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,692 [flow.py:175] ScratchPool exhausted: waited 5.690 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,699 [flow.py:175] ScratchPool exhausted: waited 6.182 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,700 [flow.py:175] ScratchPool exhausted: waited 7.033 ms (7 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,706 [flow.py:175] ScratchPool exhausted: waited 5.948 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,707 [flow.py:175] ScratchPool exhausted: waited 5.670 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,711 [flow.py:175] ScratchPool exhausted: waited 5.080 ms (5 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,713 [flow.py:175] ScratchPool exhausted: waited 6.213 ms (7 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,718 [flow.py:175] ScratchPool exhausted: waited 5.564 ms (6 rounds) for 310 blocks
+(Worker_TP1 pid=1100168) WARNING 10-28 05:29:20,720 [flow.py:175] ScratchPool exhausted: waited 6.130 ms (7 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,724 [flow.py:175] ScratchPool exhausted: waited 5.608 ms (6 rounds) for 310 blocks
+(Worker_TP0 pid=1100167) WARNING 10-28 05:29:20,730 [flow.py:175] ScratchPool exhausted: waited 5.865 ms (7 rounds) for 310 blocks
+(APIServer pid=1099903) INFO 10-28 05:29:20 [loggers.py:310] Engine 000: Avg prompt throughput: 0.9 tokens/s, Avg generation throughput: 5.4 tokens/s, Running: 3 reqs, Waiting: 13 reqs, Deferred: 13 reqs, GPU KV cache usage: 29.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 94.1%
+(Worker_TP0 pid=1100167) INFO 10-28 05:29:20,953 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=6 sync_batch=0 bundles=6 moved=312 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:29:20,954 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=6 sync_batch=0 bundles=6 moved=312 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:29:21,273 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=5 sync_batch=0 bundles=5 moved=240 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:29:21,274 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=5 sync_batch=0 bundles=5 moved=240 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:29:21,482 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=1 sync_batch=0 bundles=1 moved=43 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:29:21,495 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=1 sync_batch=0 bundles=1 moved=46 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP1 pid=1100168) INFO 10-28 05:29:21,638 [traced_kvshrink_connector.py:68] raise_trace rank=1 raised_reqs=1 sync_batch=0 bundles=1 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(Worker_TP0 pid=1100167) INFO 10-28 05:29:21,639 [traced_kvshrink_connector.py:68] raise_trace rank=0 raised_reqs=1 sync_batch=0 bundles=1 moved=0 sync_layers=0 sync_done=0 sync_done_prefix=0
+(APIServer pid=1099903) INFO:     127.0.0.1:49880 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49886 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49902 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49908 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49922 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49936 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49944 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49960 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49962 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49970 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49984 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:49996 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:50010 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:50018 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:50030 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO:     127.0.0.1:50038 - "POST /v1/completions HTTP/1.1" 200 OK
+(APIServer pid=1099903) INFO 10-28 05:29:29 [launcher.py:124] [shutdown] API server: shutdown triggered
+(APIServer pid=1099903) INFO 10-28 05:29:29 [launcher.py:140] [shutdown] API server: stopping engine client mode=abort timeout=0s
+(APIServer pid=1099903) INFO 10-28 05:29:29 [core_client.py:689] [shutdown] MPClient: start timeout=0s
+(APIServer pid=1099903) INFO 10-28 05:29:29 [core_client.py:691] [shutdown] MPClient: stopping engine manager
+(APIServer pid=1099903) INFO 10-28 05:29:29 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore
+(APIServer pid=1099903) WARNING 10-28 05:29:29 [utils.py:640] [shutdown] Process manager: force killing remaining processes count=1
+(APIServer pid=1099903) WARNING 10-28 05:29:29 [utils.py:645] [shutdown] Process manager: force killing remaining process EngineCore pid 1100126
+(EngineCore pid=1100126) INFO 10-28 05:29:29 [core.py:1350] [shutdown] EngineCore: trigger received signal=SIGTERM
+(EngineCore pid=1100126) INFO 10-28 05:29:29 [core.py:1501] [shutdown] EngineCore: start mode=abort timeout=0s
+(EngineCore pid=1100126) INFO 10-28 05:29:29 [core.py:1532] [shutdown] EngineCore: request processing complete; starting resource teardown
+(EngineCore pid=1100126) INFO 10-28 05:29:29 [core.py:1363] [shutdown] EngineCore: exiting busy loop
+(EngineCore pid=1100126) INFO 10-28 05:29:29 [multiproc_executor.py:472] [shutdown] Executor: waiting for worker exit count=2
+(Worker_TP0 pid=1100167) INFO 10-28 05:29:29 [multiproc_executor.py:836] Parent process exited, terminating worker queues
+(APIServer pid=1099903) INFO 10-28 05:29:29 [core_client.py:693] [shutdown] MPClient: engine manager stopped
+(APIServer pid=1099903) INFO 10-28 05:29:29 [core_client.py:694] [shutdown] MPClient: cleaning up background resources
+(APIServer pid=1099903) INFO 10-28 05:29:29 [core_client.py:696] [shutdown] MPClient: complete
+(APIServer pid=1099903) INFO 10-28 05:29:29 [launcher.py:149] [shutdown] API server: engine client stopped
+(APIServer pid=1099903) INFO 10-28 05:29:29 [launcher.py:152] [shutdown] API server: signalling HTTP server shutdown
+(APIServer pid=1099903) INFO 10-28 05:29:29 [launcher.py:173] [shutdown] API server: shutting down FastAPI HTTP server
+(APIServer pid=1099903) INFO:     Shutting down
+(APIServer pid=1099903) INFO:     Waiting for application shutdown.
+(APIServer pid=1099903) INFO:     Application shutdown complete.
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 2 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 4 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

@@ -1,0 +1,49 @@
+branch=perf/async-load-optimization connector_md5=dbf72632
+===== async (KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1) =====
+reclaimed host memory: free=486G order-10 blocks: 50128 53867 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+--- gsm8k async run1 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/async/run1/20261026_084515/reports/Qwen3-32B/gsm8k.json
+score 0.955 num 200
+lookups=200 reqs=200 ext_hit=199 async=197 async_N={8: 3, 16: 194} raise_lines=200 raised_reqs=394 with_sync_batch=0 moved_tasks=2012 errors=0
+--- gsm8k async run2 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/async/run2/20261026_084928/reports/Qwen3-32B/gsm8k.json
+score 0.945 num 200
+lookups=200 reqs=200 ext_hit=200 async=197 async_N={8: 3, 16: 194} raise_lines=240 raised_reqs=394 with_sync_batch=0 moved_tasks=3938 errors=0
+===== sync (KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0) =====
+reclaimed host memory: free=486G order-10 blocks: 54331 55200 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Ignoring async load layer configuration because KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0 disables async loading
+Ignoring async load layer configuration because KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0 disables async loading
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+Ignoring async load layer configuration because KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0 disables async loading
+--- gsm8k sync run1 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/sync/run1/20261026_085419/reports/Qwen3-32B/gsm8k.json
+score 0.945 num 200
+lookups=200 reqs=200 ext_hit=198 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+--- gsm8k sync run2 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/sync/run2/20261026_085733/reports/Qwen3-32B/gsm8k.json
+score 0.955 num 200
+lookups=200 reqs=200 ext_hit=200 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+ALL_DONE

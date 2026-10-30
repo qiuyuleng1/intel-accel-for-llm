@@ -1,0 +1,41 @@
+branch=perf/async-load-optimization commit=2cb57c0 connector_md5=870d8587 delays_ms=0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120 reps=2
+reclaimed host memory: free=486G order-10 blocks: 53556 49272 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-1:16,2-:0
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+{
+ "references": {
+  "prompt_tokens": [
+   4963,
+   4963
+  ],
+  "external": [
+   0,
+   0
+  ],
+  "bad_chars": 0
+ },
+ "trials": 122,
+ "trials_a_async_N16_b_sync": 122,
+ "trials_all_identical": 122,
+ "raise_lines": 244,
+ "raise_lines_with_sync_batch": 6,
+ "with_sync_batch_done_prefix_above_N16": 0,
+ "verdict": "PASS"
+}
+with_sync_batch: {"rank": 1, "raised_reqs": 1, "sync_batch": 1, "moved": 104, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 0, "raised_reqs": 1, "sync_batch": 1, "moved": 102, "sync_layers": 64, "sync_done": 3, "sync_done_prefix": 3}
+with_sync_batch: {"rank": 0, "raised_reqs": 1, "sync_batch": 1, "moved": 106, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 1, "raised_reqs": 1, "sync_batch": 1, "moved": 103, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 0, "raised_reqs": 1, "sync_batch": 1, "moved": 106, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 1, "raised_reqs": 1, "sync_batch": 1, "moved": 103, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+check_exit=0
+lookups=246 reqs=246 ext_hit=244 async=122 async_N={16: 122} raise_lines=244 raised_reqs=244 with_sync_batch=6 moved_tasks=6925 errors=0
+ALL_DONE

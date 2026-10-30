@@ -1,0 +1,265 @@
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-31
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=32-63
+KVShrink QAT rank 0: indices=0,1,2,3 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0) 0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 1: indices=4,5,6,7 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1) 0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+vLLM configuration:
+  MODEL=/media/model-space/Qwen3.5-27B
+  TP_SIZE=2
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=0
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_DSA_DEVICES=disabled
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=32,32
+  IAXL_QAT_INSTANCE_NUM=4
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+INFO 10-28 06:56:07 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+(APIServer pid=1155033) INFO 10-28 06:56:07 [api_utils.py:347] 
+(APIServer pid=1155033) INFO 10-28 06:56:07 [api_utils.py:347]        █     █     █▄   ▄█
+(APIServer pid=1155033) INFO 10-28 06:56:07 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0
+(APIServer pid=1155033) INFO 10-28 06:56:07 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /media/model-space/Qwen3.5-27B
+(APIServer pid=1155033) INFO 10-28 06:56:07 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=1155033) INFO 10-28 06:56:07 [api_utils.py:347] 
+(APIServer pid=1155033) INFO 10-28 06:56:07 [api_utils.py:286] non-default args: {'model_tag': '/media/model-space/Qwen3.5-27B', 'port': 8010, 'model': '/media/model-space/Qwen3.5-27B', 'trust_remote_code': True, 'max_model_len': 32765, 'tensor_parallel_size': 2, 'gpu_memory_utilization': 0.8, 'enable_prefix_caching': False, 'kv_transfer_config': KVTransferConfig(kv_connector='KVShrinkConnector', engine_id='b6eba6a1-3e46-40dc-9084-264afa715a1f', kv_buffer_device='cuda', kv_buffer_size=1000000000.0, kv_role='kv_both', kv_rank=None, kv_parallel_size=1, kv_ip='127.0.0.1', kv_port=14579, kv_connector_extra_config={}, kv_connector_module_path='traced_kvshrink_connector', enable_permute_local_kv=False, kv_load_failure_policy='fail')}
+(APIServer pid=1155033) INFO 10-28 06:56:25 [model.py:684] Resolved architecture: Qwen3_5ForConditionalGeneration
+(APIServer pid=1155033) INFO 10-28 06:56:25 [model.py:2021] Using max model len 32765
+(APIServer pid=1155033) INFO 10-28 06:56:29 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=8192.
+(APIServer pid=1155033) INFO 10-28 06:56:29 [vllm_patch.py:35] KVShrink patch: prefix caching disabled, overriding mamba_cache_mode 'none' -> 'align' (mamba_block_size=32765)
+(APIServer pid=1155033) INFO 10-28 06:56:29 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1155033) WARNING 10-28 06:56:29 [vllm.py:1573] KV connector KVShrinkConnector requires PIECEWISE CUDA graph mode due to layerwise async operations that cannot be captured in CUDA graphs. Overriding cudagraph_mode from FULL_AND_PIECEWISE to PIECEWISE.
+(APIServer pid=1155033) INFO 10-28 06:56:29 [vllm.py:2453] EC/KV consumer: pre-computed-embedding inputs may omit the embedding tensor.
+(APIServer pid=1155033) INFO 10-28 06:56:29 [vllm_patch.py:60] KVShrink patch: skipping validate_mamba_block_size (mamba_block_size=32765, max_model_len=32765, prefix caching=False)
+(APIServer pid=1155033) [transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+(EngineCore pid=1155406) INFO 10-28 06:56:44 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+(EngineCore pid=1155406) INFO 10-28 06:56:44 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/media/model-space/Qwen3.5-27B', speculative_config=None, tokenizer='/media/model-space/Qwen3.5-27B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=32765, download_dir=None, load_format=auto, tensor_parallel_size=2, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/media/model-space/Qwen3.5-27B, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::qwen4_exp_compute_ple_ngram_ids', 'vllm::qwen4_exp_ple_short_conv', 'vllm::qwen4_exp_qsa_with_output', 'vllm::linear_attention', 'vllm::qwen_gdn_attention_core', 'vllm::qwen_gdn_attention_core_fused_norm_packed', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.PIECEWISE: 1>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=1155406) WARNING 10-28 06:56:44 [network_utils.py:37] The environment variable HOST_IP is deprecated and ignored, as it is often used by Docker and other software to interact with the container's network stack. Please use VLLM_HOST_IP instead to set the IP address for vLLM processes to communicate with each other.
+(EngineCore pid=1155406) INFO 10-28 06:56:44 [multiproc_executor.py:153] DP group leader: node_rank=0, node_rank_within_dp=0, master_addr=127.0.0.1, mq_connect_ip=10.239.11.147 (local), world_size=2, local_world_size=2
+INFO 10-28 06:56:51 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+INFO 10-28 06:56:51 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+[W1028 06:56:55.738866464 Context.cpp:597] Warning: torch.backends.cuda.preferred_blas_library is an experimental feature. If you see any error or unexpected behavior when this flag is set please file an issue on GitHub. (function operator())
+(Worker pid=1155486) INFO 10-28 06:56:55 [parallel_state.py:1775] world_size=2 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_7299682ed24c41f0aa48e053f367756c backend=nccl
+[W1028 06:56:56.331983960 Context.cpp:597] Warning: torch.backends.cuda.preferred_blas_library is an experimental feature. If you see any error or unexpected behavior when this flag is set please file an issue on GitHub. (function operator())
+(Worker pid=1155487) INFO 10-28 06:56:56 [parallel_state.py:1775] world_size=2 rank=1 local_rank=1 distributed_init_method=file:///tmp/vllm_dist_7299682ed24c41f0aa48e053f367756c backend=nccl
+(Worker pid=1155486) INFO 10-28 06:56:56 [pynccl.py:113] vLLM is using nccl==2.30.7
+(Worker pid=1155486) INFO 10-28 06:56:56 [cuda_communicator.py:269] Using ['PYNCCL'] all-reduce backends (in dispatch order) for group 'tp:0' out of potential backends: ['FLASHINFER', 'NCCL_SYMM_MEM', 'QUICK_REDUCE', 'AITER_CUSTOM', 'CUSTOM', 'SYMM_MEM', 'PYNCCL'].
+(Worker pid=1155486) INFO 10-28 06:56:56 [parallel_state.py:2119] rank 0 in world size 2 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(Worker pid=1155486) INFO 10-28 06:56:56 [gpu_worker.py:429] Using V2 Model Runner
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [model_runner.py:382] Loading model from scratch...
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [cuda.py:551] Using backend AttentionBackendEnum.FLASH_ATTN for vit attention
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [mm_encoder_attention.py:372] Using AttentionBackendEnum.FLASH_ATTN for MMEncoderAttention.
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [qwen_gdn_linear_attn.py:167] Using Triton/FLA GDN prefill kernel (requested=auto, head_k_dim=128).
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [qwen_gdn_linear_attn.py:519] GDN decode kernel: cuda
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [flash_attn.py:897] Using FlashAttention version 2
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 51.75 GiB. Available RAM: 475.95 GiB.
+(Worker_TP0 pid=1155486) INFO 10-28 06:56:57 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:   0% Completed | 0/11 [00:00<?, ?it/s]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:   9% Completed | 1/11 [00:00<00:09,  1.04it/s]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  18% Completed | 2/11 [00:02<00:10,  1.16s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  27% Completed | 3/11 [00:03<00:10,  1.34s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  36% Completed | 4/11 [00:05<00:10,  1.43s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  45% Completed | 5/11 [00:06<00:08,  1.46s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  55% Completed | 6/11 [00:08<00:07,  1.52s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  64% Completed | 7/11 [00:10<00:06,  1.51s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  73% Completed | 8/11 [00:11<00:04,  1.44s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  82% Completed | 9/11 [00:12<00:02,  1.39s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards:  91% Completed | 10/11 [00:14<00:01,  1.46s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards: 100% Completed | 11/11 [00:14<00:00,  1.25s/it]
+(Worker_TP0 pid=1155486) Loading safetensors checkpoint shards: 100% Completed | 11/11 [00:14<00:00,  1.36s/it]
+(Worker_TP0 pid=1155486) 
+(Worker_TP0 pid=1155486) INFO 10-28 06:57:12 [default_loader.py:430] Loading weights took 15.02 seconds
+(Worker_TP0 pid=1155486) INFO 10-28 06:57:13 [model_runner.py:404] Model loading took 25.69 GiB memory and 16.397491 seconds
+(Worker_TP1 pid=1155487) INFO 10-28 06:57:13 [model_runner.py:404] Model loading took 25.69 GiB memory and 16.583119 seconds
+(Worker_TP0 pid=1155486) INFO 10-28 06:57:13 [topk_topp_sampler.py:62] Using FlashInfer for top-p & top-k sampling.
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944] WorkerProc failed to start.
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944] Traceback (most recent call last):
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 911, in worker_main
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     worker = WorkerProc(*args, **kwargs)
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     return func(*args, **kwargs)
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 694, in __init__
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     current_platform.update_block_size_for_backend(vllm_config)
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/platforms/interface.py", line 624, in update_block_size_for_backend
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     backend_cls = cls._find_non_ssm_backend(vllm_config)
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/platforms/interface.py", line 603, in _find_non_ssm_backend
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     b = layer.get_attn_backend()
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]         ^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/mamba/abstract.py", line 90, in get_attn_backend
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     return get_mamba_attn_backend(self.mamba_type)
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/attention/selector.py", line 219, in get_mamba_attn_backend
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     return _cached_get_mamba_attn_backend(mamba_type)
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/attention/selector.py", line 230, in _cached_get_mamba_attn_backend
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     raise RuntimeError(
+(Worker_TP0 pid=1155486) ERROR 10-28 06:57:13 [multiproc_executor.py:944] RuntimeError: VLLM batch_invariant mode is not supported for GDN_ATTN.
+(EngineCore pid=1155406) INFO 10-28 06:57:13 [multiproc_executor.py:472] [shutdown] Executor: waiting for worker exit count=2
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944] WorkerProc failed to start.
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944] Traceback (most recent call last):
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 911, in worker_main
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     worker = WorkerProc(*args, **kwargs)
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     return func(*args, **kwargs)
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 694, in __init__
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     current_platform.update_block_size_for_backend(vllm_config)
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/platforms/interface.py", line 624, in update_block_size_for_backend
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     backend_cls = cls._find_non_ssm_backend(vllm_config)
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/platforms/interface.py", line 603, in _find_non_ssm_backend
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     b = layer.get_attn_backend()
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]         ^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/mamba/abstract.py", line 90, in get_attn_backend
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     return get_mamba_attn_backend(self.mamba_type)
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/attention/selector.py", line 219, in get_mamba_attn_backend
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     return _cached_get_mamba_attn_backend(mamba_type)
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/attention/selector.py", line 230, in _cached_get_mamba_attn_backend
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944]     raise RuntimeError(
+(Worker_TP1 pid=1155487) ERROR 10-28 06:57:13 [multiproc_executor.py:944] RuntimeError: VLLM batch_invariant mode is not supported for GDN_ATTN.
+[rank0]:[W1028 06:57:14.527206995 ProcessGroupNCCL.cpp:1624] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+(EngineCore pid=1155406) INFO 10-28 06:57:15 [multiproc_executor.py:479] [shutdown] Executor: all workers exited gracefully
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374] EngineCore failed to start.
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374] Traceback (most recent call last):
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1336, in run_engine_core
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     return func(*args, **kwargs)
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1093, in __init__
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     super().__init__(
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 134, in __init__
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     self.model_executor = executor_class(vllm_config)
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 116, in __init__
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     super().__init__(vllm_config)
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     return func(*args, **kwargs)
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/abstract.py", line 110, in __init__
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     self._init_executor()
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 214, in _init_executor
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     self.workers = WorkerProc.wait_for_ready(unready_workers)
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 808, in wait_for_ready
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374]     raise e from None
+(EngineCore pid=1155406) ERROR 10-28 06:57:15 [core.py:1374] Exception: WorkerProc initialization failed due to an exception in a background process. See stack trace for root cause.
+(EngineCore pid=1155406) Process EngineCore:
+(EngineCore pid=1155406) Traceback (most recent call last):
+(EngineCore pid=1155406)   File "/usr/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+(EngineCore pid=1155406)     self.run()
+(EngineCore pid=1155406)   File "/usr/lib/python3.12/multiprocessing/process.py", line 108, in run
+(EngineCore pid=1155406)     self._target(*self._args, **self._kwargs)
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1378, in run_engine_core
+(EngineCore pid=1155406)     raise e
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1336, in run_engine_core
+(EngineCore pid=1155406)     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore pid=1155406)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=1155406)     return func(*args, **kwargs)
+(EngineCore pid=1155406)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1093, in __init__
+(EngineCore pid=1155406)     super().__init__(
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 134, in __init__
+(EngineCore pid=1155406)     self.model_executor = executor_class(vllm_config)
+(EngineCore pid=1155406)                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 116, in __init__
+(EngineCore pid=1155406)     super().__init__(vllm_config)
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=1155406)     return func(*args, **kwargs)
+(EngineCore pid=1155406)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/abstract.py", line 110, in __init__
+(EngineCore pid=1155406)     self._init_executor()
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 214, in _init_executor
+(EngineCore pid=1155406)     self.workers = WorkerProc.wait_for_ready(unready_workers)
+(EngineCore pid=1155406)                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1155406)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 808, in wait_for_ready
+(EngineCore pid=1155406)     raise e from None
+(EngineCore pid=1155406) Exception: WorkerProc initialization failed due to an exception in a background process. See stack trace for root cause.
+(APIServer pid=1155033) INFO 10-28 06:57:16 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled
+(APIServer pid=1155033) Traceback (most recent call last):
+(APIServer pid=1155033)   File "/usr/local/bin/vllm", line 10, in <module>
+(APIServer pid=1155033)     sys.exit(main())
+(APIServer pid=1155033)              ^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/main.py", line 97, in main
+(APIServer pid=1155033)     args.dispatch_function(args)
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/serve.py", line 153, in cmd
+(APIServer pid=1155033)     uvloop.run(run_server(args))
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 96, in run
+(APIServer pid=1155033)     return __asyncio.run(
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+(APIServer pid=1155033)     return runner.run(main)
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+(APIServer pid=1155033)     return self._loop.run_until_complete(task)
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 48, in wrapper
+(APIServer pid=1155033)     return await main
+(APIServer pid=1155033)            ^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 176, in run_server
+(APIServer pid=1155033)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 190, in run_server_worker
+(APIServer pid=1155033)     async with build_async_engine_client(
+(APIServer pid=1155033)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=1155033)     return await anext(self.gen)
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 58, in build_async_engine_client
+(APIServer pid=1155033)     async with build_async_engine_client_from_engine_args(
+(APIServer pid=1155033)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=1155033)     return await anext(self.gen)
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 94, in build_async_engine_client_from_engine_args
+(APIServer pid=1155033)     async_llm = AsyncLLM.from_vllm_config(
+(APIServer pid=1155033)                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 227, in from_vllm_config
+(APIServer pid=1155033)     return cls(
+(APIServer pid=1155033)            ^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 156, in __init__
+(APIServer pid=1155033)     self.engine_core = EngineCoreClient.make_async_mp_client(
+(APIServer pid=1155033)                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=1155033)     return func(*args, **kwargs)
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 139, in make_async_mp_client
+(APIServer pid=1155033)     return AsyncMPClient(*client_args)
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=1155033)     return func(*args, **kwargs)
+(APIServer pid=1155033)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 991, in __init__
+(APIServer pid=1155033)     super().__init__(
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 609, in __init__
+(APIServer pid=1155033)     with launch_core_engines(
+(APIServer pid=1155033)   File "/usr/lib/python3.12/contextlib.py", line 144, in __exit__
+(APIServer pid=1155033)     next(self.gen)
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1240, in launch_core_engines
+(APIServer pid=1155033)     wait_for_engine_startup(
+(APIServer pid=1155033)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1320, in wait_for_engine_startup
+(APIServer pid=1155033)     raise RuntimeError(
+(APIServer pid=1155033) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

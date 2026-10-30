@@ -1,0 +1,282 @@
+2026-10-28 07:31:09 - evalscope - [32mINFO[0m: Args: Task config is provided with CommandLine type.[0m
+2026-10-28 07:31:09 - evalscope - [33mWARNING[0m: Deprecated: The `judge_worker_num` parameter is deprecated and will be removed in v2.0.0. Use `eval_batch_size` instead.[0m
+2026-10-28 07:31:09 - evalscope - [32mINFO[0m: Running with native backend[0m
+2026-10-28 07:31:10 - evalscope - [32mINFO[0m: Dump task config to /home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-hybrid-20261028_072356/async/run2/20261028_073109/configs/task_config.yaml[0m
+2026-10-28 07:31:10 - evalscope - [32mINFO[0m: {
+    "model_id": "Qwen3.5-27B",
+    "model_args": {},
+    "model_task": "text_generation",
+    "chat_template": null,
+    "datasets": [
+        "gsm8k"
+    ],
+    "dataset_args": {
+        "gsm8k": {
+            "name": "gsm8k",
+            "dataset_id": "AI-ModelScope/gsm8k",
+            "output_types": [
+                "generation"
+            ],
+            "subset_list": [
+                "main"
+            ],
+            "default_subset": "default",
+            "few_shot_num": 16,
+            "few_shot_random": false,
+            "train_split": "train",
+            "eval_split": "test",
+            "prompt_template": "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}.",
+            "few_shot_prompt_template": "Here are some examples of how to solve similar problems:\n\n{fewshot}\n\n{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}.",
+            "system_prompt": null,
+            "query_template": null,
+            "pretty_name": "GSM8K",
+            "description": "\n## Overview\n\nGSM8K (Grade School Math 8K) is a high-quality dataset of 8.5K linguistically diverse grade school math word problems created by human problem writers. The dataset is specifically designed to evaluate and improve the multi-step mathematical reasoning capabilities of language models.\n\n## Task Description\n\n- **Task Type**: Mathematical Word Problem Solving\n- **Input**: Natural language math word problem\n- **Output**: Numerical answer derived through step-by-step reasoning\n- **Difficulty**: Grade school level (2-8 reasoning steps required)\n\n## Key Features\n\n- Problems require basic arithmetic operations (addition, subtraction, multiplication, division)\n- Solutions involve 2 to 8 sequential reasoning steps\n- High linguistic diversity in problem formulations\n- Human-written problems ensuring natural language quality\n- Clear numerical answers for objective evaluation\n\n## Evaluation Notes\n\n- Default configuration uses **4-shot** examples with Chain-of-Thought (CoT) prompting\n- Answers should be formatted within `\\boxed{}` for proper extraction\n- The metric extracts numerical values for accuracy comparison\n- Supports both zero-shot and few-shot evaluation modes\n",
+            "paper_url": "https://arxiv.org/abs/2110.14168",
+            "data_statistics": null,
+            "sample_example": null,
+            "tags": [
+                "Math",
+                "Reasoning"
+            ],
+            "filters": null,
+            "metric_list": [
+                {
+                    "acc": {
+                        "numeric": true
+                    }
+                }
+            ],
+            "aggregation": "mean",
+            "shuffle": false,
+            "shuffle_choices": false,
+            "force_redownload": false,
+            "review_timeout": null,
+            "extra_params": {},
+            "sandbox_config": {},
+            "max_image_bytes": null
+        }
+    },
+    "dataset_dir": "/home/pese/qiuyu/Al-dsv4/KVCacheClip/internal/daocloud/test/accuracy-gsm8k/evalscope/datasets",
+    "dataset_hub": "modelscope",
+    "repeats": 1,
+    "eval_type": "openai_api",
+    "eval_backend": "Native",
+    "eval_config": null,
+    "limit": 200,
+    "eval_batch_size": 50,
+    "use_cache": null,
+    "rerun_review": false,
+    "work_dir": "/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-hybrid-20261028_072356/async/run2/20261028_073109",
+    "no_timestamp": false,
+    "enable_progress_tracker": false,
+    "ignore_errors": false,
+    "debug": false,
+    "seed": 42,
+    "api_url": "http://127.0.0.1:8010/v1",
+    "api_key": "**********",
+    "timeout": null,
+    "stream": null,
+    "judge_strategy": "auto",
+    "judge_worker_num": 1,
+    "judge_model_args": {},
+    "analysis_report": false,
+    "collect_perf": true,
+    "sandbox": {
+        "enabled": false,
+        "engine": "docker",
+        "default_config": {},
+        "manager_config": {},
+        "pool_size": null
+    },
+    "use_sandbox": false,
+    "sandbox_type": "docker",
+    "sandbox_manager_config": {},
+    "agent_config": null,
+    "evalscope_version": "1.9.1",
+    "model": "/media/model-space/Qwen3.5-27B",
+    "generation_config": {
+        "batch_size": 50,
+        "max_tokens": 2048,
+        "temperature": 0.0
+    }
+}[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]                                                           2026-10-28 07:31:10 - evalscope - [32mINFO[0m: Start loading benchmark dataset: gsm8k[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Processing records:   0%|          | 0/200 [00:00<?, ?it/s][AProcessing records: 100%|██████████| 200/200 [00:00<00:00, 317509.77it/s]
+
+Processing records:   0%|          | 0/16 [00:00<?, ?it/s][AProcessing records: 100%|██████████| 16/16 [00:00<00:00, 176138.75it/s]
+                                                           2026-10-28 07:31:10 - evalscope - [33mWARNING[0m: gsm8k: 200 samples to evaluate (1 subset, --limit=200 per subset). Remove `--limit` for a formal evaluation.[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]                                                           2026-10-28 07:31:10 - evalscope - [32mINFO[0m: Subsets of gsm8k: ['main'][0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A                                                           
+                                                          [A2026-10-28 07:31:10 - evalscope - [32mINFO[0m: Loading model for prediction...[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A                                                           
+                                                          [A2026-10-28 07:31:10 - evalscope - [32mINFO[0m: Creating model /media/model-space/Qwen3.5-27B with eval_type=openai_api base_url=http://127.0.0.1:8010/v1, config={'retries': 5, 'retry_interval': 10, 'batch_size': 50, 'max_tokens': 2048, 'temperature': 0.0, 'anthropic_cache_strategy': 'evaluation'}, model_args={}[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A                                                           
+                                                          [A2026-10-28 07:31:10 - evalscope - [32mINFO[0m: Model loaded successfully.[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A
+Evaluating[gsm8k]:   0%|          | 1/200 [00:28<1:32:59, 28.04s/it][A
+Evaluating[gsm8k]:   1%|          | 2/200 [00:30<41:59, 12.72s/it]  [A
+Evaluating[gsm8k]:   2%|▏         | 3/200 [00:34<28:42,  8.74s/it][A
+Evaluating[gsm8k]:   2%|▏         | 4/200 [00:35<18:34,  5.69s/it][A
+Evaluating[gsm8k]:   2%|▎         | 5/200 [00:37<14:10,  4.36s/it][A
+Evaluating[gsm8k]:   3%|▎         | 6/200 [00:43<15:54,  4.92s/it][A
+Evaluating[gsm8k]:   4%|▎         | 7/200 [00:49<16:58,  5.28s/it][A
+Evaluating[gsm8k]:   4%|▍         | 8/200 [00:51<13:33,  4.24s/it][A
+Evaluating[gsm8k]:   5%|▌         | 10/200 [00:52<07:47,  2.46s/it][A
+Evaluating[gsm8k]:   6%|▌         | 12/200 [00:53<05:13,  1.67s/it][A
+Evaluating[gsm8k]:   7%|▋         | 14/200 [00:55<04:25,  1.42s/it][A
+Evaluating[gsm8k]:   8%|▊         | 16/200 [00:56<03:24,  1.11s/it][A
+Evaluating[gsm8k]:   9%|▉         | 18/200 [00:57<02:45,  1.10it/s][A                                                           
+                                                                   [A2026-10-28 07:32:10 - evalscope - [32mINFO[0m: Evaluating[gsm8k]  10%| 19/200 [Elapsed: 01:00 < Remaining: 02:44,  1.10it/s][0m
+Running[eval]:   0%|          | 0/1 [01:00<?, ?benchmark/s]
+Evaluating[gsm8k]:  10%|▉         | 19/200 [01:00<02:44,  1.10it/s][A
+Evaluating[gsm8k]:  10%|█         | 20/200 [01:05<05:42,  1.90s/it][A
+Evaluating[gsm8k]:  11%|█         | 22/200 [01:08<05:16,  1.78s/it][A
+Evaluating[gsm8k]:  12%|█▏        | 24/200 [01:10<04:30,  1.54s/it][A
+Evaluating[gsm8k]:  14%|█▎        | 27/200 [01:12<03:26,  1.19s/it][A
+Evaluating[gsm8k]:  14%|█▍        | 29/200 [01:16<04:02,  1.42s/it][A
+Evaluating[gsm8k]:  15%|█▌        | 30/200 [01:19<04:45,  1.68s/it][A
+Evaluating[gsm8k]:  16%|█▌        | 31/200 [01:21<04:54,  1.74s/it][A
+Evaluating[gsm8k]:  16%|█▌        | 32/200 [01:22<04:26,  1.58s/it][A
+Evaluating[gsm8k]:  16%|█▋        | 33/200 [01:23<04:02,  1.45s/it][A
+Evaluating[gsm8k]:  17%|█▋        | 34/200 [01:24<03:42,  1.34s/it][A
+Evaluating[gsm8k]:  18%|█▊        | 35/200 [01:25<03:26,  1.25s/it][A
+Evaluating[gsm8k]:  18%|█▊        | 37/200 [01:29<04:16,  1.58s/it][A
+Evaluating[gsm8k]:  19%|█▉        | 38/200 [01:30<03:53,  1.44s/it][A
+Evaluating[gsm8k]:  28%|██▊       | 55/200 [01:36<01:15,  1.92it/s][A
+Evaluating[gsm8k]:  28%|██▊       | 57/200 [01:37<01:14,  1.92it/s][A
+Evaluating[gsm8k]:  30%|██▉       | 59/200 [01:41<01:45,  1.34it/s][A
+Evaluating[gsm8k]:  30%|███       | 61/200 [01:46<02:27,  1.06s/it][A
+Evaluating[gsm8k]:  32%|███▏      | 63/200 [01:53<03:33,  1.55s/it][A
+Evaluating[gsm8k]:  32%|███▎      | 65/200 [01:56<03:28,  1.54s/it][A                                                           
+                                                                   [A2026-10-28 07:33:10 - evalscope - [32mINFO[0m: Evaluating[gsm8k]  32%| 65/200 [Elapsed: 02:00 < Remaining: 03:28,  1.54s/it][0m
+Running[eval]:   0%|          | 0/1 [02:00<?, ?benchmark/s]
+Evaluating[gsm8k]:  32%|███▎      | 65/200 [02:00<03:28,  1.54s/it][A
+Evaluating[gsm8k]:  33%|███▎      | 66/200 [02:01<04:31,  2.02s/it][A
+Evaluating[gsm8k]:  34%|███▎      | 67/200 [02:04<04:50,  2.19s/it][A
+Evaluating[gsm8k]:  34%|███▍      | 68/200 [02:06<04:43,  2.15s/it][A
+Evaluating[gsm8k]:  34%|███▍      | 69/200 [02:08<04:37,  2.12s/it][A
+Evaluating[gsm8k]:  36%|███▌      | 71/200 [02:09<03:14,  1.51s/it][A
+Evaluating[gsm8k]:  36%|███▌      | 72/200 [02:10<02:59,  1.40s/it][A
+Evaluating[gsm8k]:  36%|███▋      | 73/200 [02:13<03:45,  1.78s/it][A
+Evaluating[gsm8k]:  37%|███▋      | 74/200 [02:18<05:25,  2.59s/it][A
+Evaluating[gsm8k]:  38%|███▊      | 76/200 [02:19<03:33,  1.72s/it][A
+Evaluating[gsm8k]:  39%|███▉      | 78/200 [02:20<02:34,  1.27s/it][A
+Evaluating[gsm8k]:  40%|████      | 80/200 [02:22<02:21,  1.18s/it][A
+Evaluating[gsm8k]:  41%|████      | 82/200 [02:23<01:52,  1.05it/s][A
+Evaluating[gsm8k]:  42%|████▏     | 84/200 [02:25<01:52,  1.03it/s][A
+Evaluating[gsm8k]:  44%|████▍     | 88/200 [02:27<01:23,  1.34it/s][A
+Evaluating[gsm8k]:  45%|████▌     | 90/200 [02:32<02:11,  1.20s/it][A
+Evaluating[gsm8k]:  46%|████▋     | 93/200 [02:34<01:48,  1.01s/it][A
+Evaluating[gsm8k]:  48%|████▊     | 95/200 [02:37<01:59,  1.14s/it][A
+Evaluating[gsm8k]:  48%|████▊     | 97/200 [02:38<01:39,  1.03it/s][A
+Evaluating[gsm8k]:  50%|████▉     | 99/200 [02:39<01:25,  1.19it/s][A
+Evaluating[gsm8k]:  50%|█████     | 101/200 [02:41<01:27,  1.13it/s][A
+Evaluating[gsm8k]:  52%|█████▏    | 103/200 [02:48<02:38,  1.64s/it][A
+Evaluating[gsm8k]:  52%|█████▎    | 105/200 [02:50<02:18,  1.46s/it][A
+Evaluating[gsm8k]:  54%|█████▎    | 107/200 [02:53<02:16,  1.47s/it][A
+Evaluating[gsm8k]:  55%|█████▍    | 109/200 [02:54<01:47,  1.18s/it][A
+Evaluating[gsm8k]:  56%|█████▌    | 112/200 [02:56<01:26,  1.01it/s][A
+Evaluating[gsm8k]:  57%|█████▋    | 114/200 [02:59<01:36,  1.13s/it][A
+Evaluating[gsm8k]:  60%|█████▉    | 119/200 [03:00<00:54,  1.48it/s][A                                                           
+                                                                    [A2026-10-28 07:34:11 - evalscope - [32mINFO[0m: Evaluating[gsm8k]  60%| 119/200 [Elapsed: 03:00 < Remaining: 00:54,  1.48it/s][0m
+Running[eval]:   0%|          | 0/1 [03:01<?, ?benchmark/s]
+Evaluating[gsm8k]:  60%|█████▉    | 119/200 [03:00<00:54,  1.48it/s][A
+Evaluating[gsm8k]:  61%|██████    | 122/200 [03:09<01:46,  1.36s/it][A
+Evaluating[gsm8k]:  62%|██████▏   | 124/200 [03:11<01:37,  1.29s/it][A
+Evaluating[gsm8k]:  63%|██████▎   | 126/200 [03:15<01:47,  1.46s/it][A
+Evaluating[gsm8k]:  64%|██████▍   | 128/200 [03:18<01:45,  1.47s/it][A
+Evaluating[gsm8k]:  65%|██████▌   | 130/200 [03:22<01:52,  1.61s/it][A
+Evaluating[gsm8k]:  66%|██████▌   | 131/200 [03:25<02:06,  1.84s/it][A
+Evaluating[gsm8k]:  67%|██████▋   | 134/200 [03:26<01:21,  1.23s/it][A
+Evaluating[gsm8k]:  68%|██████▊   | 136/200 [03:30<01:32,  1.44s/it][A
+Evaluating[gsm8k]:  69%|██████▉   | 138/200 [03:36<01:57,  1.89s/it][A
+Evaluating[gsm8k]:  70%|██████▉   | 139/200 [03:38<01:56,  1.91s/it][A
+Evaluating[gsm8k]:  70%|███████   | 140/200 [03:39<01:44,  1.73s/it][A
+Evaluating[gsm8k]:  70%|███████   | 141/200 [03:40<01:33,  1.58s/it][A
+Evaluating[gsm8k]:  71%|███████   | 142/200 [03:43<01:51,  1.92s/it][A
+Evaluating[gsm8k]:  72%|███████▏  | 143/200 [03:45<01:50,  1.94s/it][A
+Evaluating[gsm8k]:  72%|███████▎  | 145/200 [03:48<01:36,  1.76s/it][A
+Evaluating[gsm8k]:  73%|███████▎  | 146/200 [03:50<01:38,  1.82s/it][A
+Evaluating[gsm8k]:  74%|███████▎  | 147/200 [03:51<01:25,  1.62s/it][A
+Evaluating[gsm8k]:  74%|███████▍  | 148/200 [03:53<01:29,  1.72s/it][A
+Evaluating[gsm8k]:  76%|███████▌  | 151/200 [03:55<00:57,  1.17s/it][A
+Evaluating[gsm8k]:  76%|███████▌  | 152/200 [03:57<00:54,  1.13s/it][A
+Evaluating[gsm8k]:  76%|███████▋  | 153/200 [03:58<00:51,  1.10s/it][A
+Evaluating[gsm8k]:  77%|███████▋  | 154/200 [03:59<00:49,  1.08s/it][A
+Evaluating[gsm8k]:  78%|███████▊  | 156/200 [04:00<00:37,  1.18it/s][A                                                           
+                                                                    [A2026-10-28 07:35:11 - evalscope - [32mINFO[0m: Evaluating[gsm8k]  78%| 157/200 [Elapsed: 04:01 < Remaining: 00:36,  1.18it/s][0m
+Running[eval]:   0%|          | 0/1 [04:01<?, ?benchmark/s]
+Evaluating[gsm8k]:  78%|███████▊  | 157/200 [04:01<00:36,  1.18it/s][A
+Evaluating[gsm8k]:  79%|███████▉  | 158/200 [04:01<00:30,  1.39it/s][A
+Evaluating[gsm8k]:  80%|████████  | 160/200 [04:04<00:39,  1.01it/s][A
+Evaluating[gsm8k]:  81%|████████  | 162/200 [04:07<00:44,  1.16s/it][A
+Evaluating[gsm8k]:  82%|████████▎ | 165/200 [04:08<00:28,  1.22it/s][A
+Evaluating[gsm8k]:  84%|████████▎ | 167/200 [04:09<00:24,  1.37it/s][A
+Evaluating[gsm8k]:  84%|████████▍ | 169/200 [04:13<00:33,  1.10s/it][A
+Evaluating[gsm8k]:  86%|████████▌ | 171/200 [04:16<00:35,  1.21s/it][A
+Evaluating[gsm8k]:  86%|████████▋ | 173/200 [04:17<00:27,  1.01s/it][A
+Evaluating[gsm8k]:  88%|████████▊ | 175/200 [04:19<00:25,  1.00s/it][A
+Evaluating[gsm8k]:  88%|████████▊ | 177/200 [04:21<00:23,  1.00s/it][A
+Evaluating[gsm8k]:  90%|████████▉ | 179/200 [04:23<00:21,  1.00s/it][A
+Evaluating[gsm8k]:  90%|█████████ | 181/200 [04:26<00:21,  1.15s/it][A
+Evaluating[gsm8k]:  91%|█████████ | 182/200 [04:28<00:23,  1.30s/it][A
+Evaluating[gsm8k]:  92%|█████████▏| 183/200 [04:32<00:31,  1.84s/it][A
+Evaluating[gsm8k]:  92%|█████████▎| 185/200 [04:33<00:20,  1.36s/it][A
+Evaluating[gsm8k]:  94%|█████████▎| 187/200 [04:37<00:20,  1.58s/it][A
+Evaluating[gsm8k]:  94%|█████████▍| 188/200 [04:39<00:19,  1.66s/it][A
+Evaluating[gsm8k]:  94%|█████████▍| 189/200 [04:42<00:21,  1.96s/it][A
+Evaluating[gsm8k]:  96%|█████████▌| 191/200 [04:43<00:12,  1.40s/it][A
+Evaluating[gsm8k]:  96%|█████████▋| 193/200 [04:49<00:13,  1.97s/it][A
+Evaluating[gsm8k]:  97%|█████████▋| 194/200 [04:51<00:11,  1.97s/it][A
+Evaluating[gsm8k]:  98%|█████████▊| 195/200 [04:52<00:08,  1.76s/it][A
+Evaluating[gsm8k]:  98%|█████████▊| 196/200 [04:55<00:08,  2.06s/it][A
+Evaluating[gsm8k]:  98%|█████████▊| 197/200 [04:58<00:06,  2.30s/it][A
+Evaluating[gsm8k]:  99%|█████████▉| 198/200 [04:59<00:04,  2.09s/it][A                                                           
+                                                                    [A2026-10-28 07:36:09 - evalscope - [32mINFO[0m: Evaluating[gsm8k] 100%| 200/200 [Elapsed: 04:59 < Remaining: 00:00,  2.09s/it][0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]
+Evaluating[gsm8k]: 100%|██████████| 200/200 [04:59<00:00,  2.09s/it][AEvaluating[gsm8k]: 100%|██████████| 200/200 [04:59<00:00,  1.50s/it]
+                                                           2026-10-28 07:36:09 - evalscope - [32mINFO[0m: gsm8k: predictions complete, aggregating scores...[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]                                                           2026-10-28 07:36:09 - evalscope - [32mINFO[0m: Aggregating scores for subset: main[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]                                                           2026-10-28 07:36:09 - evalscope - [32mINFO[0m: Generating report...[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]                                                           2026-10-28 07:36:10 - evalscope - [32mINFO[0m: 
+gsm8k report table:
+┌─────────────┬───────────┬──────────┬──────────┬───────┬─────────┬─────────┐
+│ Model       │ Dataset   │ Metric   │ Subset   │   Num │   Score │ Cat.0   │
+├─────────────┼───────────┼──────────┼──────────┼───────┼─────────┼─────────┤
+│ Qwen3.5-27B │ gsm8k     │ mean_acc │ main     │   200 │   0.815 │ default │
+└─────────────┴───────────┴──────────┴──────────┴───────┴─────────┴─────────┘ 
+[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]                                                           2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Skipping report analysis (`analysis_report=False`).[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]                                                           2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Dump report to: /home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-hybrid-20261028_072356/async/run2/20261028_073109/reports/Qwen3.5-27B/gsm8k.json 
+[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]                                                           2026-10-28 07:36:10 - evalscope - [32mINFO[0m: 
+gsm8k perf table:
+Model        Dataset      Num    Avg Lat  Avg TTFT    Avg TPOT      Avg Thpt    Avg In    Avg Out
+                                     (s)  (ms)        (ms)           (tok/s)       Tok        Tok
+-----------  ---------  -----  ---------  ----------  ----------  ----------  --------  ---------
+Qwen3.5-27B  gsm8k        200    65.2334  -           -                23.66   3361.27    1543.33
+[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]                                                           2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Benchmark gsm8k evaluation finished.[0m
+Running[eval]:   0%|          | 0/1 [04:59<?, ?benchmark/s]Running[eval]: 100%|██████████| 1/1 [04:59<00:00, 299.98s/benchmark]                                                                    2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Running[eval] 100%| 1/1 [Elapsed: 04:59 < Remaining: 00:00, 299.98s/benchmark][0m
+Running[eval]: 100%|██████████| 1/1 [04:59<00:00, 299.98s/benchmark]Running[eval]: 100%|██████████| 1/1 [04:59<00:00, 299.98s/benchmark]
+2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Overall report table: 
+┌─────────────┬───────────┬──────────┬──────────┬───────┬─────────┬─────────┐
+│ Model       │ Dataset   │ Metric   │ Subset   │   Num │   Score │ Cat.0   │
+├─────────────┼───────────┼──────────┼──────────┼───────┼─────────┼─────────┤
+│ Qwen3.5-27B │ gsm8k     │ mean_acc │ main     │   200 │   0.815 │ default │
+└─────────────┴───────────┴──────────┴──────────┴───────┴─────────┴─────────┘ 
+[0m
+2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Overall perf table: 
+Model        Dataset      Num    Avg Lat  Avg TTFT    Avg TPOT      Avg Thpt    Avg In    Avg Out
+                                     (s)  (ms)        (ms)           (tok/s)       Tok        Tok
+-----------  ---------  -----  ---------  ----------  ----------  ----------  --------  ---------
+Qwen3.5-27B  gsm8k        200    65.2334  -           -                23.66   3361.27    1543.33 
+[0m
+2026-10-28 07:36:10 - evalscope - [32mINFO[0m: HTML report generated: /home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-hybrid-20261028_072356/async/run2/20261028_073109/reports/report.html[0m
+2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Finished evaluation for Qwen3.5-27B on ['gsm8k'][0m
+2026-10-28 07:36:10 - evalscope - [32mINFO[0m: Output directory: /home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-hybrid-20261028_072356/async/run2/20261028_073109[0m

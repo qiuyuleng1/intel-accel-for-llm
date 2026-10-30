@@ -1,0 +1,15 @@
+commit=6742331
+reclaimed host memory: free=485G order-10 blocks: 52079 52008 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+05:31:17 gsm8k run1 start
+exit=0 05:34:30 gsm8k run1 done
+lookups=200 reqs=200 ext_hit=199 async=197 async_N={8: 3, 16: 194} raise_lines=218 raised_reqs=394 with_sync_batch=0 moved_tasks=40 errors=0

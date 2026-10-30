@@ -1,0 +1,220 @@
+sysctl: permission denied on key "kernel.numa_balancing", ignoring
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-31
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=32-63
+KVShrink QAT rank 0: indices=0,1,2,3 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0) 0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 1: indices=4,5,6,7 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1) 0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+08:12:44 waiting for image vllm-iaxl-dev-qiuyu-1026:1.5.1
+08:21:15 starting container iaxl.vllm.qiuyu-1026
+08:21:25 waiting for pip install -e . in iaxl.vllm.qiuyu-1026
+08:31:54 pipeline wait loop stopped: pgrep -f matched the host docker run cmdline; pip had finished; resuming from rpc_check
+rpc_check exit=0 ([iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=OFF exponent_only=OFF lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled)
+branch=perf/async-load-optimization connector_md5=dbf72632 conc=16 rounds=3
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+===== round 1 =====
+check_exit=1
+lookups=1 reqs=1 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=6
+===== round 2 =====
+check_exit=1
+lookups=0 reqs=0 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+===== round 3 =====
+check_exit=1
+lookups=0 reqs=0 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+===== whole server log =====
+lookups=1 reqs=1 ext_hit=0 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=6
+ALL_DONE
+branch=perf/async-load-optimization connector_md5=dbf72632
+===== async (KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1) =====
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17268, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17268, 16384]
+--- gsm8k async run1 ---
+08:39:00 stopped gsm8k stage: QAT usdm order-10 allocation failed in correctness run (memory fragmentation); reclaiming memory and rerunning
+branch=perf/async-load-optimization connector_md5=dbf72632 conc=16 rounds=3
+reclaimed host memory: free=485G order-10 blocks: 41927 51671 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+===== round 1 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=8 raised_reqs=26 with_sync_batch=0 moved_tasks=859 errors=0
+===== round 2 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=10 raised_reqs=26 with_sync_batch=0 moved_tasks=1059 errors=0
+===== round 3 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=10 raised_reqs=26 with_sync_batch=0 moved_tasks=1057 errors=0
+===== whole server log =====
+lookups=51 reqs=51 ext_hit=48 async=39 async_N={8: 9, 16: 30} raise_lines=28 raised_reqs=78 with_sync_batch=0 moved_tasks=2975 errors=0
+ALL_DONE
+branch=perf/async-load-optimization connector_md5=dbf72632
+===== async (KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1) =====
+reclaimed host memory: free=486G order-10 blocks: 50128 53867 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+--- gsm8k async run1 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/async/run1/20261026_084515/reports/Qwen3-32B/gsm8k.json
+score 0.955 num 200
+lookups=200 reqs=200 ext_hit=199 async=197 async_N={8: 3, 16: 194} raise_lines=200 raised_reqs=394 with_sync_batch=0 moved_tasks=2012 errors=0
+--- gsm8k async run2 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/async/run2/20261026_084928/reports/Qwen3-32B/gsm8k.json
+score 0.945 num 200
+lookups=200 reqs=200 ext_hit=200 async=197 async_N={8: 3, 16: 194} raise_lines=240 raised_reqs=394 with_sync_batch=0 moved_tasks=3938 errors=0
+===== sync (KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0) =====
+reclaimed host memory: free=486G order-10 blocks: 54331 55200 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Ignoring async load layer configuration because KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0 disables async loading
+Ignoring async load layer configuration because KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0 disables async loading
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17312, 16384]
+Ignoring async load layer configuration because KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=0 disables async loading
+--- gsm8k sync run1 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/sync/run1/20261026_085419/reports/Qwen3-32B/gsm8k.json
+score 0.945 num 200
+lookups=200 reqs=200 ext_hit=198 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+--- gsm8k sync run2 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-20261026_084336/sync/run2/20261026_085733/reports/Qwen3-32B/gsm8k.json
+score 0.955 num 200
+lookups=200 reqs=200 ext_hit=200 async=0 async_N={} raise_lines=0 raised_reqs=0 with_sync_batch=0 moved_tasks=0 errors=0
+ALL_DONE
+09:00:40 PIPELINE_DONE
+branch=perf/async-load-optimization connector_md5=870d8587 conc=16 rounds=3
+reclaimed host memory: free=485G order-10 blocks: 48064 42009 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+===== round 1 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=6 raised_reqs=26 with_sync_batch=0 moved_tasks=1187 errors=0
+===== round 2 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=4 raised_reqs=26 with_sync_batch=0 moved_tasks=1160 errors=0
+===== round 3 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=6 raised_reqs=26 with_sync_batch=0 moved_tasks=1012 errors=0
+===== whole server log =====
+lookups=51 reqs=51 ext_hit=48 async=39 async_N={8: 9, 16: 30} raise_lines=16 raised_reqs=78 with_sync_batch=0 moved_tasks=3359 errors=0
+ALL_DONE
+branch=perf/async-load-optimization commit=2cb57c0 connector_md5=870d8587 delays_ms=0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120 reps=2
+reclaimed host memory: free=486G order-10 blocks: 53556 49272 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-1:16,2-:0
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+{
+ "references": {
+  "prompt_tokens": [
+   4963,
+   4963
+  ],
+  "external": [
+   0,
+   0
+  ],
+  "bad_chars": 0
+ },
+ "trials": 122,
+ "trials_a_async_N16_b_sync": 122,
+ "trials_all_identical": 122,
+ "raise_lines": 244,
+ "raise_lines_with_sync_batch": 6,
+ "with_sync_batch_done_prefix_above_N16": 0,
+ "verdict": "PASS"
+}
+with_sync_batch: {"rank": 1, "raised_reqs": 1, "sync_batch": 1, "moved": 104, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 0, "raised_reqs": 1, "sync_batch": 1, "moved": 102, "sync_layers": 64, "sync_done": 3, "sync_done_prefix": 3}
+with_sync_batch: {"rank": 0, "raised_reqs": 1, "sync_batch": 1, "moved": 106, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 1, "raised_reqs": 1, "sync_batch": 1, "moved": 103, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 0, "raised_reqs": 1, "sync_batch": 1, "moved": 106, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+with_sync_batch: {"rank": 1, "raised_reqs": 1, "sync_batch": 1, "moved": 103, "sync_layers": 64, "sync_done": 2, "sync_done_prefix": 2}
+check_exit=0
+lookups=246 reqs=246 ext_hit=244 async=122 async_N={16: 122} raise_lines=244 raised_reqs=244 with_sync_batch=6 moved_tasks=6925 errors=0
+ALL_DONE
+02:03:08 PIPELINE_DONE
+branch=perf/async-load-optimization connector_md5=9938e6f6 conc=16 rounds=1
+reclaimed host memory: free=479G order-10 blocks: 45029 42510 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+===== round 1 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=6 raised_reqs=26 with_sync_batch=0 moved_tasks=1205 errors=0
+===== whole server log =====
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=6 raised_reqs=26 with_sync_batch=0 moved_tasks=1205 errors=0
+ALL_DONE
+06:24:40 PIPELINE_DONE

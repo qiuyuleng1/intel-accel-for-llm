@@ -1,0 +1,30 @@
+branch=perf/async-load-optimization connector_md5=8938a338 conc=16 rounds=3
+reclaimed host memory: free=484G order-10 blocks: 50291 51572 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+Registered 64 KV cache layers (0 mamba) with shape [17122, 16384]
+===== round 1 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=6 raised_reqs=26 with_sync_batch=0 moved_tasks=528 errors=0
+===== round 2 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=8 raised_reqs=26 with_sync_batch=0 moved_tasks=1184 errors=0
+===== round 3 =====
+check_exit=0
+ "prompt_tokens": 4963,
+ "verdict": "PASS"
+lookups=17 reqs=17 ext_hit=16 async=13 async_N={8: 3, 16: 10} raise_lines=8 raised_reqs=26 with_sync_batch=0 moved_tasks=1193 errors=0
+===== whole server log =====
+lookups=51 reqs=51 ext_hit=48 async=39 async_N={8: 9, 16: 30} raise_lines=22 raised_reqs=78 with_sync_batch=0 moved_tasks=2905 errors=0
+ALL_DONE

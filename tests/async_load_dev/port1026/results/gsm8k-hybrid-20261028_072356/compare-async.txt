@@ -1,0 +1,10 @@
+run1: correct 170/200; stop_reason {'stop': 130, 'max_tokens': 70}; wrong 30, of which not 'stop' (truncated) 30; input tokens min/median/max 3324/3357/3434; output tokens median/max 1681/2048; garbled 0
+run2: correct 163/200; stop_reason {'stop': 130, 'max_tokens': 70}; wrong 37, of which not 'stop' (truncated) 37; input tokens min/median/max 3324/3357/3434; output tokens median/max 1642/2048; garbled 0
+run1 vs run2: same final answer 161/200, flipped 27, identical full output 32/200
+wrong in both runs: 20
+--- run1 wrong idx 2: target='70000' extracted='150' stop=max_tokens out_tokens=2048
+   tail: ' $120,000 = $200,000\n\n3.  **Calculate Profit:**\n    Profit = Selling Price - Total Cost\n    Profit = $200,000 - $130,000 = $70,000\n\nLet\'s consider if "increased the value of the house by 150%" means the value is now 150% of what it was.\n"Increased by" vs "Increased to".\n"Increased by 150%" means New'
+--- run1 wrong idx 12: target='13' extracted='0' stop=max_tokens out_tokens=2048
+   tail: ' similar problems. This looks like a GSM8K problem.\n    *   In GSM8K, "How many years will it take before he starts earning money" usually implies the break-even point.\n    *   Let\'s verify the calculation again.\n    *   Cost: 90.\n    *   Income: 7 * 1.5 = 10.5.\n    *   Expense: 3.\n    *   Net: 7.5.'
+--- run1 wrong idx 14: target='60' extracted='121' stop=max_tokens out_tokens=2048
+   tail: 'w many pages..." -> \\boxed{624}\n"How many flowers..." -> \\boxed{35}\n"How many pieces..." -> \\boxed{48}\n"What was the final weight..." -> \\boxed{16}\n"How much did Alexis pay..." -> \\boxed{41}\n"How much money does she make?" -> \\boxed{990}\n"How many people..." -> \\boxed{121}\n"How many driveways..." ->'

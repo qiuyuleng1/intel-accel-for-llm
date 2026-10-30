@@ -1,0 +1,35 @@
+branch=perf/async-load-optimization connector_md5=8938a338 model=/media/model-space/Qwen3.5-27B modes=async few_shot=16
+===== async (KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1 KV_CONNECTOR=1) =====
+reclaimed host memory: free=482G order-10 blocks: 55566 52394 
+health=200
+  TP_SIZE=2
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+KVShrink patch: prefix caching disabled, overriding mamba_cache_mode 'none' -> 'align' (mamba_block_size=32765)
+KVShrink patch: skipping validate_mamba_block_size (mamba_block_size=32765, max_model_len=32765, prefix caching=False)
+KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+Setting attention block size to 784 tokens to ensure that attention page size is >= mamba page size.
+Setting attention block size to 784 tokens to ensure that attention page size is >= mamba page size.
+CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.8000 is equivalent to --gpu-memory-utilization=0.7934 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.8066. To disable, set VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.8000 is equivalent to --gpu-memory-utilization=0.7934 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.8066. To disable, set VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+GPU KV cache size: 1,071,688 tokens, Maximum concurrency for 32,765 tokens per request: 32.71x
+KVShrinkConnector(WORKER): block_size=784, has_mamba=True, mamba_cache_mode='align', prefix caching=False
+KVShrinkConnector(WORKER): block_size=784, has_mamba=True, mamba_cache_mode='align', prefix caching=False
+--- gsm8k async run1 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-hybrid-8k-20261028_073934/async/run1/20261028_074142/reports/Qwen3.5-27B/gsm8k.json
+score 0.97 num 200
+lookups=200 reqs=200 ext_hit=199 async=199 async_N={48: 2, 56: 3, 64: 194} raise_lines=4 raised_reqs=10 with_sync_batch=0 moved_tasks=112 errors=0
+--- gsm8k async run2 ---
+exit=0
+report=/home/pese/qiuyu/intel-accel-for-llm-1008/tests/async_load_dev/port1026/results/gsm8k-hybrid-8k-20261028_073934/async/run2/20261028_074930/reports/Qwen3.5-27B/gsm8k.json
+score 0.98 num 200
+lookups=200 reqs=200 ext_hit=200 async=200 async_N={48: 3, 56: 3, 64: 194} raise_lines=10 raised_reqs=12 with_sync_batch=0 moved_tasks=112 errors=0
+ALL_DONE

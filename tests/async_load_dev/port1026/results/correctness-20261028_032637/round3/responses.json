@@ -1,0 +1,538 @@
+{
+ "request": {
+  "model": "/media/model-space/Qwen3-32B",
+  "prompt": "Sensor log.\nRecord 0000: sensor E70 measured 9483 units.\nRecord 0001: sensor A11 measured 1883 units.\nRecord 0002: sensor D87 measured 8536 units.\nRecord 0003: sensor G51 measured 4359 units.\nRecord 0004: sensor F24 measured 6082 units.\nRecord 0005: sensor F30 measured 8223 units.\nRecord 0006: sensor F63 measured 4084 units.\nRecord 0007: sensor A17 measured 3556 units.\nRecord 0008: sensor B75 measured 7492 units.\nRecord 0009: sensor B87 measured 7989 units.\nRecord 0010: sensor H93 measured 7012 units.\nRecord 0011: sensor G82 measured 4040 units.\nRecord 0012: sensor D16 measured 8207 units.\nRecord 0013: sensor H37 measured 4929 units.\nRecord 0014: sensor B95 measured 9573 units.\nRecord 0015: sensor E85 measured 2942 units.\nRecord 0016: sensor F42 measured 7288 units.\nRecord 0017: sensor C36 measured 6799 units.\nRecord 0018: sensor F14 measured 1821 units.\nRecord 0019: sensor B18 measured 7128 units.\nRecord 0020: sensor E33 measured 1909 units.\nRecord 0021: sensor C37 measured 2734 units.\nRecord 0022: sensor E83 measured 1602 units.\nRecord 0023: sensor G31 measured 4726 units.\nRecord 0024: sensor C52 measured 7373 units.\nRecord 0025: sensor A31 measured 1124 units.\nRecord 0026: sensor B55 measured 3232 units.\nRecord 0027: sensor D81 measured 3325 units.\nRecord 0028: sensor A37 measured 3750 units.\nRecord 0029: sensor D84 measured 2805 units.\nRecord 0030: sensor E92 measured 8161 units.\nRecord 0031: sensor F84 measured 9373 units.\nRecord 0032: sensor C60 measured 1155 units.\nRecord 0033: sensor A10 measured 9326 units.\nRecord 0034: sensor H83 measured 1728 units.\nRecord 0035: sensor G83 measured 5952 units.\nRecord 0036: sensor G34 measured 6246 units.\nRecord 0037: sensor D37 measured 4713 units.\nRecord 0038: sensor G99 measured 6930 units.\nRecord 0039: sensor A25 measured 1535 units.\nRecord 0040: sensor A37 measured 1757 units.\nRecord 0041: sensor G73 measured 2103 units.\nRecord 0042: sensor A26 measured 8114 units.\nRecord 0043: sensor G94 measured 1293 units.\nRecord 0044: sensor E86 measured 4730 units.\nRecord 0045: sensor E88 measured 2871 units.\nRecord 0046: sensor G46 measured 9942 units.\nRecord 0047: sensor C98 measured 8567 units.\nRecord 0048: sensor B95 measured 6722 units.\nRecord 0049: sensor F29 measured 4606 units.\nRecord 0050: sensor D46 measured 6258 units.\nRecord 0051: sensor D85 measured 8395 units.\nRecord 0052: sensor C62 measured 2298 units.\nRecord 0053: sensor G99 measured 2434 units.\nRecord 0054: sensor G94 measured 1013 units.\nRecord 0055: sensor E34 measured 1936 units.\nRecord 0056: sensor F82 measured 9651 units.\nRecord 0057: sensor D55 measured 5325 units.\nRecord 0058: sensor F71 measured 8380 units.\nRecord 0059: sensor B21 measured 4034 units.\nRecord 0060: sensor D43 measured 3541 units.\nRecord 0061: sensor D92 measured 9180 units.\nRecord 0062: sensor E92 measured 3062 units.\nRecord 0063: sensor F40 measured 7736 units.\nRecord 0064: sensor F11 measured 5945 units.\nRecord 0065: sensor C58 measured 2409 units.\nRecord 0066: sensor D94 measured 9729 units.\nRecord 0067: sensor E38 measured 8335 units.\nRecord 0068: sensor G44 measured 2407 units.\nRecord 0069: sensor C43 measured 1578 units.\nRecord 0070: sensor B78 measured 8677 units.\nRecord 0071: sensor A81 measured 5266 units.\nRecord 0072: sensor H14 measured 9971 units.\nRecord 0073: sensor F34 measured 5017 units.\nRecord 0074: sensor F52 measured 4214 units.\nRecord 0075: sensor H70 measured 7670 units.\nRecord 0076: sensor E44 measured 7552 units.\nRecord 0077: sensor D40 measured 1038 units.\nRecord 0078: sensor B11 measured 1598 units.\nRecord 0079: sensor B31 measured 4144 units.\nRecord 0080: sensor H94 measured 2221 units.\nRecord 0081: sensor H75 measured 9960 units.\nRecord 0082: sensor C29 measured 6492 units.\nRecord 0083: sensor F92 measured 2854 units.\nRecord 0084: sensor H30 measured 4332 units.\nRecord 0085: sensor C21 measured 9469 units.\nRecord 0086: sensor H99 measured 9661 units.\nRecord 0087: sensor E85 measured 4491 units.\nRecord 0088: sensor C61 measured 4468 units.\nRecord 0089: sensor H55 measured 3004 units.\nRecord 0090: sensor B68 measured 7498 units.\nRecord 0091: sensor C45 measured 4186 units.\nRecord 0092: sensor E64 measured 6603 units.\nRecord 0093: sensor C87 measured 4082 units.\nRecord 0094: sensor B21 measured 9380 units.\nRecord 0095: sensor F36 measured 9248 units.\nRecord 0096: sensor A81 measured 9436 units.\nRecord 0097: sensor D60 measured 5224 units.\nRecord 0098: sensor H14 measured 6286 units.\nRecord 0099: sensor G72 measured 1059 units.\nRecord 0100: sensor E23 measured 5428 units.\nRecord 0101: sensor C91 measured 1671 units.\nRecord 0102: sensor A66 measured 2067 units.\nRecord 0103: sensor E90 measured 2326 units.\nRecord 0104: sensor G38 measured 6733 units.\nRecord 0105: sensor G48 measured 4852 units.\nRecord 0106: sensor D95 measured 5475 units.\nRecord 0107: sensor A38 measured 2339 units.\nRecord 0108: sensor A25 measured 4799 units.\nRecord 0109: sensor A79 measured 3239 units.\nRecord 0110: sensor A37 measured 9483 units.\nRecord 0111: sensor H54 measured 8054 units.\nRecord 0112: sensor B51 measured 1513 units.\nRecord 0113: sensor A72 measured 7744 units.\nRecord 0114: sensor C37 measured 1014 units.\nRecord 0115: sensor D40 measured 1949 units.\nRecord 0116: sensor F68 measured 9201 units.\nRecord 0117: sensor B10 measured 6271 units.\nRecord 0118: sensor F56 measured 8748 units.\nRecord 0119: sensor E43 measured 7973 units.\nRecord 0120: sensor E75 measured 4442 units.\nRecord 0121: sensor D24 measured 8764 units.\nRecord 0122: sensor F62 measured 5125 units.\nRecord 0123: sensor A91 measured 3290 units.\nRecord 0124: sensor D94 measured 7565 units.\nRecord 0125: sensor B41 measured 1735 units.\nRecord 0126: sensor B67 measured 1704 units.\nRecord 0127: sensor C72 measured 7174 units.\nRecord 0128: sensor D18 measured 7311 units.\nRecord 0129: sensor C31 measured 2907 units.\nRecord 0130: sensor F29 measured 4065 units.\nRecord 0131: sensor A58 measured 3470 units.\nRecord 0132: sensor C81 measured 9360 units.\nRecord 0133: sensor H24 measured 1043 units.\nRecord 0134: sensor A98 measured 3420 units.\nRecord 0135: sensor A85 measured 1173 units.\nRecord 0136: sensor F95 measured 4016 units.\nRecord 0137: sensor F48 measured 1248 units.\nRecord 0138: sensor H31 measured 6471 units.\nRecord 0139: sensor A13 measured 1286 units.\nRecord 0140: sensor D51 measured 5641 units.\nRecord 0141: sensor B63 measured 3474 units.\nRecord 0142: sensor D84 measured 4202 units.\nRecord 0143: sensor C50 measured 4852 units.\nRecord 0144: sensor E22 measured 6600 units.\nRecord 0145: sensor C17 measured 5446 units.\nRecord 0146: sensor F13 measured 2792 units.\nRecord 0147: sensor A57 measured 3876 units.\nRecord 0148: sensor H32 measured 3766 units.\nRecord 0149: sensor D78 measured 8268 units.\nRecord 0150: sensor A58 measured 1540 units.\nRecord 0151: sensor D36 measured 9694 units.\nRecord 0152: sensor C25 measured 4969 units.\nRecord 0153: sensor H72 measured 5433 units.\nRecord 0154: sensor D23 measured 2515 units.\nRecord 0155: sensor B20 measured 3731 units.\nRecord 0156: sensor E87 measured 3664 units.\nRecord 0157: sensor H71 measured 3131 units.\nRecord 0158: sensor F77 measured 7609 units.\nRecord 0159: sensor B96 measured 3148 units.\nRecord 0160: sensor G61 measured 4577 units.\nRecord 0161: sensor C82 measured 2562 units.\nRecord 0162: sensor E44 measured 9414 units.\nRecord 0163: sensor C93 measured 2527 units.\nRecord 0164: sensor E56 measured 7988 units.\nRecord 0165: sensor C37 measured 3446 units.\nRecord 0166: sensor G82 measured 5513 units.\nRecord 0167: sensor G57 measured 7694 units.\nRecord 0168: sensor A61 measured 6041 units.\nRecord 0169: sensor E66 measured 3097 units.\nRecord 0170: sensor D50 measured 8850 units.\nRecord 0171: sensor G80 measured 1499 units.\nRecord 0172: sensor B85 measured 2194 units.\nRecord 0173: sensor E40 measured 5062 units.\nRecord 0174: sensor A45 measured 8197 units.\nRecord 0175: sensor B41 measured 3597 units.\nRecord 0176: sensor H87 measured 2855 units.\nRecord 0177: sensor F12 measured 5269 units.\nRecord 0178: sensor A33 measured 7320 units.\nRecord 0179: sensor G65 measured 2481 units.\nRecord 0180: sensor B41 measured 5693 units.\nRecord 0181: sensor H30 measured 5862 units.\nRecord 0182: sensor G75 measured 2958 units.\nRecord 0183: sensor H36 measured 8593 units.\nRecord 0184: sensor C42 measured 1052 units.\nRecord 0185: sensor G22 measured 6201 units.\nRecord 0186: sensor A30 measured 9447 units.\nRecord 0187: sensor D95 measured 8961 units.\nRecord 0188: sensor C85 measured 1930 units.\nRecord 0189: sensor G78 measured 5562 units.\nRecord 0190: sensor G60 measured 5250 units.\nRecord 0191: sensor E87 measured 1328 units.\nRecord 0192: sensor G63 measured 1478 units.\nRecord 0193: sensor G88 measured 1181 units.\nRecord 0194: sensor D12 measured 7268 units.\nRecord 0195: sensor H90 measured 7065 units.\nRecord 0196: sensor D49 measured 8365 units.\nRecord 0197: sensor G91 measured 5008 units.\nRecord 0198: sensor F48 measured 6144 units.\nRecord 0199: sensor C16 measured 1205 units.\nRecord 0200: sensor F62 measured 9368 units.\nRecord 0201: sensor H32 measured 7194 units.\nRecord 0202: sensor E43 measured 3565 units.\nRecord 0203: sensor F53 measured 9405 units.\nRecord 0204: sensor C17 measured 2534 units.\nRecord 0205: sensor F15 measured 7992 units.\nRecord 0206: sensor E48 measured 3953 units.\nRecord 0207: sensor E76 measured 5614 units.\nRecord 0208: sensor F67 measured 7756 units.\nRecord 0209: sensor G35 measured 2325 units.\nRecord 0210: sensor F54 measured 5089 units.\nRecord 0211: sensor E75 measured 2212 units.\nRecord 0212: sensor D10 measured 5195 units.\nRecord 0213: sensor E45 measured 1358 units.\nRecord 0214: sensor E97 measured 8679 units.\nRecord 0215: sensor E90 measured 9949 units.\nRecord 0216: sensor F43 measured 7403 units.\nRecord 0217: sensor H78 measured 5879 units.\nRecord 0218: sensor C99 measured 2938 units.\nRecord 0219: sensor B57 measured 2345 units.\nRecord 0220: sensor H93 measured 3302 units.\nRecord 0221: sensor E45 measured 8137 units.\nRecord 0222: sensor E66 measured 5363 units.\nRecord 0223: sensor A77 measured 1845 units.\nRecord 0224: sensor F91 measured 5985 units.\nRecord 0225: sensor A59 measured 1671 units.\nRecord 0226: sensor D90 measured 2332 units.\nRecord 0227: sensor C45 measured 1431 units.\nRecord 0228: sensor B37 measured 6514 units.\nRecord 0229: sensor H39 measured 9389 units.\nRecord 0230: sensor G53 measured 1817 units.\nRecord 0231: sensor C64 measured 5430 units.\nRecord 0232: sensor G73 measured 7207 units.\nRecord 0233: sensor B89 measured 3373 units.\nRecord 0234: sensor A43 measured 6848 units.\nRecord 0235: sensor D95 measured 4434 units.\nRecord 0236: sensor C17 measured 7536 units.\nRecord 0237: sensor F42 measured 3415 units.\nRecord 0238: sensor C62 measured 5293 units.\nRecord 0239: sensor B58 measured 7094 units.\nRecord 0240: sensor D24 measured 8480 units.\nRecord 0241: sensor E84 measured 9961 units.\nRecord 0242: sensor D56 measured 2769 units.\nRecord 0243: sensor A37 measured 8297 units.\nRecord 0244: sensor G71 measured 6248 units.\nRecord 0245: sensor A44 measured 1399 units.\nRecord 0246: sensor E91 measured 9051 units.\nRecord 0247: sensor F53 measured 1680 units.\nRecord 0248: sensor A26 measured 3055 units.\nRecord 0249: sensor F78 measured 7793 units.\nRecord 0250: sensor G19 measured 6151 units.\nRecord 0251: sensor F48 measured 1077 units.\nRecord 0252: sensor H72 measured 8309 units.\nRecord 0253: sensor E65 measured 1011 units.\nRecord 0254: sensor C69 measured 9535 units.\nRecord 0255: sensor E48 measured 9904 units.\nRecord 0256: sensor G58 measured 8883 units.\nRecord 0257: sensor B11 measured 9363 units.\nRecord 0258: sensor E20 measured 6509 units.\nRecord 0259: sensor F97 measured 5608 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer:",
+  "max_tokens": 64,
+  "temperature": 0,
+  "seed": 0
+ },
+ "reference": {
+  "id": "cmpl-9ce3dadecfa65ab7",
+  "object": "text_completion",
+  "created": 1793158184,
+  "model": "/media/model-space/Qwen3-32B",
+  "choices": [
+   {
+    "index": 0,
+    "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+    "logprobs": null,
+    "finish_reason": "length",
+    "stop_reason": null,
+    "token_ids": null,
+    "prompt_logprobs": null,
+    "prompt_token_ids": null,
+    "routed_experts": null
+   }
+  ],
+  "service_tier": null,
+  "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+  "usage": {
+   "prompt_tokens": 4963,
+   "total_tokens": 5027,
+   "completion_tokens": 64,
+   "prompt_tokens_details": null,
+   "completion_tokens_details": null
+  },
+  "kv_transfer_params": null,
+  "ec_transfer_params": null,
+  "metrics": null
+ },
+ "hits": [
+  {
+   "id": "cmpl-bd6b7b7f183e69e0",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-b934f88111d32e86",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-b6cdfc0a45fee6d3",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a152238372d50baa",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-bdac3288f2bc9d37",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-9a743294528ba864",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-9b27c4a78c7b46a2",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-900c9aa1f2f25ce6",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-9de26aa25410d4ab",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-b4854bb18c38dc80",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-9f626db6680b2cc7",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-909d3fc6aeeff1f9",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a3fd1f60e4e056cd",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-adfe4dd42ac55df4",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-9e35a48758eedcba",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-bd1b9396052dfceb",
+   "object": "text_completion",
+   "created": 1793158196,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " Let's see. I need to find which sensor is in Record 0042 and what value it measured. Let me look through the records provided.\n\nStarting from the beginning, each record is listed with its number. Let me scan down to Record 0042. \n\nRecord 0000",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  }
+ ]
+}

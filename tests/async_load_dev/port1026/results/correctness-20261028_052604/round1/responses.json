@@ -1,0 +1,538 @@
+{
+ "request": {
+  "model": "/media/model-space/Qwen3-32B",
+  "prompt": "Sensor log.\nRecord 0000: sensor A31 measured 5669 units.\nRecord 0001: sensor G16 measured 6606 units.\nRecord 0002: sensor B13 measured 7444 units.\nRecord 0003: sensor D93 measured 1493 units.\nRecord 0004: sensor C43 measured 1893 units.\nRecord 0005: sensor E35 measured 9479 units.\nRecord 0006: sensor B90 measured 1168 units.\nRecord 0007: sensor H11 measured 4292 units.\nRecord 0008: sensor D84 measured 3836 units.\nRecord 0009: sensor H12 measured 3582 units.\nRecord 0010: sensor B24 measured 7502 units.\nRecord 0011: sensor D90 measured 6618 units.\nRecord 0012: sensor A92 measured 9102 units.\nRecord 0013: sensor E16 measured 5599 units.\nRecord 0014: sensor H21 measured 9762 units.\nRecord 0015: sensor C38 measured 2718 units.\nRecord 0016: sensor F92 measured 4091 units.\nRecord 0017: sensor H24 measured 3365 units.\nRecord 0018: sensor G85 measured 1459 units.\nRecord 0019: sensor H69 measured 3741 units.\nRecord 0020: sensor A25 measured 1750 units.\nRecord 0021: sensor C70 measured 7148 units.\nRecord 0022: sensor H30 measured 8749 units.\nRecord 0023: sensor H79 measured 5641 units.\nRecord 0024: sensor B16 measured 8864 units.\nRecord 0025: sensor F48 measured 6919 units.\nRecord 0026: sensor E28 measured 7317 units.\nRecord 0027: sensor E79 measured 1414 units.\nRecord 0028: sensor A77 measured 1835 units.\nRecord 0029: sensor A27 measured 4788 units.\nRecord 0030: sensor H30 measured 8378 units.\nRecord 0031: sensor C37 measured 7502 units.\nRecord 0032: sensor F79 measured 9947 units.\nRecord 0033: sensor G28 measured 4957 units.\nRecord 0034: sensor E49 measured 2818 units.\nRecord 0035: sensor F64 measured 4205 units.\nRecord 0036: sensor E13 measured 1278 units.\nRecord 0037: sensor E88 measured 3042 units.\nRecord 0038: sensor F92 measured 2152 units.\nRecord 0039: sensor E79 measured 5073 units.\nRecord 0040: sensor F63 measured 1410 units.\nRecord 0041: sensor G39 measured 3606 units.\nRecord 0042: sensor A66 measured 2799 units.\nRecord 0043: sensor F98 measured 9569 units.\nRecord 0044: sensor D25 measured 3523 units.\nRecord 0045: sensor C47 measured 2371 units.\nRecord 0046: sensor A96 measured 3519 units.\nRecord 0047: sensor H92 measured 6139 units.\nRecord 0048: sensor G44 measured 8817 units.\nRecord 0049: sensor B50 measured 7969 units.\nRecord 0050: sensor B29 measured 5039 units.\nRecord 0051: sensor D92 measured 3850 units.\nRecord 0052: sensor A14 measured 3780 units.\nRecord 0053: sensor A82 measured 4250 units.\nRecord 0054: sensor C82 measured 5837 units.\nRecord 0055: sensor B34 measured 4268 units.\nRecord 0056: sensor F61 measured 6956 units.\nRecord 0057: sensor A12 measured 1435 units.\nRecord 0058: sensor F78 measured 8494 units.\nRecord 0059: sensor H23 measured 5688 units.\nRecord 0060: sensor H84 measured 3934 units.\nRecord 0061: sensor D76 measured 4279 units.\nRecord 0062: sensor B66 measured 8896 units.\nRecord 0063: sensor G42 measured 5781 units.\nRecord 0064: sensor E95 measured 3013 units.\nRecord 0065: sensor A33 measured 9609 units.\nRecord 0066: sensor A53 measured 7172 units.\nRecord 0067: sensor D46 measured 7260 units.\nRecord 0068: sensor B67 measured 9056 units.\nRecord 0069: sensor E65 measured 7820 units.\nRecord 0070: sensor D60 measured 9843 units.\nRecord 0071: sensor D72 measured 6245 units.\nRecord 0072: sensor D56 measured 5997 units.\nRecord 0073: sensor B66 measured 7872 units.\nRecord 0074: sensor C47 measured 3743 units.\nRecord 0075: sensor E11 measured 4830 units.\nRecord 0076: sensor E83 measured 8950 units.\nRecord 0077: sensor C56 measured 4684 units.\nRecord 0078: sensor D38 measured 9442 units.\nRecord 0079: sensor B61 measured 8767 units.\nRecord 0080: sensor B16 measured 4921 units.\nRecord 0081: sensor B71 measured 8475 units.\nRecord 0082: sensor C17 measured 8291 units.\nRecord 0083: sensor D70 measured 5227 units.\nRecord 0084: sensor D56 measured 8703 units.\nRecord 0085: sensor F41 measured 5243 units.\nRecord 0086: sensor B45 measured 4830 units.\nRecord 0087: sensor G79 measured 6169 units.\nRecord 0088: sensor C66 measured 6698 units.\nRecord 0089: sensor G26 measured 7686 units.\nRecord 0090: sensor A10 measured 5521 units.\nRecord 0091: sensor C23 measured 6568 units.\nRecord 0092: sensor A17 measured 6762 units.\nRecord 0093: sensor D40 measured 9885 units.\nRecord 0094: sensor G82 measured 4535 units.\nRecord 0095: sensor D91 measured 1870 units.\nRecord 0096: sensor F86 measured 7203 units.\nRecord 0097: sensor F80 measured 1178 units.\nRecord 0098: sensor B80 measured 2836 units.\nRecord 0099: sensor B23 measured 8917 units.\nRecord 0100: sensor B71 measured 9055 units.\nRecord 0101: sensor F86 measured 1426 units.\nRecord 0102: sensor E99 measured 7094 units.\nRecord 0103: sensor E36 measured 6783 units.\nRecord 0104: sensor F42 measured 8721 units.\nRecord 0105: sensor H72 measured 9240 units.\nRecord 0106: sensor B91 measured 9078 units.\nRecord 0107: sensor E74 measured 7532 units.\nRecord 0108: sensor E95 measured 7437 units.\nRecord 0109: sensor G88 measured 3873 units.\nRecord 0110: sensor C42 measured 3977 units.\nRecord 0111: sensor H41 measured 6975 units.\nRecord 0112: sensor H77 measured 4379 units.\nRecord 0113: sensor B43 measured 9968 units.\nRecord 0114: sensor A28 measured 9202 units.\nRecord 0115: sensor G68 measured 3029 units.\nRecord 0116: sensor A76 measured 2902 units.\nRecord 0117: sensor C90 measured 2576 units.\nRecord 0118: sensor E57 measured 3879 units.\nRecord 0119: sensor B29 measured 8602 units.\nRecord 0120: sensor G62 measured 7782 units.\nRecord 0121: sensor D66 measured 9511 units.\nRecord 0122: sensor C65 measured 1179 units.\nRecord 0123: sensor D34 measured 7837 units.\nRecord 0124: sensor B90 measured 8281 units.\nRecord 0125: sensor E43 measured 6160 units.\nRecord 0126: sensor B59 measured 9973 units.\nRecord 0127: sensor D40 measured 5224 units.\nRecord 0128: sensor H68 measured 3732 units.\nRecord 0129: sensor C85 measured 1696 units.\nRecord 0130: sensor H28 measured 5399 units.\nRecord 0131: sensor D72 measured 6113 units.\nRecord 0132: sensor A61 measured 1597 units.\nRecord 0133: sensor E85 measured 5085 units.\nRecord 0134: sensor G12 measured 2815 units.\nRecord 0135: sensor B65 measured 2348 units.\nRecord 0136: sensor G61 measured 6150 units.\nRecord 0137: sensor D53 measured 1774 units.\nRecord 0138: sensor D78 measured 8068 units.\nRecord 0139: sensor H28 measured 5572 units.\nRecord 0140: sensor F17 measured 8206 units.\nRecord 0141: sensor B58 measured 7441 units.\nRecord 0142: sensor E68 measured 7236 units.\nRecord 0143: sensor E11 measured 5347 units.\nRecord 0144: sensor F58 measured 5888 units.\nRecord 0145: sensor C82 measured 3901 units.\nRecord 0146: sensor B29 measured 5669 units.\nRecord 0147: sensor F33 measured 3584 units.\nRecord 0148: sensor E32 measured 1266 units.\nRecord 0149: sensor E56 measured 9503 units.\nRecord 0150: sensor G99 measured 6883 units.\nRecord 0151: sensor H56 measured 1935 units.\nRecord 0152: sensor G19 measured 2223 units.\nRecord 0153: sensor A19 measured 6294 units.\nRecord 0154: sensor G82 measured 8090 units.\nRecord 0155: sensor H32 measured 2681 units.\nRecord 0156: sensor B50 measured 3127 units.\nRecord 0157: sensor B77 measured 2036 units.\nRecord 0158: sensor A92 measured 2529 units.\nRecord 0159: sensor G67 measured 5229 units.\nRecord 0160: sensor F86 measured 6478 units.\nRecord 0161: sensor G18 measured 8440 units.\nRecord 0162: sensor C34 measured 7674 units.\nRecord 0163: sensor B46 measured 1936 units.\nRecord 0164: sensor E53 measured 1293 units.\nRecord 0165: sensor C77 measured 8375 units.\nRecord 0166: sensor C71 measured 7668 units.\nRecord 0167: sensor F42 measured 1690 units.\nRecord 0168: sensor G37 measured 4586 units.\nRecord 0169: sensor D37 measured 7590 units.\nRecord 0170: sensor F15 measured 8486 units.\nRecord 0171: sensor B57 measured 6367 units.\nRecord 0172: sensor D52 measured 2480 units.\nRecord 0173: sensor B68 measured 1740 units.\nRecord 0174: sensor G87 measured 1950 units.\nRecord 0175: sensor F20 measured 4300 units.\nRecord 0176: sensor E69 measured 3782 units.\nRecord 0177: sensor B77 measured 5043 units.\nRecord 0178: sensor E19 measured 9284 units.\nRecord 0179: sensor G79 measured 5383 units.\nRecord 0180: sensor B72 measured 5323 units.\nRecord 0181: sensor C68 measured 2115 units.\nRecord 0182: sensor H77 measured 7131 units.\nRecord 0183: sensor D66 measured 2430 units.\nRecord 0184: sensor F81 measured 2078 units.\nRecord 0185: sensor A11 measured 1491 units.\nRecord 0186: sensor A11 measured 9871 units.\nRecord 0187: sensor A96 measured 1496 units.\nRecord 0188: sensor B85 measured 7845 units.\nRecord 0189: sensor H98 measured 2084 units.\nRecord 0190: sensor H83 measured 2749 units.\nRecord 0191: sensor D13 measured 6303 units.\nRecord 0192: sensor B33 measured 1288 units.\nRecord 0193: sensor E37 measured 1928 units.\nRecord 0194: sensor D85 measured 5135 units.\nRecord 0195: sensor D52 measured 4872 units.\nRecord 0196: sensor C77 measured 4634 units.\nRecord 0197: sensor B87 measured 1023 units.\nRecord 0198: sensor B61 measured 5404 units.\nRecord 0199: sensor F58 measured 7108 units.\nRecord 0200: sensor B78 measured 3475 units.\nRecord 0201: sensor A95 measured 2826 units.\nRecord 0202: sensor G60 measured 3028 units.\nRecord 0203: sensor E93 measured 4579 units.\nRecord 0204: sensor G44 measured 2619 units.\nRecord 0205: sensor A51 measured 5703 units.\nRecord 0206: sensor B23 measured 2909 units.\nRecord 0207: sensor F48 measured 6337 units.\nRecord 0208: sensor C15 measured 6991 units.\nRecord 0209: sensor F42 measured 9793 units.\nRecord 0210: sensor F15 measured 9508 units.\nRecord 0211: sensor C51 measured 3055 units.\nRecord 0212: sensor F96 measured 4604 units.\nRecord 0213: sensor D84 measured 5825 units.\nRecord 0214: sensor B13 measured 8378 units.\nRecord 0215: sensor G96 measured 2281 units.\nRecord 0216: sensor H37 measured 3711 units.\nRecord 0217: sensor A22 measured 5092 units.\nRecord 0218: sensor F57 measured 4394 units.\nRecord 0219: sensor H62 measured 7214 units.\nRecord 0220: sensor B86 measured 9755 units.\nRecord 0221: sensor E12 measured 7927 units.\nRecord 0222: sensor H99 measured 3751 units.\nRecord 0223: sensor E28 measured 4855 units.\nRecord 0224: sensor B47 measured 4721 units.\nRecord 0225: sensor B10 measured 6726 units.\nRecord 0226: sensor F35 measured 7091 units.\nRecord 0227: sensor A68 measured 9551 units.\nRecord 0228: sensor B52 measured 1189 units.\nRecord 0229: sensor C26 measured 5295 units.\nRecord 0230: sensor A12 measured 8670 units.\nRecord 0231: sensor E56 measured 3685 units.\nRecord 0232: sensor B24 measured 4160 units.\nRecord 0233: sensor E56 measured 7401 units.\nRecord 0234: sensor G69 measured 7998 units.\nRecord 0235: sensor A81 measured 6158 units.\nRecord 0236: sensor A32 measured 2908 units.\nRecord 0237: sensor H52 measured 1543 units.\nRecord 0238: sensor A25 measured 4294 units.\nRecord 0239: sensor F72 measured 8800 units.\nRecord 0240: sensor G15 measured 1029 units.\nRecord 0241: sensor F40 measured 1205 units.\nRecord 0242: sensor A57 measured 9828 units.\nRecord 0243: sensor F42 measured 4646 units.\nRecord 0244: sensor H99 measured 1224 units.\nRecord 0245: sensor B42 measured 2383 units.\nRecord 0246: sensor F62 measured 6544 units.\nRecord 0247: sensor H69 measured 4741 units.\nRecord 0248: sensor B55 measured 4804 units.\nRecord 0249: sensor H68 measured 8187 units.\nRecord 0250: sensor H57 measured 9964 units.\nRecord 0251: sensor H95 measured 1865 units.\nRecord 0252: sensor F29 measured 2601 units.\nRecord 0253: sensor A32 measured 4965 units.\nRecord 0254: sensor G84 measured 7220 units.\nRecord 0255: sensor C51 measured 6414 units.\nRecord 0256: sensor A72 measured 3360 units.\nRecord 0257: sensor B28 measured 1348 units.\nRecord 0258: sensor B73 measured 2711 units.\nRecord 0259: sensor B45 measured 4783 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer:",
+  "max_tokens": 64,
+  "temperature": 0,
+  "seed": 0
+ },
+ "reference": {
+  "id": "cmpl-a53d91b89ec51483",
+  "object": "text_completion",
+  "created": 1793165302,
+  "model": "/media/model-space/Qwen3-32B",
+  "choices": [
+   {
+    "index": 0,
+    "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+    "logprobs": null,
+    "finish_reason": "length",
+    "stop_reason": null,
+    "token_ids": null,
+    "prompt_logprobs": null,
+    "prompt_token_ids": null,
+    "routed_experts": null
+   }
+  ],
+  "service_tier": null,
+  "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+  "usage": {
+   "prompt_tokens": 4963,
+   "total_tokens": 5027,
+   "completion_tokens": 64,
+   "prompt_tokens_details": null,
+   "completion_tokens_details": null
+  },
+  "kv_transfer_params": null,
+  "ec_transfer_params": null,
+  "metrics": null
+ },
+ "hits": [
+  {
+   "id": "cmpl-bab9001ec26a6745",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a305cd42bbd667b7",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-809168fa7f47dc8e",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-bcf2fca3d24c6be0",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-b0a519401eba1396",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-99ab116d7df58e14",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-8a1a4e10bfe71fe0",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-ae608fdb81d94f31",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-9bc234fd758c92d5",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-b38ae36999d4c7b6",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a78e7b02aa8097ed",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a3291020c096a833",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-808babb114b59d6e",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-b446b530cf314089",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-b25020f6c404680d",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-837ce0ec9cf70376",
+   "object": "text_completion",
+   "created": 1793165317,
+   "model": "/media/model-space/Qwen3-32B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A66 measured 2799 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer: A6",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-9d7133e1",
+   "usage": {
+    "prompt_tokens": 4963,
+    "total_tokens": 5027,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  }
+ ]
+}

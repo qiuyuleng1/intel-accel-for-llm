@@ -1,0 +1,538 @@
+{
+ "request": {
+  "model": "/media/model-space/Qwen3.5-27B",
+  "prompt": "Sensor log.\nRecord 0000: sensor H16 measured 1920 units.\nRecord 0001: sensor H50 measured 3726 units.\nRecord 0002: sensor E29 measured 6700 units.\nRecord 0003: sensor C47 measured 3014 units.\nRecord 0004: sensor E77 measured 5784 units.\nRecord 0005: sensor E39 measured 3119 units.\nRecord 0006: sensor H74 measured 2578 units.\nRecord 0007: sensor D41 measured 5811 units.\nRecord 0008: sensor E40 measured 3753 units.\nRecord 0009: sensor B45 measured 5049 units.\nRecord 0010: sensor A65 measured 7516 units.\nRecord 0011: sensor E27 measured 6148 units.\nRecord 0012: sensor F51 measured 9107 units.\nRecord 0013: sensor H49 measured 3523 units.\nRecord 0014: sensor C93 measured 6596 units.\nRecord 0015: sensor E32 measured 3988 units.\nRecord 0016: sensor B76 measured 8707 units.\nRecord 0017: sensor D71 measured 8602 units.\nRecord 0018: sensor F75 measured 4087 units.\nRecord 0019: sensor H34 measured 3190 units.\nRecord 0020: sensor F67 measured 2108 units.\nRecord 0021: sensor F79 measured 5532 units.\nRecord 0022: sensor G27 measured 3974 units.\nRecord 0023: sensor E25 measured 6440 units.\nRecord 0024: sensor A84 measured 5148 units.\nRecord 0025: sensor H19 measured 4724 units.\nRecord 0026: sensor A13 measured 3143 units.\nRecord 0027: sensor F41 measured 5547 units.\nRecord 0028: sensor H13 measured 1230 units.\nRecord 0029: sensor E27 measured 4571 units.\nRecord 0030: sensor F74 measured 8845 units.\nRecord 0031: sensor D16 measured 5305 units.\nRecord 0032: sensor H60 measured 8132 units.\nRecord 0033: sensor E23 measured 2498 units.\nRecord 0034: sensor G97 measured 4558 units.\nRecord 0035: sensor H17 measured 5991 units.\nRecord 0036: sensor A45 measured 8862 units.\nRecord 0037: sensor C39 measured 1812 units.\nRecord 0038: sensor G87 measured 6760 units.\nRecord 0039: sensor A39 measured 9981 units.\nRecord 0040: sensor F70 measured 9593 units.\nRecord 0041: sensor A88 measured 3838 units.\nRecord 0042: sensor B88 measured 3715 units.\nRecord 0043: sensor F55 measured 6718 units.\nRecord 0044: sensor B43 measured 3992 units.\nRecord 0045: sensor B22 measured 7605 units.\nRecord 0046: sensor A90 measured 9822 units.\nRecord 0047: sensor F19 measured 8870 units.\nRecord 0048: sensor E44 measured 2617 units.\nRecord 0049: sensor C54 measured 1605 units.\nRecord 0050: sensor G20 measured 4269 units.\nRecord 0051: sensor D74 measured 8749 units.\nRecord 0052: sensor E67 measured 5394 units.\nRecord 0053: sensor H74 measured 2905 units.\nRecord 0054: sensor B85 measured 1746 units.\nRecord 0055: sensor D25 measured 8125 units.\nRecord 0056: sensor H37 measured 1411 units.\nRecord 0057: sensor G40 measured 6867 units.\nRecord 0058: sensor H92 measured 8755 units.\nRecord 0059: sensor A43 measured 2264 units.\nRecord 0060: sensor H70 measured 7401 units.\nRecord 0061: sensor H94 measured 5774 units.\nRecord 0062: sensor C72 measured 7479 units.\nRecord 0063: sensor D34 measured 8107 units.\nRecord 0064: sensor A31 measured 7691 units.\nRecord 0065: sensor F20 measured 7984 units.\nRecord 0066: sensor B41 measured 7797 units.\nRecord 0067: sensor H86 measured 8789 units.\nRecord 0068: sensor A41 measured 5802 units.\nRecord 0069: sensor D96 measured 4999 units.\nRecord 0070: sensor E58 measured 5249 units.\nRecord 0071: sensor A87 measured 9085 units.\nRecord 0072: sensor D58 measured 9798 units.\nRecord 0073: sensor C74 measured 1491 units.\nRecord 0074: sensor E65 measured 3846 units.\nRecord 0075: sensor A98 measured 6219 units.\nRecord 0076: sensor B58 measured 5008 units.\nRecord 0077: sensor B12 measured 7030 units.\nRecord 0078: sensor G34 measured 6571 units.\nRecord 0079: sensor E43 measured 4028 units.\nRecord 0080: sensor E14 measured 4442 units.\nRecord 0081: sensor A68 measured 1069 units.\nRecord 0082: sensor D64 measured 2886 units.\nRecord 0083: sensor H12 measured 8883 units.\nRecord 0084: sensor C20 measured 2852 units.\nRecord 0085: sensor F21 measured 2034 units.\nRecord 0086: sensor E33 measured 4921 units.\nRecord 0087: sensor B80 measured 4817 units.\nRecord 0088: sensor G89 measured 4797 units.\nRecord 0089: sensor H71 measured 5240 units.\nRecord 0090: sensor F23 measured 7959 units.\nRecord 0091: sensor F10 measured 4921 units.\nRecord 0092: sensor D40 measured 6983 units.\nRecord 0093: sensor H86 measured 4549 units.\nRecord 0094: sensor F47 measured 7820 units.\nRecord 0095: sensor H78 measured 2765 units.\nRecord 0096: sensor C38 measured 2266 units.\nRecord 0097: sensor C46 measured 6554 units.\nRecord 0098: sensor B82 measured 6412 units.\nRecord 0099: sensor D26 measured 6965 units.\nRecord 0100: sensor C52 measured 9516 units.\nRecord 0101: sensor A32 measured 3851 units.\nRecord 0102: sensor B81 measured 9611 units.\nRecord 0103: sensor A42 measured 9880 units.\nRecord 0104: sensor H61 measured 5473 units.\nRecord 0105: sensor E19 measured 3328 units.\nRecord 0106: sensor D12 measured 2663 units.\nRecord 0107: sensor G77 measured 3591 units.\nRecord 0108: sensor C61 measured 7156 units.\nRecord 0109: sensor B27 measured 2765 units.\nRecord 0110: sensor D69 measured 3717 units.\nRecord 0111: sensor D83 measured 7931 units.\nRecord 0112: sensor G85 measured 4466 units.\nRecord 0113: sensor A19 measured 2073 units.\nRecord 0114: sensor F74 measured 5055 units.\nRecord 0115: sensor A23 measured 3483 units.\nRecord 0116: sensor F41 measured 3906 units.\nRecord 0117: sensor E84 measured 6782 units.\nRecord 0118: sensor F95 measured 9119 units.\nRecord 0119: sensor B40 measured 1376 units.\nRecord 0120: sensor A39 measured 7653 units.\nRecord 0121: sensor G89 measured 2196 units.\nRecord 0122: sensor A70 measured 9339 units.\nRecord 0123: sensor D68 measured 1852 units.\nRecord 0124: sensor E98 measured 4480 units.\nRecord 0125: sensor D94 measured 7723 units.\nRecord 0126: sensor G53 measured 5901 units.\nRecord 0127: sensor G13 measured 8317 units.\nRecord 0128: sensor G11 measured 7640 units.\nRecord 0129: sensor H47 measured 3743 units.\nRecord 0130: sensor D56 measured 1797 units.\nRecord 0131: sensor G63 measured 5669 units.\nRecord 0132: sensor E77 measured 9190 units.\nRecord 0133: sensor E87 measured 5664 units.\nRecord 0134: sensor D81 measured 2423 units.\nRecord 0135: sensor F48 measured 7821 units.\nRecord 0136: sensor D45 measured 7286 units.\nRecord 0137: sensor D89 measured 2854 units.\nRecord 0138: sensor A23 measured 8037 units.\nRecord 0139: sensor G79 measured 4116 units.\nRecord 0140: sensor C87 measured 7725 units.\nRecord 0141: sensor F76 measured 1842 units.\nRecord 0142: sensor D66 measured 1009 units.\nRecord 0143: sensor E46 measured 1109 units.\nRecord 0144: sensor F50 measured 6914 units.\nRecord 0145: sensor B94 measured 5353 units.\nRecord 0146: sensor C69 measured 9870 units.\nRecord 0147: sensor H16 measured 2958 units.\nRecord 0148: sensor D36 measured 6479 units.\nRecord 0149: sensor F97 measured 5854 units.\nRecord 0150: sensor G77 measured 4431 units.\nRecord 0151: sensor C80 measured 1523 units.\nRecord 0152: sensor E40 measured 4743 units.\nRecord 0153: sensor G80 measured 1927 units.\nRecord 0154: sensor A49 measured 6031 units.\nRecord 0155: sensor C47 measured 4771 units.\nRecord 0156: sensor G23 measured 8098 units.\nRecord 0157: sensor A89 measured 2386 units.\nRecord 0158: sensor D46 measured 3224 units.\nRecord 0159: sensor G31 measured 7599 units.\nRecord 0160: sensor H39 measured 2633 units.\nRecord 0161: sensor G56 measured 5826 units.\nRecord 0162: sensor F63 measured 1422 units.\nRecord 0163: sensor C92 measured 1307 units.\nRecord 0164: sensor G60 measured 3004 units.\nRecord 0165: sensor C42 measured 4397 units.\nRecord 0166: sensor G80 measured 7446 units.\nRecord 0167: sensor A29 measured 2304 units.\nRecord 0168: sensor H21 measured 3896 units.\nRecord 0169: sensor F62 measured 8832 units.\nRecord 0170: sensor F50 measured 5536 units.\nRecord 0171: sensor G39 measured 6437 units.\nRecord 0172: sensor F57 measured 3684 units.\nRecord 0173: sensor D77 measured 1068 units.\nRecord 0174: sensor D98 measured 9091 units.\nRecord 0175: sensor B59 measured 8947 units.\nRecord 0176: sensor E46 measured 8010 units.\nRecord 0177: sensor C73 measured 8086 units.\nRecord 0178: sensor D67 measured 3882 units.\nRecord 0179: sensor F95 measured 1540 units.\nRecord 0180: sensor G97 measured 8976 units.\nRecord 0181: sensor G80 measured 7881 units.\nRecord 0182: sensor H93 measured 6929 units.\nRecord 0183: sensor B70 measured 9474 units.\nRecord 0184: sensor G47 measured 5235 units.\nRecord 0185: sensor H24 measured 8816 units.\nRecord 0186: sensor C56 measured 6372 units.\nRecord 0187: sensor G28 measured 8756 units.\nRecord 0188: sensor A76 measured 9780 units.\nRecord 0189: sensor D17 measured 1096 units.\nRecord 0190: sensor A76 measured 7916 units.\nRecord 0191: sensor H66 measured 1496 units.\nRecord 0192: sensor G65 measured 1943 units.\nRecord 0193: sensor A76 measured 4014 units.\nRecord 0194: sensor H10 measured 9194 units.\nRecord 0195: sensor G42 measured 7913 units.\nRecord 0196: sensor H80 measured 6754 units.\nRecord 0197: sensor F73 measured 4180 units.\nRecord 0198: sensor H35 measured 4574 units.\nRecord 0199: sensor E42 measured 5850 units.\nRecord 0200: sensor F22 measured 2499 units.\nRecord 0201: sensor A79 measured 9736 units.\nRecord 0202: sensor G86 measured 2631 units.\nRecord 0203: sensor C43 measured 4740 units.\nRecord 0204: sensor G95 measured 7773 units.\nRecord 0205: sensor B55 measured 3074 units.\nRecord 0206: sensor E32 measured 2151 units.\nRecord 0207: sensor A59 measured 4964 units.\nRecord 0208: sensor G37 measured 6522 units.\nRecord 0209: sensor E77 measured 6117 units.\nRecord 0210: sensor H72 measured 3994 units.\nRecord 0211: sensor G79 measured 6593 units.\nRecord 0212: sensor H41 measured 9690 units.\nRecord 0213: sensor H49 measured 5082 units.\nRecord 0214: sensor B53 measured 6450 units.\nRecord 0215: sensor A92 measured 2482 units.\nRecord 0216: sensor C60 measured 8301 units.\nRecord 0217: sensor D26 measured 7381 units.\nRecord 0218: sensor G58 measured 3390 units.\nRecord 0219: sensor B37 measured 6369 units.\nRecord 0220: sensor E91 measured 1089 units.\nRecord 0221: sensor D14 measured 5354 units.\nRecord 0222: sensor G13 measured 2003 units.\nRecord 0223: sensor G66 measured 4811 units.\nRecord 0224: sensor E33 measured 2699 units.\nRecord 0225: sensor A31 measured 1112 units.\nRecord 0226: sensor B36 measured 9810 units.\nRecord 0227: sensor F18 measured 8829 units.\nRecord 0228: sensor C53 measured 7485 units.\nRecord 0229: sensor D92 measured 1212 units.\nRecord 0230: sensor C68 measured 7030 units.\nRecord 0231: sensor D83 measured 8396 units.\nRecord 0232: sensor D92 measured 5316 units.\nRecord 0233: sensor H73 measured 1342 units.\nRecord 0234: sensor E71 measured 4216 units.\nRecord 0235: sensor H89 measured 5425 units.\nRecord 0236: sensor A77 measured 2895 units.\nRecord 0237: sensor E79 measured 6096 units.\nRecord 0238: sensor G66 measured 6101 units.\nRecord 0239: sensor E66 measured 3656 units.\nRecord 0240: sensor H18 measured 8403 units.\nRecord 0241: sensor A70 measured 3726 units.\nRecord 0242: sensor A85 measured 5953 units.\nRecord 0243: sensor E45 measured 2559 units.\nRecord 0244: sensor D81 measured 1578 units.\nRecord 0245: sensor G99 measured 6751 units.\nRecord 0246: sensor F55 measured 5152 units.\nRecord 0247: sensor G12 measured 4624 units.\nRecord 0248: sensor E13 measured 7148 units.\nRecord 0249: sensor H38 measured 3181 units.\nRecord 0250: sensor B97 measured 2870 units.\nRecord 0251: sensor D37 measured 6824 units.\nRecord 0252: sensor A54 measured 2731 units.\nRecord 0253: sensor A95 measured 6531 units.\nRecord 0254: sensor H60 measured 1087 units.\nRecord 0255: sensor H78 measured 8157 units.\nRecord 0256: sensor G99 measured 4520 units.\nRecord 0257: sensor A65 measured 6275 units.\nRecord 0258: sensor C70 measured 8673 units.\nRecord 0259: sensor A42 measured 3365 units.\nRecord 0260: sensor G21 measured 3539 units.\nRecord 0261: sensor E36 measured 6025 units.\nRecord 0262: sensor G71 measured 7388 units.\nRecord 0263: sensor B99 measured 3921 units.\nRecord 0264: sensor C51 measured 2358 units.\nRecord 0265: sensor E37 measured 2430 units.\nRecord 0266: sensor C27 measured 8138 units.\nRecord 0267: sensor C78 measured 3491 units.\nRecord 0268: sensor C17 measured 5722 units.\nRecord 0269: sensor E88 measured 5194 units.\nRecord 0270: sensor D21 measured 7460 units.\nRecord 0271: sensor A23 measured 7164 units.\nRecord 0272: sensor F47 measured 6704 units.\nRecord 0273: sensor E72 measured 8104 units.\nRecord 0274: sensor D54 measured 4808 units.\nRecord 0275: sensor H44 measured 1844 units.\nRecord 0276: sensor E87 measured 1010 units.\nRecord 0277: sensor F69 measured 4114 units.\nRecord 0278: sensor F98 measured 7907 units.\nRecord 0279: sensor C65 measured 9327 units.\nRecord 0280: sensor D29 measured 8706 units.\nRecord 0281: sensor A71 measured 6616 units.\nRecord 0282: sensor D82 measured 7547 units.\nRecord 0283: sensor C55 measured 7684 units.\nRecord 0284: sensor B26 measured 8403 units.\nRecord 0285: sensor H23 measured 8737 units.\nRecord 0286: sensor F81 measured 2989 units.\nRecord 0287: sensor D31 measured 7724 units.\nRecord 0288: sensor F99 measured 2367 units.\nRecord 0289: sensor B86 measured 2872 units.\nRecord 0290: sensor G34 measured 1589 units.\nRecord 0291: sensor H22 measured 9110 units.\nRecord 0292: sensor C55 measured 2002 units.\nRecord 0293: sensor B61 measured 9308 units.\nRecord 0294: sensor E51 measured 9702 units.\nRecord 0295: sensor C72 measured 5124 units.\nRecord 0296: sensor D50 measured 9473 units.\nRecord 0297: sensor C38 measured 1642 units.\nRecord 0298: sensor H97 measured 9205 units.\nRecord 0299: sensor F78 measured 1150 units.\nRecord 0300: sensor F40 measured 9274 units.\nRecord 0301: sensor G77 measured 7171 units.\nRecord 0302: sensor D50 measured 9497 units.\nRecord 0303: sensor B84 measured 2042 units.\nRecord 0304: sensor B92 measured 5471 units.\nRecord 0305: sensor A60 measured 3987 units.\nRecord 0306: sensor E71 measured 3611 units.\nRecord 0307: sensor H64 measured 7133 units.\nRecord 0308: sensor F54 measured 6059 units.\nRecord 0309: sensor A13 measured 2504 units.\nRecord 0310: sensor D15 measured 5032 units.\nRecord 0311: sensor E71 measured 5826 units.\nRecord 0312: sensor D73 measured 6904 units.\nRecord 0313: sensor H44 measured 6435 units.\nRecord 0314: sensor C60 measured 3207 units.\nRecord 0315: sensor D30 measured 9573 units.\nRecord 0316: sensor H81 measured 7396 units.\nRecord 0317: sensor B76 measured 1089 units.\nRecord 0318: sensor A74 measured 3672 units.\nRecord 0319: sensor G15 measured 4736 units.\nRecord 0320: sensor C19 measured 7676 units.\nRecord 0321: sensor G81 measured 4162 units.\nRecord 0322: sensor H48 measured 8058 units.\nRecord 0323: sensor E85 measured 6319 units.\nRecord 0324: sensor E98 measured 2037 units.\nRecord 0325: sensor H91 measured 1128 units.\nRecord 0326: sensor H28 measured 2734 units.\nRecord 0327: sensor A76 measured 3070 units.\nRecord 0328: sensor D97 measured 1538 units.\nRecord 0329: sensor E25 measured 1370 units.\nRecord 0330: sensor B63 measured 5257 units.\nRecord 0331: sensor D16 measured 7419 units.\nRecord 0332: sensor C40 measured 3601 units.\nRecord 0333: sensor E83 measured 8307 units.\nRecord 0334: sensor F72 measured 9160 units.\nRecord 0335: sensor G54 measured 6734 units.\nRecord 0336: sensor H89 measured 4022 units.\nRecord 0337: sensor C57 measured 8314 units.\nRecord 0338: sensor C39 measured 9298 units.\nRecord 0339: sensor F93 measured 9154 units.\nRecord 0340: sensor H21 measured 4138 units.\nRecord 0341: sensor G85 measured 4824 units.\nRecord 0342: sensor B95 measured 5013 units.\nRecord 0343: sensor D49 measured 3666 units.\nRecord 0344: sensor D79 measured 3506 units.\nRecord 0345: sensor G91 measured 2925 units.\nRecord 0346: sensor F93 measured 1198 units.\nRecord 0347: sensor F93 measured 2367 units.\nRecord 0348: sensor H78 measured 7960 units.\nRecord 0349: sensor E15 measured 1196 units.\nRecord 0350: sensor E28 measured 5362 units.\nRecord 0351: sensor E64 measured 8339 units.\nRecord 0352: sensor B25 measured 7063 units.\nRecord 0353: sensor F15 measured 4370 units.\nRecord 0354: sensor D91 measured 2066 units.\nRecord 0355: sensor A78 measured 8669 units.\nRecord 0356: sensor E92 measured 4731 units.\nRecord 0357: sensor E92 measured 5097 units.\nRecord 0358: sensor F41 measured 1921 units.\nRecord 0359: sensor G38 measured 4293 units.\nRecord 0360: sensor B78 measured 7580 units.\nRecord 0361: sensor A50 measured 3259 units.\nRecord 0362: sensor F88 measured 5811 units.\nRecord 0363: sensor B77 measured 1986 units.\nRecord 0364: sensor H97 measured 8849 units.\nRecord 0365: sensor C45 measured 5050 units.\nRecord 0366: sensor E58 measured 6247 units.\nRecord 0367: sensor C74 measured 9475 units.\nRecord 0368: sensor D93 measured 5911 units.\nRecord 0369: sensor F45 measured 6443 units.\nRecord 0370: sensor H92 measured 8514 units.\nRecord 0371: sensor D13 measured 7807 units.\nRecord 0372: sensor G60 measured 6237 units.\nRecord 0373: sensor C72 measured 3245 units.\nRecord 0374: sensor F52 measured 2003 units.\nRecord 0375: sensor B68 measured 3104 units.\nRecord 0376: sensor G56 measured 6684 units.\nRecord 0377: sensor E70 measured 8553 units.\nRecord 0378: sensor A89 measured 2998 units.\nRecord 0379: sensor A90 measured 8843 units.\nRecord 0380: sensor A34 measured 4015 units.\nRecord 0381: sensor D57 measured 9079 units.\nRecord 0382: sensor G66 measured 1933 units.\nRecord 0383: sensor C24 measured 4981 units.\nRecord 0384: sensor H55 measured 7987 units.\nRecord 0385: sensor A15 measured 6130 units.\nRecord 0386: sensor H14 measured 8969 units.\nRecord 0387: sensor B47 measured 5847 units.\nRecord 0388: sensor B93 measured 7542 units.\nRecord 0389: sensor A85 measured 2300 units.\nRecord 0390: sensor G96 measured 7036 units.\nRecord 0391: sensor B85 measured 1913 units.\nRecord 0392: sensor F67 measured 6217 units.\nRecord 0393: sensor B11 measured 3891 units.\nRecord 0394: sensor H16 measured 4065 units.\nRecord 0395: sensor F88 measured 6904 units.\nRecord 0396: sensor A84 measured 6202 units.\nRecord 0397: sensor E54 measured 2296 units.\nRecord 0398: sensor D71 measured 1525 units.\nRecord 0399: sensor G88 measured 7304 units.\nRecord 0400: sensor G79 measured 4879 units.\nRecord 0401: sensor H40 measured 6812 units.\nRecord 0402: sensor B77 measured 7475 units.\nRecord 0403: sensor B24 measured 8803 units.\nRecord 0404: sensor B26 measured 3339 units.\nRecord 0405: sensor H84 measured 6560 units.\nRecord 0406: sensor F76 measured 6413 units.\nRecord 0407: sensor F94 measured 2640 units.\nRecord 0408: sensor H17 measured 7494 units.\nRecord 0409: sensor D18 measured 8661 units.\nRecord 0410: sensor F57 measured 3792 units.\nRecord 0411: sensor C87 measured 6643 units.\nRecord 0412: sensor G44 measured 7350 units.\nRecord 0413: sensor H34 measured 2513 units.\nRecord 0414: sensor H18 measured 8408 units.\nRecord 0415: sensor H46 measured 2880 units.\nRecord 0416: sensor F27 measured 7840 units.\nRecord 0417: sensor B62 measured 8164 units.\nRecord 0418: sensor A68 measured 3939 units.\nRecord 0419: sensor G90 measured 4134 units.\nRecord 0420: sensor G73 measured 7841 units.\nRecord 0421: sensor A16 measured 1570 units.\nRecord 0422: sensor D12 measured 9319 units.\nRecord 0423: sensor B25 measured 9407 units.\nRecord 0424: sensor A64 measured 3049 units.\nRecord 0425: sensor B80 measured 5904 units.\nRecord 0426: sensor A83 measured 2702 units.\nRecord 0427: sensor H52 measured 7554 units.\nRecord 0428: sensor E23 measured 7950 units.\nRecord 0429: sensor D77 measured 5206 units.\nRecord 0430: sensor H70 measured 8570 units.\nRecord 0431: sensor G27 measured 7547 units.\nRecord 0432: sensor G37 measured 2444 units.\nRecord 0433: sensor C87 measured 8621 units.\nRecord 0434: sensor G63 measured 5316 units.\nRecord 0435: sensor C97 measured 7667 units.\nRecord 0436: sensor D87 measured 7947 units.\nRecord 0437: sensor C47 measured 2586 units.\nRecord 0438: sensor E53 measured 8168 units.\nRecord 0439: sensor D60 measured 6824 units.\nRecord 0440: sensor C57 measured 9591 units.\nRecord 0441: sensor C76 measured 7469 units.\nRecord 0442: sensor B19 measured 3206 units.\nRecord 0443: sensor A58 measured 9443 units.\nRecord 0444: sensor C27 measured 1225 units.\nRecord 0445: sensor B35 measured 8877 units.\nRecord 0446: sensor C53 measured 3153 units.\nRecord 0447: sensor E63 measured 7887 units.\nRecord 0448: sensor F43 measured 6916 units.\nRecord 0449: sensor D50 measured 4631 units.\nRecord 0450: sensor D25 measured 5405 units.\nRecord 0451: sensor E25 measured 3159 units.\nRecord 0452: sensor E70 measured 6513 units.\nRecord 0453: sensor H15 measured 4819 units.\nRecord 0454: sensor D29 measured 7595 units.\nRecord 0455: sensor E10 measured 2158 units.\nRecord 0456: sensor F80 measured 3672 units.\nRecord 0457: sensor H50 measured 2266 units.\nRecord 0458: sensor E79 measured 6235 units.\nRecord 0459: sensor C41 measured 5553 units.\nRecord 0460: sensor H31 measured 5784 units.\nRecord 0461: sensor A27 measured 6074 units.\nRecord 0462: sensor C59 measured 6989 units.\nRecord 0463: sensor G65 measured 9485 units.\nRecord 0464: sensor E79 measured 7754 units.\nRecord 0465: sensor D66 measured 4369 units.\nRecord 0466: sensor G18 measured 8622 units.\nRecord 0467: sensor A11 measured 2059 units.\nRecord 0468: sensor D99 measured 1575 units.\nRecord 0469: sensor E74 measured 1813 units.\nRecord 0470: sensor F54 measured 3124 units.\nRecord 0471: sensor F93 measured 7949 units.\nRecord 0472: sensor A98 measured 3600 units.\nRecord 0473: sensor D95 measured 1756 units.\nRecord 0474: sensor A52 measured 2493 units.\nRecord 0475: sensor H42 measured 3778 units.\nRecord 0476: sensor C96 measured 4091 units.\nRecord 0477: sensor F29 measured 1815 units.\nRecord 0478: sensor F97 measured 1365 units.\nRecord 0479: sensor F92 measured 6066 units.\nRecord 0480: sensor G35 measured 8020 units.\nRecord 0481: sensor F86 measured 3718 units.\nRecord 0482: sensor H87 measured 7294 units.\nRecord 0483: sensor H18 measured 6741 units.\nRecord 0484: sensor D19 measured 6416 units.\nRecord 0485: sensor E42 measured 4939 units.\nRecord 0486: sensor D99 measured 2396 units.\nRecord 0487: sensor A16 measured 7587 units.\nRecord 0488: sensor D38 measured 1526 units.\nRecord 0489: sensor G59 measured 4140 units.\nRecord 0490: sensor H24 measured 1934 units.\nRecord 0491: sensor G35 measured 4106 units.\nRecord 0492: sensor B84 measured 3633 units.\nRecord 0493: sensor H29 measured 8777 units.\nRecord 0494: sensor H47 measured 2799 units.\nRecord 0495: sensor G34 measured 4110 units.\nRecord 0496: sensor F51 measured 4129 units.\nRecord 0497: sensor B29 measured 7711 units.\nRecord 0498: sensor G96 measured 6953 units.\nRecord 0499: sensor B38 measured 5562 units.\nRecord 0500: sensor F96 measured 7131 units.\nRecord 0501: sensor C37 measured 5488 units.\nRecord 0502: sensor A55 measured 2904 units.\nRecord 0503: sensor F83 measured 8507 units.\nRecord 0504: sensor G38 measured 3952 units.\nRecord 0505: sensor D86 measured 2685 units.\nRecord 0506: sensor G16 measured 7130 units.\nRecord 0507: sensor G63 measured 4474 units.\nRecord 0508: sensor C39 measured 3028 units.\nRecord 0509: sensor F55 measured 8563 units.\nRecord 0510: sensor B88 measured 1910 units.\nRecord 0511: sensor A91 measured 5213 units.\nRecord 0512: sensor D98 measured 2017 units.\nRecord 0513: sensor E85 measured 5361 units.\nRecord 0514: sensor A64 measured 8563 units.\nRecord 0515: sensor C49 measured 3657 units.\nRecord 0516: sensor A36 measured 3270 units.\nRecord 0517: sensor A19 measured 7809 units.\nRecord 0518: sensor G94 measured 7545 units.\nRecord 0519: sensor B27 measured 8584 units.\nRecord 0520: sensor C17 measured 5674 units.\nRecord 0521: sensor D17 measured 1825 units.\nRecord 0522: sensor F16 measured 6978 units.\nRecord 0523: sensor B36 measured 1376 units.\nRecord 0524: sensor A93 measured 4581 units.\nRecord 0525: sensor D77 measured 1613 units.\nRecord 0526: sensor B18 measured 4572 units.\nRecord 0527: sensor H64 measured 5375 units.\nRecord 0528: sensor D75 measured 2284 units.\nRecord 0529: sensor F49 measured 9038 units.\nRecord 0530: sensor G71 measured 3488 units.\nRecord 0531: sensor G34 measured 6116 units.\nRecord 0532: sensor E45 measured 7262 units.\nRecord 0533: sensor G59 measured 4290 units.\nRecord 0534: sensor H29 measured 2574 units.\nRecord 0535: sensor H70 measured 4736 units.\nRecord 0536: sensor E83 measured 8083 units.\nRecord 0537: sensor A60 measured 9174 units.\nRecord 0538: sensor H58 measured 8806 units.\nRecord 0539: sensor B54 measured 4429 units.\nRecord 0540: sensor C68 measured 6595 units.\nRecord 0541: sensor A28 measured 6859 units.\nRecord 0542: sensor C90 measured 7671 units.\nRecord 0543: sensor A33 measured 7199 units.\nRecord 0544: sensor H20 measured 4797 units.\nRecord 0545: sensor D50 measured 5199 units.\nRecord 0546: sensor C17 measured 6647 units.\nRecord 0547: sensor G66 measured 6516 units.\nRecord 0548: sensor A25 measured 1463 units.\nRecord 0549: sensor A54 measured 9610 units.\nRecord 0550: sensor E53 measured 3037 units.\nRecord 0551: sensor E82 measured 6680 units.\nRecord 0552: sensor A93 measured 4250 units.\nRecord 0553: sensor D33 measured 8908 units.\nRecord 0554: sensor D36 measured 8388 units.\nRecord 0555: sensor F26 measured 6480 units.\nRecord 0556: sensor E42 measured 4721 units.\nRecord 0557: sensor A53 measured 8278 units.\nRecord 0558: sensor G54 measured 4851 units.\nRecord 0559: sensor B31 measured 4993 units.\nRecord 0560: sensor G56 measured 6860 units.\nRecord 0561: sensor C90 measured 7531 units.\nRecord 0562: sensor B61 measured 6638 units.\nRecord 0563: sensor C97 measured 8892 units.\nRecord 0564: sensor H52 measured 5451 units.\nRecord 0565: sensor H92 measured 8493 units.\nRecord 0566: sensor G51 measured 6888 units.\nRecord 0567: sensor C43 measured 3666 units.\nRecord 0568: sensor B30 measured 2986 units.\nRecord 0569: sensor D43 measured 5056 units.\nRecord 0570: sensor D83 measured 7323 units.\nRecord 0571: sensor A98 measured 9477 units.\nRecord 0572: sensor B77 measured 2380 units.\nRecord 0573: sensor H82 measured 7313 units.\nRecord 0574: sensor G79 measured 6890 units.\nRecord 0575: sensor G62 measured 7505 units.\nRecord 0576: sensor F89 measured 8405 units.\nRecord 0577: sensor E15 measured 9114 units.\nRecord 0578: sensor G40 measured 6502 units.\nRecord 0579: sensor D98 measured 1070 units.\nRecord 0580: sensor D59 measured 2361 units.\nRecord 0581: sensor C26 measured 2605 units.\nRecord 0582: sensor F72 measured 7225 units.\nRecord 0583: sensor H14 measured 2445 units.\nRecord 0584: sensor G90 measured 4069 units.\nRecord 0585: sensor G25 measured 4825 units.\nRecord 0586: sensor A43 measured 7022 units.\nRecord 0587: sensor F45 measured 8898 units.\nRecord 0588: sensor H84 measured 7312 units.\nRecord 0589: sensor F60 measured 3608 units.\nRecord 0590: sensor E63 measured 7800 units.\nRecord 0591: sensor H82 measured 1601 units.\nRecord 0592: sensor A51 measured 4820 units.\nRecord 0593: sensor F87 measured 6159 units.\nRecord 0594: sensor A47 measured 2910 units.\nRecord 0595: sensor E74 measured 8270 units.\nRecord 0596: sensor G58 measured 3379 units.\nRecord 0597: sensor G39 measured 1386 units.\nRecord 0598: sensor F25 measured 3679 units.\nRecord 0599: sensor E31 measured 7506 units.\nRecord 0600: sensor H46 measured 8903 units.\nRecord 0601: sensor A12 measured 1286 units.\nRecord 0602: sensor F74 measured 8683 units.\nRecord 0603: sensor C56 measured 3077 units.\nRecord 0604: sensor F20 measured 2431 units.\nRecord 0605: sensor E37 measured 4934 units.\nRecord 0606: sensor H94 measured 4244 units.\nRecord 0607: sensor B76 measured 3922 units.\nRecord 0608: sensor G79 measured 9974 units.\nRecord 0609: sensor D74 measured 3495 units.\nRecord 0610: sensor F53 measured 9915 units.\nRecord 0611: sensor D31 measured 3435 units.\nRecord 0612: sensor C23 measured 4912 units.\nRecord 0613: sensor F10 measured 4128 units.\nRecord 0614: sensor D11 measured 1856 units.\nRecord 0615: sensor D18 measured 6407 units.\nRecord 0616: sensor G29 measured 3740 units.\nRecord 0617: sensor F83 measured 1564 units.\nRecord 0618: sensor G71 measured 2697 units.\nRecord 0619: sensor H69 measured 1836 units.\nRecord 0620: sensor E92 measured 3992 units.\nRecord 0621: sensor E82 measured 9972 units.\nRecord 0622: sensor H61 measured 3840 units.\nRecord 0623: sensor H34 measured 7747 units.\nRecord 0624: sensor D63 measured 7845 units.\nRecord 0625: sensor B99 measured 5314 units.\nRecord 0626: sensor C54 measured 5335 units.\nRecord 0627: sensor C56 measured 7205 units.\nRecord 0628: sensor E38 measured 9431 units.\nRecord 0629: sensor A20 measured 6464 units.\nRecord 0630: sensor H96 measured 4447 units.\nRecord 0631: sensor C88 measured 3205 units.\nRecord 0632: sensor F10 measured 7482 units.\nRecord 0633: sensor D11 measured 2840 units.\nRecord 0634: sensor A67 measured 5689 units.\nRecord 0635: sensor G68 measured 2256 units.\nRecord 0636: sensor A52 measured 8763 units.\nRecord 0637: sensor A17 measured 1056 units.\nRecord 0638: sensor G99 measured 3227 units.\nRecord 0639: sensor D35 measured 3235 units.\nRecord 0640: sensor H44 measured 8372 units.\nRecord 0641: sensor H25 measured 1763 units.\nRecord 0642: sensor C23 measured 5132 units.\nRecord 0643: sensor A99 measured 7160 units.\nRecord 0644: sensor B99 measured 8313 units.\nRecord 0645: sensor C82 measured 9784 units.\nRecord 0646: sensor F44 measured 9920 units.\nRecord 0647: sensor A60 measured 7219 units.\nRecord 0648: sensor F23 measured 9797 units.\nRecord 0649: sensor H15 measured 4323 units.\nRecord 0650: sensor D63 measured 3223 units.\nRecord 0651: sensor B22 measured 4700 units.\nRecord 0652: sensor G70 measured 3738 units.\nRecord 0653: sensor A95 measured 2983 units.\nRecord 0654: sensor C34 measured 8805 units.\nRecord 0655: sensor D61 measured 1105 units.\nRecord 0656: sensor B12 measured 3959 units.\nRecord 0657: sensor D34 measured 6069 units.\nRecord 0658: sensor E98 measured 3391 units.\nRecord 0659: sensor F55 measured 2241 units.\nRecord 0660: sensor H42 measured 3489 units.\nRecord 0661: sensor A72 measured 9180 units.\nRecord 0662: sensor F19 measured 2949 units.\nRecord 0663: sensor C23 measured 6381 units.\nRecord 0664: sensor H53 measured 5424 units.\nRecord 0665: sensor D72 measured 3407 units.\nRecord 0666: sensor D59 measured 5394 units.\nRecord 0667: sensor H40 measured 2053 units.\nRecord 0668: sensor B67 measured 9784 units.\nRecord 0669: sensor D86 measured 3798 units.\nRecord 0670: sensor E11 measured 8569 units.\nRecord 0671: sensor F75 measured 4417 units.\nRecord 0672: sensor H33 measured 7129 units.\nRecord 0673: sensor H25 measured 8661 units.\nRecord 0674: sensor C49 measured 8936 units.\nRecord 0675: sensor B13 measured 7255 units.\nRecord 0676: sensor B41 measured 2839 units.\nRecord 0677: sensor E77 measured 7322 units.\nRecord 0678: sensor C44 measured 1035 units.\nRecord 0679: sensor B50 measured 5850 units.\nRecord 0680: sensor D72 measured 8625 units.\nRecord 0681: sensor A66 measured 2304 units.\nRecord 0682: sensor B91 measured 6532 units.\nRecord 0683: sensor A12 measured 6632 units.\nRecord 0684: sensor H76 measured 7536 units.\nRecord 0685: sensor E53 measured 3409 units.\nRecord 0686: sensor D88 measured 4375 units.\nRecord 0687: sensor A50 measured 3585 units.\nRecord 0688: sensor G42 measured 4944 units.\nRecord 0689: sensor E22 measured 5992 units.\nRecord 0690: sensor E67 measured 1171 units.\nRecord 0691: sensor G24 measured 4468 units.\nRecord 0692: sensor B67 measured 9090 units.\nRecord 0693: sensor E76 measured 4715 units.\nRecord 0694: sensor A98 measured 2284 units.\nRecord 0695: sensor C21 measured 5096 units.\nRecord 0696: sensor C90 measured 5966 units.\nRecord 0697: sensor F79 measured 5178 units.\nRecord 0698: sensor E41 measured 4612 units.\nRecord 0699: sensor H27 measured 9841 units.\nRecord 0700: sensor E44 measured 7430 units.\nRecord 0701: sensor A15 measured 4277 units.\nRecord 0702: sensor A49 measured 6192 units.\nRecord 0703: sensor A15 measured 2991 units.\nRecord 0704: sensor H23 measured 6116 units.\nRecord 0705: sensor A77 measured 4742 units.\nRecord 0706: sensor C80 measured 1964 units.\nRecord 0707: sensor A79 measured 4174 units.\nRecord 0708: sensor H35 measured 7935 units.\nRecord 0709: sensor G66 measured 9871 units.\nRecord 0710: sensor G24 measured 7179 units.\nRecord 0711: sensor F82 measured 2700 units.\nRecord 0712: sensor H87 measured 4005 units.\nRecord 0713: sensor B68 measured 3342 units.\nRecord 0714: sensor B73 measured 1899 units.\nRecord 0715: sensor A31 measured 1000 units.\nRecord 0716: sensor D59 measured 6409 units.\nRecord 0717: sensor B93 measured 1962 units.\nRecord 0718: sensor E83 measured 5218 units.\nRecord 0719: sensor F62 measured 1322 units.\nRecord 0720: sensor G97 measured 2481 units.\nRecord 0721: sensor E29 measured 3718 units.\nRecord 0722: sensor D43 measured 9766 units.\nRecord 0723: sensor E86 measured 3997 units.\nRecord 0724: sensor D53 measured 5113 units.\nRecord 0725: sensor E94 measured 7899 units.\nRecord 0726: sensor G51 measured 5760 units.\nRecord 0727: sensor G82 measured 2155 units.\nRecord 0728: sensor C97 measured 3214 units.\nRecord 0729: sensor G90 measured 6592 units.\nRecord 0730: sensor G73 measured 4586 units.\nRecord 0731: sensor E98 measured 8798 units.\nRecord 0732: sensor E44 measured 3941 units.\nRecord 0733: sensor A42 measured 6979 units.\nRecord 0734: sensor E70 measured 1031 units.\nRecord 0735: sensor H94 measured 6816 units.\nRecord 0736: sensor C88 measured 6761 units.\nRecord 0737: sensor E94 measured 6371 units.\nRecord 0738: sensor C93 measured 8523 units.\nRecord 0739: sensor D18 measured 2662 units.\nRecord 0740: sensor F39 measured 6613 units.\nRecord 0741: sensor A59 measured 2951 units.\nRecord 0742: sensor E31 measured 9080 units.\nRecord 0743: sensor D38 measured 1954 units.\nRecord 0744: sensor E45 measured 1575 units.\nRecord 0745: sensor F77 measured 8727 units.\nRecord 0746: sensor C58 measured 1516 units.\nRecord 0747: sensor H85 measured 4142 units.\nRecord 0748: sensor B75 measured 8052 units.\nRecord 0749: sensor E65 measured 2955 units.\nRecord 0750: sensor F48 measured 1931 units.\nRecord 0751: sensor D68 measured 1369 units.\nRecord 0752: sensor B91 measured 4801 units.\nRecord 0753: sensor H42 measured 8096 units.\nRecord 0754: sensor A27 measured 7188 units.\nRecord 0755: sensor E10 measured 3760 units.\nRecord 0756: sensor E44 measured 8558 units.\nRecord 0757: sensor B88 measured 3006 units.\nRecord 0758: sensor D59 measured 1529 units.\nRecord 0759: sensor E84 measured 5832 units.\nRecord 0760: sensor A76 measured 1111 units.\nRecord 0761: sensor D38 measured 4453 units.\nRecord 0762: sensor E93 measured 5073 units.\nRecord 0763: sensor H37 measured 7562 units.\nRecord 0764: sensor F78 measured 8839 units.\nRecord 0765: sensor H80 measured 1469 units.\nRecord 0766: sensor H40 measured 3550 units.\nRecord 0767: sensor B16 measured 6299 units.\nRecord 0768: sensor H61 measured 7821 units.\nRecord 0769: sensor B84 measured 9826 units.\nRecord 0770: sensor A60 measured 5086 units.\nRecord 0771: sensor G52 measured 8503 units.\nRecord 0772: sensor G58 measured 7263 units.\nRecord 0773: sensor H43 measured 7513 units.\nRecord 0774: sensor G27 measured 9288 units.\nRecord 0775: sensor D79 measured 3410 units.\nRecord 0776: sensor C49 measured 8250 units.\nRecord 0777: sensor F74 measured 2432 units.\nRecord 0778: sensor G13 measured 2601 units.\nRecord 0779: sensor A39 measured 8454 units.\nRecord 0780: sensor D21 measured 6282 units.\nRecord 0781: sensor C42 measured 2097 units.\nRecord 0782: sensor H34 measured 4756 units.\nRecord 0783: sensor H97 measured 5620 units.\nRecord 0784: sensor D75 measured 8278 units.\nRecord 0785: sensor G60 measured 8413 units.\nRecord 0786: sensor B83 measured 2327 units.\nRecord 0787: sensor H33 measured 7234 units.\nRecord 0788: sensor C18 measured 1892 units.\nRecord 0789: sensor E69 measured 5674 units.\nRecord 0790: sensor G66 measured 4800 units.\nRecord 0791: sensor C82 measured 7740 units.\nRecord 0792: sensor C50 measured 9177 units.\nRecord 0793: sensor F87 measured 2811 units.\nRecord 0794: sensor E33 measured 6193 units.\nRecord 0795: sensor D10 measured 8478 units.\nRecord 0796: sensor A61 measured 2302 units.\nRecord 0797: sensor H24 measured 1557 units.\nRecord 0798: sensor C72 measured 3204 units.\nRecord 0799: sensor D84 measured 2639 units.\nRecord 0800: sensor G39 measured 1826 units.\nRecord 0801: sensor G67 measured 6389 units.\nRecord 0802: sensor B91 measured 7291 units.\nRecord 0803: sensor D40 measured 5409 units.\nRecord 0804: sensor F21 measured 2212 units.\nRecord 0805: sensor G78 measured 1649 units.\nRecord 0806: sensor A65 measured 9659 units.\nRecord 0807: sensor F71 measured 3518 units.\nRecord 0808: sensor B52 measured 4153 units.\nRecord 0809: sensor C62 measured 5254 units.\nRecord 0810: sensor D72 measured 3558 units.\nRecord 0811: sensor F25 measured 3461 units.\nRecord 0812: sensor B47 measured 8568 units.\nRecord 0813: sensor H50 measured 4124 units.\nRecord 0814: sensor A29 measured 6461 units.\nRecord 0815: sensor F63 measured 7428 units.\nRecord 0816: sensor B97 measured 9727 units.\nRecord 0817: sensor E68 measured 8277 units.\nRecord 0818: sensor C83 measured 2113 units.\nRecord 0819: sensor G97 measured 8162 units.\nRecord 0820: sensor B64 measured 8218 units.\nRecord 0821: sensor F84 measured 5106 units.\nRecord 0822: sensor H52 measured 5994 units.\nRecord 0823: sensor A20 measured 7542 units.\nRecord 0824: sensor E89 measured 4190 units.\nRecord 0825: sensor G96 measured 7104 units.\nRecord 0826: sensor F79 measured 4486 units.\nRecord 0827: sensor B80 measured 2297 units.\nRecord 0828: sensor F17 measured 1299 units.\nRecord 0829: sensor G18 measured 3062 units.\nRecord 0830: sensor A56 measured 6671 units.\nRecord 0831: sensor H93 measured 2065 units.\nRecord 0832: sensor G42 measured 4521 units.\nRecord 0833: sensor E41 measured 8130 units.\nRecord 0834: sensor H71 measured 4614 units.\nRecord 0835: sensor G63 measured 5729 units.\nRecord 0836: sensor H93 measured 6913 units.\nRecord 0837: sensor C78 measured 6190 units.\nRecord 0838: sensor E61 measured 3562 units.\nRecord 0839: sensor E14 measured 5042 units.\nRecord 0840: sensor G65 measured 7537 units.\nRecord 0841: sensor F13 measured 5231 units.\nRecord 0842: sensor F11 measured 4775 units.\nRecord 0843: sensor F86 measured 6172 units.\nRecord 0844: sensor D28 measured 3746 units.\nRecord 0845: sensor C38 measured 2744 units.\nRecord 0846: sensor D56 measured 5841 units.\nRecord 0847: sensor D47 measured 6259 units.\nRecord 0848: sensor D49 measured 9008 units.\nRecord 0849: sensor C50 measured 2322 units.\nRecord 0850: sensor A91 measured 2624 units.\nRecord 0851: sensor G73 measured 8365 units.\nRecord 0852: sensor E49 measured 3847 units.\nRecord 0853: sensor H29 measured 6331 units.\nRecord 0854: sensor F80 measured 4281 units.\nRecord 0855: sensor E80 measured 1805 units.\nRecord 0856: sensor E77 measured 1223 units.\nRecord 0857: sensor G22 measured 5519 units.\nRecord 0858: sensor H34 measured 2409 units.\nRecord 0859: sensor A55 measured 9669 units.\nRecord 0860: sensor G96 measured 8483 units.\nRecord 0861: sensor F64 measured 9513 units.\nRecord 0862: sensor C12 measured 3718 units.\nRecord 0863: sensor A75 measured 4401 units.\nRecord 0864: sensor E67 measured 6593 units.\nRecord 0865: sensor E47 measured 6500 units.\nRecord 0866: sensor C76 measured 8863 units.\nRecord 0867: sensor F86 measured 9251 units.\nRecord 0868: sensor D75 measured 9661 units.\nRecord 0869: sensor F62 measured 1494 units.\nRecord 0870: sensor B28 measured 4649 units.\nRecord 0871: sensor C89 measured 7973 units.\nRecord 0872: sensor G97 measured 1355 units.\nRecord 0873: sensor F57 measured 6077 units.\nRecord 0874: sensor F31 measured 4608 units.\nRecord 0875: sensor E47 measured 7897 units.\nRecord 0876: sensor A70 measured 8733 units.\nRecord 0877: sensor F71 measured 5789 units.\nRecord 0878: sensor D41 measured 2137 units.\nRecord 0879: sensor H40 measured 9574 units.\nRecord 0880: sensor E39 measured 9958 units.\nRecord 0881: sensor E25 measured 5216 units.\nRecord 0882: sensor F85 measured 8447 units.\nRecord 0883: sensor E92 measured 1692 units.\nRecord 0884: sensor A38 measured 2846 units.\nRecord 0885: sensor C69 measured 3509 units.\nRecord 0886: sensor A53 measured 2595 units.\nRecord 0887: sensor G46 measured 4286 units.\nRecord 0888: sensor F91 measured 2729 units.\nRecord 0889: sensor H36 measured 8915 units.\nRecord 0890: sensor F77 measured 7062 units.\nRecord 0891: sensor H26 measured 5016 units.\nRecord 0892: sensor A65 measured 6769 units.\nRecord 0893: sensor D23 measured 2303 units.\nRecord 0894: sensor D91 measured 9779 units.\nRecord 0895: sensor E61 measured 5162 units.\nRecord 0896: sensor H67 measured 4764 units.\nRecord 0897: sensor B17 measured 9363 units.\nRecord 0898: sensor H74 measured 9796 units.\nRecord 0899: sensor A84 measured 5407 units.\nRecord 0900: sensor C34 measured 5224 units.\nRecord 0901: sensor E51 measured 8748 units.\nRecord 0902: sensor G45 measured 6290 units.\nRecord 0903: sensor F99 measured 1559 units.\nRecord 0904: sensor A67 measured 5138 units.\nRecord 0905: sensor D83 measured 6557 units.\nRecord 0906: sensor H94 measured 1790 units.\nRecord 0907: sensor C12 measured 5685 units.\nRecord 0908: sensor D66 measured 9737 units.\nRecord 0909: sensor G18 measured 1476 units.\nRecord 0910: sensor A27 measured 3810 units.\nRecord 0911: sensor H64 measured 9280 units.\nRecord 0912: sensor F96 measured 7956 units.\nRecord 0913: sensor A70 measured 3635 units.\nRecord 0914: sensor C59 measured 1543 units.\nRecord 0915: sensor G14 measured 3128 units.\nRecord 0916: sensor C10 measured 2833 units.\nRecord 0917: sensor C20 measured 5855 units.\nRecord 0918: sensor C72 measured 9873 units.\nRecord 0919: sensor G91 measured 3432 units.\nRecord 0920: sensor B79 measured 3306 units.\nRecord 0921: sensor G56 measured 1060 units.\nRecord 0922: sensor C60 measured 1637 units.\nRecord 0923: sensor G16 measured 6496 units.\nRecord 0924: sensor D70 measured 2056 units.\nRecord 0925: sensor H46 measured 8772 units.\nRecord 0926: sensor F86 measured 9569 units.\nRecord 0927: sensor D44 measured 5311 units.\nRecord 0928: sensor B64 measured 1691 units.\nRecord 0929: sensor H73 measured 7162 units.\nRecord 0930: sensor D90 measured 5996 units.\nRecord 0931: sensor B25 measured 6766 units.\nRecord 0932: sensor B55 measured 4822 units.\nRecord 0933: sensor G91 measured 4019 units.\nRecord 0934: sensor E57 measured 6932 units.\nRecord 0935: sensor G12 measured 5597 units.\nRecord 0936: sensor A21 measured 6337 units.\nRecord 0937: sensor D70 measured 8185 units.\nRecord 0938: sensor G83 measured 1918 units.\nRecord 0939: sensor C80 measured 3127 units.\nRecord 0940: sensor B44 measured 6280 units.\nRecord 0941: sensor B92 measured 5193 units.\nRecord 0942: sensor E18 measured 1678 units.\nRecord 0943: sensor G93 measured 7355 units.\nRecord 0944: sensor H35 measured 7613 units.\nRecord 0945: sensor B57 measured 4323 units.\nRecord 0946: sensor E31 measured 4927 units.\nRecord 0947: sensor H82 measured 7181 units.\nRecord 0948: sensor G81 measured 6369 units.\nRecord 0949: sensor D51 measured 2122 units.\nRecord 0950: sensor B33 measured 3211 units.\nRecord 0951: sensor B56 measured 7787 units.\nRecord 0952: sensor C82 measured 4753 units.\nRecord 0953: sensor A62 measured 8628 units.\nRecord 0954: sensor C38 measured 7158 units.\nRecord 0955: sensor A85 measured 2671 units.\nRecord 0956: sensor B52 measured 2632 units.\nRecord 0957: sensor D28 measured 4696 units.\nRecord 0958: sensor A19 measured 5881 units.\nRecord 0959: sensor G78 measured 7108 units.\nRecord 0960: sensor C55 measured 9343 units.\nRecord 0961: sensor G17 measured 7589 units.\nRecord 0962: sensor D75 measured 5093 units.\nRecord 0963: sensor E81 measured 3095 units.\nRecord 0964: sensor C19 measured 2561 units.\nRecord 0965: sensor H66 measured 8769 units.\nRecord 0966: sensor D61 measured 2100 units.\nRecord 0967: sensor C45 measured 9084 units.\nRecord 0968: sensor E97 measured 3226 units.\nRecord 0969: sensor A72 measured 2606 units.\nRecord 0970: sensor H88 measured 2037 units.\nRecord 0971: sensor A91 measured 9145 units.\nRecord 0972: sensor E39 measured 8934 units.\nRecord 0973: sensor A49 measured 2532 units.\nRecord 0974: sensor B57 measured 9820 units.\nRecord 0975: sensor H10 measured 5941 units.\nRecord 0976: sensor F21 measured 6045 units.\nRecord 0977: sensor A18 measured 4977 units.\nRecord 0978: sensor H19 measured 5282 units.\nRecord 0979: sensor B98 measured 2062 units.\nRecord 0980: sensor A83 measured 1705 units.\nRecord 0981: sensor A55 measured 7325 units.\nRecord 0982: sensor B93 measured 8623 units.\nRecord 0983: sensor D27 measured 9603 units.\nRecord 0984: sensor G20 measured 1023 units.\nRecord 0985: sensor C42 measured 6543 units.\nRecord 0986: sensor A64 measured 3253 units.\nRecord 0987: sensor G35 measured 5761 units.\nRecord 0988: sensor G32 measured 1713 units.\nRecord 0989: sensor D78 measured 9706 units.\nRecord 0990: sensor B58 measured 4480 units.\nRecord 0991: sensor C14 measured 5321 units.\nRecord 0992: sensor A81 measured 2101 units.\nRecord 0993: sensor B65 measured 4872 units.\nRecord 0994: sensor G62 measured 9858 units.\nRecord 0995: sensor E82 measured 3745 units.\nRecord 0996: sensor A20 measured 5199 units.\nRecord 0997: sensor H41 measured 6258 units.\nRecord 0998: sensor C16 measured 4710 units.\nRecord 0999: sensor E13 measured 3456 units.\nQuestion: Which sensor appears in Record 0042 and what did it measure?\nAnswer:",
+  "max_tokens": 64,
+  "temperature": 0,
+  "seed": 0
+ },
+ "reference": {
+  "id": "cmpl-8b555bb1c57e71e9",
+  "object": "text_completion",
+  "created": 1793172111,
+  "model": "/media/model-space/Qwen3.5-27B",
+  "choices": [
+   {
+    "index": 0,
+    "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+    "logprobs": null,
+    "finish_reason": "length",
+    "stop_reason": null,
+    "token_ids": null,
+    "prompt_logprobs": null,
+    "prompt_token_ids": null,
+    "routed_experts": null
+   }
+  ],
+  "service_tier": null,
+  "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+  "usage": {
+   "prompt_tokens": 20025,
+   "total_tokens": 20089,
+   "completion_tokens": 64,
+   "prompt_tokens_details": null,
+   "completion_tokens_details": null
+  },
+  "kv_transfer_params": null,
+  "ec_transfer_params": null,
+  "metrics": null
+ },
+ "hits": [
+  {
+   "id": "cmpl-aa7fc1e7377847b1",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-9720ee0890c08bc5",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-abe2a77cb30df84c",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-8d2d21ae353faf16",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-8bb42807491571b6",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-af81c94a5502e90a",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-81ff835f8d73f824",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a2a2cc6d6ee08970",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a762defa63c9b32e",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-8970506f38bca946",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-8efb84174c82f324",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-a233cd70f543039f",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-8653240e1510f7f3",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-ad245cf7fb79ba64",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-966a03be9b0bb822",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  },
+  {
+   "id": "cmpl-8c478f13328f57ac",
+   "object": "text_completion",
+   "created": 1793172122,
+   "model": "/media/model-space/Qwen3.5-27B",
+   "choices": [
+    {
+     "index": 0,
+     "text": " sensor B88 measured 3715 units.\nQuestion: Which sensor appears in Record 0043 and what did it measure?\nAnswer: sensor F55 measured 6718 units.\nQuestion: Which sensor appears in Record 0044 and what did it measure",
+     "logprobs": null,
+     "finish_reason": "length",
+     "stop_reason": null,
+     "token_ids": null,
+     "prompt_logprobs": null,
+     "prompt_token_ids": null,
+     "routed_experts": null
+    }
+   ],
+   "service_tier": null,
+   "system_fingerprint": "vllm-0.29.0-tp2-ba0f932e",
+   "usage": {
+    "prompt_tokens": 20025,
+    "total_tokens": 20089,
+    "completion_tokens": 64,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": null
+   },
+   "kv_transfer_params": null,
+   "ec_transfer_params": null,
+   "metrics": null
+  }
+ ]
+}
