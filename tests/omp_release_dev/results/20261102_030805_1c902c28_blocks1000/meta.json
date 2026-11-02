@@ -1,0 +1,52 @@
+{
+ "args": {
+  "out_dir": "/home/pese/qiuyu/intel-accel-for-llm-1026/tests/omp_release_dev/results/20261102_030805_1c902c28_blocks1000",
+  "rounds": 10,
+  "tasks_per_round": 80,
+  "blocks_per_task": 1000,
+  "pure_python_rounds": 3,
+  "pure_python_tasks_per_round": 8,
+  "seed": 0
+ },
+ "md5": {
+  "release_bench.py": "a85a699448778fbc66d21ea54aa31b7f",
+  "release_bench_ext.cpp": "5ecd9afd424a7118ba07ebf938fdb02f",
+  "task_queue.h": "15ab83a7a53e67220fcae7e6e358303d",
+  "kv_pool.h": "b275071a1b690c2633b103d8d581bc53",
+  "scratch_pool.py": "cebee825dc3d48cba5040b8dc9bb2822"
+ },
+ "block_shape": [
+  2,
+  16,
+  1,
+  128
+ ],
+ "block_dtype": "torch.bfloat16",
+ "block_bytes": 8192,
+ "scratch_pool_blocks": 2097152,
+ "torch": "2.13.0+cu130",
+ "python": "3.12.3 (main, Jul 15 2026, 23:46:41) [GCC 13.3.0]",
+ "switch_interval_s": 0.005,
+ "ld_preload": "/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4:/usr/local/lib/libiomp5.so",
+ "tcmalloc_release_rate": "0",
+ "cpu_affinity": [
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31
+ ],
+ "host": "h8263-6000d",
+ "start_time": "2026-11-02 03:08:10"
+}
