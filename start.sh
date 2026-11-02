@@ -23,7 +23,6 @@ fi
 
 docker run \
     "${DOCKER_RUN_ARGS[@]}" \
-    --rm \
     --privileged \
     --pid host \
     --net host \
