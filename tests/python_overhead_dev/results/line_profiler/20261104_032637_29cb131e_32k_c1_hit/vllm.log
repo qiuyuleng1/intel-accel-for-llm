@@ -1,0 +1,311 @@
+kernel.numa_balancing = 0
+KVShrink QAT rank 0: indices=0,1,2,3,4,5,6,7 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0) 0000:0b:00.0(numa=0) 0000:10:00.0(numa=0) 0000:81:00.0(numa=1) 0000:86:00.0(numa=1) 0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+vLLM configuration:
+  MODEL=/media/model-space/Qwen3-32B
+  TP_SIZE=1
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=0
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=0
+  VLLM_CPU_OMP_THREADS_BIND=64-127
+  KVSHRINK_CPU_OMP_THREADS_BIND=64-127
+  KVSHRINK_QAT_DEVICES=0,1,2,3,4,5,6,7
+  KVSHRINK_DSA_DEVICES=disabled
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=64
+  IAXL_QAT_INSTANCE_NUM=4
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+INFO 11-04 03:26:46 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+(APIServer pid=731960) INFO 11-04 03:26:46 [api_utils.py:347] 
+(APIServer pid=731960) INFO 11-04 03:26:46 [api_utils.py:347]        █     █     █▄   ▄█
+(APIServer pid=731960) INFO 11-04 03:26:46 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0
+(APIServer pid=731960) INFO 11-04 03:26:46 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /media/model-space/Qwen3-32B
+(APIServer pid=731960) INFO 11-04 03:26:46 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=731960) INFO 11-04 03:26:46 [api_utils.py:347] 
+(APIServer pid=731960) INFO 11-04 03:26:46 [api_utils.py:286] non-default args: {'model_tag': '/media/model-space/Qwen3-32B', 'port': 8020, 'model': '/media/model-space/Qwen3-32B', 'trust_remote_code': True, 'max_model_len': 32896, 'gpu_memory_utilization': 0.9, 'enable_prefix_caching': False, 'kv_transfer_config': KVTransferConfig(kv_connector='LineProfiledKVShrinkConnector', engine_id='752cc32e-49a0-48a7-9869-053d232b837f', kv_buffer_device='cuda', kv_buffer_size=1000000000.0, kv_role='kv_both', kv_rank=None, kv_parallel_size=1, kv_ip='127.0.0.1', kv_port=14579, kv_connector_extra_config={}, kv_connector_module_path='lineprofiled_kvshrink_connector', enable_permute_local_kv=False, kv_load_failure_policy='fail')}
+(APIServer pid=731960) INFO 11-04 03:26:46 [model.py:684] Resolved architecture: Qwen3ForCausalLM
+(APIServer pid=731960) INFO 11-04 03:26:46 [model.py:2021] Using max model len 32896
+(APIServer pid=731960) INFO 11-04 03:26:46 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=8192.
+(APIServer pid=731960) INFO 11-04 03:26:46 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=731960) WARNING 11-04 03:26:46 [vllm.py:1573] KV connector LineProfiledKVShrinkConnector requires PIECEWISE CUDA graph mode due to layerwise async operations that cannot be captured in CUDA graphs. Overriding cudagraph_mode from FULL_AND_PIECEWISE to PIECEWISE.
+(EngineCore pid=732243) INFO 11-04 03:26:55 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+(EngineCore pid=732243) INFO 11-04 03:26:55 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/media/model-space/Qwen3-32B', speculative_config=None, tokenizer='/media/model-space/Qwen3-32B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=32896, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/media/model-space/Qwen3-32B, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::qwen4_exp_compute_ple_ngram_ids', 'vllm::qwen4_exp_ple_short_conv', 'vllm::qwen4_exp_qsa_with_output', 'vllm::linear_attention', 'vllm::qwen_gdn_attention_core', 'vllm::qwen_gdn_attention_core_fused_norm_packed', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.PIECEWISE: 1>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=732243) INFO 11-04 03:26:57 [parallel_state.py:1775] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_9ad56f4d677f47babd5eb79133624a69 backend=nccl
+(EngineCore pid=732243) INFO 11-04 03:26:57 [parallel_state.py:2119] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(EngineCore pid=732243) INFO 11-04 03:26:57 [gpu_worker.py:429] Using V2 Model Runner
+(EngineCore pid=732243) INFO 11-04 03:26:58 [model_runner.py:382] Loading model from scratch...
+(EngineCore pid=732243) INFO 11-04 03:26:58 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(EngineCore pid=732243) INFO 11-04 03:26:58 [flash_attn.py:897] Using FlashAttention version 2
+(EngineCore pid=732243) INFO 11-04 03:26:59 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 61.02 GiB. Available RAM: 467.14 GiB.
+(EngineCore pid=732243) INFO 11-04 03:26:59 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=732243) Loading safetensors checkpoint shards:   0% Completed | 0/17 [00:00<?, ?it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:   6% Completed | 1/17 [00:00<00:09,  1.72it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  12% Completed | 2/17 [00:01<00:09,  1.61it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  18% Completed | 3/17 [00:01<00:08,  1.62it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  24% Completed | 4/17 [00:02<00:07,  1.67it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  29% Completed | 5/17 [00:02<00:07,  1.71it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  35% Completed | 6/17 [00:03<00:06,  1.76it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  41% Completed | 7/17 [00:04<00:05,  1.78it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  47% Completed | 8/17 [00:04<00:04,  1.80it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  53% Completed | 9/17 [00:05<00:04,  1.79it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  59% Completed | 10/17 [00:05<00:04,  1.75it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  65% Completed | 11/17 [00:06<00:03,  1.76it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  71% Completed | 12/17 [00:06<00:02,  1.78it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  76% Completed | 13/17 [00:07<00:02,  1.80it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  82% Completed | 14/17 [00:07<00:01,  1.81it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  88% Completed | 15/17 [00:08<00:01,  1.82it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards:  94% Completed | 16/17 [00:09<00:00,  1.83it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards: 100% Completed | 17/17 [00:09<00:00,  1.95it/s]
+(EngineCore pid=732243) Loading safetensors checkpoint shards: 100% Completed | 17/17 [00:09<00:00,  1.79it/s]
+(EngineCore pid=732243) 
+(EngineCore pid=732243) INFO 11-04 03:27:08 [default_loader.py:430] Loading weights took 9.52 seconds
+(EngineCore pid=732243) INFO 11-04 03:27:09 [model_runner.py:404] Model loading took 61.03 GiB memory and 10.699729 seconds
+(EngineCore pid=732243) INFO 11-04 03:27:09 [topk_topp_sampler.py:62] Using FlashInfer for top-p & top-k sampling.
+(EngineCore pid=732243) INFO 11-04 03:27:09 [utils.py:306] Using LBNHC KV cache layout.
+(EngineCore pid=732243) INFO 11-04 03:27:10 [caching.py:343] reconstructed serializable fn from standalone compile artifacts. num_artifacts=3 num_submods=65
+(EngineCore pid=732243) INFO 11-04 03:27:10 [decorators.py:313] Directly load AOT compilation from path /root/.cache/vllm/torch_compile_cache/torch_aot_compile/8091ec4a6146b41e8c0926da3197b5e6aaea56d5105e925c7a49def9e20aeabb/rank_0_0/model
+(EngineCore pid=732243) INFO 11-04 03:27:10 [monitor.py:53] torch.compile took 0.27 s in total
+(EngineCore pid=732243) INFO 11-04 03:27:10 [monitor.py:81] Initial profiling/warmup run took 0.12 s
+(EngineCore pid=732243) Capturing CUDA graphs (PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):   2%|▏         | 1/51 [00:00<00:20,  2.40it/s]Capturing CUDA graphs (PIECEWISE):   4%|▍         | 2/51 [00:00<00:18,  2.60it/s]Capturing CUDA graphs (PIECEWISE):   6%|▌         | 3/51 [00:01<00:17,  2.68it/s]Capturing CUDA graphs (PIECEWISE):   8%|▊         | 4/51 [00:01<00:17,  2.70it/s]Capturing CUDA graphs (PIECEWISE):  10%|▉         | 5/51 [00:01<00:16,  2.81it/s]Capturing CUDA graphs (PIECEWISE):  12%|█▏        | 6/51 [00:02<00:15,  2.87it/s]Capturing CUDA graphs (PIECEWISE):  14%|█▎        | 7/51 [00:02<00:14,  2.94it/s]Capturing CUDA graphs (PIECEWISE):  16%|█▌        | 8/51 [00:02<00:14,  3.01it/s]Capturing CUDA graphs (PIECEWISE):  18%|█▊        | 9/51 [00:03<00:13,  3.18it/s]Capturing CUDA graphs (PIECEWISE):  20%|█▉        | 10/51 [00:03<00:13,  3.06it/s]Capturing CUDA graphs (PIECEWISE):  22%|██▏       | 11/51 [00:03<00:12,  3.12it/s]Capturing CUDA graphs (PIECEWISE):  24%|██▎       | 12/51 [00:04<00:12,  3.17it/s]Capturing CUDA graphs (PIECEWISE):  25%|██▌       | 13/51 [00:04<00:11,  3.39it/s]Capturing CUDA graphs (PIECEWISE):  27%|██▋       | 14/51 [00:04<00:10,  3.55it/s]Capturing CUDA graphs (PIECEWISE):  29%|██▉       | 15/51 [00:04<00:09,  3.68it/s]Capturing CUDA graphs (PIECEWISE):  31%|███▏      | 16/51 [00:05<00:09,  3.78it/s]Capturing CUDA graphs (PIECEWISE):  33%|███▎      | 17/51 [00:05<00:08,  3.97it/s]Capturing CUDA graphs (PIECEWISE):  35%|███▌      | 18/51 [00:05<00:08,  4.11it/s]Capturing CUDA graphs (PIECEWISE):  37%|███▋      | 19/51 [00:05<00:07,  4.22it/s]Capturing CUDA graphs (PIECEWISE):  39%|███▉      | 20/51 [00:05<00:07,  4.32it/s]Capturing CUDA graphs (PIECEWISE):  41%|████      | 21/51 [00:06<00:06,  4.38it/s]Capturing CUDA graphs (PIECEWISE):  43%|████▎     | 22/51 [00:06<00:06,  4.41it/s]Capturing CUDA graphs (PIECEWISE):  45%|████▌     | 23/51 [00:06<00:06,  4.44it/s]Capturing CUDA graphs (PIECEWISE):  47%|████▋     | 24/51 [00:06<00:06,  4.45it/s]Capturing CUDA graphs (PIECEWISE):  49%|████▉     | 25/51 [00:07<00:05,  4.62it/s]Capturing CUDA graphs (PIECEWISE):  51%|█████     | 26/51 [00:07<00:05,  4.74it/s]Capturing CUDA graphs (PIECEWISE):  53%|█████▎    | 27/51 [00:07<00:04,  4.82it/s]Capturing CUDA graphs (PIECEWISE):  55%|█████▍    | 28/51 [00:07<00:04,  4.89it/s]Capturing CUDA graphs (PIECEWISE):  57%|█████▋    | 29/51 [00:07<00:04,  4.93it/s]Capturing CUDA graphs (PIECEWISE):  59%|█████▉    | 30/51 [00:08<00:04,  4.94it/s]Capturing CUDA graphs (PIECEWISE):  61%|██████    | 31/51 [00:08<00:04,  4.97it/s]Capturing CUDA graphs (PIECEWISE):  63%|██████▎   | 32/51 [00:08<00:03,  4.97it/s]Capturing CUDA graphs (PIECEWISE):  65%|██████▍   | 33/51 [00:08<00:03,  5.24it/s]Capturing CUDA graphs (PIECEWISE):  67%|██████▋   | 34/51 [00:08<00:03,  5.43it/s]Capturing CUDA graphs (PIECEWISE):  69%|██████▊   | 35/51 [00:08<00:02,  5.56it/s]Capturing CUDA graphs (PIECEWISE):  71%|███████   | 36/51 [00:09<00:02,  5.66it/s]Capturing CUDA graphs (PIECEWISE):  73%|███████▎  | 37/51 [00:09<00:02,  5.72it/s]Capturing CUDA graphs (PIECEWISE):  75%|███████▍  | 38/51 [00:09<00:02,  5.77it/s]Capturing CUDA graphs (PIECEWISE):  76%|███████▋  | 39/51 [00:09<00:02,  5.81it/s]Capturing CUDA graphs (PIECEWISE):  78%|███████▊  | 40/51 [00:09<00:01,  5.83it/s]Capturing CUDA graphs (PIECEWISE):  80%|████████  | 41/51 [00:09<00:01,  5.57it/s]Capturing CUDA graphs (PIECEWISE):  82%|████████▏ | 42/51 [00:10<00:01,  5.74it/s]Capturing CUDA graphs (PIECEWISE):  84%|████████▍ | 43/51 [00:10<00:01,  5.88it/s]Capturing CUDA graphs (PIECEWISE):  86%|████████▋ | 44/51 [00:10<00:01,  5.95it/s]Capturing CUDA graphs (PIECEWISE):  88%|████████▊ | 45/51 [00:10<00:00,  6.00it/s]Capturing CUDA graphs (PIECEWISE):  90%|█████████ | 46/51 [00:10<00:00,  6.06it/s]Capturing CUDA graphs (PIECEWISE):  92%|█████████▏| 47/51 [00:10<00:00,  6.00it/s]Capturing CUDA graphs (PIECEWISE):  94%|█████████▍| 48/51 [00:11<00:00,  6.03it/s]Capturing CUDA graphs (PIECEWISE):  96%|█████████▌| 49/51 [00:11<00:00,  6.06it/s]Capturing CUDA graphs (PIECEWISE):  98%|█████████▊| 50/51 [00:11<00:00,  6.08it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:11<00:00,  6.00it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:11<00:00,  4.39it/s]
+(EngineCore pid=732243) INFO 11-04 03:27:26 [model_runner.py:960] Graph capturing finished in 12 secs, took 0.60 GiB
+(EngineCore pid=732243) INFO 11-04 03:27:26 [gpu_worker.py:625] Available KV cache memory: 10.81 GiB
+(EngineCore pid=732243) INFO 11-04 03:27:26 [gpu_worker.py:640] CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.9000 is equivalent to --gpu-memory-utilization=0.8928 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.9072. To disable, set VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+(EngineCore pid=732243) INFO 11-04 03:27:26 [kv_cache_utils.py:2032] GPU KV cache size: 44,272 tokens, Maximum concurrency for 32,896 tokens per request: 1.35x
+(EngineCore pid=732243) INFO 11-04 03:27:26 [factory.py:62] Creating v1 connector with name: LineProfiledKVShrinkConnector and engine_id: 752cc32e-49a0-48a7-9869-053d232b837f
+(EngineCore pid=732243) WARNING 11-04 03:27:26 [base.py:203] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+(EngineCore pid=732243) INFO 11-04 03:27:26,726 [kvshrink_connector.py:153] KVShrinkConnector(WORKER): block_size=16, has_mamba=False, mamba_cache_mode='none', prefix caching=False
+(EngineCore pid=732243) WARNING 11-04 03:27:26,726 [kvshrink_connector.py:178] Dense model: reading DP size from the DP_SIZE env var (1) because vLLM resets data_parallel_size to 1 for dense models.
+(EngineCore pid=732243) INFO 11-04 03:27:26,726 [kvshrink_connector.py:251] Bound rank 0: IAXL_CPU_OMP_THREADS_BIND=64-127
+(EngineCore pid=732243) INFO 11-04 03:27:26,726 [affinity.py:42] Bound rank 0 to CPUs [64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+(EngineCore pid=732243) INFO 11-04 03:27:26,727 [affinity.py:58] Bound rank 0: IAXL_QAT_DEVICES=0,1,2,3,4,5,6,7
+(EngineCore pid=732243) INFO 11-04 03:27:26,733 [flow.py:74] Cache size 64 GB
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled
+[Record] Cleaned up 6141 unpersisted records from previous run
+(EngineCore pid=732243) INFO 11-04 03:27:26,741 [flow.py:82] C++ Record initialized at _data/kvcache/raw/Qwen3-32B_rank0/chunks.db
+(EngineCore pid=732243) INFO 11-04 03:27:26,741 [flow.py:94] Using accelerator: cuda
+(EngineCore pid=732243) INFO 11-04 03:27:39,006 [flow.py:121] Initialized: persist_dir=Qwen3-32B_rank0, cache_size_gb=64.00, compression=False
+(EngineCore pid=732243) INFO 11-04 03:27:39,006 [kvstore.py:137] KVStore initialized successfully: model_name=Qwen3-32B, rank=0, has_only_mode=False, num_layers=64, block_dim=0, block_shape=(32768,), pool_size_gb=64.00, persist_dir=Qwen3-32B_rank0
+(EngineCore pid=732243) INFO 11-04 03:27:39,007 [api.py:61] Worker server started on port 18820 (rank 0)
+(EngineCore pid=732243) INFO 11-04 03:27:39,007 [kvshrink_connector.py:566] Registered 64 KV cache layers (0 mamba) with shape [2767, 32768]
+(EngineCore pid=732243) INFO 11-04 03:27:39 [kernel_warmup.py:124] JIT kernel warmup starting.
+(EngineCore pid=732243) INFO 11-04 03:27:39 [kernel_warmup.py:134] JIT kernel warmup finished in 0.00s.
+(EngineCore pid=732243) INFO 11-04 03:27:39 [kernel_warmup.py:309] Using FlashInfer autotune cache file: /root/.cache/vllm/flashinfer_autotune_cache/0.6.18/120f/d39c6f5dd54b53a7daa935a5ce3d1c6bcceb482c6ef149f0ea12d106d193c995/autotune_configs.json
+(EngineCore pid=732243) 2026-11-04 03:27:39,238 - INFO - autotuner.py:2789 - flashinfer.jit: [Autotuner]: Loaded 0 configs from /root/.cache/vllm/flashinfer_autotune_cache/0.6.18/120f/d39c6f5dd54b53a7daa935a5ce3d1c6bcceb482c6ef149f0ea12d106d193c995/autotune_configs.json
+(EngineCore pid=732243) 2026-11-04 03:27:39,239 - INFO - autotuner.py:972 - flashinfer.jit: [Autotuner]: Autotuning process starts ...
+(EngineCore pid=732243) INFO 11-04 03:27:39 [kernel_warmup.py:266] Running FlashInfer autotune with 8192 tokens.
+(EngineCore pid=732243) 2026-11-04 03:27:39,296 - INFO - autotuner.py:995 - flashinfer.jit: [Autotuner]: Autotuning process ends
+(EngineCore pid=732243) 2026-11-04 03:27:39,299 - INFO - autotuner.py:2652 - flashinfer.jit: [Autotuner]: Saved 0 configs to /root/.cache/vllm/flashinfer_autotune_cache/0.6.18/120f/d39c6f5dd54b53a7daa935a5ce3d1c6bcceb482c6ef149f0ea12d106d193c995/autotune_configs.json (0 new, 0 from previous config)
+(EngineCore pid=732243) Capturing CUDA graphs (PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):   2%|▏         | 1/51 [00:00<00:18,  2.74it/s]Capturing CUDA graphs (PIECEWISE):   4%|▍         | 2/51 [00:00<00:17,  2.76it/s]Capturing CUDA graphs (PIECEWISE):   6%|▌         | 3/51 [00:01<00:17,  2.76it/s]Capturing CUDA graphs (PIECEWISE):   8%|▊         | 4/51 [00:01<00:17,  2.76it/s]Capturing CUDA graphs (PIECEWISE):  10%|▉         | 5/51 [00:01<00:16,  2.84it/s]Capturing CUDA graphs (PIECEWISE):  12%|█▏        | 6/51 [00:02<00:15,  2.89it/s]Capturing CUDA graphs (PIECEWISE):  14%|█▎        | 7/51 [00:02<00:15,  2.93it/s]Capturing CUDA graphs (PIECEWISE):  16%|█▌        | 8/51 [00:02<00:14,  2.94it/s]Capturing CUDA graphs (PIECEWISE):  18%|█▊        | 9/51 [00:03<00:14,  2.97it/s]Capturing CUDA graphs (PIECEWISE):  20%|█▉        | 10/51 [00:03<00:13,  3.01it/s]Capturing CUDA graphs (PIECEWISE):  22%|██▏       | 11/51 [00:03<00:13,  3.00it/s]Capturing CUDA graphs (PIECEWISE):  24%|██▎       | 12/51 [00:04<00:13,  2.98it/s]Capturing CUDA graphs (PIECEWISE):  25%|██▌       | 13/51 [00:04<00:11,  3.23it/s]Capturing CUDA graphs (PIECEWISE):  27%|██▋       | 14/51 [00:04<00:10,  3.43it/s]Capturing CUDA graphs (PIECEWISE):  29%|██▉       | 15/51 [00:04<00:10,  3.58it/s]Capturing CUDA graphs (PIECEWISE):  31%|███▏      | 16/51 [00:05<00:09,  3.70it/s]Capturing CUDA graphs (PIECEWISE):  33%|███▎      | 17/51 [00:05<00:08,  3.89it/s]Capturing CUDA graphs (PIECEWISE):  35%|███▌      | 18/51 [00:05<00:08,  4.04it/s]Capturing CUDA graphs (PIECEWISE):  37%|███▋      | 19/51 [00:05<00:07,  4.16it/s]Capturing CUDA graphs (PIECEWISE):  39%|███▉      | 20/51 [00:06<00:07,  4.24it/s]Capturing CUDA graphs (PIECEWISE):  41%|████      | 21/51 [00:06<00:06,  4.30it/s]Capturing CUDA graphs (PIECEWISE):  43%|████▎     | 22/51 [00:06<00:06,  4.34it/s]Capturing CUDA graphs (PIECEWISE):  45%|████▌     | 23/51 [00:06<00:06,  4.36it/s]Capturing CUDA graphs (PIECEWISE):  47%|████▋     | 24/51 [00:06<00:06,  4.38it/s]Capturing CUDA graphs (PIECEWISE):  49%|████▉     | 25/51 [00:07<00:05,  4.54it/s]Capturing CUDA graphs (PIECEWISE):  51%|█████     | 26/51 [00:07<00:05,  4.66it/s]Capturing CUDA graphs (PIECEWISE):  53%|█████▎    | 27/51 [00:07<00:05,  4.74it/s]Capturing CUDA graphs (PIECEWISE):  55%|█████▍    | 28/51 [00:07<00:04,  4.61it/s]Capturing CUDA graphs (PIECEWISE):  57%|█████▋    | 29/51 [00:07<00:04,  4.53it/s]Capturing CUDA graphs (PIECEWISE):  59%|█████▉    | 30/51 [00:08<00:04,  4.61it/s]Capturing CUDA graphs (PIECEWISE):  61%|██████    | 31/51 [00:08<00:04,  4.71it/s]Capturing CUDA graphs (PIECEWISE):  63%|██████▎   | 32/51 [00:08<00:03,  4.78it/s]Capturing CUDA graphs (PIECEWISE):  65%|██████▍   | 33/51 [00:08<00:03,  5.05it/s]Capturing CUDA graphs (PIECEWISE):  67%|██████▋   | 34/51 [00:08<00:03,  5.27it/s]Capturing CUDA graphs (PIECEWISE):  69%|██████▊   | 35/51 [00:09<00:02,  5.41it/s]Capturing CUDA graphs (PIECEWISE):  71%|███████   | 36/51 [00:09<00:02,  5.50it/s]Capturing CUDA graphs (PIECEWISE):  73%|███████▎  | 37/51 [00:09<00:02,  5.58it/s]Capturing CUDA graphs (PIECEWISE):  75%|███████▍  | 38/51 [00:09<00:02,  5.63it/s]Capturing CUDA graphs (PIECEWISE):  76%|███████▋  | 39/51 [00:09<00:02,  5.67it/s]Capturing CUDA graphs (PIECEWISE):  78%|███████▊  | 40/51 [00:09<00:01,  5.70it/s]Capturing CUDA graphs (PIECEWISE):  80%|████████  | 41/51 [00:10<00:01,  5.58it/s]Capturing CUDA graphs (PIECEWISE):  82%|████████▏ | 42/51 [00:10<00:01,  5.71it/s]Capturing CUDA graphs (PIECEWISE):  84%|████████▍ | 43/51 [00:10<00:01,  5.80it/s]Capturing CUDA graphs (PIECEWISE):  86%|████████▋ | 44/51 [00:10<00:01,  5.85it/s]Capturing CUDA graphs (PIECEWISE):  88%|████████▊ | 45/51 [00:10<00:01,  5.88it/s]Capturing CUDA graphs (PIECEWISE):  90%|█████████ | 46/51 [00:11<00:00,  5.92it/s]Capturing CUDA graphs (PIECEWISE):  92%|█████████▏| 47/51 [00:11<00:00,  5.92it/s]Capturing CUDA graphs (PIECEWISE):  94%|█████████▍| 48/51 [00:11<00:00,  5.94it/s]Capturing CUDA graphs (PIECEWISE):  96%|█████████▌| 49/51 [00:11<00:00,  5.96it/s]Capturing CUDA graphs (PIECEWISE):  98%|█████████▊| 50/51 [00:11<00:00,  5.76it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:11<00:00,  5.85it/s]Capturing CUDA graphs (PIECEWISE): 100%|██████████| 51/51 [00:11<00:00,  4.30it/s]
+(EngineCore pid=732243) INFO 11-04 03:27:54 [model_runner.py:960] Graph capturing finished in 16 secs, took 0.20 GiB
+(EngineCore pid=732243) INFO 11-04 03:27:54 [gpu_worker.py:797] CUDA graph pool memory: 0.2 GiB (actual), 0.6 GiB (estimated), difference: 0.39 GiB (196.1%).
+(EngineCore pid=732243) INFO 11-04 03:27:54 [gpu_worker.py:860] Free memory on device (82.59/83.05 GiB) on startup. Desired GPU memory utilization is (0.9, 74.74 GiB). Actual usage is 61.88 GiB for consumed memory (weights + non-torch), 2.05 GiB for peak activation, and 0.2 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=11234330522` (10.46 GiB) to fit into requested memory, or `--kv-cache-memory=19660713472` (18.31 GiB) to fully utilize gpu memory. Current kv cache memory in use is 10.81 GiB.
+(EngineCore pid=732243) INFO 11-04 03:27:57 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+(EngineCore pid=732243) WARNING 11-04 03:27:57 [torch_utils.py:265] OMP_NUM_THREADS=4 is set; leaving Torch threads at 4 for serving. Multi-threaded torch CPU ops during serving can degrade performance through spin-wait contention and cgroup CPU-quota throttling.
+(EngineCore pid=732243) INFO 11-04 03:27:57 [core.py:361] init engine (profile, create kv cache, warmup model) took 48.46 s (compilation: 0.27 s)
+(EngineCore pid=732243) INFO 11-04 03:27:57 [factory.py:62] Creating v1 connector with name: LineProfiledKVShrinkConnector and engine_id: 752cc32e-49a0-48a7-9869-053d232b837f
+(EngineCore pid=732243) WARNING 11-04 03:27:57 [base.py:203] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+(EngineCore pid=732243) INFO 11-04 03:27:57,938 [kvshrink_connector.py:153] KVShrinkConnector(SCHEDULER): block_size=16, has_mamba=False, mamba_cache_mode='none', prefix caching=False
+(EngineCore pid=732243) WARNING 11-04 03:27:57,938 [kvshrink_connector.py:178] Dense model: reading DP size from the DP_SIZE env var (1) because vLLM resets data_parallel_size to 1 for dense models.
+(EngineCore pid=732243) INFO 11-04 03:27:57,939 [flow.py:82] C++ Record initialized at _data/kvcache/raw/Qwen3-32B_rank0/chunks.db
+(EngineCore pid=732243) INFO 11-04 03:27:57,939 [flow.py:85] Initialized in has-only mode: persist_dir=Qwen3-32B_rank0
+(EngineCore pid=732243) INFO 11-04 03:27:57,939 [kvstore.py:137] KVStore initialized successfully: model_name=Qwen3-32B, rank=0, has_only_mode=True, num_layers=64, block_dim=None, block_shape=None, pool_size_gb=0.00, persist_dir=Qwen3-32B_rank0
+(EngineCore pid=732243) INFO 11-04 03:27:57,940 [api.py:49] Controller server started on port 18720 (workers: 1, base_port: 18820)
+(EngineCore pid=732243) INFO 11-04 03:27:57 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=731960) INFO 11-04 03:27:58 [entry.py:135] Supported tasks: ['generate']
+(APIServer pid=731960) INFO 11-04 03:27:58 [hf.py:547] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this.
+(APIServer pid=731960) WARNING 11-04 03:27:58 [model.py:1759] Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+(APIServer pid=731960) INFO 11-04 03:27:58 [entry.py:139] Starting vLLM server on http://0.0.0.0:8020
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:61] Available routes are:
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /openapi.json, Methods: GET, HEAD
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /docs, Methods: GET, HEAD
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /docs/oauth2-redirect, Methods: GET, HEAD
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /redoc, Methods: GET, HEAD
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /load, Methods: GET
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /version, Methods: GET
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /health, Methods: GET
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /metrics, Methods: GET
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /tokenize, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /detokenize, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/models, Methods: GET
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /ping, Methods: GET
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /ping, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /invocations, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/chat/completions, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/chat/completions/batch, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/responses, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/responses/{response_id}, Methods: GET
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/responses/{response_id}/cancel, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/completions, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/messages, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/messages/count_tokens, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /generative_scoring, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /scale_elastic_ep, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /is_scaling_elastic_ep, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/chat/completions/render, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/messages/render, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/completions/render, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/chat/completions/derender, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /v1/completions/derender, Methods: POST
+(APIServer pid=731960) INFO 11-04 03:27:58 [launcher.py:70] Route: /inference/v1/generate, Methods: POST
+(APIServer pid=731960) INFO:     Started server process [731960]
+(APIServer pid=731960) INFO:     Waiting for application startup.
+(APIServer pid=731960) INFO:     Application startup complete.
+(APIServer pid=731960) INFO:     127.0.0.1:46096 - "GET /health HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:46104 - "GET /health HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:28:07,966 [kvstore.py:460] [monitor][rank0] | mem pool 0.00/64.00G (0%) 0 grp | zip/raw 0.00/0.00G (1.00) | evict on/0 | host mem 100.3/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:33130 - "POST /tokenize HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:33146 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:33146 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:33146 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:28:12,902 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-c7a4f485-0-0-bd49a47a, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=732243) INFO 11-04 03:28:12,909 [flow.py:152] CUDA/XPU streams created (lazy init, device=cuda)
+(EngineCore pid=732243) INFO 11-04 03:28:22,969 [kvstore.py:460] [monitor][rank0] | mem pool 0.00/64.00G (0%) 0 grp | zip/raw 0.00/0.00G (1.00) | evict on/0 | host mem 117.1/503.5G
+(EngineCore pid=732243) INFO 11-04 03:28:23,586 [scratch_pool.py:38] ScratchPool: 262144 x (32768,) torch.bfloat16 = 16384.00 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 64.00 KB, blocks = 512
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+[kv_zip] block_size=65536 B segment_size=65536 B segments=1
+(EngineCore pid=732243) INFO 11-04 03:28:32,973 [kvstore.py:460] [monitor][rank0] | mem pool 4.03/64.00G (6%) 1536 grp | zip/raw 4.03/4.03G (1.00) | evict on/0 | host mem 117.5/503.5G
+(EngineCore pid=732243) INFO 11-04 03:28:42,977 [kvstore.py:460] [monitor][rank0] | mem pool 7.13/64.00G (11%) 2047 grp | zip/raw 7.13/7.12G (1.00) | evict on/0 | host mem 117.4/503.5G
+(APIServer pid=731960) INFO 11-04 03:28:48 [loggers.py:310] Engine 000: Avg prompt throughput: 3276.6 tokens/s, Avg generation throughput: 4.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.2%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(EngineCore pid=732243) INFO 11-04 03:28:52,980 [kvstore.py:460] [monitor][rank0] | mem pool 8.00/64.00G (12%) 2047 grp | zip/raw 8.00/8.00G (1.00) | evict on/0 | host mem 117.3/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:33146 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:28:53,966 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-c7a4f485-1-0-84b27276, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:28:58 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 8.3 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(EngineCore pid=732243) INFO 11-04 03:29:02,983 [kvstore.py:460] [monitor][rank0] | mem pool 11.91/64.00G (19%) 3071 grp | zip/raw 11.91/11.90G (1.00) | evict on/0 | host mem 117.6/503.5G
+(APIServer pid=731960) INFO 11-04 03:29:08 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 37.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(EngineCore pid=732243) INFO 11-04 03:29:12,987 [kvstore.py:460] [monitor][rank0] | mem pool 15.03/64.00G (23%) 4094 grp | zip/raw 15.03/15.03G (1.00) | evict on/0 | host mem 117.4/503.5G
+(APIServer pid=731960) INFO 11-04 03:29:18 [loggers.py:310] Engine 000: Avg prompt throughput: 3276.4 tokens/s, Avg generation throughput: 4.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.2%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(EngineCore pid=732243) INFO 11-04 03:29:22,991 [kvstore.py:460] [monitor][rank0] | mem pool 16.00/64.00G (25%) 4094 grp | zip/raw 16.00/15.99G (1.00) | evict on/0 | host mem 117.3/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:33146 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:33146 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO 11-04 03:29:28 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 8.8 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(EngineCore pid=732243) INFO 11-04 03:29:32,993 [kvstore.py:460] [monitor][rank0] | mem pool 16.00/64.00G (25%) 4094 grp | zip/raw 16.00/15.99G (1.00) | evict on/0 | host mem 113.8/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:49186 - "POST /tokenize HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:29:38,793 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-0-0-8d6e0f13, externally-cached tokens: 0, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:29:38 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(EngineCore pid=732243) INFO 11-04 03:29:42,997 [kvstore.py:460] [monitor][rank0] | mem pool 18.03/64.00G (28%) 5118 grp | zip/raw 18.03/18.02G (1.00) | evict on/0 | host mem 114.7/503.5G
+(EngineCore pid=732243) INFO 11-04 03:29:53,001 [kvstore.py:460] [monitor][rank0] | mem pool 21.63/64.00G (34%) 5630 grp | zip/raw 21.63/21.62G (1.00) | evict on/0 | host mem 115.5/503.5G
+(EngineCore pid=732243) INFO 11-04 03:30:03,004 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 115.8/503.5G
+(APIServer pid=731960) INFO 11-04 03:30:08 [loggers.py:310] Engine 000: Avg prompt throughput: 3276.5 tokens/s, Avg generation throughput: 12.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.3%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:30:09,176 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-1-0-8d405433, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=732243) INFO 11-04 03:30:13,010 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 116.4/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:30:17,603 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-2-0-afac0d97, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:30:18 [loggers.py:310] Engine 000: Avg prompt throughput: 3.2 tokens/s, Avg generation throughput: 14.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 40.0%
+(EngineCore pid=732243) INFO 11-04 03:30:23,013 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 117.3/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:30:26,010 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-3-0-adeeac9c, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:30:28 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 15.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.2%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 50.0%
+(EngineCore pid=732243) INFO 11-04 03:30:33,017 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 117.5/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:30:34,420 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-4-0-b440d626, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:30:38 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 15.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.2%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 57.1%
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:30:42,835 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-5-0-bda52989, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=732243) INFO 11-04 03:30:43,023 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 117.9/503.5G
+(APIServer pid=731960) INFO 11-04 03:30:48 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 15.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.3%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 62.5%
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:30:51,256 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-6-0-88e250da, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=732243) INFO 11-04 03:30:53,026 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 117.9/503.5G
+(APIServer pid=731960) INFO 11-04 03:30:58 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 15.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.3%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 66.6%
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:30:59,676 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-7-0-ab61cdc6, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(EngineCore pid=732243) INFO 11-04 03:31:03,030 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 118.4/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:31:08,086 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-8-0-91059da5, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:31:08 [loggers.py:310] Engine 000: Avg prompt throughput: 3.2 tokens/s, Avg generation throughput: 14.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 72.7%
+(EngineCore pid=732243) INFO 11-04 03:31:13,033 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 116.8/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:31:16,504 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-ff4d11d3-9-0-8e813127, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:31:18 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 15.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 75.0%
+(EngineCore pid=732243) INFO 11-04 03:31:23,036 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 116.9/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:49188 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO 11-04 03:31:28 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 9.8 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 75.0%
+(EngineCore pid=732243) INFO 11-04 03:31:33,038 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 116.4/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55646 - "POST /tokenize HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "GET /metrics HTTP/1.1" 200 OK
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) /home/pese/qiuyu/intel-accel-for-llm-1026/tests/python_overhead_dev/lineprofiled_kvshrink_connector.py:84: UserWarning: Adding a function with a `.__wrapped__` attribute. You may want to profile the wrapped function by adding `_monitor_loop.__wrapped__` instead.
+(EngineCore pid=732243)   profiler.add_function(function)
+(EngineCore pid=732243) INFO 11-04 03:31:37,821 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-0-0-a7835723, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:31:38 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 0.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 76.9%
+(EngineCore pid=732243) INFO 11-04 03:31:43,047 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 117.0/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:31:47,742 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-1-0-93c2452a, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:31:48 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 12.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 78.5%
+(EngineCore pid=732243) INFO 11-04 03:31:53,055 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 114.6/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:31:57,489 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-2-0-a5a76a4e, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:31:58 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 13.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 80.0%
+(EngineCore pid=732243) INFO 11-04 03:32:03,063 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 114.8/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:32:07,365 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-3-0-be94e2b1, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:32:08 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 13.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 81.2%
+(EngineCore pid=732243) INFO 11-04 03:32:13,071 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 114.9/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:32:17,253 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-4-0-9afb5725, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:32:18 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 13.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 82.3%
+(EngineCore pid=732243) INFO 11-04 03:32:23,079 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 115.9/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:32:27,087 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-5-0-aea966cc, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:32:28 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 13.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 83.3%
+(EngineCore pid=732243) INFO 11-04 03:32:33,088 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 116.9/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:32:37,031 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-6-0-80c6cc87, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:32:38 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 12.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 84.2%
+(EngineCore pid=732243) INFO 11-04 03:32:43,097 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 117.4/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:32:46,979 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-7-0-b6885508, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:32:48 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 13.1 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 85.0%
+(EngineCore pid=732243) INFO 11-04 03:32:53,105 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 116.0/503.5G
+(APIServer pid=731960) INFO:     127.0.0.1:55658 - "POST /v1/completions HTTP/1.1" 200 OK
+(EngineCore pid=732243) INFO 11-04 03:32:56,788 [kvshrink_connector.py:336] get_num_new_matched_tokens, req-cmpl-bench-8057c377-8-0-b4c2da84, externally-cached tokens: 32752, locally-cached tokens: 0, async=False, selected_load_layers=0, async_load_layers=-1
+(APIServer pid=731960) INFO 11-04 03:32:58 [loggers.py:310] Engine 000: Avg prompt throughput: 1.6 tokens/s, Avg generation throughput: 13.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 74.1%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 85.7%
+(EngineCore pid=732243) INFO 11-04 03:33:03,110 [kvstore.py:460] [monitor][rank0] | mem pool 24.00/64.00G (37%) 6141 grp | zip/raw 24.00/23.99G (1.00) | evict on/0 | host mem 117.6/503.5G
+(APIServer pid=731960) INFO 11-04 03:33:03 [launcher.py:124] [shutdown] API server: shutdown triggered
+(APIServer pid=731960) INFO 11-04 03:33:03 [launcher.py:140] [shutdown] API server: stopping engine client mode=abort timeout=0s
+(APIServer pid=731960) INFO 11-04 03:33:03 [core_client.py:689] [shutdown] MPClient: start timeout=0s
+(APIServer pid=731960) INFO 11-04 03:33:03 [core_client.py:691] [shutdown] MPClient: stopping engine manager
+(APIServer pid=731960) INFO 11-04 03:33:03 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore
+(APIServer pid=731960) WARNING 11-04 03:33:03 [utils.py:640] [shutdown] Process manager: force killing remaining processes count=1
+(APIServer pid=731960) WARNING 11-04 03:33:03 [utils.py:645] [shutdown] Process manager: force killing remaining process EngineCore pid 732243
+(EngineCore pid=732243) INFO 11-04 03:33:03 [core.py:1350] [shutdown] EngineCore: trigger received signal=SIGTERM
+(EngineCore pid=732243) INFO 11-04 03:33:03 [core.py:1501] [shutdown] EngineCore: start mode=abort timeout=0s
+(EngineCore pid=732243) INFO 11-04 03:33:03 [core.py:1532] [shutdown] EngineCore: request processing complete; starting resource teardown
+(EngineCore pid=732243) INFO 11-04 03:33:03 [core.py:1363] [shutdown] EngineCore: exiting busy loop
+(APIServer pid=731960) INFO 11-04 03:33:03 [core_client.py:693] [shutdown] MPClient: engine manager stopped
+(APIServer pid=731960) INFO 11-04 03:33:03 [core_client.py:694] [shutdown] MPClient: cleaning up background resources
+(APIServer pid=731960) INFO 11-04 03:33:03 [core_client.py:696] [shutdown] MPClient: complete
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819] AsyncLLM output_handler failed.
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819] Traceback (most recent call last):
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 765, in output_handler
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819]     outputs = await engine_core.get_output_async()
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 1105, in get_output_async
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819]     raise self._format_exception(outputs) from None
+(APIServer pid=731960) ERROR 11-04 03:33:03 [async_llm.py:819] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.
+(APIServer pid=731960) INFO 11-04 03:33:03 [launcher.py:149] [shutdown] API server: engine client stopped
+(APIServer pid=731960) INFO 11-04 03:33:03 [launcher.py:152] [shutdown] API server: signalling HTTP server shutdown
+(APIServer pid=731960) INFO 11-04 03:33:03 [launcher.py:173] [shutdown] API server: shutting down FastAPI HTTP server
+(APIServer pid=731960) INFO:     Shutting down
+(APIServer pid=731960) INFO:     Waiting for application shutdown.
+(APIServer pid=731960) INFO:     Application shutdown complete.
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

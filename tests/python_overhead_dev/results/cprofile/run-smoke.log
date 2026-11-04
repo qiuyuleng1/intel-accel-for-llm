@@ -1,0 +1,47 @@
+[03:02:54] results: /home/pese/qiuyu/intel-accel-for-llm-1026/tests/python_overhead_dev/results/cprofile/smoke/20261104_030253_0735344d_2k_c16_hit
+[03:02:54] starting vLLM on GPU 5, log /home/pese/qiuyu/intel-accel-for-llm-1026/tests/python_overhead_dev/results/cprofile/smoke/20261104_030253_0735344d_2k_c16_hit/vllm.log
+[03:04:41] vLLM ready: serve pid 660114, EngineCore pid 660254
+Available KV cache memory: 10.81 GiB
+GPU KV cache size: 44,272 tokens, Maximum concurrency for 32,896 tokens per request: 1.35x
+[03:04:46] bench warmup: 32 requests, seed 1
+INFO 11-04 03:04:56 [vllm_patch.py:85] KVShrink patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+Namespace(subparser='bench', bench_type='serve', dispatch_function=<function BenchmarkServingSubcommand.cmd at 0x7bfc62f6cb80>, trust_remote_code=True, seed=1, num_prompts=32, dataset_name='random', no_stream=False, dataset_path=None, no_oversample=False, skip_chat_template=False, enable_multimodal_chat=False, disable_shuffle=False, custom_output_len=256, custom_ensure_client_side_data=False, spec_bench_output_len=256, spec_bench_category=None, sonnet_input_len=550, sonnet_output_len=150, sonnet_prefix_len=200, sharegpt_output_len=None, timed_trace_chunk_hash_size=16, timed_trace_sec_multiplier=1, timed_trace_label_timestamp='timestamp', timed_trace_label_input_length='input_length', timed_trace_label_output_length='output_length', timed_trace_label_hash_ids='hash_ids', blazedit_min_distance=0.0, blazedit_max_distance=1.0, asr_max_audio_len_sec=inf, asr_min_audio_len_sec=0.0, random_input_len=2048, random_output_len=128, random_range_ratio='0.0', random_prefix_len=0, random_batch_size=1, no_reranker=False, random_mm_base_items_per_request=1, random_mm_num_mm_items_range_ratio=0.0, random_mm_limit_mm_per_prompt={'image': 255, 'video': 1}, random_mm_bucket_config={(256, 256, 1): 0.5, (720, 1280, 1): 0.5, (720, 1280, 16): 0.0}, hf_subset=None, hf_split=None, hf_name=None, hf_output_len=None, bfcl_categories=None, prefix_repetition_prefix_len=256, prefix_repetition_suffix_len=256, prefix_repetition_num_prefixes=10, prefix_repetition_output_len=128, speed_bench_dataset_subset='qualitative', speed_bench_output_len=4096, speed_bench_category=None, label=None, backend='vllm', base_url=None, host='localhost', port=8020, endpoint='/v1/completions', header=None, max_concurrency=16, model='/media/model-space/Qwen3-32B', input_len=None, output_len=None, tokenizer='/media/model-space/Qwen3-32B', tokenizer_mode='auto', use_beam_search=False, logprobs=None, request_rate=inf, burstiness=1.0, probe_request_rate=0.0, disable_tqdm=False, num_warmups=0, profile=False, save_result=True, save_detailed=False, append_result=False, metadata=None, result_dir='/home/pese/qiuyu/intel-accel-for-llm-1026/tests/python_overhead_dev/results/cprofile/smoke/20261104_030253_0735344d_2k_c16_hit', result_filename='bench_warmup.json', ignore_eos=True, self_timed=None, percentile_metrics='ttft,tpot,e2el', metric_percentiles='50,95', goodput=None, request_id_prefix='bench-3cb4a7eb-', top_p=None, top_k=None, min_p=None, temperature=None, frequency_penalty=None, presence_penalty=None, repetition_penalty=None, served_model_name=None, lora_modules=None, lora_assignment='random', ramp_up_strategy=None, ramp_up_start_rps=None, ramp_up_end_rps=None, ready_check_timeout_sec=0, chat_template_kwargs=None, extra_body=None, skip_tokenizer_init=False, insecure=False, plot_timeline=False, timeline_itl_thresholds='25,50', plot_dataset_stats=False)
+INFO 11-04 03:05:00 [utils.py:90] Sampling input_len from [2048, 2048] and output_len from [128, 128]
+WARNING: vllm bench serve no longer sets temperature==0 (greedy) in requests by default. The default will be determined on the server side and can be model/API specific. For the old behavior, include --temperature=0.
+Starting initial single prompt test run...
+Skipping endpoint ready check.
+Starting main benchmark run...
+Traffic request rate: inf
+Burstiness factor: 1.0 (Poisson process)
+Maximum request concurrency: 16
+  0%|          | 0/32 [00:00<?, ?it/s]  3%|▎         | 1/32 [00:34<18:00, 34.87s/it] 16%|█▌        | 5/32 [00:36<02:26,  5.44s/it] 28%|██▊       | 9/32 [00:38<01:05,  2.85s/it] 41%|████      | 13/32 [00:42<00:38,  2.01s/it] 53%|█████▎    | 17/32 [00:57<00:40,  2.69s/it] 66%|██████▌   | 21/32 [00:57<00:19,  1.75s/it] 88%|████████▊ | 28/32 [00:58<00:03,  1.07it/s]100%|██████████| 32/32 [00:58<00:00,  1.81s/it]
+tip: install termplotlib and gnuplot to plot the metrics
+============ Serving Benchmark Result ============
+Successful requests:                     32        
+Failed requests:                         0         
+Maximum request concurrency:             16        
+Benchmark duration (s):                  58.07     
+Total input tokens:                      65536     
+Total generated tokens:                  4096      
+Request throughput (req/s):              0.55      
+Output token throughput (tok/s):         70.54     
+Peak output token throughput (tok/s):    272.00    
+Peak concurrent requests:                20.00     
+Total token throughput (tok/s):          1199.19   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          16938.85  
+Median TTFT (ms):                        15452.26  
+P50 TTFT (ms):                           15452.26  
+P95 TTFT (ms):                           27312.56  
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          94.70     
+Median TPOT (ms):                        92.02     
+P50 TPOT (ms):                           92.02     
+P95 TPOT (ms):                           130.60    
+----------------End-to-end Latency----------------
+Mean E2EL (ms):                          28965.86  
+Median E2EL (ms):                        28888.70  
+P50 E2EL (ms):                           28888.70  
+P95 E2EL (ms):                           42636.16  
+==================================================
+[03:06:00] bench store: 32 requests, seed 4

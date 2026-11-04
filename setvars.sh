@@ -1,6 +1,6 @@
 export IAXL_VERSION=${IAXL_VERSION:-1.5.1}
 export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
-export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev:$IAXL_VERSION"}
+export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev-qiuyu-python-overhead-dev:$IAXL_VERSION"}
 export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
 
 TOP_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -200,7 +200,7 @@ export http_proxy="${http_proxy:-}"
 export https_proxy=$http_proxy
 
 # docker
-CONTAINER_NAME=iaxl.vllm
+CONTAINER_NAME=iaxl.vllm.qiuyu-python-overhead-dev
 ENV_VARS=(
     no_proxy
     http_proxy

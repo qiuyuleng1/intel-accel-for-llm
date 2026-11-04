@@ -1,0 +1,973 @@
+line_profiler 报告:2048 token 输入、并发 16、全部命中(Qwen3-32B,TP=1,GPU 5,KV 压缩关闭)
+测量 bench:160 个请求,每个输出 128 token;下面的时间是这 160 个请求加起来的,单位 us(微秒)。
+connector 日志里这 160 个请求的 externally-cached tokens(次数 值):    164 2032 
+Hits = 这一行执行的次数;Time = 总时间;Per Hit = 每次的时间;% Time = 占所在函数总时间的比例。
+line_profiler 每执行一行都要额外计时,循环里的行时间偏大。
+line_profiler 不分线程:测量期间 kvshrink 后台线程调到这些函数的时间也算在内(如 KVStoreLocal.simple_status)。
+代码 git 78aaef4,md5 31a8c87e,目录 /home/pese/qiuyu/intel-accel-for-llm-1026/tests/python_overhead_dev/results/line_profiler/20261104_055154_31a8c87e_2k_c16_hit
+
+Timer unit: 1e-06 s
+
+Total time: 0.02097 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: ReqMeta.for_group at line 64
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    64                                               def for_group(self, group_idx: int) -> tuple[list[int], list[str]]:
+    65     20096       5138.5      0.3     24.5          pairs = [
+    66     19939       6118.9      0.3     29.2              (block_id, block_hash)
+    67     20253       4978.3      0.2     23.7              for block_id, block_hash in zip(
+    68       157         83.9      0.5      0.4                  self.block_ids[group_idx], self.block_hashes
+    69                                                       )
+    70     19939       3601.9      0.2     17.2              if block_id != 0
+    71                                                   ]
+    72       157       1048.6      6.7      5.0          return [p[0] for p in pairs], [p[1] for p in pairs]
+
+Total time: 0.000947469 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: RequestMetadata.add_request at line 91
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    91                                               def add_request(
+    92                                                   self,
+    93                                                   req_id: ReqId,
+    94                                                   block_ids: tuple[list[int], ...],
+    95                                                   block_hashes: list[str],
+    96                                                   is_async: bool = False,
+    97                                                   async_load_layers: int = -1,
+    98                                               ) -> None:
+    99       320        756.2      2.4     79.8          self.requests[req_id] = ReqMeta(
+   100       160         78.6      0.5      8.3              block_ids,
+   101       160         51.6      0.3      5.4              block_hashes,
+   102       160         34.5      0.2      3.6              is_async,
+   103       160         26.7      0.2      2.8              async_load_layers,
+   104                                                   )
+
+Total time: 0.00600139 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector._store at line 265
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   265                                               def _store(self) -> KVStore:
+   266     10760       2659.4      0.2     44.3          if self.kvstore is None:
+   267                                                       raise RuntimeError("KVStore has not been initialized")
+   268     10760       3342.0      0.3     55.7          return self.kvstore
+
+Total time: 0.245355 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.get_num_new_matched_tokens at line 274
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   274                                               def get_num_new_matched_tokens(
+   275                                                   self,
+   276                                                   request: "Request",
+   277                                                   num_computed_tokens: int,
+   278                                               ) -> tuple[int, bool]:
+   279       164        146.9      0.9      0.1          if self._req_states.pop(request.request_id, None) is not None:
+   280         4       1300.0    325.0      0.5              logger.warning("Discarded stale state for request %s", request.request_id)
+   281                                           
+   282     20992       3980.3      0.2      1.6          block_hashes = [
+   283     20828       7312.9      0.4      3.0              str(block_hash)
+   284     21156     136657.2      6.5     55.7              for block_hash in generate_block_hashs(
+   285       164       2462.7     15.0      1.0                  request.all_token_ids[:-1], self.block_size
+   286                                                       )
+   287                                                   ]
+   288       164      49630.0    302.6     20.2          existence_cache = self._store().has(block_hashes)
+   289       328       1077.5      3.3      0.4          state = ReqState(
+   290       164         40.9      0.2      0.0              num_computed_tokens=num_computed_tokens,
+   291       164         48.3      0.3      0.0              existence_cache=existence_cache,
+   292       164         28.7      0.2      0.0              block_hashes=block_hashes,
+   293                                                   )
+   294       164        125.1      0.8      0.1          self._req_states[request.request_id] = state
+   295                                           
+   296       328      13054.6     39.8      5.3          matched_blocks = next(
+   297       328        212.4      0.6      0.1              (
+   298                                                           index
+   299       164        113.5      0.7      0.0                  for index, exists in enumerate(existence_cache)
+   300                                                           if not exists
+   301                                                       ),
+   302       164         61.8      0.4      0.0              len(existence_cache),
+   303                                                   )
+   304       164         77.3      0.5      0.0          if self.has_mamba:
+   305                                                       # A hit must end at a block whose mamba state was saved.
+   306                                                       state.mamba_existence_cache = self._store().has(
+   307                                                           block_hashes, label="mamba", truncate=False
+   308                                                       )
+   309                                                       while (
+   310                                                           matched_blocks > 0
+   311                                                           and not state.mamba_existence_cache[matched_blocks - 1]
+   312                                                       ):
+   313                                                           matched_blocks -= 1
+   314       164         85.1      0.5      0.0          matched_tokens = matched_blocks * self.block_size
+   315       164        158.4      1.0      0.1          num_new_tokens = max(0, matched_tokens - num_computed_tokens)
+   316                                           
+   317                                                   # Decide sync vs async for this request. The load can only be async when
+   318                                                   # there are external tokens to load and async is enabled. Concurrency is
+   319                                                   # approximated by the number of in-flight requests (this one included).
+   320       328        791.9      2.4      0.3          selected_layers = self._async_load_layer_config.select(
+   321       164         58.6      0.4      0.0              len(self._req_states)
+   322                                                   )
+   323                                                   # Mamba layers lead the worker's layer order and have no layer-load
+   324                                                   # hook, so the early-start window must cover them. -1 keeps its
+   325                                                   # meaning (wait for every layer); 0 asks for a synchronous load, which
+   326                                                   # hybrid cannot do, so it becomes that window as well.
+   327       164         41.8      0.3      0.0          if self.has_mamba and selected_layers >= 0:
+   328                                                       selected_layers += self.num_mamba_layers
+   329                                                   # A dynamic-map layer value of 0 selects synchronous loading. It is not
+   330                                                   # an async request that resumes before layer 0.
+   331       164         55.4      0.3      0.0          use_async = num_new_tokens > 0 and selected_layers != 0
+   332       164         62.6      0.4      0.0          state.is_async = use_async
+   333       164         67.8      0.4      0.0          if use_async:
+   334       161         48.7      0.3      0.0              state.async_load_layers = selected_layers
+   335                                           
+   336       328      26749.3     81.6     10.9          logger.info(
+   337       328        205.2      0.6      0.1              f"get_num_new_matched_tokens, req-{request.request_id}, "
+   338       164        101.1      0.6      0.0              f"externally-cached tokens: {num_new_tokens}, "
+   339       164        264.1      1.6      0.1              f"locally-cached tokens: {num_computed_tokens}, async={use_async}, "
+   340       164         70.3      0.4      0.0              f"selected_load_layers={selected_layers}, "
+   341       164         57.8      0.4      0.0              f"async_load_layers={state.async_load_layers}"
+   342                                                   )
+   343       164        207.1      1.3      0.1          return num_new_tokens, use_async
+
+Total time: 0.00499939 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.update_state_after_alloc at line 345
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   345                                               def update_state_after_alloc(
+   346                                                   self,
+   347                                                   request: "Request",
+   348                                                   blocks: "KVCacheBlocks",
+   349                                                   num_external_tokens: int,
+   350                                               ) -> None:
+   351       317        216.3      0.7      4.3          state = self._req_states.get(request.request_id)
+   352       317         90.0      0.3      1.8          if state is None:
+   353                                                       raise RuntimeError(f"Missing state for request {request.request_id}")
+   354                                           
+   355       317        105.1      0.3      2.1          if num_external_tokens == 0:
+   356       157        102.4      0.7      2.0              return
+   357       160         64.1      0.4      1.3          if num_external_tokens % self.block_size != 0:
+   358                                                       raise ValueError("External token count must be block aligned")
+   359                                           
+   360       160       1779.0     11.1     35.6          block_ids = blocks.get_block_ids()
+   361       160         88.4      0.6      1.8          load_start = state.num_computed_tokens // self.block_size
+   362       160         75.3      0.5      1.5          load_end = load_start + num_external_tokens // self.block_size
+   363       160         73.8      0.5      1.5          assert load_end <= len(state.block_hashes)
+   364                                           
+   365                                                   # A mamba table is null up to the hit boundary, so the same slice
+   366                                                   # leaves only the slot that receives the saved state.
+   367       320       1510.5      4.7     30.2          self._reqs_to_load.add_request(
+   368       160         37.9      0.2      0.8              request.request_id,
+   369       160        662.5      4.1     13.3              tuple(list(ids[load_start:load_end]) for ids in block_ids),
+   370       160        107.0      0.7      2.1              state.block_hashes[load_start:load_end],
+   371       160         48.2      0.3      1.0              is_async=state.is_async,
+   372       160         38.9      0.2      0.8              async_load_layers=state.async_load_layers,
+   373                                                   )
+
+Total time: 0.0423083 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector._add_request_to_save at line 375
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   375                                               def _add_request_to_save(
+   376                                                   self, req_id: ReqId, num_computed_tokens: int, num_scheduled_tokens: int
+   377                                               ) -> None:
+   378     20480       5202.0      0.3     12.3          state = self._req_states.get(req_id)
+   379     20480       4512.7      0.2     10.7          if state is None:
+   380                                                       raise RuntimeError(f"Missing state for request {req_id}")
+   381                                           
+   382     20480       4252.4      0.2     10.1          num_tokens = num_computed_tokens + num_scheduled_tokens
+   383     20480       4847.2      0.2     11.5          start = num_computed_tokens // self.block_size
+   384     20480      11793.8      0.6     27.9          end = min(num_tokens // self.block_size, len(state.block_hashes))
+   385     20480       4521.4      0.2     10.7          if end <= start:
+   386     20480       7178.8      0.4     17.0              return
+   387                                           
+   388                                                   # Attention saves every full block; mamba only holds the state at the
+   389                                                   # end of a block-aligned chunk, in slot end - 1.
+   390                                                   save_mamba = (
+   391                                                       self.has_mamba
+   392                                                       and end * self.block_size == num_tokens
+   393                                                       and not state.mamba_existence_cache[end - 1]
+   394                                                   )
+   395                                                   block_ids = tuple(
+   396                                                       [0] * (end - start - 1) + [ids[end - 1] if save_mamba else 0]
+   397                                                       if is_mamba
+   398                                                       else [
+   399                                                           0 if state.existence_cache[index] else ids[index]
+   400                                                           for index in range(start, end)
+   401                                                       ]
+   402                                                       for (is_mamba, _), ids in zip(self.groups, state.block_ids)
+   403                                                   )
+   404                                                   if any(any(ids) for ids in block_ids):
+   405                                                       self._reqs_to_save.add_request(
+   406                                                           req_id, block_ids, state.block_hashes[start:end]
+   407                                                       )
+
+Total time: 0.00170342 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.request_finished at line 409
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   409                                               def request_finished(
+   410                                                   self,
+   411                                                   request: "Request",
+   412                                                   block_ids: list[int],
+   413                                               ) -> tuple[bool, Optional[dict[str, Any]]]:
+   414                                                   # True = defer freeing to get_finished() (async load/save may still run).
+   415       160       1627.0     10.2     95.5          self._req_states.pop(request.request_id, None)
+   416       160         76.4      0.5      4.5          return True, None
+
+Total time: 0.00287008 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.request_finished_all_groups at line 418
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   418                                               def request_finished_all_groups(
+   419                                                   self,
+   420                                                   request: "Request",
+   421                                                   block_ids: tuple[list[int], ...],
+   422                                               ) -> tuple[bool, Optional[dict[str, Any]]]:
+   423       160       2870.1     17.9    100.0          return self.request_finished(request, [])
+
+Total time: 0.131262 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.build_connector_meta at line 425
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   425                                               def build_connector_meta(
+   426                                                   self,
+   427                                                   scheduler_output: SchedulerOutput,
+   428                                               ) -> KVConnectorMetadata:
+   429      1325        932.3      0.7      0.7          num_scheduled_tokens = scheduler_output.num_scheduled_tokens
+   430      1485        698.2      0.5      0.5          for request in scheduler_output.scheduled_new_reqs:
+   431       160         55.9      0.3      0.0              state = self._req_states[request.req_id]
+   432       160        236.6      1.5      0.2              state.block_ids = [list(ids) for ids in request.block_ids]
+   433       320        839.0      2.6      0.6              self._add_request_to_save(
+   434       160         46.7      0.3      0.0                  request.req_id,
+   435       160         36.7      0.2      0.0                  request.num_computed_tokens,
+   436       160         37.8      0.2      0.0                  num_scheduled_tokens[request.req_id],
+   437                                                       )
+   438                                           
+   439      1325        671.3      0.5      0.5          cached_reqs = scheduler_output.scheduled_cached_reqs
+   440     21645       6277.1      0.3      4.8          for index, req_id in enumerate(cached_reqs.req_ids):
+   441     20320       4395.6      0.2      3.3              if req_id in cached_reqs.resumed_req_ids:
+   442                                                           raise RuntimeError("Resuming from preemption is not supported")
+   443                                           
+   444     20320       6959.1      0.3      5.3              state = self._req_states[req_id]
+   445     20320       5021.8      0.2      3.8              new_block_ids = cached_reqs.new_block_ids[index]
+   446     20320       4396.8      0.2      3.3              if new_block_ids:
+   447      2560       1954.0      0.8      1.5                  for ids, new_ids in zip(state.block_ids, new_block_ids):
+   448      1280        541.7      0.4      0.4                      ids.extend(new_ids)
+   449                                                       # Decode steps start past the prompt's hashes and save nothing.
+   450     40640      68134.5      1.7     51.9              self._add_request_to_save(
+   451     20320       4306.7      0.2      3.3                  req_id,
+   452     20320       4649.9      0.2      3.5                  cached_reqs.num_computed_tokens[index],
+   453     20320       4407.7      0.2      3.4                  num_scheduled_tokens[req_id],
+   454                                                       )
+   455                                           
+   456                                                   # kvshrink loads asynchronously, but its start_load_kv only submits
+   457                                                   # host-side work; running it before the forward keeps the 0.23-style
+   458                                                   # placement (0.29 would otherwise defer it to post_forward).
+   459      1325        581.5      0.4      0.4          scheduler_output.has_sync_kv_loads = True
+   460      2650       5709.8      2.2      4.3          metadata = KVShrinkConnectorMetadata(
+   461      1325        433.8      0.3      0.3              reqs_to_load=self._reqs_to_load,
+   462      1325        569.4      0.4      0.4              reqs_to_save=self._reqs_to_save,
+   463                                                       # scheduler_output.num_scheduled_tokens is a dict keyed by req id.
+   464      1325       2330.2      1.8      1.8              scheduled_req_ids=set(scheduler_output.num_scheduled_tokens.keys()),
+   465                                                   )
+   466      1325       3551.1      2.7      2.7          self._reqs_to_load = RequestMetadata()
+   467      1325       1360.2      1.0      1.0          self._reqs_to_save = RequestMetadata()
+   468      1325       2126.2      1.6      1.6          return metadata
+
+Total time: 0.489062 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.start_load_kv at line 573
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   573                                               def start_load_kv(
+   574                                                   self,
+   575                                                   forward_context: "ForwardContext",
+   576                                                   **kwargs: Any,
+   577                                               ) -> None:
+   578      1325       7207.1      5.4      1.5          metadata = self._get_connector_metadata()
+   579      1325       1827.2      1.4      0.4          if not isinstance(metadata, KVShrinkConnectorMetadata):
+   580                                                       raise TypeError("Unexpected connector metadata")
+   581                                           
+   582      1325        513.5      0.4      0.1          sync_block_ids: list[int] = []
+   583      1325        301.8      0.2      0.1          sync_block_hashes: list[str] = []
+   584      1325        278.9      0.2      0.1          async_reqs: list[tuple[ReqId, ReqMeta]] = []
+   585      1485       1658.7      1.1      0.3          for req_id, request in metadata.reqs_to_load.requests.items():
+   586       320        639.1      2.0      0.1              assert all(
+   587       160         75.2      0.5      0.0                  len(ids) == len(request.block_hashes) for ids in request.block_ids
+   588                                                       ), req_id
+   589       160         67.1      0.4      0.0              if request.is_async:
+   590       157         48.5      0.3      0.0                  async_reqs.append((req_id, request))
+   591                                                       else:
+   592                                                           # Hybrid loads are always async: vLLM still zeroes the blocks
+   593                                                           # of a synchronous load on the compute stream.
+   594         3          4.3      1.4      0.0                  assert not self.has_mamba
+   595         3         10.8      3.6      0.0                  sync_block_ids.extend(request.block_ids[0])
+   596         3         11.3      3.8      0.0                  sync_block_hashes.extend(request.block_hashes)
+   597                                           
+   598                                                   # Submit synchronous (blocking) loads first as a single merged batch so
+   599                                                   # they are enqueued ahead of the asynchronous loads for this pass.
+   600      1325        640.3      0.5      0.1          self._current_get_tasks = None
+   601      1325        637.1      0.5      0.1          if sync_block_ids:
+   602         4      74710.2  18677.6     15.3              self._current_get_tasks = self._store().get(
+   603         2          1.3      0.6      0.0                  block_indices=sync_block_ids,
+   604         2          1.0      0.5      0.0                  block_hashs=sync_block_hashes,
+   605                                                       )
+   606                                           
+   607                                                   # Wait only on promoted requests scheduled in this forward; a no-forward batch waits on none.
+   608      1325        671.6      0.5      0.1          if forward_context.attn_metadata is not None:
+   609      1322        524.4      0.4      0.1              duplicates = (
+   610      2644       2946.9      1.1      0.6                  self._active_promoted_tasks.keys()
+   611      1322        435.9      0.3      0.1                  & self._early_promoted_tasks.keys()
+   612                                                       )
+   613      1322        640.1      0.5      0.1              if duplicates:
+   614                                                           raise RuntimeError(
+   615                                                               f"Duplicate promoted load tasks for requests {duplicates}"
+   616                                                           )
+   617      1322       1151.8      0.9      0.2              scheduled: list[ReqId] = []
+   618      1636        761.3      0.5      0.2              for req_id in self._early_promoted_tasks:
+   619       314         93.4      0.3      0.0                  if req_id in metadata.scheduled_req_ids:
+   620       157         46.1      0.3      0.0                      scheduled.append(req_id)
+   621      1322        706.5      0.5      0.1              raise_load_bundle_ids: list[int] = []
+   622      1479        684.9      0.5      0.1              for req_id in scheduled:
+   623       314        130.4      0.4      0.0                  self._active_promoted_tasks[req_id] = self._early_promoted_tasks.pop(
+   624       157         32.7      0.2      0.0                      req_id
+   625                                                           )
+   626       157         63.0      0.4      0.0                  load_bundle_id = self._load_bundle_ids.pop(req_id, None)
+   627       157         35.0      0.2      0.0                  if load_bundle_id is not None:
+   628       157         34.6      0.2      0.0                      raise_load_bundle_ids.append(load_bundle_id)
+   629      1322        619.5      0.5      0.1              if raise_load_bundle_ids:
+   630                                                           # Before the async gets below; sorting P0 by layer interleaves these with the sync batch.
+   631        51        877.3     17.2      0.2                  self._store().set_bundles_priority(raise_load_bundle_ids, LOAD_PRIORITY_P0)
+   632        51        392.0      7.7      0.1                  self._store().sort_priority_level(LOAD_PRIORITY_P0)
+   633                                           
+   634                                                   # Submit asynchronous loads per request; they are polled across
+   635                                                   # scheduler steps in get_finished().
+   636      1482       4495.3      3.0      0.9          for req_id, request in async_reqs:
+   637                                                       # First N layers at P1 overtake waiting remaining layers, which stay at P2 until raised.
+   638       157         79.9      0.5      0.0              priorities: dict[str, int] = {}
+   639       157         71.2      0.5      0.0              has_remaining_layers = False
+   640     10205       2218.6      0.2      0.5              for layer_index, layer_name in enumerate(self._layer_names):
+   641                                                           # -1 promotes only after every layer is loaded.
+   642     10048       2314.0      0.2      0.5                  if request.async_load_layers == -1 or layer_index < request.async_load_layers:
+   643      2440        660.8      0.3      0.1                      priorities[layer_name] = LOAD_PRIORITY_P1
+   644                                                           else:
+   645      7608       1993.0      0.3      0.4                      priorities[layer_name] = LOAD_PRIORITY_P2
+   646      7608       1492.0      0.2      0.3                      has_remaining_layers = True
+   647       157         52.9      0.3      0.0              load_bundle_id = self._next_load_bundle_id
+   648       157         64.9      0.4      0.0              self._next_load_bundle_id += 1
+   649       157         49.8      0.3      0.0              tasks: dict[str, Any] = {}
+   650       314        238.9      0.8      0.0              for index, (is_mamba, layer_names) in enumerate(self.groups):
+   651       157         48.6      0.3      0.0                  if not layer_names:  # draft-only group
+   652                                                               continue
+   653       157      25750.3    164.0      5.3                  block_ids, block_hashes = request.for_group(index)
+   654       314     349376.6   1112.7     71.4                  tasks.update(self._store().get(
+   655       157         36.2      0.2      0.0                      block_indices=block_ids,
+   656       157         39.7      0.3      0.0                      block_hashs=block_hashes,
+   657       157         52.8      0.3      0.0                      layer_names=layer_names,
+   658       157         50.3      0.3      0.0                      description=req_id,
+   659       157         47.2      0.3      0.0                      label="mamba" if is_mamba else None,
+   660       157         42.3      0.3      0.0                      priorities=priorities,
+   661       157         29.7      0.2      0.0                      bundle_id=load_bundle_id,
+   662                                                           ))
+   663       157        134.6      0.9      0.0              self._pending_load_tasks[req_id] = tasks
+   664       157         96.9      0.6      0.0              self._pending_load_layers[req_id] = request.async_load_layers
+   665       157         57.6      0.4      0.0              if has_remaining_layers:
+   666       157         87.3      0.6      0.0                  self._load_bundle_ids[req_id] = load_bundle_id
+
+Total time: 0.421099 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.wait_for_layer_load at line 668
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   668                                               def wait_for_layer_load(self, layer_name: str) -> None:
+   669     84608      41049.4      0.5      9.7          if not self._current_get_tasks and not self._active_promoted_tasks:
+   670     81216      36932.6      0.5      8.8              return
+   671                                           
+   672      3392       1526.3      0.4      0.4          layer_keys = [self._layer_key[layer_name]]
+   673                                                   # Wait for the synchronous (batched) loads for this layer.
+   674      3392       1029.0      0.3      0.2          if self._current_get_tasks:
+   675       256       5898.4     23.0      1.4              success = self._store().get_wait(
+   676       128         50.7      0.4      0.0                  get_results=self._current_get_tasks,
+   677       128         37.6      0.3      0.0                  layer_names=layer_keys,
+   678                                                       )
+   679       128         60.0      0.5      0.0              if not success:
+   680                                                           raise RuntimeError(
+   681                                                               f"Failed to load KV cache for layer {layer_name}"
+   682                                                           )
+   683                                           
+   684                                                   # Wait for the remaining layers of early-promoted async loads. Their
+   685                                                   # first N layers were already finalized in get_finished(); waiting on an
+   686                                                   # already-finalized layer is a no-op.
+   687     13440       4331.0      0.3      1.0          for tasks in self._active_promoted_tasks.values():
+   688     20096     320111.8     15.9     76.0              success = self._store().get_wait(
+   689     10048       1883.4      0.2      0.4                  get_results=tasks,
+   690     10048       1713.0      0.2      0.4                  layer_names=layer_keys,
+   691                                                       )
+   692     10048       2143.3      0.2      0.5              if not success:
+   693                                                           raise RuntimeError(
+   694                                                               f"Failed to load promoted KV cache for layer {layer_name}"
+   695                                                           )
+   696                                           
+   697      3392       2834.2      0.8      0.7          if layer_name == self._last_layer_name:
+   698        53         59.5      1.1      0.0              self._current_get_tasks = None
+   699        53       1439.2     27.2      0.3              self._active_promoted_tasks = {}
+
+Total time: 0.390457 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.save_kv_layer at line 701
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   701                                               def save_kv_layer(
+   702                                                   self,
+   703                                                   layer_name: str,
+   704                                                   kv_layer: torch.Tensor,
+   705                                                   attn_metadata: "AttentionMetadata",
+   706                                                   **kwargs: Any,
+   707                                               ) -> None:
+   708                                                   # Draft (MTP) layers are not registered.
+   709     84608      44539.5      0.5     11.4          if self._connector_metadata is None or layer_name not in self.layer_group:
+   710                                                       return
+   711                                           
+   712     84608     142756.8      1.7     36.6          metadata = self._get_connector_metadata()
+   713     84608      37473.7      0.4      9.6          if not isinstance(metadata, KVShrinkConnectorMetadata):
+   714                                                       raise TypeError("Unexpected connector metadata")
+   715                                           
+   716     84608      26836.3      0.3      6.9          group_idx = self.layer_group[layer_name]
+   717     84608      37250.4      0.4      9.5          layer_keys = [self._layer_key[layer_name]]
+   718     84608     101600.6      1.2     26.0          for req_id, request in metadata.reqs_to_save.requests.items():
+   719                                                       block_ids, block_hashes = request.for_group(group_idx)
+   720                                                       if not block_ids:
+   721                                                           continue
+   722                                                       tasks = self._store().put(
+   723                                                           block_indices=block_ids,
+   724                                                           block_hashs=block_hashes,
+   725                                                           layer_names=layer_keys,
+   726                                                       )
+   727                                                       self._current_put_tasks.setdefault(req_id, []).append(tasks)
+
+Total time: 0.00352435 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.wait_for_save at line 729
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   729                                               def wait_for_save(self) -> None:
+   730                                                   # Mamba layers have no save hook: submit their states after forward.
+   731      1322       1709.1      1.3     48.5          if self._connector_metadata is None or not self.has_mamba:
+   732      1322       1815.3      1.4     51.5              return
+   733                                                   metadata = self._get_connector_metadata()
+   734                                                   for req_id, request in metadata.reqs_to_save.requests.items():
+   735                                                       for index, (is_mamba, layer_names) in enumerate(self.groups):
+   736                                                           block_ids, block_hashes = request.for_group(index)
+   737                                                           if not is_mamba or not block_ids:
+   738                                                               continue
+   739                                                           tasks = self._store().put(
+   740                                                               block_indices=block_ids,
+   741                                                               block_hashs=block_hashes,
+   742                                                               layer_names=layer_names,
+   743                                                               label="mamba",
+   744                                                           )
+   745                                                           self._current_put_tasks.setdefault(req_id, []).append(tasks)
+
+Total time: 0.0603068 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/kvshrink/kvshrink_connector.py
+Function: KVShrinkConnector.get_finished at line 747
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   747                                               def get_finished(
+   748                                                   self, finished_req_ids: set[str]
+   749                                               ) -> tuple[Optional[set[str]], Optional[set[str]]]:
+   750                                                   # Poll asynchronous load tasks submitted in start_load_kv().
+   751      1325       1806.5      1.4      3.0          finished_recving: set[str] = set()
+   752      1484       2793.5      1.9      4.6          for req_id in list(self._pending_load_tasks.keys()):
+   753       159         68.9      0.4      0.1              tasks = self._pending_load_tasks[req_id]
+   754       159         56.8      0.4      0.1              async_load_layers = self._pending_load_layers[req_id]
+   755       159         56.3      0.4      0.1              if async_load_layers == -1:
+   756                                                           # Require all layers before marking the load finished.
+   757                                                           if self._store().get_wait(get_results=tasks, wait=False):
+   758                                                               del self._pending_load_tasks[req_id]
+   759                                                               del self._pending_load_layers[req_id]
+   760                                                               finished_recving.add(req_id)
+   761                                                       else:
+   762                                                           # Early promote once the first N layers are loaded; the remaining
+   763                                                           # layers are waited on-demand in wait_for_layer_load().
+   764       159        122.7      0.8      0.2                  first_n_layers = self._layer_names[:async_load_layers]
+   765       318      44773.6    140.8     74.2                  if self._store().get_wait(
+   766       159         31.4      0.2      0.1                      get_results=tasks, layer_names=first_n_layers, wait=False
+   767                                                           ):
+   768       157         65.6      0.4      0.1                      del self._pending_load_tasks[req_id]
+   769       157         63.0      0.4      0.1                      del self._pending_load_layers[req_id]
+   770       157         77.8      0.5      0.1                      self._early_promoted_tasks[req_id] = tasks
+   771       157         87.7      0.6      0.1                      finished_recving.add(req_id)
+   772                                           
+   773      1325       1763.0      1.3      2.9          self._deferred_finished_req_ids.update(finished_req_ids)
+   774      1325       1083.7      0.8      1.8          completed: set[str] = set()
+   775                                           
+   776      1485       1336.2      0.9      2.2          for req_id in self._deferred_finished_req_ids:
+   777       160         44.3      0.3      0.1              load_tasks = (
+   778       320         92.9      0.3      0.2                  self._pending_load_tasks.get(req_id)
+   779       160         44.0      0.3      0.1                  or self._early_promoted_tasks.get(req_id)
+   780       160         45.0      0.3      0.1                  or self._active_promoted_tasks.get(req_id)
+   781                                                       )
+   782       160         53.6      0.3      0.1              if load_tasks is not None:
+   783                                                           if not self._store().get_wait(
+   784                                                               get_results=load_tasks, wait=False
+   785                                                           ):
+   786                                                               continue
+   787                                                           self._pending_load_tasks.pop(req_id, None)
+   788                                                           self._pending_load_layers.pop(req_id, None)
+   789                                                           self._early_promoted_tasks.pop(req_id, None)
+   790                                                           self._active_promoted_tasks.pop(req_id, None)
+   791                                                           # Finished before entering a forward: its bundle is never raised.
+   792                                                           self._load_bundle_ids.pop(req_id, None)
+   793                                           
+   794       160         72.1      0.5      0.1              tasks = self._current_put_tasks.get(req_id)
+   795       160         42.0      0.3      0.1              if tasks is None:
+   796       160         73.6      0.5      0.1                  completed.add(req_id)
+   797       160         29.5      0.2      0.0                  continue
+   798                                           
+   799                                                       while tasks and self._store().put_wait(tasks[0], wait=False):
+   800                                                           tasks.pop(0)
+   801                                                       if not tasks:
+   802                                                           self._current_put_tasks.pop(req_id)
+   803                                                           completed.add(req_id)
+   804                                           
+   805      1325       1504.9      1.1      2.5          self._deferred_finished_req_ids.difference_update(completed)
+   806      1325       4118.2      3.1      6.8          return (completed or None), (finished_recving or None)
+
+Total time: 0.421712 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvstore/kvstore.py
+Function: KVStoreLocal.get at line 273
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   273                                               def get(
+   274                                                   self,
+   275                                                   block_indices: List[int],
+   276                                                   block_hashs: List[str],
+   277                                                   layer_names: Optional[List[str]] = None,
+   278                                                   description: str = "",
+   279                                                   label: Optional[str] = None,
+   280                                                   priorities: Optional[Dict[str, int]] = None,
+   281                                                   bundle_id: int = 0,
+   282                                               ) -> Dict[str, Task]:
+   283                                                   # priorities: OMP-Main level per layer name (None: 0); bundle_id: for set_bundles_priority.
+   284       159         70.0      0.4      0.0          if self.has_only_mode:
+   285                                                       raise RuntimeError(
+   286                                                           "get() not available in has-only mode (kv_caches not provided)"
+   287                                                       )
+   288                                           
+   289       159         51.5      0.3      0.0          if layer_names is None:
+   290         2          3.2      1.6      0.0              layer_names = self.layer_names
+   291                                           
+   292       159         57.5      0.4      0.0          sort_keys: Dict[str, int] = {}
+   293     10335       1992.8      0.2      0.5          for name in layer_names:
+   294     10176       2571.6      0.3      0.6              sort_keys[name] = self._layer_order[name]
+   295                                           
+   296       318     416510.6   1309.8     98.8          return self.tensorzip.get(
+   297       159        163.7      1.0      0.0              label=label or self.LABEL,
+   298       159         43.2      0.3      0.0              tensor_keys=layer_names,
+   299       159         35.9      0.2      0.0              chunk_indices=block_indices,
+   300       159         35.2      0.2      0.0              chunk_labels=block_hashs,
+   301       159         47.1      0.3      0.0              description=description,
+   302       159         41.2      0.3      0.0              priorities=priorities,
+   303       159         61.3      0.4      0.0              bundle_id=bundle_id,
+   304       159         27.4      0.2      0.0              sort_keys=sort_keys,
+   305                                                   )
+
+Total time: 0.000630872 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvstore/kvstore.py
+Function: KVStoreLocal.set_bundles_priority at line 307
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   307                                               def set_bundles_priority(self, bundle_ids: List[int], priority: int) -> int:
+   308                                                   # Moves waiting load tasks of these bundles from less urgent levels to `priority`.
+   309        51        630.9     12.4    100.0          return self.tensorzip.set_bundles_priority(bundle_ids, priority)
+
+Total time: 0.000247501 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvstore/kvstore.py
+Function: KVStoreLocal.sort_priority_level at line 311
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   311                                               def sort_priority_level(self, priority: int) -> None:
+   312                                                   # Sorts the waiting load tasks of level `priority` by layer.
+   313        51        247.5      4.9    100.0          self.tensorzip.sort_priority_level(priority)
+
+Total time: 0.347335 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvstore/kvstore.py
+Function: KVStoreLocal.get_wait at line 315
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   315                                               def get_wait(
+   316                                                   self,
+   317                                                   get_results: Dict[str, Task],
+   318                                                   layer_names: Optional[List[str]] = None,
+   319                                                   wait: bool = True,
+   320                                               ) -> bool:
+   321                                           
+   322     10335       2235.0      0.2      0.6          if self.has_only_mode:
+   323                                                       raise RuntimeError(
+   324                                                           "get_wait() not available in has-only mode (kv_caches not provided)"
+   325                                                       )
+   326                                           
+   327     20670     338879.4     16.4     97.6          return self.tensorzip.get_wait(
+   328     10335       2026.4      0.2      0.6              get_results,
+   329     10335       2172.3      0.2      0.6              tensor_dict_keys=layer_names,
+   330     10335       2022.1      0.2      0.6              wait=wait,
+   331                                                   )
+
+Total time: 0.0484755 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvstore/kvstore.py
+Function: KVStoreLocal.has at line 333
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   333                                               def has(self, block_hashs: Optional[List[str]] = None,
+   334                                                       label: Optional[str] = None,
+   335                                                       truncate: bool = True) -> List[bool]:
+   336       164         87.6      0.5      0.2          if not block_hashs:
+   337                                                       self.tensorzip.record_flush()
+   338                                                       return []
+   339                                           
+   340       164        195.5      1.2      0.4          label = label or self.LABEL
+   341       328        829.9      2.5      1.7          with self._evict_cond:
+   342       164         86.6      0.5      0.2              if self._evicting:
+   343                                                           keys = {f"{label}:{h}" for h in block_hashs}  # group keys, as Record.evict returns
+   344                                                           self._evict_cond.wait_for(lambda: self._evicting.isdisjoint(keys))
+   345       164      40081.4    244.4     82.7              results = self.tensorzip.has(label=label, chunk_labels=block_hashs)
+   346       164         93.7      0.6      0.2              if self.has_only_mode:
+   347                                                           # Every hit, including those past the truncation point that the connector re-saves.
+   348       164       2343.0     14.3      4.8                  self.tensorzip.record.touch(label, block_hashs)
+   349       164         74.5      0.5      0.2          if not truncate:
+   350                                                       return results
+   351                                           
+   352       164       1752.4     10.7      3.6          mask = np.array(results, dtype=np.bool_)
+   353       164       2431.7     14.8      5.0          idx = np.argmin(mask)
+   354       164        309.3      1.9      0.6          if not mask[idx]:
+   355                                                       mask[idx + 1 :] = False
+   356                                                       results = mask.tolist()
+   357                                           
+   358       164        189.8      1.2      0.4          return results
+
+Total time: 0.000129546 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow._ensure_streams at line 145
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   145                                               def _ensure_streams(self):
+   146       159         66.1      0.4     51.0          if self._streams_initialized:
+   147       159         63.5      0.4     49.0              return
+   148                                                   if self.device_type is None:  # remote_pool daemon: no GPU, RDMA data plane
+   149                                                       self._streams_initialized = True
+   150                                                       return
+   151                                                   if self.device_type == "cuda":
+   152                                                       self.cur_stream = torch.cuda.current_stream()
+   153                                                       self.put_stream = torch.cuda.Stream()
+   154                                                       self.get_stream = torch.cuda.Stream()
+   155                                                       self.put_stream_ctx = lambda: torch.cuda.stream(self.put_stream)
+   156                                                       self.get_stream_ctx = lambda: torch.cuda.stream(self.get_stream)
+   157                                                   elif self.device_type == "xpu":
+   158                                                       self.cur_stream = torch.xpu.current_stream()
+   159                                                       self.put_stream = torch.xpu.Stream()
+   160                                                       self.get_stream = torch.xpu.Stream()
+   161                                                       self.put_stream_ctx = lambda: torch.xpu.stream(self.put_stream)
+   162                                                       self.get_stream_ctx = lambda: torch.xpu.stream(self.get_stream)
+   163                                                   self._streams_initialized = True
+   164                                                   logger.info("CUDA/XPU streams created (lazy init, device=%s)", self.device_type)
+
+Total time: 0.0471831 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow._allocate at line 193
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   193                                               def _allocate(self, count: int) -> List[int]:
+   194     10176       2033.6      0.2      4.3          rounds, start = 0, 0.0
+   195     10176      38722.9      3.8     82.1          while (blocks := self.chunk_pool.allocate(count)) is None:
+   196                                                       if not (self._pending_puts or self._pending_gets):
+   197                                                           raise RuntimeError(f"ScratchPool exhausted: need {count}, {self.chunk_pool.status()}")
+   198                                                       if rounds == 1:
+   199                                                           start = time.perf_counter()
+   200                                                       rounds += 1
+   201                                                       for wait_fn, pending in ((self.put_wait, self._pending_puts), (self.get_wait, self._pending_gets)):
+   202                                                           for task in list(pending.values()):
+   203                                                               wait_fn({task.tensor_key: task}, wait=False)
+   204     10176       1808.7      0.2      3.8          if rounds > 1:
+   205                                                       logger.warning("ScratchPool exhausted: waited %.3f ms (%d rounds) for %d blocks",
+   206                                                                      (time.perf_counter() - start) * 1e3, rounds, count)
+   207     10176       4617.9      0.5      9.8          return blocks
+
+Total time: 0.0323072 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow._create_ctx at line 209
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   209                                               def _create_ctx(self, tensor_key: str, direction, description, work_stream):
+   210                                                   # tensor_key must be a registered pool (KVFlow.__init__ or rpc.py); C++ aborts otherwise.
+   211     10176       2960.1      0.3      9.2          cpu_pool = tensor_key if self._in_place else ScratchPool.NAME
+   212     10176      29347.1      2.9     90.8          return Context.create(tensor_key, cpu_pool, direction, description, work_stream=work_stream)
+
+Total time: 0.395833 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow.get at line 312
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   312                                               @profile_func(
+   313                                                   lambda self, label, tensor_keys, chunk_indices, chunk_labels, description, **_: (
+   314                                                       f"({description},count={len(chunk_indices)})"
+   315                                                   )
+   316                                               )
+   317                                               def get(
+   318                                                   self,
+   319                                                   label: str,
+   320                                                   tensor_keys: List[str],
+   321                                                   chunk_indices: List[int],
+   322                                                   chunk_labels: List[str],
+   323                                                   description: str = "",
+   324                                                   priorities: Optional[Dict[str, int]] = None,
+   325                                                   bundle_id: int = 0,
+   326                                                   sort_keys: Optional[Dict[str, int]] = None,
+   327                                               ) -> Dict[str, Task]:
+   328                                                   """tensor_keys: names of registered KV pools (one per layer).
+   329                                                   priorities / sort_keys: OMP-Main level / sort key per tensor key (None: 0 / -1)."""
+   330                                           
+   331       159        431.2      2.7      0.1          self._ensure_streams()
+   332       159         46.4      0.3      0.0          assert tensor_keys, "tensor_keys must not be empty"
+   333       159         47.2      0.3      0.0          assert chunk_indices, "chunk_indices must not be empty"
+   334       159        132.6      0.8      0.0          assert len(chunk_indices) == len(chunk_labels), (
+   335                                                       "chunk_indices and chunk_labels must have the same length"
+   336                                                   )
+   337     10335       2013.3      0.2      0.5          for tensor_key in tensor_keys:
+   338     10176       2063.7      0.2      0.5              if priorities is not None and tensor_key not in priorities:
+   339                                                           raise ValueError(f"priorities is missing tensor key {tensor_key}")
+   340     10176       2107.9      0.2      0.5              if sort_keys is not None and tensor_key not in sort_keys:
+   341                                                           raise ValueError(f"sort_keys is missing tensor key {tensor_key}")
+   342                                           
+   343       159         48.6      0.3      0.0          results = {}
+   344       159         59.6      0.4      0.0          num_chunks = len(chunk_indices)
+   345                                           
+   346       159         55.1      0.3      0.0          first_tensor = True
+   347     10335       2317.1      0.2      0.6          for tensor_key in tensor_keys:
+   348     20352      41512.5      2.0     10.5              ctx = self._create_ctx(
+   349     10176       2689.3      0.3      0.7                  tensor_key, GpuTransferDirection.H2D, description, work_stream=self.get_stream
+   350                                                       )
+   351     10176       2377.4      0.2      0.6              if first_tensor:
+   352       159         92.8      0.6      0.0                  if stream_sync_on_get and self.device_type is not None:
+   353                                                               ctx.xfer_wait_cur_stream()
+   354       159         49.0      0.3      0.0                  first_tensor = False
+   355     20352      56758.3      2.8     14.3              blocks = chunk_indices if self._in_place else self._allocate(num_chunks)
+   356     10176       2418.7      0.2      0.6              priority = 0 if priorities is None else priorities[tensor_key]
+   357     10176       2438.6      0.2      0.6              sort_key = -1 if sort_keys is None else sort_keys[tensor_key]
+   358     20352     214741.4     10.6     54.3              ctx.unzip_from_mem(
+   359     10176       2364.4      0.2      0.6                  self.mem,
+   360     10176       2027.4      0.2      0.5                  label,
+   361     10176       1714.9      0.2      0.4                  tensor_key,
+   362     10176       1845.9      0.2      0.5                  chunk_labels,
+   363     10176       1697.5      0.2      0.4                  chunk_indices,
+   364     10176       1671.7      0.2      0.4                  blocks,
+   365     10176       1903.0      0.2      0.5                  priority=priority,
+   366     10176       1862.5      0.2      0.5                  bundle_id=bundle_id,
+   367     10176       1992.7      0.2      0.5                  sort_key=sort_key,
+   368                                                       )
+   369                                           
+   370     20352      22999.2      1.1      5.8              results[tensor_key] = task = Task(
+   371     10176       2047.0      0.2      0.5                  ctx=ctx,
+   372     10176       2450.1      0.2      0.6                  block_indices=None if self._in_place else blocks,
+   373     10176       2159.0      0.2      0.5                  label=label,
+   374     10176       2069.7      0.2      0.5                  tensor_key=tensor_key,
+   375     10176       1781.6      0.2      0.5                  chunk_labels=chunk_labels,
+   376                                                       )
+   377     10176       2129.0      0.2      0.5              if not self._in_place:
+   378     10176      10471.9      1.0      2.6                  self._pending_gets[id(task)] = task
+   379                                           
+   380       159        245.1      1.5      0.1          return results
+
+Total time: 0.000512711 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow.set_bundles_priority at line 382
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   382                                               def set_bundles_priority(self, bundle_ids: List[int], priority: int) -> int:
+   383                                                   """Moves waiting OMP-Main tasks of ``bundle_ids`` from less urgent levels to ``priority``; returns the count."""
+   384        51        512.7     10.1    100.0          return task_queue_set_bundles_priority(bundle_ids, priority)
+
+Total time: 0.00014615 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow.sort_priority_level at line 386
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   386                                               def sort_priority_level(self, priority: int) -> None:
+   387                                                   """Stable-sorts the waiting OMP-Main tasks of level ``priority`` by sort key."""
+   388        51        146.2      2.9    100.0          task_queue_sort_priority_level(priority)
+
+Total time: 0.314532 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow.get_wait at line 390
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   390                                               @profile_func(lambda self, get_results, *_: f"(count={len(get_results)})")
+   391                                               def get_wait(
+   392                                                   self,
+   393                                                   get_results: Dict[str, Task],
+   394                                                   tensor_dict_keys: List[str] = None,
+   395                                                   wait: bool = True,
+   396                                               ) -> bool:
+   397                                           
+   398     10335       2062.8      0.2      0.7          keys_to_wait = (
+   399     10335       2702.2      0.3      0.9              tensor_dict_keys if tensor_dict_keys else list(get_results.keys())
+   400                                                   )
+   401                                           
+   402     22951       5466.7      0.2      1.7          for key in keys_to_wait:
+   403     12618       3740.7      0.3      1.2              assert key in get_results, f"Key {key} not in get_results"
+   404                                           
+   405     12618       3859.5      0.3      1.2              result = get_results[key]
+   406                                           
+   407     12618       2556.2      0.2      0.8              if not wait:
+   408      2442       1069.6      0.4      0.3                  if result.ctx is None:
+   409                                                               continue
+   410      2442       1897.2      0.8      0.6                  if not result.ctx.unzip_is_complete():
+   411         1          0.6      0.6      0.0                      if debug_enabled:
+   412                                                                   logger.debug(
+   413                                                                       f"get_wait(wait=False): key={key} unzip NOT complete"
+   414                                                                   )
+   415         1          0.7      0.7      0.0                      return False
+   416      2441       1329.0      0.5      0.4                  if not result.ctx.xfer_is_complete():
+   417         1          1.2      1.2      0.0                      if debug_enabled:
+   418                                                                   logger.debug(
+   419                                                                       f"get_wait(wait=False): key={key} xfer NOT complete"
+   420                                                                   )
+   421         1          0.7      0.7      0.0                      return False
+   422                                           
+   423     22949       5616.8      0.2      1.8          for key in keys_to_wait:
+   424     12616       2922.8      0.2      0.9              result = get_results[key]
+   425     12616       5989.8      0.5      1.9              if result.ctx is None:
+   426      2440        466.1      0.2      0.1                  continue
+   427                                           
+   428     10176      17134.3      1.7      5.4              result.ctx.unzip_wait()
+   429     10176     188057.3     18.5     59.8              result.ctx.xfer_wait()
+   430                                           
+   431     10176      13621.5      1.3      4.3              result.ctx = None
+   432                                           
+   433     10176       4783.2      0.5      1.5              if result.block_indices is not None:
+   434     10176      28089.5      2.8      8.9                  self.chunk_pool.release(result.block_indices)
+   435     10176       7266.2      0.7      2.3                  result.block_indices = None
+   436     10176       9430.6      0.9      3.0                  del self._pending_gets[id(result)]
+   437                                           
+   438     10333       6466.9      0.6      2.1          return True
+
+Total time: 0.0396704 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/flow.py
+Function: KVFlow.has at line 451
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   451                                               @profile_func(lambda self, label, chunk_labels: f"(count={len(chunk_labels)})")
+   452                                               def has(self, label: str, chunk_labels: List[str]) -> List[bool]:
+   453                                           
+   454       164         88.5      0.5      0.2          assert self.record is not None
+   455       164      39581.9    241.4     99.8          return self.record.has(label, chunk_labels)
+
+Total time: 0.0601506 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/utils/hash.py
+Function: compute_hash at line 12
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    12                                           def compute_hash(*args, **kwargs) -> int:
+    13     20828      32929.4      1.6     54.7      parts = [repr(arg) for arg in args]
+    14     20828       9996.3      0.5     16.6      parts += [f"{k}={repr(v)}" for k, v in sorted(kwargs.items())]
+    15     20828       4890.2      0.2      8.1      text = "|".join(parts)
+    16     20828      12334.7      0.6     20.5      return xxhash.xxh64(text.encode("utf-8")).intdigest() & 0x7FFFFFFFFFFFFFFF
+
+Total time: 0.0760475 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/utils/hash.py
+Function: hash_block_tokens at line 19
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    19                                           def hash_block_tokens(
+    20                                               is_first_block,
+    21                                               prev_block_hash,
+    22                                               cur_block_token_ids,
+    23                                           ) -> int:
+    24     20828      76047.5      3.7    100.0      return compute_hash(is_first_block, prev_block_hash, cur_block_token_ids)
+
+Total time: 0.120653 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/utils/hash.py
+Function: generate_block_hashs at line 27
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    27                                           def generate_block_hashs(
+    28                                               tokens,
+    29                                               block_size,
+    30                                           ):
+    31       164        182.3      1.1      0.2      aligned_len = (len(tokens) // block_size) * block_size
+    32       164         46.9      0.3      0.0      prev_block_hash = None
+    33       164         45.8      0.3      0.0      hashs = []
+    34     20992       4077.0      0.2      3.4      for i in range(0, aligned_len, block_size):
+    35     20828       6153.2      0.3      5.1          block_tokens = tokens[i : i + block_size]
+    36     20828       3724.7      0.2      3.1          is_first_block = i == 0
+    37     41656      89446.3      2.1     74.1          cur_hash = hash_block_tokens(
+    38     20828       3371.2      0.2      2.8              is_first_block=is_first_block,
+    39     20828       3059.8      0.1      2.5              prev_block_hash=prev_block_hash,
+    40     20828       3001.4      0.1      2.5              cur_block_token_ids=block_tokens,
+    41                                                   )
+    42     20828       3980.7      0.2      3.3          hashs.append(cur_hash)
+    43     20828       3444.3      0.2      2.9          prev_block_hash = cur_hash
+    44       164        119.3      0.7      0.1      return hashs
+
+Total time: 0.0294664 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/scratch_pool.py
+Function: ScratchPool.allocate at line 51
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    51                                               def allocate(self, count: int, shape: Optional[Sequence[int]] = None,
+    52                                                            dtype: Optional[torch.dtype] = None) -> Optional[List[int]]:
+    53     10176       1782.1      0.2      6.0          free = self._free
+    54     10176       2261.8      0.2      7.7          if count > len(free):
+    55                                                       return None
+    56     10176       2589.6      0.3      8.8          cut = len(free) - count  # not free[-count:], which is the whole list for count == 0
+    57     10176      13585.0      1.3     46.1          idx = free[cut:]
+    58     10176       4082.5      0.4     13.9          del free[cut:]
+    59     10176       2387.7      0.2      8.1          self._allocate_count += count
+    60     10176       2777.7      0.3      9.4          return idx
+
+Total time: 0.0208804 s
+File: /home/pese/qiuyu/intel-accel-for-llm-1026/iaxl/kvflow/scratch_pool.py
+Function: ScratchPool.release at line 62
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    62                                               def release(self, indices: List[int]):
+    63     10176      17019.5      1.7     81.5          self._free.extend(indices)
+    64     10176       3861.0      0.4     18.5          self._release_count += len(indices)
+
