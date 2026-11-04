@@ -1,0 +1,30 @@
+05:52:54 container ready
+05:52:54 step 1: DSA only, no disturbance
+ITERATIONS=10 DROP_CACHES=none DROP_DELAY_S=9 COMPACT_MEMORY=0 RUN_TIMEOUT_S=300
+iter=01 start=05:52:54 exit=0 dsa_failed=0 statuses=- first_dsa=05:53:16,291 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=2360 swapped_out_pages=0 verification=passed host_used_before_gib=19
+iter=02 start=05:53:46 exit=0 dsa_failed=0 statuses=- first_dsa=05:54:05,513 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=46 swapped_out_pages=0 verification=passed host_used_before_gib=18
+iter=03 start=05:54:35 exit=0 dsa_failed=0 statuses=- first_dsa=05:54:55,673 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=75 swapped_out_pages=0 verification=passed host_used_before_gib=21
+iter=04 start=05:55:26 exit=0 dsa_failed=0 statuses=- first_dsa=05:55:46,125 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=26 swapped_out_pages=0 verification=passed host_used_before_gib=25
+iter=05 start=05:56:14 exit=0 dsa_failed=0 statuses=- first_dsa=05:56:34,062 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=397 swapped_out_pages=0 verification=passed host_used_before_gib=24
+iter=06 start=05:57:03 exit=0 dsa_failed=0 statuses=- first_dsa=05:57:23,681 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=483 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=07 start=05:57:54 exit=0 dsa_failed=0 statuses=- first_dsa=05:58:14,452 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=0 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=08 start=05:58:42 exit=0 dsa_failed=0 statuses=- first_dsa=05:59:02,110 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=6 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=09 start=05:59:29 exit=0 dsa_failed=0 statuses=- first_dsa=05:59:49,918 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=87 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=10 start=06:00:19 exit=0 dsa_failed=0 statuses=- first_dsa=06:00:39,238 first_failure_near=- drop_caches_at=- compactions=0 migrated_pages=1677 swapped_out_pages=0 verification=passed host_used_before_gib=22
+runs with DSA failures: 0 / 10
+results: tests/bench_dev/results/dsa-repro-kvstore-dsaonly-drop_none-compact0-20261103_055254
+06:01:09 step 2: DSA only, compact memory during DSA
+ITERATIONS=10 DROP_CACHES=none DROP_DELAY_S=9 COMPACT_MEMORY=1 RUN_TIMEOUT_S=300
+iter=01 start=06:01:09 exit=0 dsa_failed=1 statuses=0x5:1 first_dsa=06:01:30,133 first_failure_near=06:01:30,417 drop_caches_at=- compactions=156 migrated_pages=3575712 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=02 start=06:02:00 exit=0 dsa_failed=1 statuses=0x5:1 first_dsa=06:02:21,067 first_failure_near=06:02:26,219 drop_caches_at=- compactions=136 migrated_pages=1723837 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=03 start=06:02:50 exit=0 dsa_failed=12 statuses=0x5:12 first_dsa=06:03:10,245 first_failure_near=06:03:10,538 drop_caches_at=- compactions=128 migrated_pages=1693559 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=04 start=06:03:38 exit=0 dsa_failed=6 statuses=0x5:6 first_dsa=06:03:58,297 first_failure_near=06:03:58,968 drop_caches_at=- compactions=142 migrated_pages=1787578 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=05 start=06:04:26 exit=0 dsa_failed=3 statuses=0x5:3 first_dsa=06:04:47,153 first_failure_near=06:04:52,801 drop_caches_at=- compactions=137 migrated_pages=1371125 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=06 start=06:05:19 exit=0 dsa_failed=6 statuses=0x5:6 first_dsa=06:05:39,305 first_failure_near=06:05:39,598 drop_caches_at=- compactions=130 migrated_pages=2145484 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=07 start=06:06:11 exit=0 dsa_failed=2 statuses=0x5:2 first_dsa=06:06:31,666 first_failure_near=06:06:31,957 drop_caches_at=- compactions=124 migrated_pages=1437443 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=08 start=06:07:02 exit=0 dsa_failed=6 statuses=0x5:6 first_dsa=06:07:22,958 first_failure_near=06:07:23,917 drop_caches_at=- compactions=122 migrated_pages=2902051 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=09 start=06:07:53 exit=0 dsa_failed=5 statuses=0x5:5 first_dsa=06:08:13,476 first_failure_near=06:08:13,862 drop_caches_at=- compactions=142 migrated_pages=2327146 swapped_out_pages=0 verification=passed host_used_before_gib=27
+iter=10 start=06:08:44 exit=0 dsa_failed=3 statuses=0x5:3 first_dsa=06:09:04,816 first_failure_near=06:09:05,701 drop_caches_at=- compactions=123 migrated_pages=2807625 swapped_out_pages=0 verification=passed host_used_before_gib=24
+runs with DSA failures: 10 / 10
+results: tests/bench_dev/results/dsa-repro-kvstore-dsaonly-drop_none-compact1-20261103_060109
+06:09:38 all done

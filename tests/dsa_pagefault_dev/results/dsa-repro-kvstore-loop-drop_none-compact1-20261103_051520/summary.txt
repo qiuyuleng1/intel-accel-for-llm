@@ -1,0 +1,8 @@
+iter=01 start=05:15:20 exit=124 dsa_failed=5 statuses=0x5:5 first_dsa=05:15:34,402 first_failure_near=05:15:34,436 drop_caches_at=- compactions=2 migrated_pages=13461370 swapped_out_pages=0 verification=none host_used_before_gib=30
+run 01 exited with 124 (124 = killed after 300s), see tests/bench_dev/results/dsa-repro-kvstore-loop-drop_none-compact1-20261103_051520/iter01.log
+iter=02 start=05:20:36 exit=1 dsa_failed=5 statuses=0x5:5 first_dsa=05:20:50,325 first_failure_near=05:20:50,355 drop_caches_at=- compactions=22 migrated_pages=1774581 swapped_out_pages=0 verification=none host_used_before_gib=30
+run 02 exited with 1 (124 = killed after 300s), see tests/bench_dev/results/dsa-repro-kvstore-loop-drop_none-compact1-20261103_051520/iter02.log
+iter=03 start=05:21:04 exit=1 dsa_failed=4 statuses=0x5:4 first_dsa=05:21:18,623 first_failure_near=05:21:18,662 drop_caches_at=- compactions=13 migrated_pages=841135 swapped_out_pages=0 verification=none host_used_before_gib=31
+run 03 exited with 1 (124 = killed after 300s), see tests/bench_dev/results/dsa-repro-kvstore-loop-drop_none-compact1-20261103_051520/iter03.log
+3 runs in a row failed, stopping
+runs with DSA failures: 3 / 3

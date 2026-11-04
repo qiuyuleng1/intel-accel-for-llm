@@ -1,0 +1,32 @@
+06:44:18 verification 1: does compaction try to move pinned host memory? (each mode twice)
+none: one compaction took 1.03s, machine-wide pgmigrate_success=+118612 pgmigrate_fail=+3153 compact_isolated=+240787 compact_fail=+0
+torch_pinned: allocated 8 GiB pinned=True in 3.16s
+torch_pinned: mapping 7b1680000000-7b1880000000 rw-s 00000000 00:01 3078                       /dev/zero (deleted) | Anonymous:             0 kB | Locked:                0 kB
+torch_pinned: one compaction took 3.09s, machine-wide pgmigrate_success=+67189 pgmigrate_fail=+2078015 compact_isolated=+2212513 compact_fail=+0
+torch_pinned: sampled 8192 pages of the buffer, physical address changed for 0, not present for 0
+torch_host_register: allocated 8 GiB pinned=True in 3.74s
+torch_host_register: mapping 71dfc7fff000-71e1c8000000 rw-p 00000000 00:00 0  | Anonymous:       8388612 kB | Locked:                0 kB
+torch_host_register: one compaction took 0.78s, machine-wide pgmigrate_success=+32536 pgmigrate_fail=+4667 compact_isolated=+70022 compact_fail=+0
+torch_host_register: sampled 8192 pages of the buffer, physical address changed for 0, not present for 0
+none: one compaction took 0.69s, machine-wide pgmigrate_success=+49134 pgmigrate_fail=+3153 compact_isolated=+101496 compact_fail=+0
+torch_pinned: allocated 8 GiB pinned=True in 4.10s
+torch_pinned: mapping 7d3634000000-7d3834000000 rw-s 00000000 00:01 37895                      /dev/zero (deleted) | Anonymous:             0 kB | Locked:                0 kB
+torch_pinned: one compaction took 2.43s, machine-wide pgmigrate_success=+27233 pgmigrate_fail=+1512568 compact_isolated=+1567956 compact_fail=+0
+torch_pinned: sampled 8192 pages of the buffer, physical address changed for 0, not present for 0
+torch_host_register: allocated 8 GiB pinned=True in 3.65s
+torch_host_register: mapping 785946dde000-785b46ddf000 rw-p 00000000 00:00 0  | Anonymous:       8388612 kB | Locked:                0 kB
+torch_host_register: one compaction took 0.36s, machine-wide pgmigrate_success=+27028 pgmigrate_fail=+242 compact_isolated=+54871 compact_fail=+0
+torch_host_register: sampled 8192 pages of the buffer, physical address changed for 0, not present for 0
+06:44:55 verification 2: DSA WQs back to block_on_fault=0
+wq0.0 enabled bof=0
+wq2.0 enabled bof=0
+wq4.0 enabled bof=0
+wq6.0 enabled bof=0
+06:44:56 verification 2: DSA only + compact memory, bof=0, ScratchPool via cudaHostRegister, 3 runs
+ITERATIONS=3 DROP_CACHES=none DROP_DELAY_S=9 COMPACT_MEMORY=1 RUN_TIMEOUT_S=300 PINNED_HOST_REGISTER=1
+iter=1 start=06:44:57 exit=0 dsa_failed=0 statuses=- first_dsa=06:45:18,701 first_failure_near=- drop_caches_at=- compactions=118 migrated_pages=1880790 swapped_out_pages=0 verification=passed host_used_before_gib=24
+iter=2 start=06:45:42 exit=0 dsa_failed=0 statuses=- first_dsa=06:46:02,705 first_failure_near=- drop_caches_at=- compactions=137 migrated_pages=1666429 swapped_out_pages=0 verification=passed host_used_before_gib=23
+iter=3 start=06:46:29 exit=0 dsa_failed=0 statuses=- first_dsa=06:46:50,222 first_failure_near=- drop_caches_at=- compactions=144 migrated_pages=1658507 swapped_out_pages=0 verification=passed host_used_before_gib=24
+runs with DSA failures: 0 / 3
+results: tests/bench_dev/results/dsa-repro-kvstore-dsaonly-hostreg-compact1-20261103_064418
+06:47:18 all done

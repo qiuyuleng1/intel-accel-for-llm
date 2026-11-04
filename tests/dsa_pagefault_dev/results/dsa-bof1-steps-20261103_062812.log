@@ -1,0 +1,16 @@
+06:28:12 reconfigure DSA WQs with block_on_fault=1
+wq0.0 enabled dedicated bof=1
+wq2.0 enabled dedicated bof=1
+wq4.0 enabled dedicated bof=1
+wq6.0 enabled dedicated bof=1
+06:28:13 rebuild extension in container
+06:28:46 build ok; DSA only + compact memory, block_on_fault=1, 10 runs
+ITERATIONS=10 DROP_CACHES=none DROP_DELAY_S=9 COMPACT_MEMORY=1 RUN_TIMEOUT_S=300
+iter=01 start=06:28:46 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:29:06,224 first_failure_near=06:29:06,224 drop_caches_at=- compactions=134 migrated_pages=3770706 swapped_out_pages=0 verification=passed host_used_before_gib=27
+iter=02 start=06:29:38 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:29:55,736 first_failure_near=06:29:55,736 drop_caches_at=- compactions=118 migrated_pages=714815 swapped_out_pages=0 verification=passed host_used_before_gib=90
+iter=03 start=06:30:25 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:30:43,697 first_failure_near=06:30:43,705 drop_caches_at=- compactions=127 migrated_pages=3094751 swapped_out_pages=0 verification=passed host_used_before_gib=91
+iter=04 start=06:31:18 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:31:36,495 first_failure_near=06:31:36,495 drop_caches_at=- compactions=127 migrated_pages=1612401 swapped_out_pages=0 verification=passed host_used_before_gib=92
+iter=05 start=06:32:09 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:32:26,943 first_failure_near=06:32:26,943 drop_caches_at=- compactions=110 migrated_pages=1815756 swapped_out_pages=0 verification=passed host_used_before_gib=91
+iter=06 start=06:32:58 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:33:15,699 first_failure_near=06:33:15,699 drop_caches_at=- compactions=98 migrated_pages=4352138 swapped_out_pages=0 verification=passed host_used_before_gib=92
+iter=07 start=06:33:50 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:34:08,457 first_failure_near=06:34:08,457 drop_caches_at=- compactions=121 migrated_pages=1620434 swapped_out_pages=0 verification=passed host_used_before_gib=24
+iter=08 start=06:34:39 exit=0 dsa_failed=2560 statuses=0x11:2560 first_dsa=06:34:58,782 first_failure_near=06:34:58,785 drop_caches_at=- compactions=132 migrated_pages=2089812 swapped_out_pages=0 verification=passed host_used_before_gib=24

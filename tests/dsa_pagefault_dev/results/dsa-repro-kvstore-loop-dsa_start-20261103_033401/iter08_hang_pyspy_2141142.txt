@@ -1,0 +1,19 @@
+Process 2141142: /usr/bin/python3 -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=41, pipe_handle=45) --multiprocessing-fork
+Python v3.12.3 (/usr/bin/python3.12)
+
+Thread 2141142 (idle): "MainThread"
+    _recv (multiprocessing/connection.py:395)
+    _recv_bytes (multiprocessing/connection.py:430)
+    recv (multiprocessing/connection.py:250)
+    worker (kvstore_benchmark_multi_ranks.py:69)
+    run (multiprocessing/process.py:108)
+    _bootstrap (multiprocessing/process.py:314)
+    _main (multiprocessing/spawn.py:135)
+    spawn_main (multiprocessing/spawn.py:122)
+    <module> (<string>:1)
+Thread 2141321 (idle): "mgmt-worker-0"
+    select (selectors.py:415)
+    serve_forever (socketserver.py:235)
+    run (threading.py:1010)
+    _bootstrap_inner (threading.py:1073)
+    _bootstrap (threading.py:1030)

@@ -1,0 +1,43 @@
+==> Launching vllm-iaxl-dev:1.5.1 container to configure DSA
+numa 0: dsa0
+numa 1: dsa10
+numa 1: dsa12
+numa 1: dsa14
+numa 0: dsa2
+numa 0: dsa4
+numa 0: dsa6
+numa 1: dsa8
+DSA devices: dsa0 dsa10 dsa12 dsa14 dsa2 dsa4 dsa6 dsa8
+Configuring dsa0: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Configuring dsa10: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Configuring dsa12: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Configuring dsa14: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Configuring dsa2: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Configuring dsa4: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Configuring dsa6: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Configuring dsa8: 1 WQs (per-WQ size=256) ...
+enabled 1 device(s) out of 1
+enabled 1 wq(s) out of 1
+Done. Configured 8 device(s), 1 WQ each:
+  dsa0: wq0.0 .. wq0.0
+  dsa10: wq10.0 .. wq10.0
+  dsa12: wq12.0 .. wq12.0
+  dsa14: wq14.0 .. wq14.0
+  dsa2: wq2.0 .. wq2.0
+  dsa4: wq4.0 .. wq4.0
+  dsa6: wq6.0 .. wq6.0
+  dsa8: wq8.0 .. wq8.0

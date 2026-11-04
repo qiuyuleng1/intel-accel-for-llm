@@ -94,6 +94,8 @@ static struct dsa_completion_record *g_bcomps[DSA_MAX_WQ];
  */
 static pthread_mutex_t g_async_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint64_t g_ticket[DSA_MAX_WQ][DSA_BATCH_DEPTH];
+/* Descriptor count of the batch in each slot: the failure report reads that many records. */
+static size_t g_slot_count[DSA_MAX_WQ][DSA_BATCH_DEPTH];
 static uint64_t g_last_ticket;   /* ticket handed out by the latest async call */
 static uint64_t g_first_failed;  /* lowest ticket whose batch failed, 0 = none */
 static size_t g_next_wq;         /* rotates so consecutive calls spread over the WQs */
@@ -526,6 +528,37 @@ int dsa_memcpy_batch(void *const dest[], const void *const src[], const size_t n
     return ok ? 0 : -1;
 }
 
+#define DSA_MAX_REPORTED_FAILURES 8
+
+/* Prints the copies of a failed batch that did not succeed and where the hardware faulted, so
+ * the faulting memory (host buffer, GPU BAR or completion record) can be told apart. The
+ * addresses come from the descriptors themselves: the caller's arrays are gone by now. */
+static void dsa_report_failed_batch(const struct dsa_hw_desc *sub,
+                                    const struct dsa_completion_record *comp,
+                                    const struct dsa_completion_record *bcomp, size_t cnt) {
+    size_t j, failed = 0;
+
+    fprintf(stderr, "  completion records %p..%p, batch record %p\n", (const void *)comp,
+            (const void *)(comp + cnt), (const void *)bcomp);
+    for (j = 0; j < cnt; j++) {
+        /* A batch of one is submitted as a plain descriptor whose record is bcomp. */
+        const struct dsa_completion_record *record = (cnt == 1) ? bcomp : &comp[j];
+
+        if (record->status == DSA_COMP_SUCCESS)
+            continue;
+        failed++;
+        if (failed > DSA_MAX_REPORTED_FAILURES)
+            continue;
+        fprintf(stderr,
+                "  desc %zu/%zu: status=0x%x fault_addr=0x%llx bytes_completed=%u src=0x%llx "
+                "dst=0x%llx size=%u\n",
+                j, cnt, record->status, (unsigned long long)record->fault_addr,
+                record->bytes_completed, (unsigned long long)sub[j].src_addr,
+                (unsigned long long)sub[j].dst_addr, sub[j].xfer_size);
+    }
+    fprintf(stderr, "  %zu of %zu descriptors failed\n", failed, cnt);
+}
+
 /*
  * Frees every finished slot on WQ w and records failures. Called with g_async_mutex held.
  * Deliberately non-blocking: it only harvests what the hardware has already completed, so
@@ -543,6 +576,8 @@ static void dsa_reap_done(size_t w) {
             continue;
         if (status != DSA_COMP_SUCCESS) {
             fprintf(stderr, "dsa batch failed, ticket=%" PRIu64 " status=0x%x\n", ticket, status);
+            dsa_report_failed_batch(g_subs[w] + slot * g_max_batch, g_comps[w] + slot * g_max_batch,
+                                    &g_bcomps[w][slot], g_slot_count[w][slot]);
             if (!g_first_failed || ticket < g_first_failed)
                 g_first_failed = ticket;
         }
@@ -588,8 +623,10 @@ static int dsa_submit_slot(size_t w, uint64_t ticket, void *const dest[], const 
                                       g_comps[w] + slot * g_max_batch, &g_bcomps[w][slot], dest,
                                       src, n, first, cnt);
 
-            if (rc == 0)
+            if (rc == 0) {
                 g_ticket[w][slot] = ticket;
+                g_slot_count[w][slot] = cnt;
+            }
             pthread_mutex_unlock(&g_async_mutex);
             return rc;
         }

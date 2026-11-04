@@ -1,0 +1,1 @@
+export TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3 IAXL_SCRATCH_POOL_SIZE_GB=16 IAXL_DDR_POOL_TOTAL_SIZE_GB=60; timeout -k 30 300 bash benchmark/kvstore/kvstore_benchmark.sh --ranks 4 --qat --iaa --dsa --data-source mock --kv-cache-shape 2 9221 400 1 256 --num-layers 16

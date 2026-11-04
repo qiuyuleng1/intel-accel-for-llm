@@ -1,0 +1,317 @@
+[31mWARNING: neither --qat nor --iaa given, running with compression disabled[0m
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+vLLM configuration:
+  MODEL=/media/model-space/Qwen3.8-27B
+  TP_SIZE=4
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=0
+  IAXL_QAT_ZIP_ENABLE=0
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=1
+  VLLM_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63
+  KVSHRINK_QAT_DEVICES=disabled
+  KVSHRINK_DSA_DEVICES=wq0.0|wq2.0|wq4.0|wq6.0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=16,16,16,16
+  IAXL_QAT_INSTANCE_NUM=0
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:07:56,600 [affinity.py:42] Bound rank 0 to CPUs [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:07:56,600 [affinity.py:58] Bound rank 0: IAXL_DSA_WQS=wq0.0
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:07:56,608 [affinity.py:42] Bound rank 1 to CPUs [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:07:56,608 [affinity.py:58] Bound rank 1: IAXL_DSA_WQS=wq2.0
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:07:56,616 [affinity.py:42] Bound rank 2 to CPUs [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:07:56,616 [affinity.py:58] Bound rank 2: IAXL_DSA_WQS=wq4.0
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:07:56,660 [affinity.py:42] Bound rank 3 to CPUs [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:07:56,661 [affinity.py:58] Bound rank 3: IAXL_DSA_WQS=wq6.0
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:07:57,744 [kvstore_benchmark_multi_ranks.py:64] Bound rank 1 to GPU 1 (NVIDIA RTX 6000D)
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:07:57,981 [kvstore_benchmark_multi_ranks.py:64] Bound rank 2 to GPU 2 (NVIDIA RTX 6000D)
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:07:58,271 [kvstore_benchmark_multi_ranks.py:64] Bound rank 3 to GPU 3 (NVIDIA RTX 6000D)
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:07:58,306 [kvstore_benchmark_multi_ranks.py:64] Bound rank 0 to GPU 0 (NVIDIA RTX 6000D)
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:07:59,421 [flow.py:74] Cache size 15 GB
+[Record] Cleaned up 9222 unpersisted records from previous run
+[iaxl] config: qat_zip=OFF iaa_zip=OFF cpu_zip=OFF qat_instances=0 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON dsa_gd_reset=OFF profile=disabled
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:07:59,428 [flow.py:82] C++ Record initialized at _data/kvcache/raw/kvstore_benchmark_rank0/chunks.db
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:07:59,429 [flow.py:94] Using accelerator: cuda
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:08:02,344 [flow.py:121] Initialized: persist_dir=kvstore_benchmark_rank0, cache_size_gb=15.00, compression=False
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:08:02,344 [kvstore.py:137] KVStore initialized successfully: model_name=kvstore_benchmark, rank=0, has_only_mode=False, num_layers=16, block_dim=1, block_shape=(2, 400, 1, 256), pool_size_gb=15.00, persist_dir=kvstore_benchmark_rank0
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:08:02,347 [api.py:61] Worker server started on port 18800 (rank 0)
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:03,012 [flow.py:74] Cache size 15 GB
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:03,015 [flow.py:74] Cache size 15 GB
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:03,016 [flow.py:74] Cache size 15 GB
+[Record] Cleaned up 9222 unpersisted records from previous run
+[iaxl] config: qat_zip=OFF iaa_zip=OFF cpu_zip=OFF qat_instances=0 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON dsa_gd_reset=OFF profile=disabled
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:03,019 [flow.py:82] C++ Record initialized at _data/kvcache/raw/kvstore_benchmark_rank1/chunks.db
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:03,019 [flow.py:94] Using accelerator: cuda
+[Record] Cleaned up 9222 unpersisted records from previous run
+[iaxl] config: qat_zip=OFF iaa_zip=OFF cpu_zip=OFF qat_instances=0 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON dsa_gd_reset=OFF profile=disabled
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:03,022 [flow.py:82] C++ Record initialized at _data/kvcache/raw/kvstore_benchmark_rank2/chunks.db
+[Record] Cleaned up 9222 unpersisted records from previous run
+[iaxl] config: qat_zip=OFF iaa_zip=OFF cpu_zip=OFF qat_instances=0 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON dsa_gd_reset=OFF profile=disabled
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:03,023 [flow.py:94] Using accelerator: cuda
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:03,023 [flow.py:82] C++ Record initialized at _data/kvcache/raw/kvstore_benchmark_rank3/chunks.db
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:03,023 [flow.py:94] Using accelerator: cuda
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:06,391 [flow.py:121] Initialized: persist_dir=kvstore_benchmark_rank2, cache_size_gb=15.00, compression=False
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:06,391 [kvstore.py:137] KVStore initialized successfully: model_name=kvstore_benchmark, rank=2, has_only_mode=False, num_layers=16, block_dim=1, block_shape=(2, 400, 1, 256), pool_size_gb=15.00, persist_dir=kvstore_benchmark_rank2
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:06,394 [api.py:61] Worker server started on port 18802 (rank 2)
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:06,564 [flow.py:121] Initialized: persist_dir=kvstore_benchmark_rank1, cache_size_gb=15.00, compression=False
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:06,564 [kvstore.py:137] KVStore initialized successfully: model_name=kvstore_benchmark, rank=1, has_only_mode=False, num_layers=16, block_dim=1, block_shape=(2, 400, 1, 256), pool_size_gb=15.00, persist_dir=kvstore_benchmark_rank1
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:06,566 [api.py:61] Worker server started on port 18801 (rank 1)
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:06,640 [flow.py:121] Initialized: persist_dir=kvstore_benchmark_rank3, cache_size_gb=15.00, compression=False
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:06,640 [kvstore.py:137] KVStore initialized successfully: model_name=kvstore_benchmark, rank=3, has_only_mode=False, num_layers=16, block_dim=1, block_shape=(2, 400, 1, 256), pool_size_gb=15.00, persist_dir=kvstore_benchmark_rank3
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:06,642 [api.py:61] Worker server started on port 18803 (rank 3)
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:06,659 [flow.py:152] CUDA/XPU streams created (lazy init, device=cuda)
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:06,659 [flow.py:152] CUDA/XPU streams created (lazy init, device=cuda)
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:06,659 [flow.py:152] CUDA/XPU streams created (lazy init, device=cuda)
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:08:06,661 [flow.py:152] CUDA/XPU streams created (lazy init, device=cuda)
+(rank2 pid=35756 tid=134029523398336) INFO 11-03 06:08:13,476 [scratch_pool.py:38] ScratchPool: 41943 x (2, 400, 1, 256) torch.bfloat16 = 16383.98 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 200.00 KB, blocks = 4611
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq4.0), max_transfer_size=2147483648, max_batch_size=1024
+(rank0 pid=35754 tid=133768162225856) INFO 11-03 06:08:13,503 [scratch_pool.py:38] ScratchPool: 41943 x (2, 400, 1, 256) torch.bfloat16 = 16383.98 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 200.00 KB, blocks = 4611
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq0.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch: using Intel DSA backend
+[kv_zip] block_size=409600 B segment_size=409600 B segments=1
+[kv_xfer] copy_chunks_batch: using Intel DSA backend
+[kv_zip] block_size=409600 B segment_size=409600 B segments=1
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:13,637 [flow.py:175] ScratchPool exhausted: waited 150.638 ms (32672 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:13,648 [flow.py:175] ScratchPool exhausted: waited 133.188 ms (29959 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) INFO 11-03 06:08:13,662 [scratch_pool.py:38] ScratchPool: 41943 x (2, 400, 1, 256) torch.bfloat16 = 16383.98 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 200.00 KB, blocks = 4611
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq6.0), max_transfer_size=2147483648, max_batch_size=1024
+(rank1 pid=35755 tid=136742431448768) INFO 11-03 06:08:13,672 [scratch_pool.py:38] ScratchPool: 41943 x (2, 400, 1, 256) torch.bfloat16 = 16383.98 MB pinned
+[kv_xfer] copy_chunks_batch: contiguous block size = 200.00 KB, blocks = 4611
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq2.0), max_transfer_size=2147483648, max_batch_size=1024
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:13,714 [flow.py:175] ScratchPool exhausted: waited 76.537 ms (16479 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:13,726 [flow.py:175] ScratchPool exhausted: waited 76.897 ms (17391 rounds) for 4611 blocks
+[kv_xfer] copy_chunks_batch: using Intel DSA backend
+[kv_zip] block_size=409600 B segment_size=409600 B segments=1
+[kv_xfer] copy_chunks_batch: using Intel DSA backend
+[kv_zip] block_size=409600 B segment_size=409600 B segments=1
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:13,797 [flow.py:175] ScratchPool exhausted: waited 81.555 ms (17779 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:13,809 [flow.py:175] ScratchPool exhausted: waited 81.559 ms (18488 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:13,862 [flow.py:175] ScratchPool exhausted: waited 189.580 ms (43147 rounds) for 4611 blocks
+dsa batch failed, status=0x5
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:13,878 [flow.py:175] ScratchPool exhausted: waited 195.826 ms (43791 rounds) for 4611 blocks
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:13,894 [flow.py:175] ScratchPool exhausted: waited 95.894 ms (21007 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:13,899 [flow.py:175] ScratchPool exhausted: waited 88.881 ms (19532 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:13,956 [flow.py:175] ScratchPool exhausted: waited 92.876 ms (20913 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:13,970 [flow.py:175] ScratchPool exhausted: waited 90.453 ms (20216 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:13,983 [flow.py:175] ScratchPool exhausted: waited 87.413 ms (19111 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:14,054 [flow.py:175] ScratchPool exhausted: waited 154.313 ms (34862 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:14,061 [flow.py:175] ScratchPool exhausted: waited 104.516 ms (22535 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:14,080 [flow.py:175] ScratchPool exhausted: waited 95.938 ms (21010 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:14,122 [flow.py:175] ScratchPool exhausted: waited 151.718 ms (34454 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:14,170 [flow.py:175] ScratchPool exhausted: waited 114.453 ms (26003 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:14,173 [flow.py:175] ScratchPool exhausted: waited 110.745 ms (24273 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:14,187 [flow.py:175] ScratchPool exhausted: waited 105.966 ms (23101 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:14,227 [flow.py:175] ScratchPool exhausted: waited 103.433 ms (23683 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:14,276 [flow.py:175] ScratchPool exhausted: waited 102.115 ms (22778 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:14,286 [flow.py:175] ScratchPool exhausted: waited 115.120 ms (25892 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:14,331 [flow.py:175] ScratchPool exhausted: waited 102.688 ms (23582 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:14,369 [flow.py:175] ScratchPool exhausted: waited 91.169 ms (20398 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:14,418 [flow.py:175] ScratchPool exhausted: waited 86.113 ms (19457 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:14,458 [flow.py:175] ScratchPool exhausted: waited 88.616 ms (19896 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:14,507 [flow.py:175] ScratchPool exhausted: waited 88.422 ms (20077 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 15360 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 15360 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 15360 MB > 15360 MB capacity
+dsa batch failed, status=0x5
+[Mem] WARNING: Over budget! 15360 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 19266 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 19266 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 19266 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 23173 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 19266 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 23173 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 23173 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 27079 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 27079 MB > 15360 MB capacity
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:17,884 [flow.py:175] ScratchPool exhausted: waited 117.785 ms (6354 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 23173 MB > 15360 MB capacity
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:18,003 [flow.py:175] ScratchPool exhausted: waited 118.079 ms (14329 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:18,037 [flow.py:175] ScratchPool exhausted: waited 141.582 ms (9396 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:18,107 [flow.py:175] ScratchPool exhausted: waited 102.362 ms (20224 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:18,180 [flow.py:175] ScratchPool exhausted: waited 141.591 ms (23283 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:18,191 [flow.py:175] ScratchPool exhausted: waited 84.011 ms (16462 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:18,274 [flow.py:175] ScratchPool exhausted: waited 82.244 ms (16114 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:18,285 [flow.py:175] ScratchPool exhausted: waited 103.790 ms (20913 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:18,357 [flow.py:175] ScratchPool exhausted: waited 81.945 ms (16012 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:18,373 [flow.py:175] ScratchPool exhausted: waited 87.545 ms (16758 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:18,440 [flow.py:175] ScratchPool exhausted: waited 82.471 ms (16103 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:18,460 [flow.py:175] ScratchPool exhausted: waited 85.964 ms (16899 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:18,556 [flow.py:175] ScratchPool exhausted: waited 95.517 ms (18480 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:18,646 [flow.py:175] ScratchPool exhausted: waited 89.228 ms (17547 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 27079 MB > 15360 MB capacity
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:19,026 [flow.py:175] ScratchPool exhausted: waited 153.360 ms (13449 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:19,129 [flow.py:175] ScratchPool exhausted: waited 102.529 ms (17761 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 27079 MB > 15360 MB capacity
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:19,204 [flow.py:175] ScratchPool exhausted: waited 74.396 ms (12067 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:19,288 [flow.py:175] ScratchPool exhausted: waited 83.302 ms (13952 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:19,329 [flow.py:175] ScratchPool exhausted: waited 139.529 ms (7760 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:19,371 [flow.py:175] ScratchPool exhausted: waited 81.941 ms (14257 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:19,451 [flow.py:175] ScratchPool exhausted: waited 120.768 ms (21618 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:19,456 [flow.py:175] ScratchPool exhausted: waited 84.420 ms (16377 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:19,534 [flow.py:175] ScratchPool exhausted: waited 82.389 ms (16199 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:19,543 [flow.py:175] ScratchPool exhausted: waited 85.909 ms (16659 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:19,625 [flow.py:175] ScratchPool exhausted: waited 89.844 ms (18228 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:19,715 [flow.py:175] ScratchPool exhausted: waited 89.325 ms (17788 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:19,804 [flow.py:175] ScratchPool exhausted: waited 88.810 ms (17938 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:19,894 [flow.py:175] ScratchPool exhausted: waited 88.962 ms (17941 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:21,054 [flow.py:175] ScratchPool exhausted: waited 379.768 ms (76694 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:21,126 [flow.py:175] ScratchPool exhausted: waited 475.280 ms (93729 rounds) for 4611 blocks
+dsa batch failed, status=0x5
+dsa batch failed, status=0x5
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:21,247 [flow.py:175] ScratchPool exhausted: waited 573.080 ms (121899 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:21,257 [flow.py:175] ScratchPool exhausted: waited 583.004 ms (115860 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 30986 MB > 15360 MB capacity
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:21,362 [flow.py:175] ScratchPool exhausted: waited 307.094 ms (69958 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 30986 MB > 15360 MB capacity
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:21,488 [flow.py:175] ScratchPool exhausted: waited 360.448 ms (66832 rounds) for 4611 blocks
+dsa batch failed, status=0x5
+[kv_xfer] copy_chunks_batch: using CUDA backend (cudaMemcpy3DBatchAsync)
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:21,666 [flow.py:175] ScratchPool exhausted: waited 303.131 ms (69963 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 30986 MB > 15360 MB capacity
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:21,753 [flow.py:175] ScratchPool exhausted: waited 504.908 ms (114508 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 30986 MB > 15360 MB capacity
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:21,762 [flow.py:175] ScratchPool exhausted: waited 504.083 ms (111243 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:21,880 [flow.py:175] ScratchPool exhausted: waited 390.185 ms (73688 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 34892 MB > 15360 MB capacity
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:21,985 [flow.py:175] ScratchPool exhausted: waited 318.325 ms (73760 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 34892 MB > 15360 MB capacity
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:22,226 [flow.py:175] ScratchPool exhausted: waited 345.391 ms (74873 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:22,311 [flow.py:175] ScratchPool exhausted: waited 557.126 ms (126993 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:22,343 [flow.py:175] ScratchPool exhausted: waited 580.329 ms (128663 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:22,360 [flow.py:175] ScratchPool exhausted: waited 373.780 ms (86596 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:22,585 [flow.py:175] ScratchPool exhausted: waited 357.466 ms (76922 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 38799 MB > 15360 MB capacity
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:22,753 [flow.py:175] ScratchPool exhausted: waited 391.812 ms (90675 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 34892 MB > 15360 MB capacity
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:22,907 [flow.py:175] ScratchPool exhausted: waited 595.119 ms (135013 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 34892 MB > 15360 MB capacity
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:22,954 [flow.py:175] ScratchPool exhausted: waited 609.316 ms (134975 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 38799 MB > 15360 MB capacity
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:22,971 [flow.py:175] ScratchPool exhausted: waited 385.396 ms (82573 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:23,134 [flow.py:175] ScratchPool exhausted: waited 379.883 ms (87451 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:23,397 [flow.py:175] ScratchPool exhausted: waited 424.780 ms (92485 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 42706 MB > 15360 MB capacity
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:23,568 [flow.py:175] ScratchPool exhausted: waited 660.047 ms (152041 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:23,635 [flow.py:175] ScratchPool exhausted: waited 680.807 ms (150155 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 42706 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 38799 MB > 15360 MB capacity
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:24,282 [flow.py:175] ScratchPool exhausted: waited 711.880 ms (163650 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 38799 MB > 15360 MB capacity
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:24,366 [flow.py:175] ScratchPool exhausted: waited 729.121 ms (158804 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 46612 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 46612 MB > 15360 MB capacity
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:24,932 [flow.py:175] ScratchPool exhausted: waited 649.592 ms (149323 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:25,029 [flow.py:175] ScratchPool exhausted: waited 661.217 ms (130728 rounds) for 4611 blocks
+[Mem] WARNING: Over budget! 42706 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 50519 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 42706 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 50519 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 54425 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 54425 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 46612 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 46612 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 50519 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 50519 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 54425 MB > 15360 MB capacity
+[Mem] WARNING: Over budget! 54425 MB > 15360 MB capacity
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:31,358 [flow.py:175] ScratchPool exhausted: waited 144.318 ms (20914 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:31,369 [flow.py:175] ScratchPool exhausted: waited 155.734 ms (25458 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:31,375 [flow.py:175] ScratchPool exhausted: waited 161.346 ms (25388 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:31,378 [flow.py:175] ScratchPool exhausted: waited 164.404 ms (25864 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:31,477 [flow.py:175] ScratchPool exhausted: waited 117.952 ms (23680 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:31,487 [flow.py:175] ScratchPool exhausted: waited 107.982 ms (21272 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:31,490 [flow.py:175] ScratchPool exhausted: waited 120.163 ms (23627 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:31,497 [flow.py:175] ScratchPool exhausted: waited 121.520 ms (25007 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:31,562 [flow.py:175] ScratchPool exhausted: waited 74.850 ms (14208 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:31,568 [flow.py:175] ScratchPool exhausted: waited 90.310 ms (17623 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:31,593 [flow.py:175] ScratchPool exhausted: waited 102.348 ms (20127 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:31,605 [flow.py:175] ScratchPool exhausted: waited 106.761 ms (22021 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:31,631 [flow.py:175] ScratchPool exhausted: waited 68.353 ms (12706 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:31,648 [flow.py:175] ScratchPool exhausted: waited 79.410 ms (15380 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:31,688 [flow.py:175] ScratchPool exhausted: waited 93.738 ms (18252 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:31,708 [flow.py:175] ScratchPool exhausted: waited 102.253 ms (20983 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:31,718 [flow.py:175] ScratchPool exhausted: waited 86.447 ms (15163 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:31,725 [flow.py:175] ScratchPool exhausted: waited 77.025 ms (15153 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:31,780 [flow.py:175] ScratchPool exhausted: waited 91.491 ms (17837 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:31,788 [flow.py:175] ScratchPool exhausted: waited 68.821 ms (12478 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:31,814 [flow.py:175] ScratchPool exhausted: waited 88.179 ms (17665 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:31,818 [flow.py:175] ScratchPool exhausted: waited 110.016 ms (22413 rounds) for 4611 blocks
+(rank0 pid=35754 tid=133768162225856) WARNING 11-03 06:08:31,854 [flow.py:175] ScratchPool exhausted: waited 64.781 ms (12684 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:31,888 [flow.py:175] ScratchPool exhausted: waited 68.728 ms (13342 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:31,902 [flow.py:175] ScratchPool exhausted: waited 121.403 ms (24313 rounds) for 4611 blocks
+(rank3 pid=35757 tid=129364971368128) WARNING 11-03 06:08:31,925 [flow.py:175] ScratchPool exhausted: waited 110.541 ms (22551 rounds) for 4611 blocks
+(rank1 pid=35755 tid=136742431448768) WARNING 11-03 06:08:31,990 [flow.py:175] ScratchPool exhausted: waited 101.908 ms (21056 rounds) for 4611 blocks
+(rank2 pid=35756 tid=134029523398336) WARNING 11-03 06:08:32,025 [flow.py:175] ScratchPool exhausted: waited 122.570 ms (24227 rounds) for 4611 blocks
+
+Generating mock KV cache data...
+
+Warming up...
+
+Generating mock KV cache data...
+
+Warming up...
+
+Generating mock KV cache data...
+
+Warming up...
+================================================================================
+KVStore Benchmark
+================================================================================
+KV cache shape: [2, 9221, 400, 1, 256] (one layer)
+Layers:         16
+Blocks tested:  4611 (even indices, strided) x 16 layers
+Dtype:          bf16
+Data source:    mock
+Transfer size:  28.14 GiB
+
+Generating mock KV cache data...
+
+Warming up...
+
+Per rank (28.14 GiB each)
+--------------------------------------------------------------------------------
+Rank  PUT GiB/s  GET GiB/s Verify   Ratio  Zip GB/s Unzip GB/s
+   0      4.371     19.340   pass   1.000     4.800     24.817
+   1      2.681     17.123   pass   1.000     2.919     20.611
+   2      2.710     17.039   pass   1.000     2.950     20.557
+   3      4.273     18.105   pass   1.000     4.690     22.912
+ Sum     14.036     71.606                   15.359     88.897
+
+Aggregate over 4 ranks (wall time = slowest rank)
+--------------------------------------------------------------------------------
+ PUT: 10.497 s, 28,113.84 blocks/s, 10.725 GiB/s
+ GET: 1.652 s, 178,664.11 blocks/s, 68.155 GiB/s
+Verification: passed
+Compression ratio: 1.000x (-0.0%)
+Native cache size: 225.16 GiB (590208 chunks in 36888 groups)
+Cache hits/misses/puts: 590208/0/590208
+Compressed/uncompressed bytes: 225.16 GiB / 225.15 GiB
+Compress throughput:   3.626 GB/s (112.57 GiB in 33334.5 ms)
+Decompress throughput: 22.087 GB/s (112.57 GiB in 5472.7 ms)
+[iaxl] config: qat_zip=OFF iaa_zip=OFF cpu_zip=OFF qat_instances=0 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON dsa_gd_reset=OFF profile=disabled

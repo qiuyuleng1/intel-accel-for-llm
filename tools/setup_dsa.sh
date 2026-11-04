@@ -56,6 +56,8 @@ for DEV in "${DEVS[@]}"; do
     done
 
     for ((i = 0; i < NWQ; i++)); do
+        # block-on-fault=0 (also accel-config's default): a copy that hits a page fault fails
+        # instead of waiting. Waiting would also need IDXD_OP_FLAG_BOF in every descriptor.
         accel-config config-wq "$DEV/wq${ID}.$i" \
             --group-id=0 \
             --wq-size="$WQSIZE" \
@@ -63,6 +65,7 @@ for DEV in "${DEVS[@]}"; do
             --type=user \
             --name=dsa_gpu \
             --priority=10 \
+            --block-on-fault=0 \
             --max-transfer-size="$MAXXFER" \
             --max-batch-size="$MAXBATCH" \
             --driver-name=user

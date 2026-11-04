@@ -1,0 +1,9 @@
+06:36:59 rebuild (BOF only on copy descriptors, not on the batch descriptor)
+06:37:35 build ok; DSA only + compact memory, block_on_fault=1, 3 runs
+ITERATIONS=3 DROP_CACHES=none DROP_DELAY_S=9 COMPACT_MEMORY=1 RUN_TIMEOUT_S=300
+iter=1 start=06:37:35 exit=0 dsa_failed=0 statuses=- first_dsa=06:37:55,325 first_failure_near=- drop_caches_at=- compactions=128 migrated_pages=1606108 swapped_out_pages=0 verification=passed host_used_before_gib=26
+iter=2 start=06:38:24 exit=0 dsa_failed=0 statuses=- first_dsa=06:38:42,662 first_failure_near=- drop_caches_at=- compactions=124 migrated_pages=1347384 swapped_out_pages=0 verification=passed host_used_before_gib=24
+iter=3 start=06:39:12 exit=0 dsa_failed=0 statuses=- first_dsa=06:39:31,658 first_failure_near=- drop_caches_at=- compactions=110 migrated_pages=1459995 swapped_out_pages=0 verification=passed host_used_before_gib=23
+runs with DSA failures: 0 / 3
+results: tests/bench_dev/results/dsa-repro-kvstore-dsaonly-bof1b-compact1-20261103_063659
+06:40:00 all done

@@ -1,0 +1,11 @@
+Process 2141088: python3 /home/pese/qiuyu/intel-accel-for-llm-1030/benchmark/kvstore/kvstore_benchmark_multi_ranks.py --data-source mock --kv-cache-shape 2 9221 400 1 256 --num-layers 16
+Python v3.12.3 (/usr/bin/python3.12)
+
+Thread 2141088 (idle): "MainThread"
+    _recv (multiprocessing/connection.py:395)
+    _recv_bytes (multiprocessing/connection.py:430)
+    recv (multiprocessing/connection.py:250)
+    call (kvstore_benchmark_multi_ranks.py:102)
+    schedule (kvstore_benchmark_multi_ranks.py:114)
+    main (kvstore_benchmark_multi_ranks.py:185)
+    <module> (kvstore_benchmark_multi_ranks.py:200)
