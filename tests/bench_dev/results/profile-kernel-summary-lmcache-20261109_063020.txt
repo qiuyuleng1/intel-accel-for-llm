@@ -1,0 +1,58 @@
+== lmcache
+rank steps kind               ms/step  calls call mean us call median us
+rank0    20 attention            39.67   1280        619.8          619.0
+rank0    20 attention-combine     0.38   1280          5.9            5.9
+rank0    20 allreduce            12.28   2580         95.2           94.5
+rank0    20 allgather             0.44     20        440.3          440.1
+rank0    20 gemm                  7.52   8980         16.8           12.0
+rank0    20 other                 1.20   9480          2.5            1.9
+rank0    20 all kernels          61.48
+rank1    20 attention            39.77   1280        621.3          620.5
+rank1    20 attention-combine     0.38   1280          5.9            5.9
+rank1    20 allreduce            12.33   2580         95.6           95.2
+rank1    20 allgather             0.42     20        416.1          416.3
+rank1    20 gemm                  7.52   8980         16.7           12.0
+rank1    20 other                 1.08   9480          2.3            1.9
+rank1    20 all kernels          61.49
+rank2    20 attention            39.77   1280        621.4          620.6
+rank2    20 attention-combine     0.39   1280          6.0            6.0
+rank2    20 allreduce            12.15   2580         94.2           93.8
+rank2    20 allgather             0.44     20        443.1          444.1
+rank2    20 gemm                  7.53   8980         16.8           12.2
+rank2    20 other                 1.20   9480          2.5            1.9
+rank2    20 all kernels          61.48
+rank3    20 attention            39.80   1280        621.9          621.1
+rank3    20 attention-combine     0.38   1280          6.0            6.0
+rank3    20 allreduce            12.12   2580         94.0           93.4
+rank3    20 allgather             0.42     20        420.8          421.2
+rank3    20 gemm                  7.54   8980         16.8           12.1
+rank3    20 other                 1.20   9480          2.5            1.9
+rank3    20 all kernels          61.48
+rank4    20 attention            39.74   1280        620.9          620.1
+rank4    20 attention-combine     0.38   1280          5.9            5.9
+rank4    20 allreduce            12.31   2580         95.4           94.2
+rank4    20 allgather             0.44     20        440.2          439.6
+rank4    20 gemm                  7.50   8980         16.7           12.0
+rank4    20 other                 1.12   9480          2.4            1.9
+rank4    20 all kernels          61.48
+rank5    20 attention            39.78   1280        621.5          620.7
+rank5    20 attention-combine     0.38   1280          5.9            5.9
+rank5    20 allreduce            12.29   2580         95.3           94.0
+rank5    20 allgather             0.42     20        415.8          415.5
+rank5    20 gemm                  7.52   8980         16.8           12.0
+rank5    20 other                 1.09   9480          2.3            1.9
+rank5    20 all kernels          61.48
+rank6    20 attention            39.77   1280        621.3          620.6
+rank6    20 attention-combine     0.38   1280          6.0            6.0
+rank6    20 allreduce            12.05   2580         93.4           92.7
+rank6    20 allgather             0.45     20        451.2          450.9
+rank6    20 gemm                  7.53   8980         16.8           12.2
+rank6    20 other                 1.25   9480          2.6            1.9
+rank6    20 all kernels          61.43
+rank7    20 attention            39.77   1280        621.4          620.7
+rank7    20 attention-combine     0.38   1280          5.9            5.9
+rank7    20 allreduce            12.11   2580         93.9           93.1
+rank7    20 allgather             0.43     20        428.4          428.9
+rank7    20 gemm                  7.52   8980         16.7           12.0
+rank7    20 other                 1.22   9480          2.6            1.9
+rank7    20 all kernels          61.43

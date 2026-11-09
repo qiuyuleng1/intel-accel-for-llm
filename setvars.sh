@@ -1,6 +1,6 @@
 export IAXL_VERSION=${IAXL_VERSION:-1.5.1}
 export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
-export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev:$IAXL_VERSION"}
+export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-78aaef4-benchmark:$IAXL_VERSION"}
 export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
 
 TOP_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -22,9 +22,9 @@ export NVIDIA_RUNTIME=${NVIDIA_RUNTIME:-}     # Set to "none" to skip the nvidia
 # ---- Feature switches -------------------------------------------------------
 export IAXL_KV_COMPRESSION=${IAXL_KV_COMPRESSION:-1} # Enable DEFLATE compression (0/1)
 export IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-1} # Enable QAT compression workers (0/1)
-export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-0} # Enable IAA (QPL) compression workers (0/1)
+export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-1} # Enable IAA (QPL) compression workers (0/1)
 export IAXL_CPU_ZIP_ENABLE=${IAXL_CPU_ZIP_ENABLE:-0} # Enable CPU compression workers (0/1); costs a lot of CPU, keep off unless needed
-export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-0}   # Use Intel DSA + GDRCopy transfers (0/1)
+export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-1}   # Use Intel DSA + GDRCopy transfers (0/1)
 
 # ---- Async KV load ----------------------------------------------------------
 export KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=${KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED:-1}      # Enable asynchronous KV loading (0/1)
@@ -33,8 +33,8 @@ export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=${KVSHRINK_VLLM_KV_ASYNC_LOAD_
 export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP="${KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP:-0-3:0,4-6:8,7-:16}" # Contiguous START-END:LAYERS rules from 0; 0 layers means sync and the final range is open-ended
 
 # ---- vLLM ------------------------------------------------------------------
-export MODEL="${MODEL:-Qwen/Qwen3-32B}" # Hugging Face model ID or local model path
-export TP_SIZE="${TP_SIZE:-2}"            # Tensor-parallel worker count
+export MODEL="${MODEL:-/media/model-space/Qwen3.8-27B}" # Hugging Face model ID or local model path
+export TP_SIZE="${TP_SIZE:-8}"            # Tensor-parallel worker count
 export DP_SIZE="${DP_SIZE:-1}"            # Data-parallel group count
 # Total workers = one per (dp, tp) pair; CPU/QAT/DSA specs are indexed per worker.
 NUM_WORKERS=$((TP_SIZE * DP_SIZE))
@@ -111,7 +111,7 @@ export IAXL_DDR_POOL_EVICT_INTERVAL_S=${IAXL_DDR_POOL_EVICT_INTERVAL_S:-30}     
 
 # ---- Intel QAT (compression accelerator) ------------------------------------
 export IAXL_QAT_DEVICES=${IAXL_QAT_DEVICES:-0}                                   # Comma-separated QAT device indices, e.g. "0,1"
-export IAXL_QAT_ZIP_INSTANCES_PER_DEVICE=${IAXL_QAT_ZIP_INSTANCES_PER_DEVICE:-4} # Instances (driving threads) per device
+export IAXL_QAT_ZIP_INSTANCES_PER_DEVICE=${IAXL_QAT_ZIP_INSTANCES_PER_DEVICE:-8} # Instances (driving threads) per device
 # QAT driving threads = number of devices x instances-per-device (override to force).
 case "${IAXL_QAT_ZIP_ENABLE,,}" in
     1|true|yes|on)
@@ -200,7 +200,7 @@ export http_proxy="${http_proxy:-}"
 export https_proxy=$http_proxy
 
 # docker
-CONTAINER_NAME=iaxl.vllm
+CONTAINER_NAME=iaxl.vllm-78aaef4-benchmark
 ENV_VARS=(
     no_proxy
     http_proxy
@@ -243,8 +243,15 @@ DOCKER_RUN_ARGS+=("-v" "$PWD/_data:/_data")
 if [[ -d /run/qat ]]; then
     DOCKER_RUN_ARGS+=("-v" "/run/qat:/run/qat")
 fi
+# Mount the whole model space, so one container can serve any model in it.
+MODEL_SPACE=/media/model-space
+if [[ -d "$MODEL_SPACE" ]]; then
+    DOCKER_RUN_ARGS+=("-v" "$MODEL_SPACE:$MODEL_SPACE:ro")
+fi
 if [[ -d "$MODEL" ]]; then
     MODEL_DIR=$(realpath "$MODEL")
-    DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
+    if [[ "$MODEL_DIR" != "$MODEL_SPACE"/* ]]; then
+        DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
+    fi
 fi
 DOCKER_RUN_ARGS+=("-v" "$PWD:$PWD" "-w" "$PWD")

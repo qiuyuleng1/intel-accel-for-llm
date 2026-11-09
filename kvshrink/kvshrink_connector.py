@@ -3,6 +3,7 @@
 
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -39,6 +40,7 @@ from iaxl import KVStore, generate_block_hashs, setup_root_logger
 from iaxl.envs import envs as iaxl_envs
 from iaxl.utils.affinity import bind_cpu_affinity, bind_intel_accel
 
+from . import step_trace
 from .async_load_config import load_async_load_layer_config_from_env
 
 setup_root_logger(show_pid_tid=False)
@@ -570,6 +572,7 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
             list(first_kv_cache.shape),
         )
 
+    @step_trace.add_connector_time("start_load_kv_ms")
     def start_load_kv(
         self,
         forward_context: "ForwardContext",
@@ -578,6 +581,12 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
         metadata = self._get_connector_metadata()
         if not isinstance(metadata, KVShrinkConnectorMetadata):
             raise TypeError("Unexpected connector metadata")
+        step_trace.record_loads(
+            started=len(metadata.reqs_to_load.requests),
+            unfinished=len(self._pending_load_tasks)
+            + len(self._early_promoted_tasks)
+            + len(self._active_promoted_tasks),
+        )
 
         sync_block_ids: list[int] = []
         sync_block_hashes: list[str] = []
@@ -618,6 +627,7 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
             for req_id in self._early_promoted_tasks:
                 if req_id in metadata.scheduled_req_ids:
                     scheduled.append(req_id)
+            step_trace.record_promoted(len(scheduled))
             raise_load_bundle_ids: list[int] = []
             for req_id in scheduled:
                 self._active_promoted_tasks[req_id] = self._early_promoted_tasks.pop(
@@ -665,6 +675,7 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
             if has_remaining_layers:
                 self._load_bundle_ids[req_id] = load_bundle_id
 
+    @step_trace.add_connector_time("wait_for_layer_load_ms")
     def wait_for_layer_load(self, layer_name: str) -> None:
         if not self._current_get_tasks and not self._active_promoted_tasks:
             return
@@ -672,10 +683,12 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
         layer_keys = [self._layer_key[layer_name]]
         # Wait for the synchronous (batched) loads for this layer.
         if self._current_get_tasks:
+            blocked_start = time.perf_counter()
             success = self._store().get_wait(
                 get_results=self._current_get_tasks,
                 layer_names=layer_keys,
             )
+            step_trace.add_blocked_load_wait(blocked_start)
             if not success:
                 raise RuntimeError(
                     f"Failed to load KV cache for layer {layer_name}"
@@ -685,10 +698,12 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
         # first N layers were already finalized in get_finished(); waiting on an
         # already-finalized layer is a no-op.
         for tasks in self._active_promoted_tasks.values():
+            blocked_start = time.perf_counter()
             success = self._store().get_wait(
                 get_results=tasks,
                 layer_names=layer_keys,
             )
+            step_trace.add_blocked_load_wait(blocked_start)
             if not success:
                 raise RuntimeError(
                     f"Failed to load promoted KV cache for layer {layer_name}"
@@ -698,6 +713,7 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
             self._current_get_tasks = None
             self._active_promoted_tasks = {}
 
+    @step_trace.add_connector_time("save_kv_layer_ms")
     def save_kv_layer(
         self,
         layer_name: str,
@@ -726,6 +742,7 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
             )
             self._current_put_tasks.setdefault(req_id, []).append(tasks)
 
+    @step_trace.add_connector_time("wait_for_save_ms")
     def wait_for_save(self) -> None:
         # Mamba layers have no save hook: submit their states after forward.
         if self._connector_metadata is None or not self.has_mamba:
@@ -744,9 +761,11 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
                 )
                 self._current_put_tasks.setdefault(req_id, []).append(tasks)
 
+    @step_trace.add_connector_time("get_finished_ms")
     def get_finished(
         self, finished_req_ids: set[str]
     ) -> tuple[Optional[set[str]], Optional[set[str]]]:
+        step_trace.maybe_log_python_threads()
         # Poll asynchronous load tasks submitted in start_load_kv().
         finished_recving: set[str] = set()
         for req_id in list(self._pending_load_tasks.keys()):

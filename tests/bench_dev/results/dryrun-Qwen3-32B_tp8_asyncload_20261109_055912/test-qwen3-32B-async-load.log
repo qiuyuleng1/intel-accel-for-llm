@@ -1,0 +1,72 @@
+===========================================================
+Qwen3-32B async-load test  model=/media/model-space/Qwen3-32B  settings=[vllm-prefix-v033 lmcache]
+  MODEL=/media/model-space/Qwen3-32B TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 MAX_MODEL_LEN=40960 BLOCK_SIZE=16 LEN_CONCURRENCY='32768:16,48' HIT_RATES='100' NUM_PROMPTS_BY_CONCURRENCY='16:80 48:240' IAXL_SCRATCH_POOL_SIZE_GB=48 IAXL_DDR_POOL_TOTAL_SIZE_GB=40 LMCACHE_CHUNK_SIZE=16 LMCACHE_L1_SIZE_GB=40 VLLM_LOG_STATS_INTERVAL=1 DRY_RUN=1 KVSHRINK_STEP_TRACE=0 KVSHRINK_THREAD_MAP=0
+  KVShrink container=iaxl.vllm-78aaef4-benchmark
+  results -> tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912
+===========================================================
+Host settings (PERFORMANCE_MODE_SETUP.md):
+  intel_pstate status: active expected active
+  scaling driver:  256 intel_pstate; expected all intel_pstate
+  scaling governor:  256 performance; expected all performance
+  EPB:  256 0; expected all 0
+  no_turbo:  1 0; expected all 0
+  C-states: POLL C1 expected POLL C1
+  C-state disable flags:  512 0; expected all 0
+  Efficiency Latency Control: Latency Optimized Mode (LOM) expected Latency Optimized Mode (LOM)
+GPU 0000:38:00.0  port 0000:37:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:3a:00.0  port 0000:37:02.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:48:00.0  port 0000:47:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:49:00.0  port 0000:47:01.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b8:00.0  port 0000:b7:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b9:00.0  port 0000:b7:01.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:c8:00.0  port 0000:c7:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:c9:00.0  port 0000:c7:01.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+ACS is off on every GPU switch port.
+
+### vllm-prefix-v033 (2026-11-09 05:59:13): vllm-prefix-v033 [] -> tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/vllm-prefix-v033
+===========================================================
+Qwen3-32B benchmark  configs=[vllm-prefix-v033]
+  MODEL=/media/model-space/Qwen3-32B TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  input_len:concurrencies=[32768:16,48] output_len=128 MAX_MODEL_LEN=40960 BLOCK_SIZE=16
+  num_prompts=by concurrency [16:80 48:240] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=40 IAXL_SCRATCH_POOL_SIZE_GB=48
+  LMCACHE_CHUNK_SIZE=16 LMCACHE_L1_SIZE_GB=40
+  results -> tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/vllm-prefix-v033
+===========================================================
+
+### vllm-prefix-v033 serve=examples/lmcache-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=40960 hit_rates=[100]
+    [dry-run] serve: BASELINE=prefix_cache MAX_MODEL_LEN=40960 BLOCK_SIZE=16 bash examples/lmcache-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/vllm-prefix-v033/vllm-prefix-v033/serve.log
+
+## vllm-prefix-v033 input_len=32768 concurrencies=[16 48]
+    [dry-run] prewarm: hit 100, 96 prompts, concurrency 48, seed 10000
+    [dry-run] bench: concurrency 16, hit 100, 80 prompts, seed 10116
+    [dry-run] bench: concurrency 48, hit 100, 240 prompts, seed 10148
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/vllm-prefix-v033/summary.csv
+===========================================================
+
+### lmcache (2026-11-09 05:59:13): lmcache [] -> tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/lmcache
+===========================================================
+Qwen3-32B benchmark  configs=[lmcache]
+  MODEL=/media/model-space/Qwen3-32B TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  input_len:concurrencies=[32768:16,48] output_len=128 MAX_MODEL_LEN=40960 BLOCK_SIZE=16
+  num_prompts=by concurrency [16:80 48:240] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=40 IAXL_SCRATCH_POOL_SIZE_GB=48
+  LMCACHE_CHUNK_SIZE=16 LMCACHE_L1_SIZE_GB=40
+  results -> tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/lmcache
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=40960 hit_rates=[100]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=40960 BLOCK_SIZE=16 bash examples/lmcache-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/lmcache/lmcache/serve.log
+
+## lmcache input_len=32768 concurrencies=[16 48]
+    [dry-run] prewarm: hit 100, 96 prompts, concurrency 48, seed 10000
+    [dry-run] bench: concurrency 16, hit 100, 80 prompts, seed 10116
+    [dry-run] bench: concurrency 48, hit 100, 240 prompts, seed 10148
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/lmcache/summary.csv
+===========================================================
+
+Done (2026-11-09 05:59:13): tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/*/summary.csv

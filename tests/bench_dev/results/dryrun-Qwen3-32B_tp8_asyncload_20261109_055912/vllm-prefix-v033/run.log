@@ -1,0 +1,21 @@
+===========================================================
+Qwen3-32B benchmark  configs=[vllm-prefix-v033]
+  MODEL=/media/model-space/Qwen3-32B TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  input_len:concurrencies=[32768:16,48] output_len=128 MAX_MODEL_LEN=40960 BLOCK_SIZE=16
+  num_prompts=by concurrency [16:80 48:240] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=40 IAXL_SCRATCH_POOL_SIZE_GB=48
+  LMCACHE_CHUNK_SIZE=16 LMCACHE_L1_SIZE_GB=40
+  results -> tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/vllm-prefix-v033
+===========================================================
+
+### vllm-prefix-v033 serve=examples/lmcache-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=40960 hit_rates=[100]
+    [dry-run] serve: BASELINE=prefix_cache MAX_MODEL_LEN=40960 BLOCK_SIZE=16 bash examples/lmcache-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/vllm-prefix-v033/vllm-prefix-v033/serve.log
+
+## vllm-prefix-v033 input_len=32768 concurrencies=[16 48]
+    [dry-run] prewarm: hit 100, 96 prompts, concurrency 48, seed 10000
+    [dry-run] bench: concurrency 16, hit 100, 80 prompts, seed 10116
+    [dry-run] bench: concurrency 48, hit 100, 240 prompts, seed 10148
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3-32B_tp8_asyncload_20261109_055912/vllm-prefix-v033/summary.csv
+===========================================================

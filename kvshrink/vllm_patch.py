@@ -77,6 +77,11 @@ def _patch_mamba_block_size_validator() -> None:
 def register() -> None:
     from vllm.model_executor.models.config import MambaModelConfig
 
+    from . import step_trace
+
+    # Every vLLM process loads the plugin; the trace only acts in GPU workers.
+    if step_trace.STEP_TRACE_ENABLED:
+        step_trace.install_execute_model_trace()
     if getattr(MambaModelConfig, "_kvshrink_patched", False):
         return
     _patch_mamba_cache_mode()

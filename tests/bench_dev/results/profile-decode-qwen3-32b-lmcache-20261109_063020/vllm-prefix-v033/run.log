@@ -1,0 +1,9 @@
+=== profile-decode SETTING=vllm-prefix-v033 serve=examples/lmcache-vllm-serve.sh -> tests/bench_dev/results/profile-decode-qwen3-32b-lmcache-20261109_063020/vllm-prefix-v033 (2026-11-09 06:42:54)
+serve ready after 280s
+prewarm done (06:47:59)
+before the wave: gpu_prefix_cache_hit_tokens=0 external_hit_tokens=0
+start_profile sent (06:48:19); it stops after 20 steps
+all 48 running: gpu_prefix_cache_hit_tokens=1539344 external_hit_tokens=0
+ERROR: profile not written within 300s
+tests/bench_dev/profile-decode-qwen3-32b.sh: line 97:    12 Segmentation fault      (core dumped) setsid bash "$SERVE_SCRIPT" > "$RESULTS_DIR/serve.log" 2>&1
+serve stopped

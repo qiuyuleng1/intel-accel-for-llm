@@ -1,0 +1,317 @@
+===== default (kvshrink): 16000 step-trace lines
+--- kvshrink_tp8_in32768_con16_hit100
+  1. totals, rank 0: 706 steps, 27.62 s of steps
+       start_load_kv_ms                     0.872 s    3.2% of step time
+       wait_for_layer_load_ms               1.673 s    6.1% of step time
+       wait_for_layer_load_blocked_ms       1.651 s    6.0% of step time
+       save_kv_layer_ms                     0.065 s    0.2% of step time
+       wait_for_save_ms                     0.001 s    0.0% of step time
+       get_finished_ms                      0.038 s    0.1% of step time
+       main_cpu_ms                         10.429 s   37.8% of step time
+       main_runq_ms                         0.001 s    0.0% of step time
+       other_threads_cpu_ms               132.614 s  480.1% of step time
+  1b. all steps by kind, rank 0: share of step time, period_ms
+       no load activity    65.7%  mean    33.36  median    32.77  n=544
+       with prefill        18.1%  mean    65.87  median    53.06  n=76
+       load activity       16.2%  mean    51.97  median    38.56  n=86
+  2. full-batch steps (>= 14 requests), rank 0
+     no load activity: 501 steps
+       period_ms                mean    33.64  median    32.77  n=501
+       exec_ms                  mean    32.49  median    31.73  n=501
+       gpu_ms                   n=0
+       main_cpu_ms              mean    10.91  median    10.78  n=501
+       main_runq_ms             mean     0.00  median     0.00  n=501
+       other_threads_cpu_ms     mean    31.07  median     0.64  n=501
+       connector_ms             mean     0.12  median     0.12  n=501
+     load activity: 14 steps
+       period_ms                mean    55.63  median    48.29  n=14
+       exec_ms                  mean    52.26  median    44.70  n=14
+       gpu_ms                   n=0
+       main_cpu_ms              mean    19.54  median    17.18  n=14
+       main_runq_ms             mean     0.00  median     0.00  n=14
+       other_threads_cpu_ms     mean   660.06  median   582.74  n=14
+       connector_ms             mean     4.20  median     0.15  n=14
+     with prefill: 28 steps
+       period_ms                mean    63.43  median    60.08  n=28
+       exec_ms                  mean    60.35  median    55.69  n=28
+       gpu_ms                   n=0
+       main_cpu_ms              mean    25.07  median    19.67  n=28
+       main_runq_ms             mean     0.00  median     0.00  n=28
+       other_threads_cpu_ms     mean   752.94  median   721.98  n=28
+       connector_ms             mean    16.26  median     5.89  n=28
+  3. KV block layout of the batch, rank 0
+       block_refs   mean 30024.20  median 32818.00  n=35
+       block_unique mean 30024.20  median 32818.00  n=35
+       block_runs   mean 14420.66  median 10748.00  n=35
+  4. per rank: main-thread run-queue wait (s), other threads' CPU (s), GPU ms of full-batch decode steps
+       rank 0: runq   0.001  other CPU  132.614  decode gpu_ms n=0
+       rank 1: runq   0.001  other CPU  132.763  decode gpu_ms n=0
+       rank 2: runq   0.000  other CPU  133.288  decode gpu_ms n=0
+       rank 3: runq   0.000  other CPU  133.232  decode gpu_ms n=0
+       rank 4: runq   0.001  other CPU  133.354  decode gpu_ms n=0
+       rank 5: runq   0.001  other CPU  132.964  decode gpu_ms n=0
+       rank 6: runq   0.000  other CPU  132.676  decode gpu_ms n=0
+       rank 7: runq   0.000  other CPU  129.776  decode gpu_ms n=0
+--- kvshrink_tp8_in32768_con48_hit100
+  1. totals, rank 0: 734 steps, 70.86 s of steps
+       start_load_kv_ms                     2.875 s    4.1% of step time
+       wait_for_layer_load_ms               1.418 s    2.0% of step time
+       wait_for_layer_load_blocked_ms       1.380 s    1.9% of step time
+       save_kv_layer_ms                     0.070 s    0.1% of step time
+       wait_for_save_ms                     0.001 s    0.0% of step time
+       get_finished_ms                      0.113 s    0.2% of step time
+       main_cpu_ms                         14.337 s   20.2% of step time
+       main_runq_ms                         0.001 s    0.0% of step time
+       other_threads_cpu_ms               419.434 s  591.9% of step time
+  1b. all steps by kind, rank 0: share of step time, period_ms
+       no load activity    48.9%  mean    73.01  median    71.86  n=475
+       with prefill        30.7%  mean   149.05  median   117.97  n=146
+       load activity       20.3%  mean   127.60  median    92.80  n=113
+  2. full-batch steps (>= 46 requests), rank 0
+     no load activity: 398 steps
+       period_ms                mean    77.93  median    71.95  n=398
+       exec_ms                  mean    76.55  median    70.83  n=398
+       gpu_ms                   n=0
+       main_cpu_ms              mean    11.12  median    10.76  n=398
+       main_runq_ms             mean     0.00  median     0.00  n=398
+       other_threads_cpu_ms     mean    28.57  median     1.54  n=398
+       connector_ms             mean     0.12  median     0.12  n=398
+     load activity: 17 steps
+       period_ms                mean   126.10  median    93.12  n=17
+       exec_ms                  mean   122.77  median    89.80  n=17
+       gpu_ms                   n=0
+       main_cpu_ms              mean    28.13  median    26.82  n=17
+       main_runq_ms             mean     0.00  median     0.00  n=17
+       other_threads_cpu_ms     mean  1427.62  median  1090.89  n=17
+       connector_ms             mean    13.31  median    12.67  n=17
+     with prefill: 37 steps
+       period_ms                mean   137.65  median   104.86  n=37
+       exec_ms                  mean   134.47  median   101.49  n=37
+       gpu_ms                   n=0
+       main_cpu_ms              mean    24.64  median    23.34  n=37
+       main_runq_ms             mean     0.00  median     0.00  n=37
+       other_threads_cpu_ms     mean  1162.18  median  1159.15  n=37
+       connector_ms             mean     7.44  median     2.53  n=37
+  3. KV block layout of the batch, rank 0
+       block_refs   mean 86485.28  median 98390.00  n=36
+       block_unique mean 86485.28  median 98390.00  n=36
+       block_runs   mean 38842.17  median 19739.00  n=36
+  4. per rank: main-thread run-queue wait (s), other threads' CPU (s), GPU ms of full-batch decode steps
+       rank 0: runq   0.001  other CPU  419.434  decode gpu_ms n=0
+       rank 1: runq   0.001  other CPU  417.491  decode gpu_ms n=0
+       rank 2: runq   0.001  other CPU  420.524  decode gpu_ms n=0
+       rank 3: runq   0.000  other CPU  420.145  decode gpu_ms n=0
+       rank 4: runq   0.001  other CPU  420.785  decode gpu_ms n=0
+       rank 5: runq   0.000  other CPU  418.064  decode gpu_ms n=0
+       rank 6: runq   0.001  other CPU  418.104  decode gpu_ms n=0
+       rank 7: runq   0.001  other CPU  407.539  decode gpu_ms n=0
+===== kvshrink-gpu-prefix (kvshrink): 15592 step-trace lines
+--- kvshrink_tp8_in32768_con16_hit100
+  1. totals, rank 0: 691 steps, 21.25 s of steps
+       start_load_kv_ms                     0.004 s    0.0% of step time
+       wait_for_layer_load_ms               0.013 s    0.1% of step time
+       wait_for_layer_load_blocked_ms       0.000 s    0.0% of step time
+       save_kv_layer_ms                     0.054 s    0.3% of step time
+       wait_for_save_ms                     0.001 s    0.0% of step time
+       get_finished_ms                      0.006 s    0.0% of step time
+       main_cpu_ms                          8.363 s   39.4% of step time
+       main_runq_ms                         0.000 s    0.0% of step time
+       other_threads_cpu_ms                 1.182 s    5.6% of step time
+  1b. all steps by kind, rank 0: share of step time, period_ms
+       no load activity    88.8%  mean    30.10  median    25.75  n=627
+       with prefill        11.2%  mean    37.08  median    25.44  n=64
+  2. full-batch steps (>= 14 requests), rank 0
+     no load activity: 538 steps
+       period_ms                mean    27.00  median    25.75  n=538
+       exec_ms                  mean    25.76  median    24.70  n=538
+       gpu_ms                   n=0
+       main_cpu_ms              mean    11.22  median    10.95  n=538
+       main_runq_ms             mean     0.00  median     0.00  n=538
+       other_threads_cpu_ms     mean     1.71  median     1.70  n=538
+       connector_ms             mean     0.11  median     0.11  n=538
+     load activity: 0 steps
+       period_ms                n=0
+       exec_ms                  n=0
+       gpu_ms                   n=0
+       main_cpu_ms              n=0
+       main_runq_ms             n=0
+       other_threads_cpu_ms     n=0
+       connector_ms             n=0
+     with prefill: 20 steps
+       period_ms                mean    38.20  median    25.55  n=20
+       exec_ms                  mean    36.49  median    24.16  n=20
+       gpu_ms                   n=0
+       main_cpu_ms              mean    12.46  median    12.56  n=20
+       main_runq_ms             mean     0.00  median     0.00  n=20
+       other_threads_cpu_ms     mean     1.13  median     1.17  n=20
+       connector_ms             mean     0.10  median     0.10  n=20
+  3. KV block layout of the batch, rank 0
+       block_refs   mean 29940.24  median 32821.50  n=34
+       block_unique mean  2125.12  median  2124.00  n=34
+       block_runs   mean   600.12  median   645.00  n=34
+  4. per rank: main-thread run-queue wait (s), other threads' CPU (s), GPU ms of full-batch decode steps
+       rank 0: runq   0.000  other CPU    1.182  decode gpu_ms n=0
+       rank 1: runq   0.000  other CPU    1.188  decode gpu_ms n=0
+       rank 2: runq   0.000  other CPU    0.451  decode gpu_ms n=0
+       rank 3: runq   0.000  other CPU    1.120  decode gpu_ms n=0
+       rank 4: runq   0.000  other CPU    0.456  decode gpu_ms n=0
+       rank 5: runq   0.000  other CPU    0.492  decode gpu_ms n=0
+       rank 6: runq   0.000  other CPU    0.468  decode gpu_ms n=0
+       rank 7: runq   0.000  other CPU    1.140  decode gpu_ms n=0
+--- kvshrink_tp8_in32768_con48_hit100
+  1. totals, rank 0: 714 steps, 52.61 s of steps
+       start_load_kv_ms                     0.004 s    0.0% of step time
+       wait_for_layer_load_ms               0.013 s    0.0% of step time
+       wait_for_layer_load_blocked_ms       0.000 s    0.0% of step time
+       save_kv_layer_ms                     0.054 s    0.1% of step time
+       wait_for_save_ms                     0.001 s    0.0% of step time
+       get_finished_ms                      0.006 s    0.0% of step time
+       main_cpu_ms                          9.792 s   18.6% of step time
+       main_runq_ms                         0.000 s    0.0% of step time
+       other_threads_cpu_ms                 1.201 s    2.3% of step time
+  1b. all steps by kind, rank 0: share of step time, period_ms
+       no load activity    80.7%  mean    71.61  median    49.15  n=593
+       with prefill        19.3%  mean    83.90  median    60.94  n=121
+  2. full-batch steps (>= 46 requests), rank 0
+     no load activity: 451 steps
+       period_ms                mean    52.94  median    49.14  n=451
+       exec_ms                  mean    51.62  median    48.09  n=451
+       gpu_ms                   n=0
+       main_cpu_ms              mean    11.02  median    10.74  n=451
+       main_runq_ms             mean     0.00  median     0.00  n=451
+       other_threads_cpu_ms     mean     1.57  median     1.51  n=451
+       connector_ms             mean     0.11  median     0.11  n=451
+     load activity: 0 steps
+       period_ms                n=0
+       exec_ms                  n=0
+       gpu_ms                   n=0
+       main_cpu_ms              n=0
+       main_runq_ms             n=0
+       other_threads_cpu_ms     n=0
+       connector_ms             n=0
+     with prefill: 60 steps
+       period_ms                mean    75.94  median    69.25  n=60
+       exec_ms                  mean    74.03  median    67.80  n=60
+       gpu_ms                   n=0
+       main_cpu_ms              mean    13.58  median    14.06  n=60
+       main_runq_ms             mean     0.00  median     0.00  n=60
+       other_threads_cpu_ms     mean     1.41  median     1.44  n=60
+       connector_ms             mean     0.10  median     0.10  n=60
+  3. KV block layout of the batch, rank 0
+       block_refs   mean 87741.11  median 98419.50  n=36
+       block_unique mean  2278.86  median  2297.00  n=36
+       block_runs   mean   869.39  median   949.50  n=36
+  4. per rank: main-thread run-queue wait (s), other threads' CPU (s), GPU ms of full-batch decode steps
+       rank 0: runq   0.000  other CPU    1.201  decode gpu_ms n=0
+       rank 1: runq   0.000  other CPU    1.176  decode gpu_ms n=0
+       rank 2: runq   0.000  other CPU    0.906  decode gpu_ms n=0
+       rank 3: runq   0.000  other CPU    1.230  decode gpu_ms n=0
+       rank 4: runq   0.000  other CPU    1.325  decode gpu_ms n=0
+       rank 5: runq   0.000  other CPU    1.138  decode gpu_ms n=0
+       rank 6: runq   0.000  other CPU    0.859  decode gpu_ms n=0
+       rank 7: runq   0.000  other CPU    0.632  decode gpu_ms n=0
+===== vllm-prefix-piecewise (vllm-prefix): 15584 step-trace lines
+--- vllm-prefix_tp8_in32768_con16_hit100
+  1. totals, rank 0: 693 steps, 22.18 s of steps
+       start_load_kv_ms                     0.000 s    0.0% of step time
+       wait_for_layer_load_ms               0.000 s    0.0% of step time
+       wait_for_layer_load_blocked_ms       0.000 s    0.0% of step time
+       save_kv_layer_ms                     0.000 s    0.0% of step time
+       wait_for_save_ms                     0.000 s    0.0% of step time
+       get_finished_ms                      0.000 s    0.0% of step time
+       main_cpu_ms                          7.465 s   33.7% of step time
+       main_runq_ms                         0.000 s    0.0% of step time
+       other_threads_cpu_ms                 0.744 s    3.4% of step time
+  1b. all steps by kind, rank 0: share of step time, period_ms
+       no load activity    76.8%  mean    27.69  median    25.95  n=615
+       with prefill        23.2%  mean    65.96  median    83.94  n=78
+  2. full-batch steps (>= 14 requests), rank 0
+     no load activity: 539 steps
+       period_ms                mean    26.41  median    25.95  n=539
+       exec_ms                  mean    25.30  median    24.90  n=539
+       gpu_ms                   n=0
+       main_cpu_ms              mean    10.38  median    10.32  n=539
+       main_runq_ms             mean     0.00  median     0.00  n=539
+       other_threads_cpu_ms     mean     1.07  median     1.06  n=539
+       connector_ms             mean     0.00  median     0.00  n=539
+     load activity: 0 steps
+       period_ms                n=0
+       exec_ms                  n=0
+       gpu_ms                   n=0
+       main_cpu_ms              n=0
+       main_runq_ms             n=0
+       other_threads_cpu_ms     n=0
+       connector_ms             n=0
+     with prefill: 19 steps
+       period_ms                mean    72.79  median    83.39  n=19
+       exec_ms                  mean    70.68  median    81.65  n=19
+       gpu_ms                   n=0
+       main_cpu_ms              mean    11.71  median    12.04  n=19
+       main_runq_ms             mean     0.00  median     0.00  n=19
+       other_threads_cpu_ms     mean     1.18  median     1.21  n=19
+       connector_ms             mean     0.00  median     0.00  n=19
+  3. KV block layout of the batch, rank 0
+       block_refs   mean 29577.76  median 32817.00  n=34
+       block_unique mean  2123.88  median  2126.50  n=34
+       block_runs   mean   603.59  median   660.00  n=34
+  4. per rank: main-thread run-queue wait (s), other threads' CPU (s), GPU ms of full-batch decode steps
+       rank 0: runq   0.000  other CPU    0.744  decode gpu_ms n=0
+       rank 1: runq   0.000  other CPU    0.318  decode gpu_ms n=0
+       rank 2: runq   0.000  other CPU    0.458  decode gpu_ms n=0
+       rank 3: runq   0.001  other CPU    0.409  decode gpu_ms n=0
+       rank 4: runq   0.000  other CPU    1.095  decode gpu_ms n=0
+       rank 5: runq   0.001  other CPU    0.610  decode gpu_ms n=0
+       rank 6: runq   0.001  other CPU    0.506  decode gpu_ms n=0
+       rank 7: runq   0.000  other CPU    1.090  decode gpu_ms n=0
+--- vllm-prefix_tp8_in32768_con48_hit100
+  1. totals, rank 0: 699 steps, 53.11 s of steps
+       start_load_kv_ms                     0.000 s    0.0% of step time
+       wait_for_layer_load_ms               0.000 s    0.0% of step time
+       wait_for_layer_load_blocked_ms       0.000 s    0.0% of step time
+       save_kv_layer_ms                     0.000 s    0.0% of step time
+       wait_for_save_ms                     0.000 s    0.0% of step time
+       get_finished_ms                      0.000 s    0.0% of step time
+       main_cpu_ms                          8.114 s   15.3% of step time
+       main_runq_ms                         0.001 s    0.0% of step time
+       other_threads_cpu_ms                 0.668 s    1.3% of step time
+  1b. all steps by kind, rank 0: share of step time, period_ms
+       with prefill        16.0%  mean    70.28  median    71.94  n=121
+       no load activity    84.0%  mean    77.18  median    49.25  n=578
+  2. full-batch steps (>= 46 requests), rank 0
+     no load activity: 430 steps
+       period_ms                mean    53.58  median    49.22  n=430
+       exec_ms                  mean    52.29  median    48.10  n=430
+       gpu_ms                   n=0
+       main_cpu_ms              mean    10.48  median    10.28  n=430
+       main_runq_ms             mean     0.00  median     0.00  n=430
+       other_threads_cpu_ms     mean     0.92  median     0.91  n=430
+       connector_ms             mean     0.00  median     0.00  n=430
+     load activity: 0 steps
+       period_ms                n=0
+       exec_ms                  n=0
+       gpu_ms                   n=0
+       main_cpu_ms              n=0
+       main_runq_ms             n=0
+       other_threads_cpu_ms     n=0
+       connector_ms             n=0
+     with prefill: 65 steps
+       period_ms                mean    80.06  median    72.83  n=65
+       exec_ms                  mean    78.20  median    71.16  n=65
+       gpu_ms                   n=0
+       main_cpu_ms              mean    13.09  median    13.76  n=65
+       main_runq_ms             mean     0.00  median     0.00  n=65
+       other_threads_cpu_ms     mean     0.92  median     0.90  n=65
+       connector_ms             mean     0.00  median     0.00  n=65
+  3. KV block layout of the batch, rank 0
+       block_refs   mean 90130.86  median 98416.00  n=35
+       block_unique mean  2285.31  median  2303.00  n=35
+       block_runs   mean   804.97  median   863.00  n=35
+  4. per rank: main-thread run-queue wait (s), other threads' CPU (s), GPU ms of full-batch decode steps
+       rank 0: runq   0.001  other CPU    0.668  decode gpu_ms n=0
+       rank 1: runq   0.000  other CPU    0.785  decode gpu_ms n=0
+       rank 2: runq   0.000  other CPU    0.856  decode gpu_ms n=0
+       rank 3: runq   0.001  other CPU    1.091  decode gpu_ms n=0
+       rank 4: runq   0.000  other CPU    1.186  decode gpu_ms n=0
+       rank 5: runq   0.000  other CPU    0.607  decode gpu_ms n=0
+       rank 6: runq   0.000  other CPU    0.578  decode gpu_ms n=0
+       rank 7: runq   0.000  other CPU    1.295  decode gpu_ms n=0
