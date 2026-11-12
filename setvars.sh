@@ -36,7 +36,7 @@ $TOP_DIR/tools/setup_system.sh
 
 export IAXL_VERSION=${IAXL_VERSION:-1.6.0}
 export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
-export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev:$IAXL_VERSION"}
+export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev-kimi-k3-qiuyu:$IAXL_VERSION"}
 export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
 
 # =============================================================================
@@ -233,7 +233,7 @@ export https_proxy=$http_proxy
 # ---- docker (used by start.sh) ---------------------------------------------
 # A recipe's setvars.post.sh may edit CONTAINER_NAME, ENV_VARS and DOCKER_RUN_ARGS; --name and
 # the -e flags for ENV_VARS are appended after it.
-CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm}
+CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm-kimi-k3-qiuyu}
 # Host variables forwarded into the container with -e VAR=value. Forward inputs only: setvars.sh and
 # the recipe run again in the container and derive everything else from them.
 ENV_VARS=(
