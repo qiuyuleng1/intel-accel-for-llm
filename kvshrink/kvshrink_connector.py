@@ -136,11 +136,15 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
         # (is_mamba, layer_names) per KV cache group; all groups share one
         # block size, which is the enlarged one on hybrid models.
         self.groups: list[tuple[bool, list[str]]] = []
+        # Whether a mamba group writes in-prefill checkpoints (FlashKDA).
+        self.has_prefill_checkpoint = False
         for group in kv_cache_config.kv_cache_groups:
             spec = group.kv_cache_spec
             if isinstance(spec, UniformTypeKVCacheSpecs):
                 spec = next(iter(spec.kv_cache_specs.values()))
             self.groups.append((isinstance(spec, MambaSpec), list(group.layer_names)))
+            if isinstance(spec, MambaSpec) and spec.num_prefill_checkpoint_blocks > 0:
+                self.has_prefill_checkpoint = True
         self.has_mamba = any(is_mamba for is_mamba, _ in self.groups)
         if self.has_mamba and vllm_config.cache_config.mamba_cache_mode != "align":
             raise ValueError(
@@ -151,12 +155,22 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
         block_sizes = {g.kv_cache_spec.block_size for g in kv_cache_config.kv_cache_groups}
         assert len(block_sizes) == 1, block_sizes
         self.block_size = block_sizes.pop()
+        if self.has_prefill_checkpoint:
+            from vllm.models.kimi_k3.nvidia.kda_metadata import FLASHKDA_CHUNK_SIZE
+
+            # FlashKDA writes a checkpoint only at offsets that are a multiple of its chunk size.
+            if self.block_size % FLASHKDA_CHUNK_SIZE != 0:
+                raise ValueError(
+                    f"KVShrinkConnector needs block_size {self.block_size} to be a "
+                    f"multiple of FLASHKDA_CHUNK_SIZE {FLASHKDA_CHUNK_SIZE}"
+                )
         logger.info(
             "KVShrinkConnector(%s): block_size=%d, has_mamba=%s, "
-            "mamba_cache_mode=%r, prefix caching=%s",
+            "prefill checkpoint=%s, mamba_cache_mode=%r, prefix caching=%s",
             role.name,
             self.block_size,
             self.has_mamba,
+            self.has_prefill_checkpoint,
             vllm_config.cache_config.mamba_cache_mode,
             vllm_config.cache_config.enable_prefix_caching,
         )
@@ -195,6 +209,8 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
         self._reqs_to_save = RequestMetadata()
         self._current_get_tasks: Optional[dict[str, Any]] = None
         self._current_put_tasks: dict[ReqId, list[dict[str, Any]]] = {}
+        # KV cache groups whose layers called save_kv_layer in the current step.
+        self._groups_saved_by_hook: set[int] = set()
         self._deferred_finished_req_ids: set[ReqId] = set()
         self._last_layer_name: Optional[str] = None
         # vLLM layer name -> KVStore key (the layer index as a string): short keys
@@ -410,11 +426,15 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
         if end <= start:
             return
 
-        # Attention saves every full block; mamba only holds the state at the
-        # end of a block-aligned chunk, in slot end - 1.
+        # Attention saves every full block; mamba saves only the state in slot end - 1.
+        chunk_ends_on_block = end * self.block_size == num_tokens
+        # FlashKDA writes the state at the chunk's last full block when the chunk starts on one.
+        prefill_checkpoint = (
+            self.has_prefill_checkpoint and num_computed_tokens % self.block_size == 0
+        )
         save_mamba = (
             self.has_mamba
-            and end * self.block_size == num_tokens
+            and (chunk_ends_on_block or prefill_checkpoint)
             and not state.mamba_existence_cache[end - 1]
         )
         block_ids = tuple(
@@ -739,6 +759,7 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
             raise TypeError("Unexpected connector metadata")
 
         group_idx = self.layer_group[layer_name]
+        self._groups_saved_by_hook.add(group_idx)
         layer_keys = [self._layer_key[layer_name]]
         for req_id, request in metadata.reqs_to_save.requests.items():
             block_ids, block_hashes = request.for_group(group_idx)
@@ -752,22 +773,25 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
             self._current_put_tasks.setdefault(req_id, []).append(tasks)
 
     def wait_for_save(self) -> None:
-        # Mamba layers have no save hook: submit their states after forward.
-        if self._connector_metadata is None or not self.has_mamba:
+        # Mamba layers and attention layers whose forward skips save_kv_layer are saved here.
+        if self._connector_metadata is None:
             return
         metadata = self._get_connector_metadata()
         for req_id, request in metadata.reqs_to_save.requests.items():
             for index, (is_mamba, layer_names) in enumerate(self.groups):
+                if index in self._groups_saved_by_hook or not layer_names:
+                    continue
                 block_ids, block_hashes = request.for_group(index)
-                if not is_mamba or not block_ids:
+                if not block_ids:
                     continue
                 tasks = self._store().put(
                     block_indices=block_ids,
                     block_hashs=block_hashes,
                     layer_names=layer_names,
-                    label="mamba",
+                    label="mamba" if is_mamba else None,
                 )
                 self._current_put_tasks.setdefault(req_id, []).append(tasks)
+        self._groups_saved_by_hook.clear()
 
     def get_finished(
         self, finished_req_ids: set[str]
