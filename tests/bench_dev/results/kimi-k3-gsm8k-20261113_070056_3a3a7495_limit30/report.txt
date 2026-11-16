@@ -1,0 +1,19 @@
+== Per pass
+config       shots    pass     qs prompt tokens     acc garbled  GPU prefix hit/query (vLLM)   external hit
+kvshrink     shots26  pass1    30   4727-4808     96.7%       0                      0/0 (-)         133632
+kvshrink     shots26  pass2    30   4727-4808     96.7%       0                      0/0 (-)         138240
+kvshrink     shots140 pass1    30  23934-24015   100.0%       0                      0/0 (-)         589824
+kvshrink     shots140 pass2    30  23934-24015   100.0%       0                      0/0 (-)         714240
+
+== kvshrink: requests by external hit (connector log, last line per request)
+shots    pass      hit source     requests correct      acc
+shots26  pass1    4608 chunk_end        29      28    96.6%
+shots26  pass1       0 none              1       1   100.0%
+shots26  pass2    4608 chunk_end        30      29    96.7%
+shots140 pass1   20736 chunk_end        28      28   100.0%
+shots140 pass1    4608 chunk_end         2       2   100.0%
+shots140 pass2   23808 chunk_end        30      30   100.0%
+
+== kvshrink: wrong answers with an external hit (2)
+shots26 pass1 question 12: hit 4608 (chunk_end), answer 12, expected 13
+shots26 pass2 question 12: hit 4608 (chunk_end), answer 12, expected 13

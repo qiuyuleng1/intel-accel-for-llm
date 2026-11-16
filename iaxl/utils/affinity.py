@@ -43,10 +43,12 @@ def bind_cpu_affinity(rank: int, tp_size: int, spec: Optional[str]) -> None:
 
 
 def bind_intel_accel(rank: int) -> None:
-    """KVSHRINK_QAT_DEVICES / KVSHRINK_DSA_DEVICES (`|` per rank) -> IAXL_QAT_DEVICES / IAXL_DSA_WQS."""
+    """KVSHRINK_QAT_DEVICES / KVSHRINK_DSA_DEVICES / KVSHRINK_IAA_DEVICES (`|` per rank)
+    -> IAXL_QAT_DEVICES / IAXL_DSA_WQS / IAXL_IAA_DEVICES (IAA: NUMA node indices)."""
     for source, target in (
         ("KVSHRINK_QAT_DEVICES", "IAXL_QAT_DEVICES"),
         ("KVSHRINK_DSA_DEVICES", "IAXL_DSA_WQS"),
+        ("KVSHRINK_IAA_DEVICES", "IAXL_IAA_DEVICES"),
     ):
         spec = os.getenv(source)
         if not spec:

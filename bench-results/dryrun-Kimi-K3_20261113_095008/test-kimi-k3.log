@@ -1,0 +1,345 @@
+===========================================================
+Kimi-K3 test  model=/home/intel/model-space/Kimi-K3  layouts=[dp2tp4 tp8]  configs=[kvshrink vllm-prefix vllm-wo-prefix lmcache]
+  hit rates=[80 95] cache=600 GB
+  dp2tp4: MAX_MODEL_LEN input:concurrency = 131200 32000:4,8,12 128000:2
+  tp8: MAX_MODEL_LEN input:concurrency = 256128 32000:4,8,12,24 128000:2,6 256000:2
+  KVShrink container=iaxl.vllm-kimi-k3-qiuyu  LMCache container=lmcache.vllm-kimi-k3-qiuyu
+  left running at the end: tp8 lmcache
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008
+===========================================================
+Host settings (PERFORMANCE_MODE_SETUP.md):
+  intel_pstate status: active expected active
+  scaling driver:  192 intel_pstate; expected all intel_pstate
+  scaling governor:  192 performance; expected all performance
+  EPB:  192 0; expected all 0
+  no_turbo:  1 0; expected all 0
+  C-states: POLL C1 C1E C6 C6P expected POLL C1 enabled, every other one disabled
+  POLL disable flag:  192 0; expected all 0
+  C1 disable flag:  192 0; expected all 0
+  C1E disable flag:  192 1; expected all 1
+  C6 disable flag:  192 1; expected all 1
+  C6P disable flag:  192 1; expected all 1
+  Efficiency Latency Control: Latency Optimized Mode (LOM) expected Latency Optimized Mode (LOM)
+GPU 0000:10:00.0  port 0000:0f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:38:00.0  port 0000:37:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:5e:00.0  port 0000:5d:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:71:00.0  port 0000:70:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:90:00.0  port 0000:8f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b9:00.0  port 0000:b8:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:dd:00.0  port 0000:dc:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:ef:00.0  port 0000:ee:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+ACS is off on every GPU switch port.
+
+### dp2tp4 kvshrink (2026-11-13 09:50:09) -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+  CONFIGS=kvshrink RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12 128000:2' HIT_RATES='80 95' MAX_MODEL_LEN=131200 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128 --enable-expert-parallel' LMCACHE_CHUNK_SIZE=1536 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=131200 hit_rates=[80 95]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=131200 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/kvshrink/serve.log
+
+## kvshrink input_len=32000 concurrencies=[4 8 12]
+    [dry-run] prewarm: hit 100, 24 prompts, concurrency 12, seed 10000
+    [dry-run] bench: concurrency 4, hit 80, 40 prompts, seed 10084
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 4, hit 95, 40 prompts, seed 10099
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 8, hit 80, 80 prompts, seed 10088
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 8, hit 95, 80 prompts, seed 10103
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 12, hit 80, 120 prompts, seed 10092
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 12, hit 95, 120 prompts, seed 10107
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+## kvshrink input_len=128000 concurrencies=[2]
+    [dry-run] prewarm: hit 100, 4 prompts, concurrency 2, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/summary.csv
+===========================================================
+
+### dp2tp4 vllm-prefix (2026-11-13 09:50:09) -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+  CONFIGS=vllm-prefix RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12 128000:2' HIT_RATES='80 95' MAX_MODEL_LEN=131200 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128 --enable-expert-parallel' LMCACHE_CHUNK_SIZE=1536 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=131200 hit_rates=[80 95]
+    [dry-run] serve: BASELINE=prefix_cache MAX_MODEL_LEN=131200 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/vllm-prefix/serve.log
+
+## vllm-prefix input_len=32000 concurrencies=[4 8 12]
+    [dry-run] prewarm: hit 100, 24 prompts, concurrency 12, seed 10000
+    [dry-run] bench: concurrency 4, hit 80, 40 prompts, seed 10084
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 4, hit 95, 40 prompts, seed 10099
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 8, hit 80, 80 prompts, seed 10088
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 8, hit 95, 80 prompts, seed 10103
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 12, hit 80, 120 prompts, seed 10092
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 12, hit 95, 120 prompts, seed 10107
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+## vllm-prefix input_len=128000 concurrencies=[2]
+    [dry-run] prewarm: hit 100, 4 prompts, concurrency 2, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/summary.csv
+===========================================================
+
+### dp2tp4 vllm-wo-prefix (2026-11-13 09:50:09) -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+  CONFIGS=vllm-wo-prefix RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12 128000:2' HIT_RATES='80 95' MAX_MODEL_LEN=131200 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128 --enable-expert-parallel' LMCACHE_CHUNK_SIZE=1536 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=131200 hit_rates=[80]
+    [dry-run] serve: BASELINE=no_cache MAX_MODEL_LEN=131200 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/vllm-wo-prefix/serve.log
+
+## vllm-wo-prefix input_len=32000 concurrencies=[4 8 12]
+    [dry-run] bench: concurrency 4, hit 80, 8 prompts, seed 10084
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 8, hit 80, 16 prompts, seed 10088
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 12, hit 80, 24 prompts, seed 10092
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+## vllm-wo-prefix input_len=128000 concurrencies=[2]
+    [dry-run] bench: concurrency 2, hit 80, 4 prompts, seed 10082
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/summary.csv
+===========================================================
+
+### dp2tp4 lmcache (2026-11-13 09:50:10) -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+  CONFIGS=lmcache RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12 128000:2' HIT_RATES='80 95' MAX_MODEL_LEN=131200 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128 --enable-expert-parallel' LMCACHE_CHUNK_SIZE=1536 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[lmcache]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=131200 hit_rates=[80 95]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=131200 BLOCK_SIZE= bash examples/lmcache-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/lmcache/serve.log
+
+## lmcache input_len=32000 concurrencies=[4 8 12]
+    [dry-run] prewarm: hit 100, 24 prompts, concurrency 12, seed 10000
+    [dry-run] bench: concurrency 4, hit 80, 40 prompts, seed 10084
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 4, hit 95, 40 prompts, seed 10099
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 8, hit 80, 80 prompts, seed 10088
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 8, hit 95, 80 prompts, seed 10103
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 12, hit 80, 120 prompts, seed 10092
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 12, hit 95, 120 prompts, seed 10107
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+## lmcache input_len=128000 concurrencies=[2]
+    [dry-run] prewarm: hit 100, 4 prompts, concurrency 2, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+    [dry-run]   before it: 5 warm-ups + 1 request to each of 2 DP ranks (X-data-parallel-rank), same seed
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/dp2tp4/summary.csv
+===========================================================
+
+### tp8 kvshrink (2026-11-13 09:50:10) -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+  CONFIGS=kvshrink RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/tp8 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12,24 128000:2,6 256000:2' HIT_RATES='80 95' MAX_MODEL_LEN=256128 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128' LMCACHE_CHUNK_SIZE=768 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12,24 128000:2,6 256000:2] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=768 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/tp8/kvshrink/serve.log
+
+## kvshrink input_len=32000 concurrencies=[4 8 12 24]
+    [dry-run] prewarm: hit 100, 48 prompts, concurrency 24, seed 10000
+    [dry-run] bench: concurrency 4, hit 80, 40 prompts, seed 10084
+    [dry-run] bench: concurrency 4, hit 95, 40 prompts, seed 10099
+    [dry-run] bench: concurrency 8, hit 80, 80 prompts, seed 10088
+    [dry-run] bench: concurrency 8, hit 95, 80 prompts, seed 10103
+    [dry-run] bench: concurrency 12, hit 80, 120 prompts, seed 10092
+    [dry-run] bench: concurrency 12, hit 95, 120 prompts, seed 10107
+    [dry-run] bench: concurrency 24, hit 80, 240 prompts, seed 10104
+    [dry-run] bench: concurrency 24, hit 95, 240 prompts, seed 10119
+
+## kvshrink input_len=128000 concurrencies=[2 6]
+    [dry-run] prewarm: hit 100, 12 prompts, concurrency 6, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+    [dry-run] bench: concurrency 6, hit 80, 60 prompts, seed 10086
+    [dry-run] bench: concurrency 6, hit 95, 60 prompts, seed 10101
+
+## kvshrink input_len=256000 concurrencies=[2]
+    [dry-run] prewarm: hit 100, 4 prompts, concurrency 2, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/tp8/summary.csv
+===========================================================
+
+### tp8 vllm-prefix (2026-11-13 09:50:10) -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+  CONFIGS=vllm-prefix RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/tp8 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12,24 128000:2,6 256000:2' HIT_RATES='80 95' MAX_MODEL_LEN=256128 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128' LMCACHE_CHUNK_SIZE=768 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12,24 128000:2,6 256000:2] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=768 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    [dry-run] serve: BASELINE=prefix_cache MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/tp8/vllm-prefix/serve.log
+
+## vllm-prefix input_len=32000 concurrencies=[4 8 12 24]
+    [dry-run] prewarm: hit 100, 48 prompts, concurrency 24, seed 10000
+    [dry-run] bench: concurrency 4, hit 80, 40 prompts, seed 10084
+    [dry-run] bench: concurrency 4, hit 95, 40 prompts, seed 10099
+    [dry-run] bench: concurrency 8, hit 80, 80 prompts, seed 10088
+    [dry-run] bench: concurrency 8, hit 95, 80 prompts, seed 10103
+    [dry-run] bench: concurrency 12, hit 80, 120 prompts, seed 10092
+    [dry-run] bench: concurrency 12, hit 95, 120 prompts, seed 10107
+    [dry-run] bench: concurrency 24, hit 80, 240 prompts, seed 10104
+    [dry-run] bench: concurrency 24, hit 95, 240 prompts, seed 10119
+
+## vllm-prefix input_len=128000 concurrencies=[2 6]
+    [dry-run] prewarm: hit 100, 12 prompts, concurrency 6, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+    [dry-run] bench: concurrency 6, hit 80, 60 prompts, seed 10086
+    [dry-run] bench: concurrency 6, hit 95, 60 prompts, seed 10101
+
+## vllm-prefix input_len=256000 concurrencies=[2]
+    [dry-run] prewarm: hit 100, 4 prompts, concurrency 2, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/tp8/summary.csv
+===========================================================
+
+### tp8 vllm-wo-prefix (2026-11-13 09:50:10) -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+  CONFIGS=vllm-wo-prefix RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/tp8 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12,24 128000:2,6 256000:2' HIT_RATES='80 95' MAX_MODEL_LEN=256128 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128' LMCACHE_CHUNK_SIZE=768 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12,24 128000:2,6 256000:2] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=768 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    [dry-run] serve: BASELINE=no_cache MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/tp8/vllm-wo-prefix/serve.log
+
+## vllm-wo-prefix input_len=32000 concurrencies=[4 8 12 24]
+    [dry-run] bench: concurrency 4, hit 80, 8 prompts, seed 10084
+    [dry-run] bench: concurrency 8, hit 80, 16 prompts, seed 10088
+    [dry-run] bench: concurrency 12, hit 80, 24 prompts, seed 10092
+    [dry-run] bench: concurrency 24, hit 80, 48 prompts, seed 10104
+
+## vllm-wo-prefix input_len=128000 concurrencies=[2 6]
+    [dry-run] bench: concurrency 2, hit 80, 4 prompts, seed 10082
+    [dry-run] bench: concurrency 6, hit 80, 12 prompts, seed 10086
+
+## vllm-wo-prefix input_len=256000 concurrencies=[2]
+    [dry-run] bench: concurrency 2, hit 80, 4 prompts, seed 10082
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/tp8/summary.csv
+===========================================================
+
+### tp8 lmcache (2026-11-13 09:50:10) -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+  CONFIGS=lmcache RESULTS_DIR=bench-results/dryrun-Kimi-K3_20261113_095008/tp8 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12,24 128000:2,6 256000:2' HIT_RATES='80 95' MAX_MODEL_LEN=256128 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128' LMCACHE_CHUNK_SIZE=768 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=1 DRY_RUN=1 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[lmcache]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=1
+  input_len:concurrencies=[32000:4,8,12,24 128000:2,6 256000:2] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=768 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/dryrun-Kimi-K3_20261113_095008/tp8
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/lmcache-vllm-serve.sh > bench-results/dryrun-Kimi-K3_20261113_095008/tp8/lmcache/serve.log
+
+## lmcache input_len=32000 concurrencies=[4 8 12 24]
+    [dry-run] prewarm: hit 100, 48 prompts, concurrency 24, seed 10000
+    [dry-run] bench: concurrency 4, hit 80, 40 prompts, seed 10084
+    [dry-run] bench: concurrency 4, hit 95, 40 prompts, seed 10099
+    [dry-run] bench: concurrency 8, hit 80, 80 prompts, seed 10088
+    [dry-run] bench: concurrency 8, hit 95, 80 prompts, seed 10103
+    [dry-run] bench: concurrency 12, hit 80, 120 prompts, seed 10092
+    [dry-run] bench: concurrency 12, hit 95, 120 prompts, seed 10107
+    [dry-run] bench: concurrency 24, hit 80, 240 prompts, seed 10104
+    [dry-run] bench: concurrency 24, hit 95, 240 prompts, seed 10119
+
+## lmcache input_len=128000 concurrencies=[2 6]
+    [dry-run] prewarm: hit 100, 12 prompts, concurrency 6, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+    [dry-run] bench: concurrency 6, hit 80, 60 prompts, seed 10086
+    [dry-run] bench: concurrency 6, hit 95, 60 prompts, seed 10101
+
+## lmcache input_len=256000 concurrencies=[2]
+    [dry-run] prewarm: hit 100, 4 prompts, concurrency 2, seed 10000
+    [dry-run] bench: concurrency 2, hit 80, 20 prompts, seed 10082
+    [dry-run] bench: concurrency 2, hit 95, 20 prompts, seed 10097
+
+===========================================================
+Done: bench-results/dryrun-Kimi-K3_20261113_095008/tp8/summary.csv
+===========================================================
+
+Done (2026-11-13 09:50:10): bench-results/dryrun-Kimi-K3_20261113_095008/<layout>/summary.csv

@@ -159,8 +159,13 @@ export IAXL_IAA_ZIP_INSTANCES_PER_DEVICE=${IAXL_IAA_ZIP_INSTANCES_PER_DEVICE:-4}
 case "${IAXL_IAA_ZIP_ENABLE,,}" in
     1|true|yes|on)
     	export IAXL_IAA_INSTANCE_NUM=${IAXL_IAA_INSTANCE_NUM:-4}
+        KVSHRINK_IAA_DEVICES="${KVSHRINK_IAA_DEVICES:-$(iaa_auto_detect "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
+        export KVSHRINK_IAA_DEVICES # Per-rank IAA NUMA nodes
         ;;
-    *) export IAXL_IAA_INSTANCE_NUM=0 ;;
+    *)
+        export IAXL_IAA_INSTANCE_NUM=0
+        unset KVSHRINK_IAA_DEVICES
+        ;;
 esac
 export IAXL_IAA_ZIP_QUEUE_DEPTH=${IAXL_IAA_ZIP_QUEUE_DEPTH:-4} # In-flight requests per instance (<= 4)
 

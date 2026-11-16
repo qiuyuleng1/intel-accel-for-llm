@@ -5,14 +5,16 @@
 # examples/kvshrink-vllm-serve.sh plus --gpu-memory-utilization 0.9 (after the script's 0.8;
 # vLLM takes the last one); KDA uses vLLM's default FlashKDA prefill, whose in-prefill
 # checkpoints kvshrink saves.
-# Async loads wait for every layer before the request runs: Kimi-K3's MLA forward never
-# calls wait_for_layer_load, so a request must not start before its attention KV is in.
 # Then kimi_k3_smoke_client.py: 2 short questions, a 60-shot gsm8k prompt sent twice plus
 # two more questions on the same examples, and a 120-shot prompt (longer than one
 # 16384-token chunk) sent twice plus one more question; each answer is checked and the
 # connector log shows each request's kvshrink hit.
 # vLLM is left running after the test (loading Kimi-K3 takes 20+ min); the next run reuses it,
 # so its kvshrink code and vLLM options stay those of the run that started it.
+# DP_SIZE / TP_SIZE, the accelerator switches, MAX_MODEL_LEN, the DDR pool and
+# VLLM_SERVE_EXTRA_ARGS can be overridden from the environment; with DP_SIZE > 1 every
+# request is sent once to each DP rank (X-data-parallel-rank), since DP ranks do not share
+# the kvshrink cache.
 #
 # Runs INSIDE this clone's container. From the b300 host, in tmux:
 #   docker exec -w /home/intel/qiuyu/intel-accel-for-llm-kimi-k3 iaxl.vllm-kimi-k3-qiuyu \
@@ -25,15 +27,17 @@ REPO_DIR=$(cd -- "$DEV_DIR/../.." && pwd)
 cd "$REPO_DIR"
 
 export MODEL=/home/intel/model-space/Kimi-K3
-export TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-export MAX_MODEL_LEN=32768 PORT=8000
-export IAXL_DSA_GD_ENABLE=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0
-export IAXL_KV_COMPRESSION=0
-export IAXL_DDR_POOL_TOTAL_SIZE_GB=200
-export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=0 KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
-export VLLM_SERVE_EXTRA_ARGS="--gpu-memory-utilization 0.9"
+export DP_SIZE=${DP_SIZE:-1} TP_SIZE=${TP_SIZE:-8} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export MAX_MODEL_LEN=${MAX_MODEL_LEN:-32768} PORT=8000
+export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-0} IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-0}
+export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-0} IAXL_CPU_ZIP_ENABLE=0
+export IAXL_KV_COMPRESSION=${IAXL_KV_COMPRESSION:-0}
+export IAXL_DDR_POOL_TOTAL_SIZE_GB=${IAXL_DDR_POOL_TOTAL_SIZE_GB:-200}
+export VLLM_SERVE_EXTRA_ARGS=${VLLM_SERVE_EXTRA_ARGS:-"--gpu-memory-utilization 0.9"}
 # Loading 1.5 TB of weights from disk took 1600 s on 11-12.
 SERVE_READY_TIMEOUT_S=5400
+# vLLM's own default (600 s) is close to the 480-520 s DP2 TP4 launches of 11-13.
+export VLLM_ENGINE_READY_TIMEOUT_S=${VLLM_ENGINE_READY_TIMEOUT_S:-3600}
 
 CODE_MD5=$(cat kvshrink/*.py "$DEV_DIR/kimi_k3_smoke.sh" "$DEV_DIR/kimi_k3_smoke_client.py" \
     | md5sum | cut -c1-8)
@@ -102,7 +106,7 @@ tr '\r' '\n' < "$SERVE_LOG" | grep -aE "KVShrinkConnector\(SCHEDULER\)|Registere
     | sed -E 's/^\(([A-Za-z_0-9 =]+)[^)]*\) //' | sort -u
 
 if ! python3 "$DEV_DIR/kimi_k3_smoke_client.py" run --port "$PORT" --model "$MODEL" \
-    --dataset-dir "$DEV_DIR/gsm8k-datasets" --out "$RESULTS_DIR/requests.jsonl"; then
+    --dataset-dir "$DEV_DIR/gsm8k-datasets" --dp-size "$DP_SIZE" --out "$RESULTS_DIR/requests.jsonl"; then
     log "ERROR: client failed"
 fi
 # The kvstore monitor logs DDR pool usage every 10 s.

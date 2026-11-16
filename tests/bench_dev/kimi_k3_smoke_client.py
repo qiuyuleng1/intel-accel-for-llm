@@ -14,8 +14,10 @@ Requests, one at a time (temperature 0, max_tokens 2048, default chat template):
 Answers are checked against gsm8k targets and for garbled text (U+FFFD or a control
 character other than newline, tab, carriage return). The report joins each request
 with its kvshrink connector line (externally-cached tokens).
+With --dp-size N > 1 each request is sent to DP rank 0..N-1 in turn (X-data-parallel-rank
+header) and named <request>@dp<rank>: DP ranks keep separate kvshrink caches.
 
-  run:    python3 kimi_k3_smoke_client.py run --port 8000 --model M --dataset-dir D --out F
+  run:    python3 kimi_k3_smoke_client.py run --port 8000 --model M --dataset-dir D [--dp-size N] --out F
   report: python3 kimi_k3_smoke_client.py report --requests F --connector-log L --block-size B
 """
 
@@ -57,6 +59,8 @@ class SmokeResult:
     correct: bool
     garbled: bool
     text: str
+    # usage.prompt_tokens_details.cached_tokens (vLLM --enable-prompt-tokens-details), -1 if absent.
+    cached_tokens: int = -1
 
 
 def find_split(dataset_dir: str, split: str):
@@ -93,17 +97,20 @@ def is_garbled(text: str) -> bool:
     return False
 
 
-def ask(port: int, model: str, prompt: str) -> dict:
+def ask(port: int, model: str, prompt: str, dp_rank: int) -> dict:
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": MAX_TOKENS,
         "temperature": 0,
     }
+    headers = {"Content-Type": "application/json"}
+    if dp_rank >= 0:
+        headers["X-data-parallel-rank"] = str(dp_rank)
     request = urllib.request.Request(
         f"http://127.0.0.1:{port}/v1/chat/completions",
         data=json.dumps(body).encode(),
-        headers={"Content-Type": "application/json"},
+        headers=headers,
     )
     with urllib.request.urlopen(request, timeout=900) as response:
         return json.loads(response.read())
@@ -141,9 +148,18 @@ def run(args: argparse.Namespace) -> None:
         prompt = f"{long_examples_text}\n\nQuestion: {record['question']}\nAnswer:"
         plan.append((name, prompt, final_number(record["answer"])))
 
-    results = []
+    # (name, dp_rank, prompt, target); dp_rank -1 leaves the choice to vLLM.
+    sends = []
     for name, prompt, target in plan:
-        response = ask(args.port, args.model, prompt)
+        if args.dp_size == 1:
+            sends.append((name, -1, prompt, target))
+            continue
+        for dp_rank in range(args.dp_size):
+            sends.append((f"{name}@dp{dp_rank}", dp_rank, prompt, target))
+
+    results = []
+    for name, dp_rank, prompt, target in sends:
+        response = ask(args.port, args.model, prompt, dp_rank)
         choice = response["choices"][0]
         text = choice["message"]["content"] or ""
         if target:
@@ -152,6 +168,10 @@ def run(args: argparse.Namespace) -> None:
         else:
             extracted = text.strip()[:40]
             correct = "Paris" in text
+        details = response["usage"].get("prompt_tokens_details") or {}
+        cached_tokens = details.get("cached_tokens")
+        if cached_tokens is None:
+            cached_tokens = -1
         result = SmokeResult(
             name=name,
             response_id=response["id"],
@@ -163,6 +183,7 @@ def run(args: argparse.Namespace) -> None:
             correct=correct,
             garbled=is_garbled(text),
             text=text,
+            cached_tokens=int(cached_tokens),
         )
         results.append(result)
         print(
@@ -183,20 +204,21 @@ def report(args: argparse.Namespace) -> None:
             match = CONNECTOR_LINE.search(line)
             if match:
                 hit_by_id[BASE_ID.search(match.group(1)).group(1)] = int(match.group(2))
-    print(f"{'request':8} {'prompt':>6} {'hit':>6} {'max':>6} {'compl':>5} {'finish':6} {'correct':7} garbled  answer / target")
+    print(f"{'request':14} {'prompt':>6} {'hit':>6} {'max':>6} {'compl':>5} {'finish':6} {'correct':7} garbled  answer / target")
     with open(args.requests) as requests_file:
         for line in requests_file:
             result = SmokeResult(**json.loads(line))
-            hit = hit_by_id.get(result.response_id, -1)
+            # Without a kvshrink connector line (e.g. LMCache) the hit is vLLM's cached_tokens.
+            hit = hit_by_id.get(result.response_id, result.cached_tokens)
             # A hit covers whole blocks and never the last prompt token.
             max_hit = (result.prompt_tokens - 1) // args.block_size * args.block_size
             print(
-                f"{result.name:8} {result.prompt_tokens:>6} {hit:>6} {max_hit:>6} "
+                f"{result.name:14} {result.prompt_tokens:>6} {hit:>6} {max_hit:>6} "
                 f"{result.completion_tokens:>5} "
                 f"{result.finish_reason:6} {str(result.correct):7} {str(result.garbled):7}  "
                 f"{result.extracted!r} / {result.target!r}"
             )
-    print("(hit -1: no connector line for the request)")
+    print("(hit: kvshrink connector line, else vLLM cached_tokens; -1: neither)")
 
 
 def main() -> None:
@@ -206,6 +228,7 @@ def main() -> None:
     run_parser.add_argument("--port", type=int, required=True)
     run_parser.add_argument("--model", required=True)
     run_parser.add_argument("--dataset-dir", required=True)
+    run_parser.add_argument("--dp-size", type=int, default=1)
     run_parser.add_argument("--out", required=True)
     report_parser = subparsers.add_parser("report")
     report_parser.add_argument("--requests", required=True)

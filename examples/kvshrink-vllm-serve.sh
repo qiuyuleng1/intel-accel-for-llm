@@ -22,7 +22,19 @@ fi
 block_args=()
 [[ -n "$BLOCK_SIZE" ]] && block_args=(--block-size "$BLOCK_SIZE")
 
-serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" --no-enable-prefix-caching)
+# Benchmark baselines: BASELINE=no_cache is plain vLLM without KV reuse,
+# BASELINE=prefix_cache is plain vLLM with its GPU prefix cache.
+connector_args=(--kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}')
+prefix_caching_arg=--no-enable-prefix-caching
+if [[ "$BASELINE" == no_cache ]]; then
+    connector_args=()
+fi
+if [[ "$BASELINE" == prefix_cache ]]; then
+    connector_args=()
+    prefix_caching_arg=--enable-prefix-caching
+fi
+
+serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" "$prefix_caching_arg")
 # vLLM CPU inference sizes its KV cache from VLLM_CPU_KVCACHE_SPACE (GiB) instead.
 [[ "$DEVICE" == cpu ]] || serve_args+=(--gpu-memory-utilization 0.8)
 if [[ -n "${VLLM_SERVE_CMDLINE_ARGS:-}" ]]; then
@@ -31,7 +43,7 @@ fi
 read -r -a extra_args <<<"${VLLM_SERVE_EXTRA_ARGS:-}"
 
 vllm serve "$MODEL" \
-    --kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}' \
+    "${connector_args[@]}" \
     "${parallel_args[@]}" \
     "${block_args[@]}" \
     "${serve_args[@]}" \

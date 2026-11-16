@@ -1,0 +1,33 @@
+[07:56:50] code md5 6c8ea66e, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_075650_6c8ea66e
+[07:56:50] starting vLLM /home/intel/model-space/Kimi-K3, TP 1, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_075650_6c8ea66e/serve.log
+[07:58:20] ERROR: serve exited before becoming ready; last lines:
+(EngineCore_DP5 pid=468662)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1093, in __init__
+(EngineCore_DP5 pid=468662)     super().__init__(
+(EngineCore_DP5 pid=468662)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 134, in __init__
+(EngineCore_DP5 pid=468662)     self.model_executor = executor_class(vllm_config)
+(EngineCore_DP5 pid=468662)                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP5 pid=468662)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 116, in __init__
+(EngineCore_DP5 pid=468662)     super().__init__(vllm_config)
+(EngineCore_DP5 pid=468662)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore_DP5 pid=468662)     return func(*args, **kwargs)
+(EngineCore_DP5 pid=468662)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP5 pid=468662)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/abstract.py", line 110, in __init__
+(EngineCore_DP5 pid=468662)     self._init_executor()
+(EngineCore_DP5 pid=468662)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 214, in _init_executor
+(EngineCore_DP5 pid=468662)     self.workers = WorkerProc.wait_for_ready(unready_workers)
+(EngineCore_DP5 pid=468662)                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore_DP5 pid=468662)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 808, in wait_for_ready
+(EngineCore_DP5 pid=468662)     raise e from None
+(EngineCore_DP5 pid=468662) Exception: WorkerProc initialization failed due to an exception in a background process. See stack trace for root cause.
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP0
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP1
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP2
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP3
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP4
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP5
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP6
+INFO 11-13 07:58:13 [utils.py:620] [shutdown] Process manager: send sigterm to process VLLM_DP_Coordinator
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 5 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 5 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

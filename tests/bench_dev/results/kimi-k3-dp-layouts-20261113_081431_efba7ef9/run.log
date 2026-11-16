@@ -1,0 +1,112 @@
+[08:14:31] code md5 efba7ef9, layouts [2:4], results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-dp-layouts-20261113_081431_efba7ef9
+[08:14:31] === DP2 TP4: launch
+[08:14:31] code md5 6c8ea66e, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_081431_6c8ea66e
+[08:14:31] starting vLLM /home/intel/model-space/Kimi-K3, TP 4, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_081431_6c8ea66e/serve.log
+[08:23:12] serve ready after 520s
+INFO 11-13 08:14:49 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 11-13 08:15:07 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 11-13 08:15:36 [kda.py:315] Using FlashKDA KDA prefill backend.
+INFO 11-13 08:17:18 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:17:23 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:17:25 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:17:26 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:17:27 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:17:28 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:18:28 [kv_cache_utils.py:2032] GPU KV cache size: 227,239 tokens, Maximum concurrency for 225,792 tokens per request: 1.01x
+INFO 11-13 08:18:29 [kv_cache_utils.py:2032] GPU KV cache size: 227,239 tokens, Maximum concurrency for 225,792 tokens per request: 1.01x
+INFO 11-13 08:19:09,813 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:19:09,819 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:19:09,821 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:19:09,825 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:19:10,049 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:19:10,060 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:19:11,771 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:19:12,019 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:22:59,133 [kvshrink_connector.py:167] KVShrinkConnector(SCHEDULER): block_size=1536, has_mamba=True, prefill checkpoint=True, mamba_cache_mode='align', prefix caching=False
+INFO 11-13 08:22:59,397 [kvshrink_connector.py:167] KVShrinkConnector(SCHEDULER): block_size=1536, has_mamba=True, prefill checkpoint=True, mamba_cache_mode='align', prefix caching=False
+short-1@dp0: prompt=101 completion=73 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-1@dp1: prompt=101 completion=53 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-2@dp0: prompt=161 completion=139 finish=stop answer='18' target='18' correct=True garbled=False
+short-2@dp1: prompt=161 completion=139 finish=stop answer='18' target='18' correct=True garbled=False
+long-A@dp0: prompt=10293 completion=123 finish=stop answer='3' target='3' correct=True garbled=False
+long-A@dp1: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2@dp0: prompt=10293 completion=123 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2@dp1: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-B@dp0: prompt=10316 completion=258 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-B@dp1: prompt=10316 completion=267 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-C@dp0: prompt=10301 completion=174 finish=stop answer='540' target='540' correct=True garbled=False
+long-C@dp1: prompt=10301 completion=136 finish=stop answer='540' target='540' correct=True garbled=False
+xlong-A@dp0: prompt=20177 completion=183 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A@dp1: prompt=20177 completion=187 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A2@dp0: prompt=20177 completion=202 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A2@dp1: prompt=20177 completion=188 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-B@dp0: prompt=20122 completion=337 finish=stop answer='64' target='64' correct=True garbled=False
+xlong-B@dp1: prompt=20122 completion=263 finish=stop answer='64' target='64' correct=True garbled=False
+(EngineCore_DP1 pid=476414) INFO 11-13 08:25:10,114 [kvstore.py:457] [monitor][rank4] | mem pool 0.52/150.00G (0%) 15 grp | zip/raw 0.52/0.74G (0.71) | evict on/0 | host mem 1365.7/2015.5G
+[08:25:16] serve log "Traceback": 0
+[08:25:16] serve log " ERROR ": 0
+[08:25:16] serve log "IAXL check failed": 0
+[08:25:16] serve log "cache key missing after retry": 0
+request        prompt    hit    max compl finish correct garbled  answer / target
+short-1@dp0       101      0      0    73 stop   True    False    'The user is asking a simple factual ques' / ''
+short-1@dp1       101      0      0    53 stop   True    False    'The user is asking a simple factual ques' / ''
+short-2@dp0       161      0      0   139 stop   True    False    '18' / '18'
+short-2@dp1       161      0      0   139 stop   True    False    '18' / '18'
+long-A@dp0      10293      0   9216   123 stop   True    False    '3' / '3'
+long-A@dp1      10293      0   9216   112 stop   True    False    '3' / '3'
+long-A2@dp0     10293   9216   9216   123 stop   True    False    '3' / '3'
+long-A2@dp1     10293   9216   9216   112 stop   True    False    '3' / '3'
+long-B@dp0      10316   9216   9216   258 stop   True    False    '70000' / '70000'
+long-B@dp1      10316   9216   9216   267 stop   True    False    '70000' / '70000'
+long-C@dp0      10301   9216   9216   174 stop   True    False    '540' / '540'
+long-C@dp1      10301   9216   9216   136 stop   True    False    '540' / '540'
+xlong-A@dp0     20177   9216  19968   183 stop   True    False    '20' / '20'
+xlong-A@dp1     20177   9216  19968   187 stop   True    False    '20' / '20'
+xlong-A2@dp0    20177  19968  19968   202 stop   True    False    '20' / '20'
+xlong-A2@dp1    20177  19968  19968   188 stop   True    False    '20' / '20'
+xlong-B@dp0     20122  19968  19968   337 stop   True    False    '64' / '64'
+xlong-B@dp1     20122  19968  19968   263 stop   True    False    '64' / '64'
+(hit -1: no connector line for the request)
+[08:25:17] vLLM left running (process group 476006, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_081431_6c8ea66e/serve.log); to stop it from the host:
+[08:25:17]   docker exec iaxl.vllm-kimi-k3-qiuyu kill -TERM -- -476006
+[08:25:17] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_081431_6c8ea66e
+[08:25:17] code md5 3a3a7495, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30
+[08:25:17] vLLM process group 476006, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_081431_6c8ea66e/serve.log
+[08:25:17] serve ready (waited 0s)
+[08:25:17] gsm8k 26 shots pass1: 30 questions, 50 in parallel
+[08:25:45] 26 shots pass1: evalscope exit 0, 30 connector lines, score "score": 0.9667
+[08:25:45] gsm8k 26 shots pass2: 30 questions, 50 in parallel
+[08:26:07] 26 shots pass2: evalscope exit 0, 30 connector lines, score "score": 0.9667
+[08:26:07] gsm8k 140 shots pass1: 30 questions, 50 in parallel
+[08:26:49] 140 shots pass1: evalscope exit 0, 669 connector lines, score "score": 1.0
+[08:26:49] gsm8k 140 shots pass2: 30 questions, 50 in parallel
+[08:28:54] 140 shots pass2: evalscope exit 0, 693 connector lines, score "score": 1.0
+[08:28:54] serve log of this run "Traceback": 0
+[08:28:54] serve log of this run " ERROR ": 0
+[08:28:54] serve log of this run "IAXL check failed": 0
+[08:28:54] serve log of this run "cache key missing after retry": 0
+[08:28:54] serve log of this run "cache miss on unzip": 0
+== Per pass
+config       shots    pass     qs prompt tokens     acc garbled  GPU prefix hit/query (vLLM)   external hit
+kvshrink     shots26  pass1    30   4727-4808     96.7%       0                      0/0 (-)          96768
+kvshrink     shots26  pass2    30   4727-4808     96.7%       0                      0/0 (-)         138240
+kvshrink     shots140 pass1    30  23934-24015   100.0%       0                      0/0 (-)         470016
+kvshrink     shots140 pass2    30  23934-24015   100.0%       0                      0/0 (-)         691200
+
+== kvshrink: requests by external hit (connector log, last line per request)
+shots    pass      hit source     requests correct      acc
+shots26  pass1    4608 chunk_end        21      20    95.2%
+shots26  pass1       0 none              9       9   100.0%
+shots26  pass2    4608 chunk_end        30      29    96.7%
+shots140 pass1   23040 chunk_end        18      18   100.0%
+shots140 pass1    4608 chunk_end        12      12   100.0%
+shots140 pass2   23040 chunk_end        30      30   100.0%
+
+== kvshrink: wrong answers with an external hit (2)
+shots26 pass1 question 12: hit 4608 (chunk_end), answer 12, expected 13
+shots26 pass2 question 12: hit 4608 (chunk_end), answer 12, expected 13
+[08:28:54] vLLM left running (process group 476006)
+[08:28:54] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30
+[08:29:14] vLLM stopped after 20s
+[08:29:14] === DP2 TP4: smoke exit 0, smoke /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_081431_6c8ea66e, gsm8k /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30
+[08:29:14] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-dp-layouts-20261113_081431_efba7ef9

@@ -220,7 +220,8 @@ cpu_auto_detect() {
 qat_auto_detect() {
     local tp_size=${1:-${TP_SIZE:-}}
     local path driver devices_per_rank extra_devices next_device rank count offset pci numa group result
-    local -a qat_devices=() indices=() pci_devices=() rank_groups=()
+    local gpu_output gpu_index pci_bus gpu_numa
+    local -a qat_devices=() indices=() pci_devices=() rank_groups=() gpu_rows=()
 
     validate_tp_size "$tp_size" || return 1
     for path in /sys/bus/pci/devices/*; do
@@ -237,9 +238,28 @@ qat_auto_detect() {
         return 1
     fi
     mapfile -t qat_devices < <(printf '%s\n' "${qat_devices[@]}" | LC_ALL=C sort)
+    # Fewer devices than workers: each worker shares the QAT devices on its GPU's NUMA node.
     if ((${#qat_devices[@]} < tp_size)); then
-        echo "ERROR: TP_SIZE=$tp_size requires at least $tp_size QAT devices, but only ${#qat_devices[@]} were found" >&2
-        return 1
+        gpu_output=$(gpu_rows "$tp_size") || return 1
+        mapfile -t gpu_rows <<<"$gpu_output"
+        for ((rank = 0; rank < tp_size; rank++)); do
+            read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
+            indices=()
+            for ((next_device = 0; next_device < ${#qat_devices[@]}; next_device++)); do
+                numa=$(<"/sys/bus/pci/devices/${qat_devices[$next_device]}/numa_node")
+                [[ "$numa" == "$gpu_numa" ]] && indices+=("$next_device")
+            done
+            if ((${#indices[@]} == 0)); then
+                echo "ERROR: no QAT device on NUMA $gpu_numa for GPU $gpu_index" >&2
+                return 1
+            fi
+            group=$(IFS=,; echo "${indices[*]}")
+            rank_groups+=("$group")
+            echo "KVShrink QAT rank $rank: indices=$group (shared on NUMA $gpu_numa)" >&2
+        done
+        result=$(IFS='|'; echo "${rank_groups[*]}")
+        echo "$result"
+        return
     fi
 
     devices_per_rank=$((${#qat_devices[@]} / tp_size))
@@ -269,8 +289,8 @@ qat_auto_detect() {
 dsa_auto_detect() {
     local tp_size=${1:-${TP_SIZE:-}}
     local gpu_output rank gpu_index pci_bus gpu_numa dsa_path dsa_name dsa_numa dsa_id wq_path
-    local selected_dsa selected_wq result
-    local -a gpu_rows=() dsa_paths=() used_dsa=() rank_wqs=() candidate_wqs=()
+    local selected_dsa selected_wq wq result
+    local -a gpu_rows=() dsa_paths=() used_wqs=() rank_wqs=() candidate_wqs=()
 
     gpu_output=$(gpu_rows "$tp_size") || return 1
     mapfile -t gpu_rows <<<"$gpu_output"
@@ -279,10 +299,6 @@ dsa_auto_detect() {
             [[ -d "$dsa_path" ]] && echo "$dsa_path"
         done | sort -V
     )
-    if ((${#dsa_paths[@]} < tp_size)); then
-        echo "ERROR: TP_SIZE=$tp_size requires at least $tp_size DSA devices, but only ${#dsa_paths[@]} were found" >&2
-        return 1
-    fi
 
     for ((rank = 0; rank < tp_size; rank++)); do
         read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
@@ -292,7 +308,6 @@ dsa_auto_detect() {
         selected_wq=""
         for dsa_path in "${dsa_paths[@]}"; do
             dsa_name=${dsa_path##*/}
-            [[ " ${used_dsa[*]} " == *" $dsa_name "* ]] && continue
             dsa_numa=$(<"$dsa_path/numa_node")
             [[ "$dsa_numa" == "$gpu_numa" ]] || continue
 
@@ -305,22 +320,45 @@ dsa_auto_detect() {
                     basename "$wq_path"
                 done | sort -V
             )
-            ((${#candidate_wqs[@]} > 0)) || continue
-            selected_dsa=$dsa_name
-            selected_wq=${candidate_wqs[0]}
-            break
+            # A dedicated WQ opens in one process only, so ranks sharing a DSA take different WQs.
+            for wq in "${candidate_wqs[@]}"; do
+                [[ " ${used_wqs[*]} " == *" $wq "* ]] && continue
+                selected_dsa=$dsa_name
+                selected_wq=$wq
+                break
+            done
+            [[ -n "$selected_wq" ]] && break
         done
 
-        if [[ -z "$selected_dsa" ]]; then
-            echo "ERROR: no unused DSA with enabled user WQs is available on NUMA $gpu_numa for GPU $gpu_index" >&2
+        if [[ -z "$selected_wq" ]]; then
+            echo "ERROR: no unused enabled user DSA WQ is available on NUMA $gpu_numa for GPU $gpu_index" >&2
             return 1
         fi
-        used_dsa+=("$selected_dsa")
+        used_wqs+=("$selected_wq")
         rank_wqs+=("$selected_wq")
         echo "KVShrink GPU rank $rank: DSA=$selected_dsa WQ=$selected_wq" >&2
     done
 
     result=$(IFS='|'; echo "${rank_wqs[*]}")
+    echo "$result"
+}
+
+# Per-rank NUMA node of the rank's GPU, so each rank drives only the IAA devices of its node.
+iaa_auto_detect() {
+    local tp_size=${1:-${TP_SIZE:-}}
+    local gpu_output rank gpu_index pci_bus gpu_numa result
+    local -a gpu_rows=() rank_nodes=()
+
+    gpu_output=$(gpu_rows "$tp_size") || return 1
+    mapfile -t gpu_rows <<<"$gpu_output"
+    for ((rank = 0; rank < tp_size; rank++)); do
+        read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
+        iaa_thread_count "$gpu_numa" 1 >/dev/null || return 1
+        rank_nodes+=("$gpu_numa")
+        echo "KVShrink IAA rank $rank: GPU=$gpu_index NUMA=$gpu_numa" >&2
+    done
+
+    result=$(IFS='|'; echo "${rank_nodes[*]}")
     echo "$result"
 }
 

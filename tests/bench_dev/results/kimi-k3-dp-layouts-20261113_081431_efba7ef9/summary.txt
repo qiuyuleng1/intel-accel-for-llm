@@ -1,0 +1,63 @@
+=== DP2 TP4: smoke exit 0
+smoke: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_081431_6c8ea66e
+gsm8k: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30
+      2 INFO 11-13 08:17:25 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      2 INFO 11-13 08:17:23 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      2 INFO 11-13 08:15:07 [vllm_patch.py:54] Mamba align patch: prefix caching disabled, skipping validate_mamba_block_size (mamba_block_size=1048576, max_model_len=1048576)
+      1 INFO 11-13 08:18:29,033 [affinity.py:60] Bound rank 0: IAXL_QAT_DEVICES=0
+      1 INFO 11-13 08:18:29,033 [affinity.py:60] Bound rank 0: IAXL_IAA_DEVICES=0
+      1 INFO 11-13 08:18:29,033 [affinity.py:60] Bound rank 0: IAXL_DSA_WQS=wq0.0
+      1 INFO 11-13 08:18:29,033 [affinity.py:42] Bound rank 0 to CPUs [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      1 INFO 11-13 08:18:29,032 [kvshrink_connector.py:284] Bound rank 0: IAXL_CPU_OMP_THREADS_BIND=0-11
+      1 INFO 11-13 08:18:29,032 [affinity.py:60] Bound rank 2: IAXL_IAA_DEVICES=1
+      1 INFO 11-13 08:18:29,032 [affinity.py:60] Bound rank 2: IAXL_DSA_WQS=wq2.0
+      1 INFO 11-13 08:18:29,031 [kvshrink_connector.py:284] Bound rank 3: IAXL_CPU_OMP_THREADS_BIND=36-47
+      1 INFO 11-13 08:18:29,031 [kvshrink_connector.py:284] Bound rank 2: IAXL_CPU_OMP_THREADS_BIND=24-35
+      1 INFO 11-13 08:18:29,031 [kvshrink_connector.py:284] Bound rank 1: IAXL_CPU_OMP_THREADS_BIND=12-23
+      1 INFO 11-13 08:18:29,031 [affinity.py:60] Bound rank 3: IAXL_QAT_DEVICES=1
+      1 INFO 11-13 08:18:29,031 [affinity.py:60] Bound rank 3: IAXL_IAA_DEVICES=1
+      1 INFO 11-13 08:18:29,031 [affinity.py:60] Bound rank 3: IAXL_DSA_WQS=wq2.1
+      1 INFO 11-13 08:18:29,031 [affinity.py:60] Bound rank 2: IAXL_QAT_DEVICES=1
+      1 INFO 11-13 08:18:29,031 [affinity.py:60] Bound rank 1: IAXL_QAT_DEVICES=0
+      1 INFO 11-13 08:18:29,031 [affinity.py:60] Bound rank 1: IAXL_IAA_DEVICES=0
+      1 INFO 11-13 08:18:29,031 [affinity.py:60] Bound rank 1: IAXL_DSA_WQS=wq0.1
+      1 INFO 11-13 08:18:29,031 [affinity.py:42] Bound rank 3 to CPUs [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
+      1 INFO 11-13 08:18:29,031 [affinity.py:42] Bound rank 2 to CPUs [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+      1 INFO 11-13 08:18:29,031 [affinity.py:42] Bound rank 1 to CPUs [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+      1 INFO 11-13 08:18:29 [kv_cache_utils.py:2163] Auto-fit max_model_len: reduced from 1048576 to 225792 to fit in available GPU memory (6.21 GiB available for KV cache)
+      1 INFO 11-13 08:18:29 [kv_cache_utils.py:2032] GPU KV cache size: 227,239 tokens, Maximum concurrency for 225,792 tokens per request: 1.01x
+      1 INFO 11-13 08:18:28,838 [affinity.py:60] Bound rank 7: IAXL_QAT_DEVICES=3
+      1 INFO 11-13 08:18:28,838 [affinity.py:60] Bound rank 7: IAXL_IAA_DEVICES=3
+      1 INFO 11-13 08:18:28,838 [affinity.py:60] Bound rank 7: IAXL_DSA_WQS=wq6.1
+      1 INFO 11-13 08:18:28,838 [affinity.py:60] Bound rank 5: IAXL_QAT_DEVICES=2
+      1 INFO 11-13 08:18:28,838 [affinity.py:60] Bound rank 5: IAXL_IAA_DEVICES=2
+      1 INFO 11-13 08:18:28,838 [affinity.py:60] Bound rank 5: IAXL_DSA_WQS=wq4.1
+      1 INFO 11-13 08:18:28,838 [affinity.py:42] Bound rank 5 to CPUs [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
+      1 INFO 11-13 08:18:28,837 [kvshrink_connector.py:284] Bound rank 7: IAXL_CPU_OMP_THREADS_BIND=84-95
+      1 INFO 11-13 08:18:28,837 [kvshrink_connector.py:284] Bound rank 5: IAXL_CPU_OMP_THREADS_BIND=60-71
+      1 INFO 11-13 08:18:28,837 [affinity.py:42] Bound rank 7 to CPUs [84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95]
+      1 INFO 11-13 08:18:28,836 [kvshrink_connector.py:284] Bound rank 6: IAXL_CPU_OMP_THREADS_BIND=72-83
+      1 INFO 11-13 08:18:28,836 [kvshrink_connector.py:284] Bound rank 4: IAXL_CPU_OMP_THREADS_BIND=48-59
+      1 INFO 11-13 08:18:28,836 [affinity.py:60] Bound rank 6: IAXL_QAT_DEVICES=3
+      1 INFO 11-13 08:18:28,836 [affinity.py:60] Bound rank 6: IAXL_IAA_DEVICES=3
+      1 INFO 11-13 08:18:28,836 [affinity.py:60] Bound rank 6: IAXL_DSA_WQS=wq6.0
+      1 INFO 11-13 08:18:28,836 [affinity.py:60] Bound rank 4: IAXL_QAT_DEVICES=2
+      1 INFO 11-13 08:18:28,836 [affinity.py:60] Bound rank 4: IAXL_IAA_DEVICES=2
+      1 INFO 11-13 08:18:28,836 [affinity.py:60] Bound rank 4: IAXL_DSA_WQS=wq4.0
+      1 INFO 11-13 08:18:28,836 [affinity.py:42] Bound rank 6 to CPUs [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83]
+      1 INFO 11-13 08:18:28,836 [affinity.py:42] Bound rank 4 to CPUs [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+      1 INFO 11-13 08:18:28 [kv_cache_utils.py:2163] Auto-fit max_model_len: reduced from 1048576 to 225792 to fit in available GPU memory (6.21 GiB available for KV cache)
+      1 INFO 11-13 08:18:28 [kv_cache_utils.py:2032] GPU KV cache size: 227,239 tokens, Maximum concurrency for 225,792 tokens per request: 1.01x
+      1 INFO 11-13 08:17:28 [model_runner.py:404] Model loading took 221.78 GiB memory and 111.591913 seconds
+      1 INFO 11-13 08:17:28 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 08:17:27 [model_runner.py:404] Model loading took 221.78 GiB memory and 111.339569 seconds
+      1 INFO 11-13 08:17:27 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 08:17:26 [model_runner.py:404] Model loading took 221.78 GiB memory and 110.172607 seconds
+      1 INFO 11-13 08:17:26 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 08:17:25 [model_runner.py:404] Model loading took 221.78 GiB memory and 108.827955 seconds
+      1 INFO 11-13 08:17:24 [model_runner.py:404] Model loading took 221.78 GiB memory and 108.715494 seconds
+      1 INFO 11-13 08:17:23 [model_runner.py:404] Model loading took 221.78 GiB memory and 107.394549 seconds
+      1 INFO 11-13 08:17:23 [model_runner.py:404] Model loading took 221.78 GiB memory and 107.333266 seconds
+      1 INFO 11-13 08:17:18 [model_runner.py:404] Model loading took 221.78 GiB memory and 102.132206 seconds
+      1 INFO 11-13 08:17:18 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 08:15:36 [vllm_patch.py:54] Mamba align patch: prefix caching disabled, skipping validate_mamba_block_size (mamba_block_size=1048576, max_model_len=1048576)

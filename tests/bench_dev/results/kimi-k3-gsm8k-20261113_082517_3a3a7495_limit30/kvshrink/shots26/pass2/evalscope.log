@@ -1,0 +1,170 @@
+2026-11-13 08:25:46 - evalscope - [32mINFO[0m: Args: Task config is provided with CommandLine type.[0m
+2026-11-13 08:25:47 - evalscope - [32mINFO[0m: Running with native backend[0m
+2026-11-13 08:25:48 - evalscope - [32mINFO[0m: Dump task config to /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30/kvshrink/shots26/pass2/20261113_082547/configs/task_config.yaml[0m
+2026-11-13 08:25:48 - evalscope - [32mINFO[0m: {
+    "model_id": "Kimi-K3",
+    "model_args": {},
+    "model_task": "text_generation",
+    "chat_template": null,
+    "datasets": [
+        "gsm8k"
+    ],
+    "dataset_args": {
+        "gsm8k": {
+            "few_shot_num": 26
+        }
+    },
+    "dataset_dir": "/home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/gsm8k-datasets",
+    "dataset_hub": "modelscope",
+    "repeats": 1,
+    "eval_type": "openai_api",
+    "eval_backend": "Native",
+    "eval_config": null,
+    "limit": 30,
+    "eval_batch_size": 50,
+    "use_cache": null,
+    "rerun_review": false,
+    "work_dir": "/home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30/kvshrink/shots26/pass2/20261113_082547",
+    "no_timestamp": false,
+    "enable_progress_tracker": false,
+    "ignore_errors": false,
+    "debug": false,
+    "dry_run": false,
+    "seed": 42,
+    "api_url": "http://127.0.0.1:8000/v1",
+    "api_key": "**********",
+    "timeout": null,
+    "stream": null,
+    "judge": {
+        "strategy": "auto",
+        "models": [],
+        "contract": {
+            "system_prompt": null,
+            "prompt_template": null,
+            "score_mapping": null,
+            "score_type": "pattern"
+        },
+        "repeats": 1,
+        "position_swap": "auto",
+        "aggregation": "mean",
+        "min_valid_judges": 1
+    },
+    "analysis_report": false,
+    "collect_perf": true,
+    "use_sandbox": false,
+    "sandbox_type": "docker",
+    "sandbox_manager_config": {},
+    "evalscope_version": "1.14.1",
+    "model": "/home/intel/model-space/Kimi-K3",
+    "generation_config": {
+        "batch_size": 50,
+        "max_tokens": 4096,
+        "temperature": 0.0
+    },
+    "sandbox": {
+        "enabled": false,
+        "engine": "docker",
+        "default_config": {},
+        "manager_config": {},
+        "pool_size": null
+    },
+    "agent_config": null
+}[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]                                                           2026-11-13 08:25:48 - evalscope - [32mINFO[0m: Start loading benchmark dataset: gsm8k[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Processing records:   0%|          | 0/30 [00:00<?, ?it/s][AProcessing records: 100%|██████████| 30/30 [00:00<00:00, 216946.76it/s]
+
+Processing records:   0%|          | 0/26 [00:00<?, ?it/s][AProcessing records: 100%|██████████| 26/26 [00:00<00:00, 250119.05it/s]
+                                                           2026-11-13 08:25:48 - evalscope - [33mWARNING[0m: gsm8k: 30 samples to evaluate (1 subset, --limit=30 per subset). Remove `--limit` for a formal evaluation.[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]                                                           2026-11-13 08:25:48 - evalscope - [32mINFO[0m: Subsets of gsm8k: ['main'][0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/30 [00:00<?, ?it/s][A                                                           
+                                                         [A2026-11-13 08:25:48 - evalscope - [32mINFO[0m: Loading model for prediction...[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/30 [00:00<?, ?it/s][A                                                           
+                                                         [A2026-11-13 08:25:48 - evalscope - [32mINFO[0m: Creating model /home/intel/model-space/Kimi-K3 with eval_type=openai_api base_url=http://127.0.0.1:8000/v1, config={'retries': 5, 'retry_interval': 10, 'batch_size': 50, 'max_tokens': 4096, 'temperature': 0.0, 'anthropic_cache_strategy': 'evaluation'}, model_args={}[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/30 [00:00<?, ?it/s][A                                                           
+                                                         [A2026-11-13 08:25:48 - evalscope - [32mINFO[0m: Model loaded successfully.[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/30 [00:00<?, ?it/s][A2026-11-13 08:25:54,545 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:54,858 - math_verify.parser - WARNING: Timeout is disabled as parsing_timeout is None or <= 0, you must provide                         the logic for timeout interuption yourself to prevent code getting stuck.
+2026-11-13 08:25:54,901 - math_verify.grader - WARNING: Timeout is disabled as timeout_seconds is None or <= 0, you must provide                         the logic for timeout interuption yourself to prevent code getting stuck.
+2026-11-13 08:25:54,923 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:   3%|▎         | 1/30 [00:07<03:23,  7.01s/it][A2026-11-13 08:25:55,094 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:55,299 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:55,539 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:55,914 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:56,016 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  10%|█         | 3/30 [00:08<00:59,  2.19s/it][A2026-11-13 08:25:56,186 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:56,220 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:56,389 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:56,457 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:56,892 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:56,926 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  23%|██▎       | 7/30 [00:09<00:20,  1.15it/s][A2026-11-13 08:25:57,125 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:57,522 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:57,977 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  47%|████▋     | 14/30 [00:10<00:06,  2.42it/s][A2026-11-13 08:25:58,252 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:58,952 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:59,103 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:59,164 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:59,376 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:59,377 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:25:59,744 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  63%|██████▎   | 19/30 [00:12<00:04,  2.45it/s][A2026-11-13 08:26:00,092 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:26:00,382 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:26:00,620 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:26:00,647 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  80%|████████  | 24/30 [00:13<00:02,  2.99it/s][A2026-11-13 08:26:01,733 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-13 08:26:02,215 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  97%|█████████▋| 29/30 [00:15<00:00,  2.81it/s][A2026-11-13 08:26:04,510 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+                                                           
+                                                                  [A2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Evaluating[gsm8k] 100%| 30/30 [Elapsed: 00:16 < Remaining: 00:00,  2.81it/s][0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]
+Evaluating[gsm8k]: 100%|██████████| 30/30 [00:16<00:00,  2.81it/s][AEvaluating[gsm8k]: 100%|██████████| 30/30 [00:16<00:00,  1.81it/s]
+                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: gsm8k: predictions complete, aggregating scores...[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Aggregating scores for subset: main[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Generating report...[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: 
+gsm8k report table:
+┌─────────┬───────────┬────────────┬──────────┬───────┬─────────┐
+│ Model   │ Dataset   │ Metric     │ Subset   │   Num │ Score   │
+├─────────┼───────────┼────────────┼──────────┼───────┼─────────┤
+│ Kimi-K3 │ GSM8K     │ Accuracy ↑ │ main     │    30 │ 96.7%   │
+└─────────┴───────────┴────────────┴──────────┴───────┴─────────┘ 
+[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Skipping report analysis (`analysis_report=False`).[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Dump report to: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30/kvshrink/shots26/pass2/20261113_082547/reports/Kimi-K3/gsm8k.json 
+[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: 
+gsm8k perf table:
+Model    Dataset      Num  Avg Lat    Avg TTFT    Avg TPOT    Avg Thpt       Avg In    Avg Out
+-------  ---------  -----  ---------  ----------  ----------  -----------  --------  ---------
+Kimi-K3  GSM8K         30  9.343 s    —           —           25.25 tok/s      4758        236
+[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]                                                           2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Benchmark gsm8k evaluation finished.[0m
+Running[eval]:   0%|          | 0/1 [00:16<?, ?benchmark/s]Running[eval]: 100%|██████████| 1/1 [00:16<00:00, 16.57s/benchmark]                                                                   2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Running[eval] 100%| 1/1 [Elapsed: 00:16 < Remaining: 00:00, 16.57s/benchmark][0m
+Running[eval]: 100%|██████████| 1/1 [00:16<00:00, 16.57s/benchmark]Running[eval]: 100%|██████████| 1/1 [00:16<00:00, 16.57s/benchmark]
+2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Overall report table: 
+┌─────────┬───────────┬────────────┬──────────┬───────┬─────────┐
+│ Model   │ Dataset   │ Metric     │ Subset   │   Num │ Score   │
+├─────────┼───────────┼────────────┼──────────┼───────┼─────────┤
+│ Kimi-K3 │ GSM8K     │ Accuracy ↑ │ main     │    30 │ 96.7%   │
+└─────────┴───────────┴────────────┴──────────┴───────┴─────────┘ 
+[0m
+2026-11-13 08:26:04 - evalscope - [32mINFO[0m: Overall perf table: 
+Model    Dataset      Num  Avg Lat    Avg TTFT    Avg TPOT    Avg Thpt       Avg In    Avg Out
+-------  ---------  -----  ---------  ----------  ----------  -----------  --------  ---------
+Kimi-K3  GSM8K         30  9.343 s    —           —           25.25 tok/s      4758        236 
+[0m
+2026-11-13 08:26:04 - evalscope - [32mINFO[0m: HTML report generated: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30/kvshrink/shots26/pass2/20261113_082547/reports/report.html[0m
+2026-11-13 08:26:05 - evalscope - [32mINFO[0m: Finished evaluation for Kimi-K3 on ['gsm8k'][0m
+2026-11-13 08:26:05 - evalscope - [32mINFO[0m: Output directory: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_082517_3a3a7495_limit30/kvshrink/shots26/pass2/20261113_082547[0m

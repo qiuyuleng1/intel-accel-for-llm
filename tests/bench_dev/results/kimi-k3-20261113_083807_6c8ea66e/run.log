@@ -1,0 +1,66 @@
+[08:38:07] code md5 6c8ea66e, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_083807_6c8ea66e
+[08:38:07] starting vLLM /home/intel/model-space/Kimi-K3, TP 4, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_083807_6c8ea66e/serve.log
+[08:46:07] serve ready after 480s
+INFO 11-13 08:38:26 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 11-13 08:38:44 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 11-13 08:38:45 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 11-13 08:39:13 [kda.py:315] Using FlashKDA KDA prefill backend.
+INFO 11-13 08:43:29 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:43:30 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-13 08:44:27 [kv_cache_utils.py:2032] GPU KV cache size: 227,239 tokens, Maximum concurrency for 225,792 tokens per request: 1.01x
+INFO 11-13 08:45:04,484 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:05,810 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:06,151 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:07,026 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:07,363 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:07,403 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:07,409 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:07,662 [kvshrink_connector.py:609] Registered 93 KV cache layers (69 mamba) with shape [157, 884736]
+INFO 11-13 08:45:58,972 [kvshrink_connector.py:167] KVShrinkConnector(SCHEDULER): block_size=1536, has_mamba=True, prefill checkpoint=True, mamba_cache_mode='align', prefix caching=False
+INFO 11-13 08:45:59,015 [kvshrink_connector.py:167] KVShrinkConnector(SCHEDULER): block_size=1536, has_mamba=True, prefill checkpoint=True, mamba_cache_mode='align', prefix caching=False
+short-1@dp0: prompt=101 completion=73 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-1@dp1: prompt=101 completion=53 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-2@dp0: prompt=161 completion=139 finish=stop answer='18' target='18' correct=True garbled=False
+short-2@dp1: prompt=161 completion=139 finish=stop answer='18' target='18' correct=True garbled=False
+long-A@dp0: prompt=10293 completion=123 finish=stop answer='3' target='3' correct=True garbled=False
+long-A@dp1: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2@dp0: prompt=10293 completion=123 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2@dp1: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-B@dp0: prompt=10316 completion=258 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-B@dp1: prompt=10316 completion=267 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-C@dp0: prompt=10301 completion=174 finish=stop answer='540' target='540' correct=True garbled=False
+long-C@dp1: prompt=10301 completion=136 finish=stop answer='540' target='540' correct=True garbled=False
+xlong-A@dp0: prompt=20177 completion=183 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A@dp1: prompt=20177 completion=187 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A2@dp0: prompt=20177 completion=202 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A2@dp1: prompt=20177 completion=188 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-B@dp0: prompt=20122 completion=337 finish=stop answer='64' target='64' correct=True garbled=False
+xlong-B@dp1: prompt=20122 completion=263 finish=stop answer='64' target='64' correct=True garbled=False
+(EngineCore_DP0 pid=480429) INFO 11-13 08:48:09,165 [kvstore.py:457] [monitor][rank0] | mem pool 0.52/150.00G (0%) 15 grp | zip/raw 0.52/0.74G (0.71) | evict on/0 | host mem 1364.9/2015.5G
+[08:48:11] serve log "Traceback": 0
+[08:48:11] serve log " ERROR ": 0
+[08:48:11] serve log "IAXL check failed": 0
+[08:48:11] serve log "cache key missing after retry": 0
+request        prompt    hit    max compl finish correct garbled  answer / target
+short-1@dp0       101      0      0    73 stop   True    False    'The user is asking a simple factual ques' / ''
+short-1@dp1       101      0      0    53 stop   True    False    'The user is asking a simple factual ques' / ''
+short-2@dp0       161      0      0   139 stop   True    False    '18' / '18'
+short-2@dp1       161      0      0   139 stop   True    False    '18' / '18'
+long-A@dp0      10293      0   9216   123 stop   True    False    '3' / '3'
+long-A@dp1      10293      0   9216   112 stop   True    False    '3' / '3'
+long-A2@dp0     10293   9216   9216   123 stop   True    False    '3' / '3'
+long-A2@dp1     10293   9216   9216   112 stop   True    False    '3' / '3'
+long-B@dp0      10316   9216   9216   258 stop   True    False    '70000' / '70000'
+long-B@dp1      10316   9216   9216   267 stop   True    False    '70000' / '70000'
+long-C@dp0      10301   9216   9216   174 stop   True    False    '540' / '540'
+long-C@dp1      10301   9216   9216   136 stop   True    False    '540' / '540'
+xlong-A@dp0     20177   9216  19968   183 stop   True    False    '20' / '20'
+xlong-A@dp1     20177   9216  19968   187 stop   True    False    '20' / '20'
+xlong-A2@dp0    20177  19968  19968   202 stop   True    False    '20' / '20'
+xlong-A2@dp1    20177  19968  19968   188 stop   True    False    '20' / '20'
+xlong-B@dp0     20122  19968  19968   337 stop   True    False    '64' / '64'
+xlong-B@dp1     20122  19968  19968   263 stop   True    False    '64' / '64'
+(hit -1: no connector line for the request)
+[08:48:12] vLLM left running (process group 480023, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_083807_6c8ea66e/serve.log); to stop it from the host:
+[08:48:12]   docker exec iaxl.vllm-kimi-k3-qiuyu kill -TERM -- -480023
+[08:48:12] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_083807_6c8ea66e

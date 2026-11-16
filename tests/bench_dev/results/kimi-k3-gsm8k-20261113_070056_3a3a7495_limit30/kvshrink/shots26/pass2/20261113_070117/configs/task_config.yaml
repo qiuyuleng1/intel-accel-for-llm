@@ -1,0 +1,106 @@
+agent_config: null
+analysis_report: false
+api_key: '**********'
+api_url: http://127.0.0.1:8000/v1
+chat_template: null
+collect_perf: true
+dataset_args:
+  gsm8k:
+    few_shot_num: 26
+dataset_dir: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/gsm8k-datasets
+dataset_hub: modelscope
+datasets:
+- gsm8k
+debug: false
+dry_run: false
+enable_progress_tracker: false
+eval_backend: Native
+eval_batch_size: 50
+eval_config: null
+eval_type: openai_api
+evalscope_version: 1.14.1
+evaluation_identity:
+  benchmarks:
+    gsm8k:
+      cache_source: null
+      evaluation_version: v1.1
+      fingerprint: sha256:d613190dbed6cdffd9ca2064c1f042230460255a0ca96ab28776950cdbefafed
+      review_pending: false
+  schema_version: 1
+generation_config:
+  batch_size: 50
+  max_tokens: 4096
+  temperature: 0.0
+ignore_errors: false
+judge:
+  aggregation: mean
+  contract:
+    prompt_template: null
+    score_mapping: null
+    score_type: pattern
+    system_prompt: null
+  min_valid_judges: 1
+  models: []
+  position_swap: auto
+  repeats: 1
+  strategy: auto
+limit: 30
+model: /home/intel/model-space/Kimi-K3
+model_args: {}
+model_id: Kimi-K3
+model_task: text_generation
+no_timestamp: false
+repeats: 1
+rerun_review: false
+resolved_benchmarks:
+  gsm8k:
+    aggregation: mean
+    dataset_hub: modelscope
+    dataset_id: AI-ModelScope/gsm8k
+    dataset_revision: null
+    default_subset: default
+    eval_split: test
+    extra_params: {}
+    few_shot_num: 26
+    few_shot_prompt_template: 'Here are some examples of how to solve similar problems:
+
+
+      {fewshot}
+
+
+      {question}
+
+      Please reason step by step, and put your final answer within \boxed{{}}.'
+    few_shot_random: false
+    filters: null
+    max_image_bytes: null
+    metric_list:
+    - accuracy:
+        numeric: true
+    name: gsm8k
+    primary_metric: null
+    prompt_template: '{question}
+
+      Please reason step by step, and put your final answer within \boxed{{}}.'
+    query_template: null
+    sandbox_config: {}
+    shuffle: false
+    shuffle_choices: false
+    subset_list:
+    - main
+    system_prompt: null
+    train_split: train
+sandbox:
+  default_config: {}
+  enabled: false
+  engine: docker
+  manager_config: {}
+  pool_size: null
+sandbox_manager_config: {}
+sandbox_type: docker
+seed: 42
+stream: null
+timeout: null
+use_cache: null
+use_sandbox: false
+work_dir: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_070056_3a3a7495_limit30/kvshrink/shots26/pass2/20261113_070117
