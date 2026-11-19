@@ -1,0 +1,305 @@
+TOP_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+
+# =============================================================================
+# Recipe: a directory of per-scenario overrides, selected with IAXL_RECIPE (a name under
+# examples/recipes/ or a directory path). See doc/design/recipes.md and examples/recipes/vllm-cpu.
+#   $IAXL_RECIPE_DIR/auto_config.sh   sourced by tools/auto_config.sh: add or override functions
+#   $IAXL_RECIPE_DIR/setvars.pre.sh   sourced here, before the defaults below: set env vars
+#   $IAXL_RECIPE_DIR/setvars.post.sh  sourced after everything is computed: fix up values and
+#                                     edit CONTAINER_NAME / ENV_VARS / DOCKER_RUN_ARGS
+# =============================================================================
+if [[ -n "${IAXL_RECIPE:-}" ]]; then
+    if [[ -d "$IAXL_RECIPE" ]]; then
+        IAXL_RECIPE_DIR=$(cd -- "$IAXL_RECIPE" && pwd)
+        IAXL_RECIPE=$IAXL_RECIPE_DIR # A relative path would resolve differently in another directory or the container
+    elif [[ -d "$TOP_DIR/examples/recipes/$IAXL_RECIPE" ]]; then
+        IAXL_RECIPE_DIR="$TOP_DIR/examples/recipes/$IAXL_RECIPE"
+    else
+        echo "ERROR: IAXL_RECIPE='$IAXL_RECIPE' is neither a directory nor a name under $TOP_DIR/examples/recipes" >&2
+        return 1 2>/dev/null || exit 1
+    fi
+    export IAXL_RECIPE IAXL_RECIPE_DIR
+    echo "Recipe: $IAXL_RECIPE_DIR"
+else
+    unset IAXL_RECIPE_DIR
+fi
+
+# Recipe hooks end with `return 0`; `return 1` (after printing an ERROR) aborts setvars.sh.
+source "$TOP_DIR/tools/auto_config.sh" || return 1 2>/dev/null || exit 1 # also loads $IAXL_RECIPE_DIR/auto_config.sh
+if [[ -f "${IAXL_RECIPE_DIR:-}/setvars.pre.sh" ]]; then
+    source "$IAXL_RECIPE_DIR/setvars.pre.sh" || {
+        echo "ERROR: recipe hook $IAXL_RECIPE_DIR/setvars.pre.sh failed" >&2
+        return 1 2>/dev/null || exit 1
+    }
+fi
+$TOP_DIR/tools/setup_system.sh
+
+export IAXL_VERSION=${IAXL_VERSION:-1.6.0}
+export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
+export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev-kimi-k3-qiuyu:$IAXL_VERSION"}
+export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
+
+# =============================================================================
+# Configurable runtime / build environment variables (all IAXL_* prefixed).
+# Each keeps its default unless already set in the environment; edit as needed.
+# =============================================================================
+
+# ---- Build ------------------------------------------------------------------
+export DEVICE=${DEVICE:-cuda}                 # Build backend: cuda | xpu | cpu (vLLM CPU inference)
+export IAXL_CMAKE_ARGS=${IAXL_CMAKE_ARGS:-""} # Extra cmake flags, e.g. "-DENABLE_NVTX=OFF"
+# export IAXL_QATLIB=intree                   # Optional: qatlib for the in-tree driver (system qatlib if pkg-config finds it, else built into _lib); unset = out-of-tree QAT20 package
+# export IAXL_QATLIB_VERSION=26.02.0          # Optional: qatlib tag built into _lib for IAXL_QATLIB=intree; match the host qatmgr
+export NVIDIA_RUNTIME=${NVIDIA_RUNTIME:-}     # Set to "none" to skip the nvidia docker runtime/gpus args (e.g. on a storage-only node without GPUs)
+
+# ---- Feature switches -------------------------------------------------------
+export IAXL_KV_COMPRESSION=${IAXL_KV_COMPRESSION:-1} # Enable DEFLATE compression (0/1)
+export IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-1} # Enable QAT compression workers (0/1)
+export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-0} # Enable IAA (QPL) compression workers (0/1)
+export IAXL_CPU_ZIP_ENABLE=${IAXL_CPU_ZIP_ENABLE:-0} # Enable CPU compression workers (0/1); costs a lot of CPU, keep off unless needed
+export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-0}   # Use Intel DSA + GDRCopy transfers (0/1)
+
+# ---- Async KV load ----------------------------------------------------------
+export KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=${KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED:-1}      # Enable asynchronous KV loading (0/1)
+export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=${KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS:--1}       # -1=wait all layers, N=start prefill after first N layers (used when DYNAMIC=0)
+export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=${KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC:-1} # 0=fixed LAYERS, 1=select layers from DYNAMIC_MAP per request concurrency
+export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP="${KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP:-0-3:0,4-6:8,7-:16}" # Contiguous START-END:LAYERS rules from 0; 0 layers means sync and the final range is open-ended
+
+# ---- vLLM ------------------------------------------------------------------
+export MODEL="${MODEL:-Qwen/Qwen3-32B}" # Hugging Face model ID or local model path
+export TP_SIZE="${TP_SIZE:-$IAXL_DEFAULT_TP_SIZE}" # Tensor-parallel worker count (default 2, in tools/auto_config.sh)
+export DP_SIZE="${DP_SIZE:-$IAXL_DEFAULT_DP_SIZE}" # Data-parallel group count (default 1)
+# Total workers = one per (dp, tp) pair; CPU/QAT/DSA specs are indexed per worker.
+NUM_WORKERS=$(iaxl_num_workers) || return 1 2>/dev/null || exit 1
+VLLM_CPU_OMP_THREADS_BIND="${VLLM_CPU_OMP_THREADS_BIND:-$(cpu_auto_detect "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
+export VLLM_CPU_OMP_THREADS_BIND # Per-worker CPU affinity (one entry per global rank)
+export KVSHRINK_CPU_OMP_THREADS_BIND="${KVSHRINK_CPU_OMP_THREADS_BIND:-$VLLM_CPU_OMP_THREADS_BIND}" # Per-worker CPUs for iaxl threads (one entry per global rank)
+rank_cpu_counts "$VLLM_CPU_OMP_THREADS_BIND" "$NUM_WORKERS" || return 1 2>/dev/null || exit 1
+case "${IAXL_QAT_ZIP_ENABLE,,}" in
+    1|true|yes|on)
+        KVSHRINK_QAT_DEVICES="${KVSHRINK_QAT_DEVICES:-$(qat_auto_detect "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
+        export KVSHRINK_QAT_DEVICES # Per-rank QAT device indices
+        ;;
+    *)
+        unset KVSHRINK_QAT_DEVICES
+        ;;
+esac
+case "${IAXL_DSA_GD_ENABLE,,}" in
+    1|true|yes|on)
+        KVSHRINK_DSA_DEVICES="${KVSHRINK_DSA_DEVICES:-$(dsa_auto_detect "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
+        export KVSHRINK_DSA_DEVICES # Per-rank DSA work queues
+        export IAXL_DSA_WQS="${IAXL_DSA_WQS:-${KVSHRINK_DSA_DEVICES%%|*}}" # Use rank 0 DSA work queues by default
+        ;;
+    *)
+        unset KVSHRINK_DSA_DEVICES
+        ;;
+esac
+
+printf '%s\n' \
+    "vLLM configuration:" \
+    "  MODEL=$MODEL" \
+    "  TP_SIZE=$TP_SIZE" \
+    "  DP_SIZE=$DP_SIZE" \
+    "  IAXL_KV_COMPRESSION=$IAXL_KV_COMPRESSION" \
+    "  IAXL_QAT_ZIP_ENABLE=$IAXL_QAT_ZIP_ENABLE" \
+    "  IAXL_IAA_ZIP_ENABLE=$IAXL_IAA_ZIP_ENABLE" \
+    "  IAXL_CPU_ZIP_ENABLE=$IAXL_CPU_ZIP_ENABLE" \
+    "  IAXL_DSA_GD_ENABLE=$IAXL_DSA_GD_ENABLE" \
+    "  VLLM_CPU_OMP_THREADS_BIND=$VLLM_CPU_OMP_THREADS_BIND" \
+    "  KVSHRINK_CPU_OMP_THREADS_BIND=$KVSHRINK_CPU_OMP_THREADS_BIND" \
+    "  KVSHRINK_QAT_DEVICES=${KVSHRINK_QAT_DEVICES:-disabled}" \
+    "  KVSHRINK_DSA_DEVICES=${KVSHRINK_DSA_DEVICES:-disabled}" \
+    "  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=$KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED" \
+    "  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=$KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS" \
+    "  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=$KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC" \
+    "  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=$KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP"
+
+# ---- Cache / compression ----------------------------------------------------
+export IAXL_KV_LOSSY_TRUNC=${IAXL_KV_LOSSY_TRUNC:-0}                     # Lossy LSB truncation: 'auto', 0 (off), or N bits
+export IAXL_KV_DATA_SHUFFLE=${IAXL_KV_DATA_SHUFFLE:-1}                   # Byte-shuffle before compression (0/1)
+export IAXL_ZIP_EXPONENT_ONLY=${IAXL_ZIP_EXPONENT_ONLY:-$IAXL_KV_DATA_SHUFFLE} # With shuffle, compress only the BF16 high (sign/exponent) bytes and store the low bytes raw (0/1)
+export IAXL_ZIP_LEVEL=${IAXL_ZIP_LEVEL:-1}                               # Compression level 1-9: higher = better ratio, slower
+export IAXL_ZIP_SRC_CAP=${IAXL_ZIP_SRC_CAP:-4194304}                     # Source/decompressed block capacity (4 MiB)
+export IAXL_ZIP_DST_CAP=${IAXL_ZIP_DST_CAP:-4194304}                     # Compressed-output capacity (4 MiB)
+export IAXL_ZIP_SEGMENT_SIZE_KB=${IAXL_ZIP_SEGMENT_SIZE_KB:-0}           # Compress blocks in segments of N KiB (0 = whole block)
+export IAXL_CACHE_DIR=${IAXL_CACHE_DIR:-_data/kvcache}                   # Base directory for persisted cache files
+export IAXL_CACHE_STREAM_SYNC_ON_GET=${IAXL_CACHE_STREAM_SYNC_ON_GET:-0} # CPU-sync the GPU stream on get() (0/1)
+export IAXL_CACHE_CACHEGROUP_SIZE=${IAXL_CACHE_CACHEGROUP_SIZE:-100}     # Reserved entries per cache group
+export IAXL_CACHE_CACHEGROUP_NUM=${IAXL_CACHE_CACHEGROUP_NUM:-100000}    # Reserved number of cache groups
+export IAXL_PREALLOC_LIMIT=${IAXL_PREALLOC_LIMIT:-0}                     # Cap pinned scratch-pool pre-allocation (0 = unlimited)
+export IAXL_SCRATCH_POOL_SIZE_GB=${IAXL_SCRATCH_POOL_SIZE_GB:-8}         # Pinned scratch pool (GPU<->CPU staging) size in GB
+export IAXL_KVSTORE_SKIP_COMPRESSION_LAYERS=${IAXL_KVSTORE_SKIP_COMPRESSION_LAYERS:-1} # Store the first N KV layers without compression
+IAXL_DDR_POOL_TOTAL_SIZE_GB="${IAXL_DDR_POOL_TOTAL_SIZE_GB:-$(ddr_pool_total_size_gb "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
+export IAXL_DDR_POOL_TOTAL_SIZE_GB # DDR (host) cache pool budget across all ranks in GB (default 80% of host RAM, each rank limited to 80% of one NUMA node)
+IAXL_DDR_POOL_SIZE_GB="${IAXL_DDR_POOL_SIZE_GB:-$((IAXL_DDR_POOL_TOTAL_SIZE_GB / NUM_WORKERS))}"
+export IAXL_DDR_POOL_SIZE_GB # Per-rank DDR pool size in GB (default TOTAL / NUM_WORKERS)
+export IAXL_DDR_POOL_EVICT_HIGH_WATERMARK=${IAXL_DDR_POOL_EVICT_HIGH_WATERMARK:-0.90} # Scheduler evicts LRU groups once the DDR pool reaches this usage ratio
+export IAXL_DDR_POOL_EVICT_LOW_WATERMARK=${IAXL_DDR_POOL_EVICT_LOW_WATERMARK:-0.5}    # ... until usage drops to about this ratio, evicting only groups whose lease (LEASE_S) has expired
+# WARNING: reaching FORCE may evict the oldest groups that are still within their lease, i.e. groups has()
+# reported as present whose get()/put() may not have landed yet (see doc/design/eviction.md). Keep FORCE
+# well above LOW so it only kicks in as a last resort under hot load; values below 0.5 are rejected.
+export IAXL_DDR_POOL_EVICT_FORCE_WATERMARK=${IAXL_DDR_POOL_EVICT_FORCE_WATERMARK:-0.8} # Usage one pass must reach even if it has to evict groups still within their lease (0.5 <= LOW <= FORCE <= HIGH)
+export IAXL_DDR_POOL_EVICT_LEASE_S=${IAXL_DDR_POOL_EVICT_LEASE_S:-300}               # Groups hit by has() within this many seconds are not evicted unless needed to reach FORCE; must exceed has() -> last load/save of a request
+export IAXL_DDR_POOL_EVICT_INTERVAL_S=${IAXL_DDR_POOL_EVICT_INTERVAL_S:-30}          # How often the scheduler checks DDR pool usage
+
+# ---- Intel QAT (compression accelerator) ------------------------------------
+export IAXL_QAT_DEVICES=${IAXL_QAT_DEVICES:-0}                                   # Comma-separated QAT device indices, e.g. "0,1"
+export IAXL_QAT_ZIP_INSTANCES_PER_DEVICE=${IAXL_QAT_ZIP_INSTANCES_PER_DEVICE:-4} # Instances (driving threads) per device
+# QAT driving threads = number of devices x instances-per-device (override to force).
+case "${IAXL_QAT_ZIP_ENABLE,,}" in
+    1|true|yes|on)
+        export IAXL_QAT_INSTANCE_NUM=${IAXL_QAT_INSTANCE_NUM:-$(qat_thread_count "$IAXL_QAT_DEVICES" "$IAXL_QAT_ZIP_INSTANCES_PER_DEVICE")} || return 1 2>/dev/null || exit 1
+        ;;
+    *) export IAXL_QAT_INSTANCE_NUM=0 ;;
+esac
+export IAXL_QAT_ZIP_QUEUE_DEPTH=${IAXL_QAT_ZIP_QUEUE_DEPTH:-4} # In-flight requests per instance (<= 4)
+
+# ---- Intel IAA (compression accelerator, via Intel QPL) ---------------------
+export IAXL_IAA_DEVICES=${IAXL_IAA_DEVICES:-auto}                                # Comma-separated NUMA nodes for IAA jobs, or "auto"
+export IAXL_IAA_ZIP_INSTANCES_PER_DEVICE=${IAXL_IAA_ZIP_INSTANCES_PER_DEVICE:-4} # Instances (driving threads) per IAA device; a NUMA node usually owns several
+case "${IAXL_IAA_ZIP_ENABLE,,}" in
+    1|true|yes|on)
+    	export IAXL_IAA_INSTANCE_NUM=${IAXL_IAA_INSTANCE_NUM:-4}
+        KVSHRINK_IAA_DEVICES="${KVSHRINK_IAA_DEVICES:-$(iaa_auto_detect "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
+        export KVSHRINK_IAA_DEVICES # Per-rank IAA NUMA nodes
+        ;;
+    *)
+        export IAXL_IAA_INSTANCE_NUM=0
+        unset KVSHRINK_IAA_DEVICES
+        ;;
+esac
+export IAXL_IAA_ZIP_QUEUE_DEPTH=${IAXL_IAA_ZIP_QUEUE_DEPTH:-4} # In-flight requests per instance (<= 4)
+
+# ---- CPU / OpenMP compression workers --------------------------------------
+export IAXL_RESERVED_CPU_NUM=${IAXL_RESERVED_CPU_NUM:-4} # CPUs reserved for inference and other tasks
+case "${IAXL_CPU_ZIP_ENABLE,,}" in
+    1|true|yes|on)
+        export IAXL_CPU_ZIP_THREADS=${IAXL_CPU_ZIP_THREADS:-$(cpu_zip_thread_count "$MIN_RANK_CPU_COUNT" "$IAXL_QAT_INSTANCE_NUM" "$IAXL_RESERVED_CPU_NUM" "$IAXL_IAA_INSTANCE_NUM")} || return 1 2>/dev/null || exit 1
+        ;;
+    *) export IAXL_CPU_ZIP_THREADS=0 ;;
+esac
+if env_truthy "$IAXL_QAT_ZIP_ENABLE" "$IAXL_IAA_ZIP_ENABLE" "$IAXL_CPU_ZIP_ENABLE"; then
+    # Defaults to one thread per zip worker; fewer threads each poll several workers (1 = caller only),
+    # more threads split a worker's in-flight requests (up to one thread per request).
+    export IAXL_OMP_THREAD_NUM=${IAXL_OMP_THREAD_NUM:-$(omp_thread_count "$IAXL_QAT_INSTANCE_NUM" "$IAXL_CPU_ZIP_THREADS" "$IAXL_IAA_INSTANCE_NUM")} || return 1 2>/dev/null || exit 1
+else
+    # No zip worker: OpenMP threads only copy raw KV blocks on the host; cap at 4.
+    if [[ -z "$IAXL_OMP_THREAD_NUM" ]]; then
+        IAXL_OMP_THREAD_NUM=$(cpu_zip_thread_count "$MIN_RANK_CPU_COUNT" 0 "$IAXL_RESERVED_CPU_NUM" 0) || return 1 2>/dev/null || exit 1
+        ((IAXL_OMP_THREAD_NUM > 4)) && IAXL_OMP_THREAD_NUM=4
+    fi
+    export IAXL_OMP_THREAD_NUM
+fi
+if [[ "$DEVICE" == cpu ]]; then
+    export IAXL_USE_OMP=${IAXL_USE_OMP:-0} # vLLM CPU inference owns the OpenMP runtime
+fi
+export IAXL_USE_OMP=${IAXL_USE_OMP:-1} # parallel.h runs on OpenMP (1) or iaxl's own thread pool (0), which stays off the OpenMP runtime vLLM and torch share
+if env_truthy "$IAXL_USE_OMP"; then
+    export OMP_NUM_THREADS=$IAXL_OMP_THREAD_NUM
+    export OMP_THREAD_LIMIT=$IAXL_OMP_THREAD_NUM
+else
+    unset OMP_NUM_THREADS OMP_THREAD_LIMIT # Leave OpenMP to vLLM (CPU inference pins one thread per core)
+fi
+export OMP_MAX_ACTIVE_LEVELS=2
+validate_omp_config "$MIN_RANK_CPU_COUNT" || return 1 2>/dev/null || exit 1
+# Prepended to LD_PRELOAD by the example and benchmark scripts. The vLLM CPU image ships libiomp5 in
+# its venv instead: IAXL_LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4:/opt/venv/lib/libiomp5.so
+export IAXL_LD_PRELOAD=${IAXL_LD_PRELOAD:-/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4:/usr/local/lib/libiomp5.so}
+export TCMALLOC_RELEASE_RATE=${TCMALLOC_RELEASE_RATE:-0} # Keep freed memory in tcmalloc instead of returning it to the OS
+
+# ---- Intel DSA (host<->device copy accelerator, CUDA only) ------------------
+export IAXL_DSA_WQS=${IAXL_DSA_WQS:-wq0.0}                             # Comma/space separated DSA work-queue names
+
+# ---- Debug / profiling ------------------------------------------------------
+export PYTHONOPTIMIZE=0                                 # Keep Python assert statements enabled
+export IAXL_DEBUG=${IAXL_DEBUG:-0}                      # Python log level (0=INFO, 1=DEBUG)
+export IAXL_DEBUG_LOG=${IAXL_DEBUG_LOG:-0}              # Native kv_pool verbose logging (0/1)
+export IAXL_PROFILE_MODE=${IAXL_PROFILE_MODE:-disabled} # Profiling: disabled | nvtx | full
+
+# ---- Management REST API ----------------------------------------------------
+export IAXL_API_WORKER_BASE_PORT=${IAXL_API_WORKER_BASE_PORT:-18800} # Worker server port base (+ rank)
+export IAXL_API_CONTROLLER_PORT=${IAXL_API_CONTROLLER_PORT:-18700}   # Controller server port
+export IAXL_API_TIMEOUT=${IAXL_API_TIMEOUT:-60}                      # HTTP request timeout in seconds
+
+# ---- Remote pool (KVStore daemon over RDMA/NIXL) ----------------------------
+export IAXL_RDMA_ENABLE=${IAXL_RDMA_ENABLE:-0}                # Use remote KVStore daemon instead of local KVStore (0/1)
+export IAXL_RDMA_DAEMON_NIC_IPS=${IAXL_RDMA_DAEMON_NIC_IPS:-} # Daemon RDMA NIC IPs per rank (a single IP is allowed); first is also the control-plane IP (required)
+export IAXL_RDMA_CLIENT_NIC_IPS=${IAXL_RDMA_CLIENT_NIC_IPS:-} # Client RDMA NIC IPs per rank (a single IP is allowed); first is also the scheduler IP (required on client)
+export IAXL_RDMA_DAEMON_PORT=${IAXL_RDMA_DAEMON_PORT:-5555}   # Scheduler port; rank r listens on port+1+r
+export IAXL_RDMA_TP_SIZE=${IAXL_RDMA_TP_SIZE:-$TP_SIZE}       # Daemon rank process count (must equal client TP)
+
+HOST_IP=$(ip route get 1 | awk '{print $7}' | tr -d '\n')
+export no_proxy=localhost,127.0.0.1,localaddress,.localdomain.com,.local,10.0.0.0/8,192.168.0.0/16,172.16.0.0/12,${HOST_IP}
+if env_truthy "$IAXL_RDMA_ENABLE" && [[ -n "$IAXL_RDMA_DAEMON_NIC_IPS" ]]; then
+    export no_proxy="$no_proxy,$IAXL_RDMA_DAEMON_NIC_IPS"
+fi
+export http_proxy="${http_proxy:-}"
+export https_proxy=$http_proxy
+
+# ---- docker (used by start.sh) ---------------------------------------------
+# A recipe's setvars.post.sh may edit CONTAINER_NAME, ENV_VARS and DOCKER_RUN_ARGS; --name and
+# the -e flags for ENV_VARS are appended after it.
+CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm-kimi-k3-qiuyu}
+# Host variables forwarded into the container with -e VAR=value. Forward inputs only: setvars.sh and
+# the recipe run again in the container and derive everything else from them.
+ENV_VARS=(
+    no_proxy
+    http_proxy
+    https_proxy
+    HOST_IP
+    MODEL
+    TP_SIZE
+    DEVICE
+    IAXL_QATLIB
+    IAXL_QATLIB_VERSION
+    IAXL_VERSION
+    IAXL_LD_PRELOAD
+    IAXL_RECIPE
+)
+
+DOCKER_RUN_ARGS=(
+    --rm
+    --privileged
+    --pid host
+    --net host
+    -it
+    -v /dev:/dev
+    --entrypoint ""
+)
+case "$DEVICE" in
+    cuda)
+        if [[ "$NVIDIA_RUNTIME" != "none" ]]; then
+            DOCKER_RUN_ARGS+=("--runtime" "nvidia" "--gpus" "all")
+        fi
+        ;;
+    xpu)
+        DOCKER_RUN_ARGS+=("--device" "/dev/dri")
+        ;;
+    cpu) ;;
+    *)
+        echo "Unsupported DEVICE: $DEVICE (expected cuda, xpu or cpu)" >&2
+        return 1 2>/dev/null || exit 1
+        ;;
+esac
+DOCKER_RUN_ARGS+=("-e" "HF_HOME=/_data/hf_home")
+DOCKER_RUN_ARGS+=("-v" "$PWD/_data:/_data")
+# qatlib (in-tree driver) shares the host's QAT VFs through the host qatmgr socket.
+if [[ -d /run/qat ]]; then
+    DOCKER_RUN_ARGS+=("-v" "/run/qat:/run/qat")
+fi
+if [[ -d "$MODEL" ]]; then
+    MODEL_DIR=$(realpath "$MODEL")
+    DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
+fi
+DOCKER_RUN_ARGS+=("-v" "$PWD:$PWD" "-w" "$PWD")
+
+if [[ -f "${IAXL_RECIPE_DIR:-}/setvars.post.sh" ]]; then
+    source "$IAXL_RECIPE_DIR/setvars.post.sh" || {
+        echo "ERROR: recipe hook $IAXL_RECIPE_DIR/setvars.post.sh failed" >&2
+        return 1 2>/dev/null || exit 1
+    }
+fi
+
+DOCKER_RUN_ARGS+=("--name" "$CONTAINER_NAME")
+for var in "${ENV_VARS[@]}"; do
+    DOCKER_RUN_ARGS+=("-e" "$var=${!var:-}")
+done

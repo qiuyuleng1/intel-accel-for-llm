@@ -22,16 +22,37 @@ fi
 block_args=()
 [[ -n "$BLOCK_SIZE" ]] && block_args=(--block-size "$BLOCK_SIZE")
 
-serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" --no-enable-prefix-caching)
+# Benchmark baselines: BASELINE=no_cache is plain vLLM without KV reuse,
+# BASELINE=prefix_cache is plain vLLM with its GPU prefix cache.
+# GPU_PREFIX_CACHING=1 keeps vLLM's GPU prefix cache on next to KVShrink.
+connector_args=(--kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}')
+prefix_caching_arg=--no-enable-prefix-caching
+[[ "$GPU_PREFIX_CACHING" == 1 ]] && prefix_caching_arg=--enable-prefix-caching
+if [[ "$BASELINE" == no_cache ]]; then
+    connector_args=()
+    prefix_caching_arg=--no-enable-prefix-caching
+fi
+if [[ "$BASELINE" == prefix_cache ]]; then
+    connector_args=()
+    prefix_caching_arg=--enable-prefix-caching
+fi
+
+serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" "$prefix_caching_arg")
 # vLLM CPU inference sizes its KV cache from VLLM_CPU_KVCACHE_SPACE (GiB) instead.
 [[ "$DEVICE" == cpu ]] || serve_args+=(--gpu-memory-utilization 0.8)
 if [[ -n "${VLLM_SERVE_CMDLINE_ARGS:-}" ]]; then
     read -r -a serve_args <<<"$VLLM_SERVE_CMDLINE_ARGS"
 fi
 read -r -a extra_args <<<"${VLLM_SERVE_EXTRA_ARGS:-}"
+# Unset CUDAGRAPH_MODE keeps vLLM's choice: FULL_AND_PIECEWISE, or PIECEWISE when the KV connector requires it.
+[[ -n "$CUDAGRAPH_MODE" ]] && extra_args+=(--compilation-config "{\"cudagraph_mode\": \"$CUDAGRAPH_MODE\"}")
+# TORCH_PROFILER_DIR enables vLLM's torch profiler (PROFILER_MAX_ITERATIONS worker steps).
+[[ -n "$TORCH_PROFILER_DIR" ]] && extra_args+=(--profiler-config "{\"profiler\": \"torch\", \"torch_profiler_dir\": \"$TORCH_PROFILER_DIR\", \"torch_profiler_with_stack\": false, \"max_iterations\": ${PROFILER_MAX_ITERATIONS:-20}}")
+# Unset ATTENTION_BACKEND keeps vLLM's choice (FLASHINFER on b300).
+[[ -n "$ATTENTION_BACKEND" ]] && extra_args+=(--attention-backend "$ATTENTION_BACKEND")
 
 vllm serve "$MODEL" \
-    --kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}' \
+    "${connector_args[@]}" \
     "${parallel_args[@]}" \
     "${block_args[@]}" \
     "${serve_args[@]}" \

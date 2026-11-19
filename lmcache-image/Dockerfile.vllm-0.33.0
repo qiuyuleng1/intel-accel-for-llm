@@ -1,0 +1,44 @@
+# vLLM 0.33.0 with LMCache 0.5.6 rebuilt against the image's torch.
+# vllm/vllm-openai:v0.33.0 already ships lmcache 0.5.6, but that wheel was
+# compiled for torch 2.13; under the image's torch 2.14 `import lmcache.cuda_ops`
+# fails with an undefined c10 symbol. The build steps follow the image-build
+# stage of docker/Dockerfile (build.txt, then setup.py bdist_wheel).
+# Built by build_vllm_0.33.0_image.sh, which supplies lmcache-src.tar.
+ARG BASE_IMAGE=vllm/vllm-openai:v0.33.0
+FROM ${BASE_IMAGE}
+
+# Only sm_120 (RTX 6000D on this host) to keep the CUDA compile short.
+ENV TORCH_CUDA_ARCH_LIST="12.0"
+ENV MAX_JOBS=32
+
+COPY lmcache-src.tar /tmp/lmcache-src.tar
+# The build generates gRPC stubs with grpc_tools, which the image lacks; the
+# version follows requirements/build.txt. --no-deps keeps the packages vLLM
+# depends on (e.g. protobuf 6.33.6) untouched.
+# torch's CUDA headers include cusparse.h, cusolverDn.h etc., which this image
+# has only in the pip NVIDIA package torch links against, not in /usr/local/cuda.
+# Putting that whole directory on the include path also shadows the toolkit's
+# own CUDA runtime headers with a different CUDA version, and nvcc 13.0 then
+# fails on its generated stubs ("__cudaLaunch" passed 2 arguments). So only the
+# headers the toolkit lacks are linked into a separate include directory.
+ARG NVIDIA_PIP_INCLUDE=/usr/local/lib/python3.12/dist-packages/nvidia/cu13/include
+ARG EXTRA_INCLUDE=/tmp/extra-cuda-include
+RUN mkdir /tmp/lmcache-src \
+    && tar -xf /tmp/lmcache-src.tar -C /tmp/lmcache-src \
+    && cd /tmp/lmcache-src \
+    && pip install --no-deps grpcio-tools==1.78.0 \
+    && mkdir ${EXTRA_INCLUDE} \
+    && for header in ${NVIDIA_PIP_INCLUDE}/*.h; do \
+           [ -e /usr/local/cuda/include/$(basename ${header}) ] || ln -s ${header} ${EXTRA_INCLUDE}/; \
+       done \
+    && CPATH=${EXTRA_INCLUDE} NVCC_PREPEND_FLAGS="-I${EXTRA_INCLUDE}" \
+       SETUPTOOLS_SCM_PRETEND_VERSION_FOR_LMCACHE=0.5.6 python3 setup.py bdist_wheel --dist-dir=/tmp/dist_lmcache \
+    && pip install --no-deps --force-reinstall /tmp/dist_lmcache/*.whl \
+    && rm -rf /tmp/lmcache-src /tmp/lmcache-src.tar /tmp/dist_lmcache ${EXTRA_INCLUDE}
+
+# vLLM plugin (port of intel-accel-for-llm PR #41): lets LMCacheMPConnector run
+# a hybrid model with prefix caching disabled by keeping mamba_cache_mode='align'.
+# A separate layer, so changing it does not recompile LMCache.
+COPY lmcache_hybrid_patch /tmp/lmcache_hybrid_patch
+RUN pip install --no-deps --no-build-isolation /tmp/lmcache_hybrid_patch \
+    && rm -rf /tmp/lmcache_hybrid_patch

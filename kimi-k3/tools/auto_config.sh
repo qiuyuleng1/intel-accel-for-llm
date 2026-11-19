@@ -1,0 +1,612 @@
+#!/usr/bin/env bash
+
+# Defaults of TP_SIZE / DP_SIZE, shared by setvars.sh and iaxl_num_workers.
+IAXL_DEFAULT_TP_SIZE=2
+IAXL_DEFAULT_DP_SIZE=1
+
+# Worker count, one per (dp, tp) pair, from TP_SIZE / DP_SIZE or their defaults. setvars.sh derives
+# NUM_WORKERS from it; a recipe's setvars.pre.sh, which runs before that, can call it too.
+iaxl_num_workers() {
+    local tp_size=${TP_SIZE:-$IAXL_DEFAULT_TP_SIZE} dp_size=${DP_SIZE:-$IAXL_DEFAULT_DP_SIZE}
+
+    validate_tp_size "$tp_size" || return 1
+    if ! [[ "$dp_size" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: DP_SIZE must be a positive integer, got '$dp_size'" >&2
+        return 1
+    fi
+    echo $((tp_size * dp_size))
+}
+
+validate_tp_size() {
+    local tp_size=$1
+    if ! [[ "$tp_size" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: TP_SIZE must be a positive integer, got '$tp_size'" >&2
+        return 1
+    fi
+}
+
+gpu_rows() {
+    local tp_size=$1
+    local gpu_output
+
+    validate_tp_size "$tp_size" || return 1
+    if ! command -v nvidia-smi >/dev/null 2>&1; then
+        echo "ERROR: nvidia-smi is required to detect GPU NUMA nodes" >&2
+        return 1
+    fi
+    if ! gpu_output=$(nvidia-smi --query-gpu=index,pci.bus_id --format=csv,noheader,nounits); then
+        echo "ERROR: failed to query GPU PCI information with nvidia-smi" >&2
+        return 1
+    fi
+
+    local -a gpu_rows=()
+    mapfile -t gpu_rows <<<"$gpu_output"
+    if ((${#gpu_rows[@]} < tp_size)); then
+        echo "ERROR: TP_SIZE=$tp_size requires $tp_size GPUs, but only ${#gpu_rows[@]} were found" >&2
+        return 1
+    fi
+    printf '%s\n' "${gpu_rows[@]}"
+}
+
+gpu_info() {
+    local row=$1
+    local gpu_index pci_bus pci_address numa
+
+    IFS=, read -r gpu_index pci_bus <<<"$row"
+    gpu_index=${gpu_index//[[:space:]]/}
+    pci_bus=${pci_bus//[[:space:]]/}
+    pci_address=$(sed -E 's/^[[:xdigit:]]{4}([[:xdigit:]]{4}:)/\1/' <<<"$pci_bus" | tr '[:upper:]' '[:lower:]')
+    if [[ ! -r "/sys/bus/pci/devices/$pci_address/numa_node" ]]; then
+        echo "ERROR: cannot read NUMA node for GPU $gpu_index at PCI $pci_bus" >&2
+        return 1
+    fi
+    numa=$(<"/sys/bus/pci/devices/$pci_address/numa_node")
+    if ((numa < 0)); then
+        echo "ERROR: GPU $gpu_index at PCI $pci_bus has no NUMA node" >&2
+        return 1
+    fi
+    printf '%s %s %s\n' "$gpu_index" "$pci_bus" "$numa"
+}
+
+expand_cpu_list() {
+    local cpu_list=$1
+    local part start end cpu
+
+    for part in ${cpu_list//,/ }; do
+        if [[ "$part" == *-* ]]; then
+            IFS=- read -r start end <<<"$part"
+            for ((cpu = start; cpu <= end; cpu++)); do
+                echo "$cpu"
+            done
+        else
+            echo "$part"
+        fi
+    done
+}
+
+compress_cpu_list() {
+    printf '%s\n' "$@" | sort -n | awk '
+        NR == 1 { start = previous = $1; next }
+        $1 == previous + 1 { previous = $1; next }
+        {
+            printf "%s%s", separator, start == previous ? start : start "-" previous
+            separator = ","
+            start = previous = $1
+        }
+        END {
+            if (NR > 0)
+                printf "%s%s\n", separator, start == previous ? start : start "-" previous
+        }
+    '
+}
+
+# Fallback for GPU-less hosts: split every physical core evenly across the ranks.
+cpu_even_split() {
+    local tp_size=$1
+    local online_path cpu topology siblings rank cores_per_rank extra_cores core_count core_start offset cpu_group result
+    local -a core_groups=() cpu_ids=() rank_cpu_groups=()
+    local -A seen_cores=()
+
+    validate_tp_size "$tp_size" || return 1
+    online_path=/sys/devices/system/cpu/online
+    if [[ ! -r "$online_path" ]]; then
+        echo "ERROR: cannot read $online_path to split CPUs across ranks" >&2
+        return 1
+    fi
+
+    while read -r cpu; do
+        topology=/sys/devices/system/cpu/cpu$cpu/topology
+        [[ -r "$topology/thread_siblings_list" ]] || continue
+        siblings=$(<"$topology/thread_siblings_list")
+        [[ -n "${seen_cores[$siblings]:-}" ]] && continue
+        seen_cores[$siblings]=1
+        core_groups+=("$cpu")
+    done < <(expand_cpu_list "$(<"$online_path")")
+
+    if ((${#core_groups[@]} < tp_size)); then
+        echo "ERROR: only ${#core_groups[@]} physical cores are available for TP_SIZE=$tp_size" >&2
+        return 1
+    fi
+
+    cores_per_rank=$((${#core_groups[@]} / tp_size))
+    extra_cores=$((${#core_groups[@]} % tp_size))
+    for ((rank = 0; rank < tp_size; rank++)); do
+        core_count=$cores_per_rank
+        ((rank < extra_cores)) && core_count=$((core_count + 1))
+        core_start=$((rank * cores_per_rank + (rank < extra_cores ? rank : extra_cores)))
+
+        cpu_ids=()
+        for ((offset = 0; offset < core_count; offset++)); do
+            cpu_ids+=("${core_groups[$((core_start + offset))]}")
+        done
+        cpu_group=$(compress_cpu_list "${cpu_ids[@]}")
+        rank_cpu_groups+=("$cpu_group")
+        echo "KVShrink CPU rank $rank: GPU=none CPUs=$cpu_group" >&2
+    done
+
+    result=$(IFS='|'; echo "${rank_cpu_groups[*]}")
+    echo "$result"
+}
+
+cpu_auto_detect() {
+    local tp_size=${1:-${TP_SIZE:-}}
+    local gpu_output rank gpu_index pci_bus numa node_path cpu topology siblings
+    local ranks local_rank cores_per_rank extra_cores core_count core_start offset cpu_group result
+    local -a gpu_rows=() gpu_numas=() gpu_indices=() gpu_buses=() core_groups=()
+    local -a cpu_ids=() rank_cpu_groups=()
+    local -A ranks_per_numa=() next_rank_on_numa=() seen_cores=()
+
+    validate_tp_size "$tp_size" || return 1
+    if ! gpu_output=$(gpu_rows "$tp_size" 2>/dev/null); then
+        echo "WARNING: no usable NVIDIA GPU detected, splitting CPUs evenly across $tp_size ranks" >&2
+        cpu_even_split "$tp_size"
+        return
+    fi
+    mapfile -t gpu_rows <<<"$gpu_output"
+
+    for ((rank = 0; rank < tp_size; rank++)); do
+        read -r gpu_index pci_bus numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
+        gpu_numas+=("$numa")
+        gpu_indices+=("$gpu_index")
+        gpu_buses+=("$pci_bus")
+        ranks_per_numa[$numa]=$((${ranks_per_numa[$numa]:-0} + 1))
+    done
+
+    for ((rank = 0; rank < tp_size; rank++)); do
+        numa=${gpu_numas[$rank]}
+        node_path=/sys/devices/system/node/node$numa
+        if [[ ! -r "$node_path/cpulist" ]]; then
+            echo "ERROR: cannot read CPU list for NUMA node $numa" >&2
+            return 1
+        fi
+
+        seen_cores=()
+        core_groups=()
+        while read -r cpu; do
+            topology=/sys/devices/system/cpu/cpu$cpu/topology
+            [[ -r "$topology/thread_siblings_list" ]] || continue
+            siblings=$(<"$topology/thread_siblings_list")
+            [[ -n "${seen_cores[$siblings]:-}" ]] && continue
+            seen_cores[$siblings]=1
+            core_groups+=("$cpu")
+        done < <(expand_cpu_list "$(<"$node_path/cpulist")")
+
+        ranks=${ranks_per_numa[$numa]}
+        if ((${#core_groups[@]} < ranks)); then
+            echo "ERROR: NUMA node $numa has ${#core_groups[@]} physical cores for $ranks GPU ranks" >&2
+            return 1
+        fi
+        local_rank=${next_rank_on_numa[$numa]:-0}
+        next_rank_on_numa[$numa]=$((local_rank + 1))
+        cores_per_rank=$((${#core_groups[@]} / ranks))
+        extra_cores=$((${#core_groups[@]} % ranks))
+        core_count=$cores_per_rank
+        ((local_rank < extra_cores)) && core_count=$((core_count + 1))
+        core_start=$((local_rank * cores_per_rank + (local_rank < extra_cores ? local_rank : extra_cores)))
+
+        cpu_ids=()
+        for ((offset = 0; offset < core_count; offset++)); do
+            cpu_ids+=("${core_groups[$((core_start + offset))]}")
+        done
+        cpu_group=$(compress_cpu_list "${cpu_ids[@]}")
+        rank_cpu_groups+=("$cpu_group")
+        echo "KVShrink CPU rank $rank: GPU=${gpu_indices[$rank]} PCI=${gpu_buses[$rank]} NUMA=$numa CPUs=$cpu_group" >&2
+    done
+
+    result=$(IFS='|'; echo "${rank_cpu_groups[*]}")
+    echo "$result"
+}
+
+qat_auto_detect() {
+    local tp_size=${1:-${TP_SIZE:-}}
+    local path driver devices_per_rank extra_devices next_device rank count offset pci numa group result
+    local gpu_output gpu_index pci_bus gpu_numa
+    local -a qat_devices=() indices=() pci_devices=() rank_groups=() gpu_rows=()
+
+    validate_tp_size "$tp_size" || return 1
+    for path in /sys/bus/pci/devices/*; do
+        [[ -r "$path/class" && -L "$path/driver" ]] || continue
+        [[ "$(<"$path/class")" == "0x0b4000" ]] || continue
+        driver=$(basename "$(readlink -f "$path/driver")")
+        [[ "$driver" != *vf* ]] || continue
+        [[ "$driver" =~ (qat|4xxx|420xx|c6xx|c3xxx|200xx|dh895xcc) ]] || continue
+        qat_devices+=("${path##*/}")
+    done
+
+    if ((${#qat_devices[@]} == 0)); then
+        echo "ERROR: no QAT devices bound to a supported PF driver were found" >&2
+        return 1
+    fi
+    mapfile -t qat_devices < <(printf '%s\n' "${qat_devices[@]}" | LC_ALL=C sort)
+    # Fewer devices than workers: each worker shares the QAT devices on its GPU's NUMA node.
+    if ((${#qat_devices[@]} < tp_size)); then
+        gpu_output=$(gpu_rows "$tp_size") || return 1
+        mapfile -t gpu_rows <<<"$gpu_output"
+        for ((rank = 0; rank < tp_size; rank++)); do
+            read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
+            indices=()
+            for ((next_device = 0; next_device < ${#qat_devices[@]}; next_device++)); do
+                numa=$(<"/sys/bus/pci/devices/${qat_devices[$next_device]}/numa_node")
+                [[ "$numa" == "$gpu_numa" ]] && indices+=("$next_device")
+            done
+            if ((${#indices[@]} == 0)); then
+                echo "ERROR: no QAT device on NUMA $gpu_numa for GPU $gpu_index" >&2
+                return 1
+            fi
+            group=$(IFS=,; echo "${indices[*]}")
+            rank_groups+=("$group")
+            echo "KVShrink QAT rank $rank: indices=$group (shared on NUMA $gpu_numa)" >&2
+        done
+        result=$(IFS='|'; echo "${rank_groups[*]}")
+        echo "$result"
+        return
+    fi
+
+    devices_per_rank=$((${#qat_devices[@]} / tp_size))
+    extra_devices=$((${#qat_devices[@]} % tp_size))
+    next_device=0
+    for ((rank = 0; rank < tp_size; rank++)); do
+        count=$devices_per_rank
+        ((rank < extra_devices)) && count=$((count + 1))
+        indices=()
+        pci_devices=()
+        for ((offset = 0; offset < count; offset++)); do
+            indices+=("$next_device")
+            pci=${qat_devices[$next_device]}
+            numa=$(<"/sys/bus/pci/devices/$pci/numa_node")
+            pci_devices+=("$pci(numa=$numa)")
+            next_device=$((next_device + 1))
+        done
+        group=$(IFS=,; echo "${indices[*]}")
+        rank_groups+=("$group")
+        echo "KVShrink QAT rank $rank: indices=$group devices=${pci_devices[*]}" >&2
+    done
+
+    result=$(IFS='|'; echo "${rank_groups[*]}")
+    echo "$result"
+}
+
+dsa_auto_detect() {
+    local tp_size=${1:-${TP_SIZE:-}}
+    local gpu_output rank gpu_index pci_bus gpu_numa dsa_path dsa_name dsa_numa dsa_id wq_path
+    local selected_dsa selected_wq wq result
+    local -a gpu_rows=() dsa_paths=() used_wqs=() rank_wqs=() candidate_wqs=()
+
+    gpu_output=$(gpu_rows "$tp_size") || return 1
+    mapfile -t gpu_rows <<<"$gpu_output"
+    mapfile -t dsa_paths < <(
+        for dsa_path in /sys/bus/dsa/devices/dsa[0-9]*; do
+            [[ -d "$dsa_path" ]] && echo "$dsa_path"
+        done | sort -V
+    )
+
+    for ((rank = 0; rank < tp_size; rank++)); do
+        read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
+        echo "KVShrink GPU rank $rank: index=$gpu_index pci=$pci_bus numa=$gpu_numa" >&2
+
+        selected_dsa=""
+        selected_wq=""
+        for dsa_path in "${dsa_paths[@]}"; do
+            dsa_name=${dsa_path##*/}
+            dsa_numa=$(<"$dsa_path/numa_node")
+            [[ "$dsa_numa" == "$gpu_numa" ]] || continue
+
+            dsa_id=${dsa_name#dsa}
+            mapfile -t candidate_wqs < <(
+                for wq_path in /sys/bus/dsa/devices/wq"$dsa_id".*; do
+                    [[ -e "$wq_path" ]] || continue
+                    [[ "$(<"$wq_path/type")" == "user" ]] || continue
+                    [[ "$(<"$wq_path/state")" == "enabled" ]] || continue
+                    basename "$wq_path"
+                done | sort -V
+            )
+            # A dedicated WQ opens in one process only, so ranks sharing a DSA take different WQs.
+            for wq in "${candidate_wqs[@]}"; do
+                [[ " ${used_wqs[*]} " == *" $wq "* ]] && continue
+                selected_dsa=$dsa_name
+                selected_wq=$wq
+                break
+            done
+            [[ -n "$selected_wq" ]] && break
+        done
+
+        if [[ -z "$selected_wq" ]]; then
+            echo "ERROR: no unused enabled user DSA WQ is available on NUMA $gpu_numa for GPU $gpu_index" >&2
+            return 1
+        fi
+        used_wqs+=("$selected_wq")
+        rank_wqs+=("$selected_wq")
+        echo "KVShrink GPU rank $rank: DSA=$selected_dsa WQ=$selected_wq" >&2
+    done
+
+    result=$(IFS='|'; echo "${rank_wqs[*]}")
+    echo "$result"
+}
+
+# Per-rank NUMA node of the rank's GPU, so each rank drives only the IAA devices of its node.
+iaa_auto_detect() {
+    local tp_size=${1:-${TP_SIZE:-}}
+    local gpu_output rank gpu_index pci_bus gpu_numa result
+    local -a gpu_rows=() rank_nodes=()
+
+    gpu_output=$(gpu_rows "$tp_size") || return 1
+    mapfile -t gpu_rows <<<"$gpu_output"
+    for ((rank = 0; rank < tp_size; rank++)); do
+        read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
+        iaa_thread_count "$gpu_numa" 1 >/dev/null || return 1
+        rank_nodes+=("$gpu_numa")
+        echo "KVShrink IAA rank $rank: GPU=$gpu_index NUMA=$gpu_numa" >&2
+    done
+
+    result=$(IFS='|'; echo "${rank_nodes[*]}")
+    echo "$result"
+}
+
+rank_cpu_counts() {
+    local affinity=$1
+    local tp_size=$2
+    local rank cpu_count
+    local -a rank_cpu_specs=()
+
+    validate_tp_size "$tp_size" || return 1
+    IFS='|' read -r -a rank_cpu_specs <<<"$affinity"
+    if ((${#rank_cpu_specs[@]} < tp_size)); then
+        echo "ERROR: VLLM_CPU_OMP_THREADS_BIND has ${#rank_cpu_specs[@]} entries for TP_SIZE=$tp_size" >&2
+        return 1
+    fi
+
+    RANK_CPU_COUNTS=()
+    MIN_RANK_CPU_COUNT=0
+    for ((rank = 0; rank < tp_size; rank++)); do
+        cpu_count=$(awk -F, '
+            {
+                count = 0
+                for (i = 1; i <= NF; i++) {
+                    gsub(/[[:space:]]/, "", $i)
+                    if ($i ~ /^[0-9]+$/) {
+                        count++
+                    } else if ($i ~ /^[0-9]+-[0-9]+$/) {
+                        split($i, range, "-")
+                        if (range[1] > range[2])
+                            exit 1
+                        count += range[2] - range[1] + 1
+                    } else {
+                        exit 1
+                    }
+                }
+                print count
+            }
+        ' <<<"${rank_cpu_specs[$rank]}") || {
+            echo "ERROR: invalid CPU affinity for rank $rank: ${rank_cpu_specs[$rank]}" >&2
+            return 1
+        }
+        RANK_CPU_COUNTS+=("$cpu_count")
+        if ((MIN_RANK_CPU_COUNT == 0 || cpu_count < MIN_RANK_CPU_COUNT)); then
+            MIN_RANK_CPU_COUNT=$cpu_count
+        fi
+    done
+}
+
+qat_thread_count() {
+    local devices=$1
+    local instances_per_device=$2
+    local -a device_indices=()
+
+    if ! [[ "$instances_per_device" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: IAXL_QAT_ZIP_INSTANCES_PER_DEVICE must be a positive integer" >&2
+        return 1
+    fi
+    IFS=, read -r -a device_indices <<<"$devices"
+    if ((${#device_indices[@]} == 0)); then
+        echo "ERROR: IAXL_QAT_DEVICES must contain at least one device index" >&2
+        return 1
+    fi
+    echo "$((${#device_indices[@]} * instances_per_device))"
+}
+
+cpu_zip_thread_count() {
+    local min_rank_cpu_count=$1
+    local qat_threads=$2
+    local reserved_cpus=$3
+    local iaa_threads=${4:-0}
+
+    if ! [[ "$min_rank_cpu_count" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: minimum rank CPU count must be a positive integer" >&2
+        return 1
+    fi
+    if ! [[ "$qat_threads" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_QAT_INSTANCE_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    if ! [[ "$iaa_threads" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_IAA_INSTANCE_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    if ! [[ "$reserved_cpus" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_RESERVED_CPU_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    echo "$((min_rank_cpu_count - qat_threads - iaa_threads - reserved_cpus))"
+}
+
+iaa_thread_count() {
+    local numa_nodes=$1
+    local instances_per_device=$2
+    local -a node_indices=()
+
+    if ! [[ "$instances_per_device" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: IAXL_IAA_ZIP_INSTANCES_PER_DEVICE must be a positive integer" >&2
+        return 1
+    fi
+
+    # Mirrors the C backend: instances are created per IAA device, and a NUMA node
+    # usually owns more than one device.
+    local -a selected=()
+    if [[ -n "$numa_nodes" && "${numa_nodes,,}" != "auto" ]]; then
+        IFS=, read -r -a node_indices <<<"$numa_nodes"
+        if ((${#node_indices[@]} == 0)); then
+            echo "ERROR: IAXL_IAA_DEVICES must contain at least one NUMA node index" >&2
+            return 1
+        fi
+        selected=("${node_indices[@]}")
+    fi
+
+    local devices=0 dev node
+    for dev in /sys/bus/dsa/devices/iax[0-9]*; do
+        [[ -r "$dev/numa_node" ]] || continue
+        node=$(<"$dev/numa_node")
+        ((node >= 0)) || continue
+        if ((${#selected[@]} > 0)) && [[ " ${selected[*]} " != *" $node "* ]]; then
+            continue
+        fi
+        ((devices++))
+    done
+
+    if ((devices == 0)); then
+        echo "ERROR: no IAA device found for IAXL_IAA_DEVICES='${numa_nodes:-auto}'" >&2
+        return 1
+    fi
+    echo "$((devices * instances_per_device))"
+}
+
+# Succeeds when any of the given switch values is truthy.
+env_truthy() {
+    local v
+    for v in "$@"; do
+        case "${v,,}" in
+            1|true|yes|on) return 0 ;;
+        esac
+    done
+    return 1
+}
+
+# Default DDR pool budget across all ranks in GB: 80% of host RAM, lowered so that each of the
+# num_workers ranks gets at most 80% of one NUMA node (host RAM / node count).
+ddr_pool_total_size_gb() {
+    local num_workers=$1
+    local mem_kb num_nodes
+
+    if ! [[ "$num_workers" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: worker count must be a positive integer" >&2
+        return 1
+    fi
+    mem_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo 2>/dev/null)
+    if ! [[ "$mem_kb" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: cannot read MemTotal from /proc/meminfo" >&2
+        return 1
+    fi
+    num_nodes=$(ls -d /sys/devices/system/node/node[0-9]* 2>/dev/null | wc -l)
+    ((num_nodes > 0)) || num_nodes=1
+
+    awk -v n="$num_workers" -v kb="$mem_kb" -v nodes="$num_nodes" 'BEGIN {
+        total = kb / 1024 / 1024 * 0.8
+        numa_cap = total / nodes
+        rank_cap = (total / n < numa_cap) ? total / n : numa_cap
+        printf "%d", rank_cap * n
+    }'
+}
+
+omp_thread_count() {
+    local qat_threads=$1
+    local cpu_zip_threads=$2
+    local iaa_threads=${3:-0}
+
+    if ! [[ "$qat_threads" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_QAT_INSTANCE_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    if ! [[ "$cpu_zip_threads" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_CPU_ZIP_THREADS must be a non-negative integer" >&2
+        return 1
+    fi
+    if ! [[ "$iaa_threads" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_IAA_INSTANCE_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    echo "$((qat_threads + iaa_threads + cpu_zip_threads))"
+}
+
+validate_omp_config() {
+    local min_rank_cpu_count=$1
+    local rank_cpu_counts
+
+    if ! [[ "$IAXL_QAT_INSTANCE_NUM" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_QAT_INSTANCE_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    if ! [[ "$IAXL_IAA_INSTANCE_NUM" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_IAA_INSTANCE_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    if ! [[ "$IAXL_RESERVED_CPU_NUM" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_RESERVED_CPU_NUM must be a non-negative integer" >&2
+        return 1
+    fi
+    if ! [[ "$IAXL_CPU_ZIP_THREADS" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: IAXL_CPU_ZIP_THREADS must be a non-negative integer" >&2
+        return 1
+    fi
+    # No zip worker: KV blocks must be stored raw; OpenMP threads only do host copies.
+    if ((IAXL_QAT_INSTANCE_NUM + IAXL_IAA_INSTANCE_NUM + IAXL_CPU_ZIP_THREADS == 0)) &&
+        env_truthy "$IAXL_KV_COMPRESSION"; then
+        echo "ERROR: IAXL_KV_COMPRESSION=1 requires at least one zip backend; enable IAXL_QAT_ZIP_ENABLE/IAXL_IAA_ZIP_ENABLE/IAXL_CPU_ZIP_ENABLE or set IAXL_KV_COMPRESSION=0" >&2
+        return 1
+    fi
+    if ! [[ "$IAXL_OMP_THREAD_NUM" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: IAXL_OMP_THREAD_NUM must be a positive integer" >&2
+        return 1
+    fi
+    if ((IAXL_OMP_THREAD_NUM + IAXL_RESERVED_CPU_NUM > min_rank_cpu_count)); then
+        echo "ERROR: IAXL_OMP_THREAD_NUM ($IAXL_OMP_THREAD_NUM) + reserved " \
+            "($IAXL_RESERVED_CPU_NUM) exceeds the smallest rank CPU allocation ($min_rank_cpu_count)" >&2
+        return 1
+    fi
+    if env_truthy "$IAXL_USE_OMP" &&
+        [[ "$OMP_NUM_THREADS" != "$IAXL_OMP_THREAD_NUM" ||
+        "$OMP_THREAD_LIMIT" != "$IAXL_OMP_THREAD_NUM" ]] ||
+        ! [[ "$OMP_MAX_ACTIVE_LEVELS" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: OpenMP environment does not match IAXL_OMP_THREAD_NUM" >&2
+        return 1
+    fi
+
+    rank_cpu_counts=$(IFS=,; echo "${RANK_CPU_COUNTS[*]}")
+    printf '%s\n' \
+        "OpenMP configuration:" \
+        "  rank CPU counts=$rank_cpu_counts" \
+        "  IAXL_QAT_INSTANCE_NUM=$IAXL_QAT_INSTANCE_NUM" \
+        "  IAXL_IAA_INSTANCE_NUM=$IAXL_IAA_INSTANCE_NUM" \
+        "  IAXL_CPU_ZIP_THREADS=$IAXL_CPU_ZIP_THREADS" \
+        "  IAXL_RESERVED_CPU_NUM=$IAXL_RESERVED_CPU_NUM" \
+        "  IAXL_OMP_THREAD_NUM=$IAXL_OMP_THREAD_NUM" \
+        "  IAXL_USE_OMP=$IAXL_USE_OMP"
+}
+
+# A recipe (IAXL_RECIPE_DIR, resolved by setvars.sh) may add functions or redefine the functions
+# above; its definitions win because they are sourced last. doc/design/recipes.md lists the ones
+# meant to be redefined and their contract.
+if [[ -f "${IAXL_RECIPE_DIR:-}/auto_config.sh" ]]; then
+    source "$IAXL_RECIPE_DIR/auto_config.sh" || {
+        echo "ERROR: recipe hook $IAXL_RECIPE_DIR/auto_config.sh failed" >&2
+        return 1
+    }
+fi

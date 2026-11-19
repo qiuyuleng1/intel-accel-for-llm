@@ -1,0 +1,49 @@
+# vLLM 0.29.0 with LMCache 0.5.7 built against the image's torch (2.13.0+cu130).
+# vllm/vllm-openai:v0.29.0 ships lmcache 0.5.4; this replaces it with 0.5.7 so
+# LMCache runs on the same vLLM version as KVShrink. The build steps are those
+# of Dockerfile.vllm-0.33.0.
+# Built by build_vllm_0.29.0_image.sh, which supplies lmcache-src.tar.
+ARG BASE_IMAGE=vllm/vllm-openai:v0.29.0
+FROM ${BASE_IMAGE}
+
+# One GPU arch only, to keep the CUDA compile short: 12.0 is the RTX 6000D of
+# this host, 10.3 the B300 of b300 (build_vllm_0.29.0_image.sh passes it).
+# The ARG must not be named TORCH_CUDA_ARCH_LIST: the base image sets an ENV
+# of that name (7.5 ... 12.0), and an ENV overrides an ARG of the same name.
+ARG CUDA_ARCH=12.0
+ENV TORCH_CUDA_ARCH_LIST=${CUDA_ARCH}
+ENV MAX_JOBS=32
+
+COPY lmcache-src.tar /tmp/lmcache-src.tar
+# The build generates gRPC stubs with grpc_tools, which the image lacks; the
+# version follows requirements/build.txt. --no-deps keeps the packages vLLM
+# depends on untouched. Of LMCache 0.5.7's new runtime dependencies only
+# grpcio-observability is missing from this image; LMCache only exports gRPC
+# metrics with it and logs a warning without it.
+# torch's CUDA headers include cusparse.h, cusolverDn.h etc., which this image
+# has only in the pip NVIDIA package torch links against, not in /usr/local/cuda.
+# Putting that whole directory on the include path also shadows the toolkit's
+# own CUDA runtime headers with a different CUDA version, and nvcc 13.0 then
+# fails on its generated stubs ("__cudaLaunch" passed 2 arguments). So only the
+# headers the toolkit lacks are linked into a separate include directory.
+ARG NVIDIA_PIP_INCLUDE=/usr/local/lib/python3.12/dist-packages/nvidia/cu13/include
+ARG EXTRA_INCLUDE=/tmp/extra-cuda-include
+RUN mkdir /tmp/lmcache-src \
+    && tar -xf /tmp/lmcache-src.tar -C /tmp/lmcache-src \
+    && cd /tmp/lmcache-src \
+    && pip install --no-deps grpcio-tools==1.78.0 \
+    && mkdir ${EXTRA_INCLUDE} \
+    && for header in ${NVIDIA_PIP_INCLUDE}/*.h; do \
+           [ -e /usr/local/cuda/include/$(basename ${header}) ] || ln -s ${header} ${EXTRA_INCLUDE}/; \
+       done \
+    && CPATH=${EXTRA_INCLUDE} NVCC_PREPEND_FLAGS="-I${EXTRA_INCLUDE}" \
+       SETUPTOOLS_SCM_PRETEND_VERSION_FOR_LMCACHE=0.5.7 python3 setup.py bdist_wheel --dist-dir=/tmp/dist_lmcache \
+    && pip install --no-deps --force-reinstall /tmp/dist_lmcache/*.whl \
+    && rm -rf /tmp/lmcache-src /tmp/lmcache-src.tar /tmp/dist_lmcache ${EXTRA_INCLUDE}
+
+# vLLM plugin (port of intel-accel-for-llm PR #41): lets LMCacheMPConnector run
+# a hybrid model with prefix caching disabled by keeping mamba_cache_mode='align'.
+# A separate layer, so changing it does not recompile LMCache.
+COPY lmcache_hybrid_patch /tmp/lmcache_hybrid_patch
+RUN pip install --no-deps --no-build-isolation /tmp/lmcache_hybrid_patch \
+    && rm -rf /tmp/lmcache_hybrid_patch

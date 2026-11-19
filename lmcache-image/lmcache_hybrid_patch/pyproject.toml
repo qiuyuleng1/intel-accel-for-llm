@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lmcache-hybrid-patch"
+version = "0.1.0"
+description = "vLLM plugin: keep mamba_cache_mode='align' for LMCacheMPConnector without prefix caching"
+requires-python = ">=3.10"
+
+[project.entry-points."vllm.general_plugins"]
+lmcache_hybrid_patch = "lmcache_hybrid_patch:register"
+
+[tool.setuptools]
+packages = ["lmcache_hybrid_patch"]

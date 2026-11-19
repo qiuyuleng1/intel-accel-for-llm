@@ -36,7 +36,7 @@ $TOP_DIR/tools/setup_system.sh
 
 export IAXL_VERSION=${IAXL_VERSION:-1.6.0}
 export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
-export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev:$IAXL_VERSION"}
+export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev-fddeef0-qiuyu:$IAXL_VERSION"}
 export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
 
 # =============================================================================
@@ -54,9 +54,9 @@ export NVIDIA_RUNTIME=${NVIDIA_RUNTIME:-}     # Set to "none" to skip the nvidia
 # ---- Feature switches -------------------------------------------------------
 export IAXL_KV_COMPRESSION=${IAXL_KV_COMPRESSION:-1} # Enable DEFLATE compression (0/1)
 export IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-1} # Enable QAT compression workers (0/1)
-export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-0} # Enable IAA (QPL) compression workers (0/1)
+export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-1} # Enable IAA (QPL) compression workers (0/1)
 export IAXL_CPU_ZIP_ENABLE=${IAXL_CPU_ZIP_ENABLE:-0} # Enable CPU compression workers (0/1); costs a lot of CPU, keep off unless needed
-export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-0}   # Use Intel DSA + GDRCopy transfers (0/1)
+export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-1}   # Use Intel DSA + GDRCopy transfers (0/1)
 
 # ---- Async KV load ----------------------------------------------------------
 export KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=${KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED:-1}      # Enable asynchronous KV loading (0/1)
@@ -66,7 +66,7 @@ export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP="${KVSHRINK_VLLM_KV_ASYNC_
 
 # ---- vLLM ------------------------------------------------------------------
 export MODEL="${MODEL:-Qwen/Qwen3-32B}" # Hugging Face model ID or local model path
-export TP_SIZE="${TP_SIZE:-$IAXL_DEFAULT_TP_SIZE}" # Tensor-parallel worker count (default 2, in tools/auto_config.sh)
+export TP_SIZE="${TP_SIZE:-8}" # Tensor-parallel worker count (b300 default 8)
 export DP_SIZE="${DP_SIZE:-$IAXL_DEFAULT_DP_SIZE}" # Data-parallel group count (default 1)
 # Total workers = one per (dp, tp) pair; CPU/QAT/DSA specs are indexed per worker.
 NUM_WORKERS=$(iaxl_num_workers) || return 1 2>/dev/null || exit 1
@@ -233,7 +233,7 @@ export https_proxy=$http_proxy
 # ---- docker (used by start.sh) ---------------------------------------------
 # A recipe's setvars.post.sh may edit CONTAINER_NAME, ENV_VARS and DOCKER_RUN_ARGS; --name and
 # the -e flags for ENV_VARS are appended after it.
-CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm}
+CONTAINER_NAME=iaxl.vllm-fddeef0-qiuyu
 # Host variables forwarded into the container with -e VAR=value. Forward inputs only: setvars.sh and
 # the recipe run again in the container and derive everything else from them.
 ENV_VARS=(
@@ -281,9 +281,16 @@ DOCKER_RUN_ARGS+=("-v" "$PWD/_data:/_data")
 if [[ -d /run/qat ]]; then
     DOCKER_RUN_ARGS+=("-v" "/run/qat:/run/qat")
 fi
+# Mount the whole model space, so one container can serve any model in it.
+MODEL_SPACE=/home/intel/model-space
+if [[ -d "$MODEL_SPACE" ]]; then
+    DOCKER_RUN_ARGS+=("-v" "$MODEL_SPACE:$MODEL_SPACE:ro")
+fi
 if [[ -d "$MODEL" ]]; then
     MODEL_DIR=$(realpath "$MODEL")
-    DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
+    if [[ "$MODEL_DIR" != "$MODEL_SPACE"/* ]]; then
+        DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
+    fi
 fi
 DOCKER_RUN_ARGS+=("-v" "$PWD:$PWD" "-w" "$PWD")
 

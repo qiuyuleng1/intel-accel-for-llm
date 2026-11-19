@@ -5,7 +5,7 @@
 #
 # - ServicesEnabled = dc: with a second service (e.g. asym;dc) a QAT 2.0 device splits its
 #   8 engines 4|4, leaving compression only half. Crypto instances and Kpt* keys are removed.
-# - [SSL] NumProcesses = 4, NumberDcInstances = 8: up to 4 processes (e.g. TP ranks) share
+# - [SSL] NumProcesses = 8, NumberDcInstances = 8: up to 8 processes (e.g. TP ranks) share
 #   QAT, each with 8 instances per device. dc-only allows at most 64 instances per device.
 # - Dc CoreAffinity: CPUs of the device's own NUMA node, different CPUs for each device.
 # - SVMEnabled/ATEnabled: set only when the kernel runs with iommu=on or iommu=pt.
@@ -39,7 +39,7 @@ fi
 TMP=$(mktemp)
 trap 'rm -f "$TMP"' EXIT
 
-SSL_NUM_PROCESSES=4
+SSL_NUM_PROCESSES=8
 SSL_NUM_DC_INSTANCES=8
 echo "Setting [SSL] NumProcesses = $SSL_NUM_PROCESSES, NumberDcInstances = $SSL_NUM_DC_INSTANCES"
 echo "Setting ServicesEnabled = dc (sym/asym crypto and their instances are removed)"
