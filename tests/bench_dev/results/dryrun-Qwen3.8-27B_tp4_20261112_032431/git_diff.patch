@@ -1,0 +1,189 @@
+diff --git a/examples/kvshrink-vllm-serve.sh b/examples/kvshrink-vllm-serve.sh
+index d07136c..3f172f2 100755
+--- a/examples/kvshrink-vllm-serve.sh
++++ b/examples/kvshrink-vllm-serve.sh
+@@ -22,16 +22,35 @@ fi
+ block_args=()
+ [[ -n "$BLOCK_SIZE" ]] && block_args=(--block-size "$BLOCK_SIZE")
+ 
+-serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" --no-enable-prefix-caching)
++# Benchmark baselines: BASELINE=no_cache is plain vLLM without KV reuse,
++# BASELINE=prefix_cache is plain vLLM with its GPU prefix cache.
++# GPU_PREFIX_CACHING=1 keeps vLLM's GPU prefix cache on next to KVShrink.
++connector_args=(--kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}')
++prefix_caching_arg=--no-enable-prefix-caching
++[[ "$GPU_PREFIX_CACHING" == 1 ]] && prefix_caching_arg=--enable-prefix-caching
++if [[ "$BASELINE" == no_cache ]]; then
++    connector_args=()
++    prefix_caching_arg=--no-enable-prefix-caching
++fi
++if [[ "$BASELINE" == prefix_cache ]]; then
++    connector_args=()
++    prefix_caching_arg=--enable-prefix-caching
++fi
++
++serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" "$prefix_caching_arg")
+ # vLLM CPU inference sizes its KV cache from VLLM_CPU_KVCACHE_SPACE (GiB) instead.
+ [[ "$DEVICE" == cpu ]] || serve_args+=(--gpu-memory-utilization 0.8)
+ if [[ -n "${VLLM_SERVE_CMDLINE_ARGS:-}" ]]; then
+     read -r -a serve_args <<<"$VLLM_SERVE_CMDLINE_ARGS"
+ fi
+ read -r -a extra_args <<<"${VLLM_SERVE_EXTRA_ARGS:-}"
++# Unset CUDAGRAPH_MODE keeps vLLM's choice: FULL_AND_PIECEWISE, or PIECEWISE when the KV connector requires it.
++[[ -n "$CUDAGRAPH_MODE" ]] && extra_args+=(--compilation-config "{\"cudagraph_mode\": \"$CUDAGRAPH_MODE\"}")
++# TORCH_PROFILER_DIR enables vLLM's torch profiler (PROFILER_MAX_ITERATIONS worker steps).
++[[ -n "$TORCH_PROFILER_DIR" ]] && extra_args+=(--profiler-config "{\"profiler\": \"torch\", \"torch_profiler_dir\": \"$TORCH_PROFILER_DIR\", \"torch_profiler_with_stack\": false, \"max_iterations\": ${PROFILER_MAX_ITERATIONS:-20}}")
+ 
+ vllm serve "$MODEL" \
+-    --kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}' \
++    "${connector_args[@]}" \
+     "${parallel_args[@]}" \
+     "${block_args[@]}" \
+     "${serve_args[@]}" \
+diff --git a/iaxl/utils/affinity.py b/iaxl/utils/affinity.py
+index b55d7c0..45c7899 100644
+--- a/iaxl/utils/affinity.py
++++ b/iaxl/utils/affinity.py
+@@ -43,10 +43,12 @@ def bind_cpu_affinity(rank: int, tp_size: int, spec: Optional[str]) -> None:
+ 
+ 
+ def bind_intel_accel(rank: int) -> None:
+-    """KVSHRINK_QAT_DEVICES / KVSHRINK_DSA_DEVICES (`|` per rank) -> IAXL_QAT_DEVICES / IAXL_DSA_WQS."""
++    """KVSHRINK_QAT_DEVICES / KVSHRINK_DSA_DEVICES / KVSHRINK_IAA_DEVICES (`|` per rank)
++    -> IAXL_QAT_DEVICES / IAXL_DSA_WQS / IAXL_IAA_DEVICES (IAA: NUMA node indices)."""
+     for source, target in (
+         ("KVSHRINK_QAT_DEVICES", "IAXL_QAT_DEVICES"),
+         ("KVSHRINK_DSA_DEVICES", "IAXL_DSA_WQS"),
++        ("KVSHRINK_IAA_DEVICES", "IAXL_IAA_DEVICES"),
+     ):
+         spec = os.getenv(source)
+         if not spec:
+diff --git a/kvshrink/kvshrink_connector.py b/kvshrink/kvshrink_connector.py
+index 5f897b3..6047ff2 100644
+--- a/kvshrink/kvshrink_connector.py
++++ b/kvshrink/kvshrink_connector.py
+@@ -320,6 +320,7 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
+             len(existence_cache),
+         )
+         if self.has_mamba:
++            attention_matched_blocks = matched_blocks
+             # A hit must end at a block whose mamba state was saved.
+             state.mamba_existence_cache = self._store().has(
+                 block_hashes, label="mamba", truncate=False
+@@ -329,6 +330,14 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
+                 and not state.mamba_existence_cache[matched_blocks - 1]
+             ):
+                 matched_blocks -= 1
++            # The stored attention KV runs past the last saved mamba state: stop
++            # this request's prefill chunk at the end of that stored run, so its
++            # mamba state is saved there and later requests sharing the prefix hit
++            # it. vLLM's own GPU prefix cache sets this; kvshrink runs without it.
++            if attention_matched_blocks > matched_blocks:
++                request.shared_prefix_boundary = (
++                    attention_matched_blocks * self.block_size
++                )
+         matched_tokens = matched_blocks * self.block_size
+         num_new_tokens = max(0, matched_tokens - num_computed_tokens)
+ 
+@@ -356,7 +365,8 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
+             f"externally-cached tokens: {num_new_tokens}, "
+             f"locally-cached tokens: {num_computed_tokens}, async={use_async}, "
+             f"selected_load_layers={selected_layers}, "
+-            f"async_load_layers={state.async_load_layers}"
++            f"async_load_layers={state.async_load_layers}, "
++            f"shared_prefix_boundary={request.shared_prefix_boundary}"
+         )
+         return num_new_tokens, use_async
+ 
+diff --git a/setvars.sh b/setvars.sh
+index 99107a4..aae6a14 100644
+--- a/setvars.sh
++++ b/setvars.sh
+@@ -36,7 +36,7 @@ $TOP_DIR/tools/setup_system.sh
+ 
+ export IAXL_VERSION=${IAXL_VERSION:-1.6.0}
+ export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
+-export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev:$IAXL_VERSION"}
++export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev-fddeef0-qiuyu:$IAXL_VERSION"}
+ export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
+ 
+ # =============================================================================
+@@ -54,9 +54,9 @@ export NVIDIA_RUNTIME=${NVIDIA_RUNTIME:-}     # Set to "none" to skip the nvidia
+ # ---- Feature switches -------------------------------------------------------
+ export IAXL_KV_COMPRESSION=${IAXL_KV_COMPRESSION:-1} # Enable DEFLATE compression (0/1)
+ export IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-1} # Enable QAT compression workers (0/1)
+-export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-0} # Enable IAA (QPL) compression workers (0/1)
++export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-1} # Enable IAA (QPL) compression workers (0/1)
+ export IAXL_CPU_ZIP_ENABLE=${IAXL_CPU_ZIP_ENABLE:-0} # Enable CPU compression workers (0/1); costs a lot of CPU, keep off unless needed
+-export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-0}   # Use Intel DSA + GDRCopy transfers (0/1)
++export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-1}   # Use Intel DSA + GDRCopy transfers (0/1)
+ 
+ # ---- Async KV load ----------------------------------------------------------
+ export KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=${KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED:-1}      # Enable asynchronous KV loading (0/1)
+@@ -66,7 +66,7 @@ export KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP="${KVSHRINK_VLLM_KV_ASYNC_
+ 
+ # ---- vLLM ------------------------------------------------------------------
+ export MODEL="${MODEL:-Qwen/Qwen3-32B}" # Hugging Face model ID or local model path
+-export TP_SIZE="${TP_SIZE:-$IAXL_DEFAULT_TP_SIZE}" # Tensor-parallel worker count (default 2, in tools/auto_config.sh)
++export TP_SIZE="${TP_SIZE:-8}" # Tensor-parallel worker count (b300 default 8)
+ export DP_SIZE="${DP_SIZE:-$IAXL_DEFAULT_DP_SIZE}" # Data-parallel group count (default 1)
+ # Total workers = one per (dp, tp) pair; CPU/QAT/DSA specs are indexed per worker.
+ NUM_WORKERS=$(iaxl_num_workers) || return 1 2>/dev/null || exit 1
+@@ -143,7 +143,7 @@ export IAXL_DDR_POOL_EVICT_INTERVAL_S=${IAXL_DDR_POOL_EVICT_INTERVAL_S:-30}
+ 
+ # ---- Intel QAT (compression accelerator) ------------------------------------
+ export IAXL_QAT_DEVICES=${IAXL_QAT_DEVICES:-0}                                   # Comma-separated QAT device indices, e.g. "0,1"
+-export IAXL_QAT_ZIP_INSTANCES_PER_DEVICE=${IAXL_QAT_ZIP_INSTANCES_PER_DEVICE:-4} # Instances (driving threads) per device
++export IAXL_QAT_ZIP_INSTANCES_PER_DEVICE=${IAXL_QAT_ZIP_INSTANCES_PER_DEVICE:-8} # Instances (driving threads) per device
+ # QAT driving threads = number of devices x instances-per-device (override to force).
+ case "${IAXL_QAT_ZIP_ENABLE,,}" in
+     1|true|yes|on)
+@@ -233,7 +233,7 @@ export https_proxy=$http_proxy
+ # ---- docker (used by start.sh) ---------------------------------------------
+ # A recipe's setvars.post.sh may edit CONTAINER_NAME, ENV_VARS and DOCKER_RUN_ARGS; --name and
+ # the -e flags for ENV_VARS are appended after it.
+-CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm}
++CONTAINER_NAME=iaxl.vllm-fddeef0-qiuyu
+ # Host variables forwarded into the container with -e VAR=value. Forward inputs only: setvars.sh and
+ # the recipe run again in the container and derive everything else from them.
+ ENV_VARS=(
+@@ -281,9 +281,16 @@ DOCKER_RUN_ARGS+=("-v" "$PWD/_data:/_data")
+ if [[ -d /run/qat ]]; then
+     DOCKER_RUN_ARGS+=("-v" "/run/qat:/run/qat")
+ fi
++# Mount the whole model space, so one container can serve any model in it.
++MODEL_SPACE=/home/intel/model-space
++if [[ -d "$MODEL_SPACE" ]]; then
++    DOCKER_RUN_ARGS+=("-v" "$MODEL_SPACE:$MODEL_SPACE:ro")
++fi
+ if [[ -d "$MODEL" ]]; then
+     MODEL_DIR=$(realpath "$MODEL")
+-    DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
++    if [[ "$MODEL_DIR" != "$MODEL_SPACE"/* ]]; then
++        DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
++    fi
+ fi
+ DOCKER_RUN_ARGS+=("-v" "$PWD:$PWD" "-w" "$PWD")
+ 
+diff --git a/tools/setup_qat.sh b/tools/setup_qat.sh
+index 09ce3e1..a04c01f 100755
+--- a/tools/setup_qat.sh
++++ b/tools/setup_qat.sh
+@@ -5,7 +5,7 @@
+ #
+ # - ServicesEnabled = dc: with a second service (e.g. asym;dc) a QAT 2.0 device splits its
+ #   8 engines 4|4, leaving compression only half. Crypto instances and Kpt* keys are removed.
+-# - [SSL] NumProcesses = 4, NumberDcInstances = 8: up to 4 processes (e.g. TP ranks) share
++# - [SSL] NumProcesses = 8, NumberDcInstances = 8: up to 8 processes (e.g. TP ranks) share
+ #   QAT, each with 8 instances per device. dc-only allows at most 64 instances per device.
+ # - Dc CoreAffinity: CPUs of the device's own NUMA node, different CPUs for each device.
+ # - SVMEnabled/ATEnabled: set only when the kernel runs with iommu=on or iommu=pt.
+@@ -39,7 +39,7 @@ fi
+ TMP=$(mktemp)
+ trap 'rm -f "$TMP"' EXIT
+ 
+-SSL_NUM_PROCESSES=4
++SSL_NUM_PROCESSES=8
+ SSL_NUM_DC_INSTANCES=8
+ echo "Setting [SSL] NumProcesses = $SSL_NUM_PROCESSES, NumberDcInstances = $SSL_NUM_DC_INSTANCES"
+ echo "Setting ServicesEnabled = dc (sym/asym crypto and their instances are removed)"

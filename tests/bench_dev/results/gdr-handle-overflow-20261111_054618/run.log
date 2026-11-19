@@ -1,0 +1,20 @@
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=192 compression=ON zip_level=1 data_shuffle=OFF exponent_only=OFF lossy_trunc=0 dsa_gd=OFF dsa_gd_reset=OFF profile=disabled
+device=1 churn buffer=128 GiB span step=128 MiB handle limit=2^32 pages (16 TiB)
+victim read before churn: ok
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq0.0), max_transfer_size=2147483648, max_batch_size=1024
+dsa write to victim before churn: dsa_memcpy rc=0, value read back by cudaMemcpy matches
+    call   span_GiB cum_pinned_TiB   cum/2^32pg     rc   victim   time_s
+      64       8.00          0.254       0.0159      0       ok      0.4
+     128      16.00          1.008       0.0630      0       ok      1.4
+     192      24.00          2.262       0.1414      0       ok      3.2
+     256      32.00          4.016       0.2510      0       ok      5.6
+     320      40.00          6.270       0.3918      0       ok      8.6
+     384      48.00          9.023       0.5640      0       ok     12.5
+     448      56.00         12.277       0.7673      0       ok     17.0
+     512      64.00         16.031       1.0020      0       ok     22.3
+gdr_map failed rc=16
+     513      64.12         16.094       1.0059     -1   SIGBUS     22.3
+dsa op failed, status=0x84
+dsa write to victim after first failure: dsa_memcpy rc=-1, value read back by cudaMemcpy matches
+RESULT: first failure at call 513, cumulative pinned 16.094 TiB
+EXIT

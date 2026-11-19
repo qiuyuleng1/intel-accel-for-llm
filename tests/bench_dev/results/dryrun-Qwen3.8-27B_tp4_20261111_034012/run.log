@@ -1,0 +1,109 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/kvshrink/serve.log
+
+## kvshrink input_len=32000 concurrencies=[300]
+    [dry-run] prewarm: hit 100, 600 prompts, concurrency 300, seed 10000
+    [dry-run] bench: concurrency 300, hit 80, 300 prompts, seed 10380
+
+## kvshrink input_len=128000 concurrencies=[80]
+    [dry-run] prewarm: hit 100, 160 prompts, concurrency 80, seed 10000
+    [dry-run] bench: concurrency 80, hit 80, 80 prompts, seed 10160
+
+## kvshrink input_len=256000 concurrencies=[40]
+    [dry-run] prewarm: hit 100, 80 prompts, concurrency 40, seed 10000
+    [dry-run] bench: concurrency 40, hit 80, 40 prompts, seed 10120
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/summary.csv
+===========================================================
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    [dry-run] serve: BASELINE=prefix_cache MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/vllm-prefix/serve.log
+
+## vllm-prefix input_len=32000 concurrencies=[300]
+    [dry-run] prewarm: hit 100, 600 prompts, concurrency 300, seed 10000
+    [dry-run] bench: concurrency 300, hit 80, 300 prompts, seed 10380
+
+## vllm-prefix input_len=128000 concurrencies=[80]
+    [dry-run] prewarm: hit 100, 160 prompts, concurrency 80, seed 10000
+    [dry-run] bench: concurrency 80, hit 80, 80 prompts, seed 10160
+
+## vllm-prefix input_len=256000 concurrencies=[40]
+    [dry-run] prewarm: hit 100, 80 prompts, concurrency 40, seed 10000
+    [dry-run] bench: concurrency 40, hit 80, 40 prompts, seed 10120
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/summary.csv
+===========================================================
+===========================================================
+Qwen3.8-27B benchmark  configs=[lmcache]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/lmcache-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/lmcache/serve.log
+
+## lmcache input_len=32000 concurrencies=[300]
+    [dry-run] prewarm: hit 100, 600 prompts, concurrency 300, seed 10000
+    [dry-run] bench: concurrency 300, hit 80, 300 prompts, seed 10380
+
+## lmcache input_len=128000 concurrencies=[80]
+    [dry-run] prewarm: hit 100, 160 prompts, concurrency 80, seed 10000
+    [dry-run] bench: concurrency 80, hit 80, 80 prompts, seed 10160
+
+## lmcache input_len=256000 concurrencies=[40]
+    [dry-run] prewarm: hit 100, 80 prompts, concurrency 40, seed 10000
+    [dry-run] bench: concurrency 40, hit 80, 40 prompts, seed 10120
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/summary.csv
+===========================================================
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    [dry-run] serve: BASELINE=no_cache MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/vllm-wo-prefix/serve.log
+
+## vllm-wo-prefix input_len=32000 concurrencies=[300]
+    [dry-run] bench: concurrency 300, hit 80, 300 prompts, seed 10380
+
+## vllm-wo-prefix input_len=128000 concurrencies=[80]
+    [dry-run] bench: concurrency 80, hit 80, 80 prompts, seed 10160
+
+## vllm-wo-prefix input_len=256000 concurrencies=[40]
+    [dry-run] bench: concurrency 40, hit 80, 40 prompts, seed 10120
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261111_034012/summary.csv
+===========================================================

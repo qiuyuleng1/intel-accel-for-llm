@@ -1,0 +1,18 @@
+kvshrink: externally-cached tokens per request (last line per request)
+input hit con prompts requests_logged max_shared_prefix_hit | hit tokens (hit/input) x requests
+32000 prewarm(100) prompts=512 | 30576 (95.5%) x 407; 15680 (49.0%) x 104; 0 (0.0%) x 1
+32000 80 32 320 320 25088 | 30576 (95.5%) x 1; 24304 (76.0%) x 308; 18032 (56.4%) x 11 | requests whose lines differ: 0
+32000 95 32 320 320 29792 | 30576 (95.5%) x 1; 29008 (90.7%) x 288; 16464 (51.5%) x 31 | requests whose lines differ: 0
+32000 80 64 640 640 25088 | 30576 (95.5%) x 2; 24304 (76.0%) x 627; 18032 (56.4%) x 11 | requests whose lines differ: 0
+32000 95 64 640 640 29792 | 29792 (93.1%) x 1; 29008 (90.7%) x 601; 18816 (58.8%) x 38 | requests whose lines differ: 0
+32000 80 128 1280 1280 25088 | 30576 (95.5%) x 2; 29792 (93.1%) x 1; 24304 (76.0%) x 1239; 18032 (56.4%) x 38 | requests whose lines differ: 0
+32000 95 128 1280 1280 29792 | 30576 (95.5%) x 2; 29008 (90.7%) x 1245; 18032 (56.4%) x 33 | requests whose lines differ: 0
+32000 80 256 2560 2560 25088 | 30576 (95.5%) x 6; 29792 (93.1%) x 4; 24304 (76.0%) x 2546; 18032 (56.4%) x 4 | requests whose lines differ: 0
+32000 95 256 2560 2560 29792 | 30576 (95.5%) x 16; 29008 (90.7%) x 2540; 18032 (56.4%) x 4 | requests whose lines differ: 0
+128000 prewarm(100) prompts=160 | 122304 (95.5%) x 91; 31360 (24.5%) x 29; 15680 (12.2%) x 39; 0 (0.0%) x 1
+128000 80 80 800 800 101920 | 123088 (96.2%) x 1; 120736 (94.3%) x 1; 98000 (76.6%) x 794; 96432 (75.3%) x 4 | requests whose lines differ: 0
+128000 95 80 800 800 121520 | 122304 (95.5%) x 4; 116032 (90.7%) x 751; 114464 (89.4%) x 45 | requests whose lines differ: 0
+256000 prewarm(100) prompts=80 | 245392 (95.9%) x 40; 31360 (12.2%) x 34; 15680 (6.1%) x 5; 0 (0.0%) x 1
+256000 80 40 400 400 204624 | 246960 (96.5%) x 2; 242256 (94.6%) x 1; 196000 (76.6%) x 382; 191296 (74.7%) x 15 | requests whose lines differ: 0
+256000 95 40 400 400 243040 | 245392 (95.9%) x 1; 232848 (91.0%) x 391; 230496 (90.0%) x 8 | requests whose lines differ: 0
+

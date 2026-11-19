@@ -1,0 +1,38 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=0
+  LMCACHE_CHUNK_SIZE=896 LMCACHE_L1_SIZE_GB=1000
+  results -> tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_rust_20261116_094316_flash_attn/kvshrink-nozip-nodsa
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_rust_20261116_094316_flash_attn/kvshrink-nozip-nodsa/kvshrink/serve.log
+
+## kvshrink input_len=32000 concurrencies=[32 64 128 256]
+    [dry-run] prewarm: hit 100, 512 prompts, concurrency 256, seed 10000
+    [dry-run] bench: concurrency 32, hit 80, 320 prompts, seed 10112
+    [dry-run] bench: concurrency 32, hit 95, 320 prompts, seed 10127
+    [dry-run] bench: concurrency 64, hit 80, 640 prompts, seed 10144
+    [dry-run] bench: concurrency 64, hit 95, 640 prompts, seed 10159
+    [dry-run] bench: concurrency 128, hit 80, 1280 prompts, seed 10208
+    [dry-run] bench: concurrency 128, hit 95, 1280 prompts, seed 10223
+    [dry-run] bench: concurrency 256, hit 80, 2560 prompts, seed 10336
+    [dry-run] bench: concurrency 256, hit 95, 2560 prompts, seed 10351
+
+## kvshrink input_len=128000 concurrencies=[80]
+    [dry-run] prewarm: hit 100, 160 prompts, concurrency 80, seed 10000
+    [dry-run] bench: concurrency 80, hit 80, 800 prompts, seed 10160
+    [dry-run] bench: concurrency 80, hit 95, 800 prompts, seed 10175
+
+## kvshrink input_len=256000 concurrencies=[40]
+    [dry-run] prewarm: hit 100, 80 prompts, concurrency 40, seed 10000
+    [dry-run] bench: concurrency 40, hit 80, 400 prompts, seed 10120
+    [dry-run] bench: concurrency 40, hit 95, 400 prompts, seed 10135
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_rust_20261116_094316_flash_attn/kvshrink-nozip-nodsa/summary.csv
+===========================================================

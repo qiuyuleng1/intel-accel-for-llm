@@ -1,0 +1,55 @@
+===========================================================
+Qwen2.5-72B test  model=/home/intel/model-space/Qwen2.5-72B-Instruct  block_sizes=[16 256]  configs=[kvshrink vllm-prefix vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Qwen2.5-72B-Instruct TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 MAX_MODEL_LEN=32768 LEN_CONCURRENCY=32000:1,8,16,32 HIT_RATES='80 100' NUM_PROMPTS_BY_CONCURRENCY='1:20 8:160 16:256 32:256' IAXL_KVSTORE_SKIP_COMPRESSION_LAYERS=1 DRY_RUN=1
+  KVShrink container=iaxl.vllm-fddeef0-qiuyu  LMCache image=qiuyu/vllm-openai-lmcache:v0.33.0-lmcache0.5.6
+  results -> tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045
+===========================================================
+Host settings (PERFORMANCE_MODE_SETUP.md):
+  intel_pstate status: active expected active
+  scaling driver:  192 intel_pstate; expected all intel_pstate
+  scaling governor:  192 performance; expected all performance
+  EPB:  192 0; expected all 0
+  no_turbo:  1 0; expected all 0
+  C-states: POLL C1 C1E C6 C6P expected POLL C1 enabled, every other one disabled
+  POLL disable flag:  192 0; expected all 0
+  C1 disable flag:  192 0; expected all 0
+  C1E disable flag:  192 1; expected all 1
+  C6 disable flag:  192 1; expected all 1
+  C6P disable flag:  192 1; expected all 1
+  Efficiency Latency Control: Latency Optimized Mode (LOM) expected Latency Optimized Mode (LOM)
+GPU 0000:10:00.0  port 0000:0f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:38:00.0  port 0000:37:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:5e:00.0  port 0000:5d:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:71:00.0  port 0000:70:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:90:00.0  port 0000:8f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b9:00.0  port 0000:b8:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:dd:00.0  port 0000:dc:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:ef:00.0  port 0000:ee:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+ACS is off on every GPU switch port.
+
+### bs16 kvshrink (2026-11-10 09:30:46) -> tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045/bs16
+Error response from daemon: No such container: iaxl.vllm-fddeef0-qiuyu
+ERROR: bs16 kvshrink exited with status 1
+
+### bs16 vllm-prefix (2026-11-10 09:30:46) -> tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045/bs16
+Error response from daemon: No such container: iaxl.vllm-fddeef0-qiuyu
+ERROR: bs16 vllm-prefix exited with status 1
+
+### bs16 vllm-wo-prefix (2026-11-10 09:30:46) -> tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045/bs16
+Error response from daemon: No such container: iaxl.vllm-fddeef0-qiuyu
+ERROR: bs16 vllm-wo-prefix exited with status 1
+
+### bs256 kvshrink (2026-11-10 09:30:46) -> tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045/bs256
+Error response from daemon: No such container: iaxl.vllm-fddeef0-qiuyu
+ERROR: bs256 kvshrink exited with status 1
+
+### bs256 vllm-prefix (2026-11-10 09:30:46) -> tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045/bs256
+Error response from daemon: No such container: iaxl.vllm-fddeef0-qiuyu
+ERROR: bs256 vllm-prefix exited with status 1
+
+### bs256 vllm-wo-prefix (2026-11-10 09:30:46) -> tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045/bs256
+Error response from daemon: No such container: iaxl.vllm-fddeef0-qiuyu
+ERROR: bs256 vllm-wo-prefix exited with status 1
+
+Done (2026-11-10 09:30:46): tests/bench_dev/results/dryrun-Qwen2.5-72B-Instruct_tp8_20261110_093045/bs*/summary.csv
+FAILED: bs16/kvshrink bs16/vllm-prefix bs16/vllm-wo-prefix bs256/kvshrink bs256/vllm-prefix bs256/vllm-wo-prefix

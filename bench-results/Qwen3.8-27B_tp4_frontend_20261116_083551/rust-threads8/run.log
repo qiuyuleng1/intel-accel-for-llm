@@ -1,0 +1,24 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:256] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [256:1024] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_frontend_20261116_083551/rust-threads8
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[95]
+    serve pid=661531 log=bench-results/Qwen3.8-27B_tp4_frontend_20261116_083551/rust-threads8/vllm-prefix/serve.log
+    serve ready after 110s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-prefix input_len=32000 concurrencies=[256]
+    max_concurrency for 32128 tokens per request: 393.17
+--- vllm-prefix_tp4_in32000_con256_hit95 prompts=1024 seed=10351
+    vllm-prefix,4,32000,128,256,95,1024,10351,784,393.17,1024,40.778,25.112,3214.293,774353.051,2239.083,1344.952,7790.55,62.037,66.482,72.477,0,29802192,31599237,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_frontend_20261116_083551/rust-threads8/summary.csv
+===========================================================

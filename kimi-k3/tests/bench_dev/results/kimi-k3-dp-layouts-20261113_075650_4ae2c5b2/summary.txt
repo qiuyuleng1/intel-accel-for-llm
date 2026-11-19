@@ -1,0 +1,189 @@
+=== DP8 TP1: smoke exit 1
+smoke: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_075650_6c8ea66e
+gsm8k: -
+     25 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     return func(*args, **kwargs)
+     25 ERROR 11-13 07:58:09 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^
+     20 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+     15 ERROR 11-13 07:58:08 [multiproc_executor.py:944]     return func(*args, **kwargs)
+     15 ERROR 11-13 07:58:08 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 07:58:08 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+     10 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/model_loader/utils.py", line 59, in initialize_model
+     10 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     model = model_class(vllm_config=vllm_config, prefix=prefix)
+     10 ERROR 11-13 07:58:09 [multiproc_executor.py:944]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      8 INFO 11-13 07:57:36 [vllm_patch.py:54] Mamba align patch: prefix caching disabled, skipping validate_mamba_block_size (mamba_block_size=1048576, max_model_len=1048576)
+      6 ERROR 11-13 07:58:08 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/model_loader/utils.py", line 59, in initialize_model
+      6 ERROR 11-13 07:58:08 [multiproc_executor.py:944]     model = model_class(vllm_config=vllm_config, prefix=prefix)
+      6 ERROR 11-13 07:58:08 [multiproc_executor.py:944]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944] WorkerProc failed to start.
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944] Traceback (most recent call last):
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu_worker.py", line 495, in load_model
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 384, in load_model
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 911, in worker_main
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 680, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 894, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 1846, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 1614, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 1173, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 1165, in get_layer
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/kda.py", line 99, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/kda.py", line 438, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/offloader/base.py", line 119, in wrap_modules
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/utils.py", line 859, in <genexpr>
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/utils.py", line 858, in make_layers
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/utils.py", line 603, in init_vllm_registered_model
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/model_loader/base_loader.py", line 55, in load_model
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/linear.py", line 708, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/linear.py", line 510, in __init__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/linear.py", line 192, in create_weights
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_device.py", line 122, in __torch_function__
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     worker = WorkerProc(*args, **kwargs)
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     super().__init__(input_size, output_sizes, **kwargs)
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     super().__init__(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.worker.load_model()
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.start_layer, self.end_layer, self.layers = make_layers(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.self_attn = KimiK3DeltaAttention(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.quant_method.create_weights(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.model_runner.load_model(load_dummy_weights=load_dummy_weights)
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.model = model_loader.load_model(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.model = KimiLinearModel(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.language_model = init_vllm_registered_model(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     self.in_proj_qkvgfab = _KimiGDNMergedColumnParallelLinear(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     return list(modules_generator)
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     return initialize_model(vllm_config=vllm_config, prefix=prefix)
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     return KimiDecoderLayer(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     model = initialize_model(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     layer_fn(prefix=f"{prefix}.{idx}") for idx in range(start_layer, end_layer)
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     data=torch.empty(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]     + get_offloader().wrap_modules(
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]          ^^^^^^^^^^^^
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^^^^^^^
+      5 ERROR 11-13 07:58:09 [multiproc_executor.py:944]            ^^^^^^^^^^^^^^^^^
+=== DP4 TP2: smoke exit 1
+smoke: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_075820_6c8ea66e
+gsm8k: -
+     36 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+     36 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     return func(*args, **kwargs)
+     36 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055] Traceback (most recent call last):
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/utils.py", line 411, in allocate_kv_cache
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu_worker.py", line 570, in determine_available_memory
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 898, in profile_cudagraph_memory
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 670, in initialize_kv_cache
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 857, in _init_minimal_kv_cache_for_profiling
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 756, in profile_cudagraph_memory
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/attn_utils.py", line 216, in init_kv_cache
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 1047, in _execute_worker_rpc
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     runner.initialize_kv_cache(minimal_config, is_profiling=True)
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     return _profile_cudagraph_memory(self)
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     output = func(*args, **kwargs)
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     kv_caches_dict = init_kv_cache(
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     kv_caches = allocate_kv_cache(
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     cudagraph_memory_estimate = self.model_runner.profile_cudagraph_memory()
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     buf = torch.zeros(buf_size, dtype=torch.int8, device=device)
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]     _init_minimal_kv_cache_for_profiling(runner)
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]              ^^^^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]                 ^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]                      ^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:01:42 [multiproc_executor.py:1055]                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      8 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+      8 ERROR 11-13 08:01:42 [core.py:1374]     super().__init__(
+      8 ERROR 11-13 08:01:42 [core.py:1374]     return func(*args, **kwargs)
+      8 ERROR 11-13 08:01:42 [core.py:1374]            ^^^^^^^^^^^^^^^^^^^^^
+      6 ERROR 11-13 08:01:42 [multiproc_executor.py:1055] WorkerProc hit an exception.
+      6 ERROR 11-13 08:01:42 [multiproc_executor.py:1055] 
+      4 INFO 11-13 08:01:23 [interface.py:918] Setting attention block size to 2944 tokens to ensure that attention page size is >= mamba page size.
+      4 INFO 11-13 07:59:00 [vllm_patch.py:54] Mamba align patch: prefix caching disabled, skipping validate_mamba_block_size (mamba_block_size=1048576, max_model_len=1048576)
+      4 ERROR 11-13 08:01:42 [core.py:1374] Traceback (most recent call last):
+      4 ERROR 11-13 08:01:42 [core.py:1374] EngineCore failed to start.
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 99, in result
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 448, in collective_rpc
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 437, in get_response
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 103, in _wait_for_response
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/abstract.py", line 149, in determine_available_memory
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 308, in _initialize_kv_caches
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 2044, in __init__
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 145, in __init__
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1330, in run_engine_core
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core.py", line 1093, in __init__
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+      4 ERROR 11-13 08:01:42 [core.py:1374]   File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+      4 ERROR 11-13 08:01:42 [core.py:1374]     return super().result()
+      4 ERROR 11-13 08:01:42 [core.py:1374]     return self.collective_rpc("determine_available_memory")
+      4 ERROR 11-13 08:01:42 [core.py:1374]     return self.__get_result()
+      4 ERROR 11-13 08:01:42 [core.py:1374]     return future if non_block else future.result()
+      4 ERROR 11-13 08:01:42 [core.py:1374]     response = self.aggregate(self.get_response())
+      4 ERROR 11-13 08:01:42 [core.py:1374]     raise self._exception
+      4 ERROR 11-13 08:01:42 [core.py:1374]     raise RuntimeError(
+      4 ERROR 11-13 08:01:42 [core.py:1374]     kv_cache_config = self._initialize_kv_caches(vllm_config)
+      4 ERROR 11-13 08:01:42 [core.py:1374]     engine_core = DPEngineCoreProc(*args, **kwargs)
+      4 ERROR 11-13 08:01:42 [core.py:1374]     available_gpu_memory = self.model_executor.determine_available_memory()
+      4 ERROR 11-13 08:01:42 [core.py:1374]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      4 ERROR 11-13 08:01:42 [core.py:1374]            ^^^^^^^^^^^^^^^^^^^
+=== DP2 TP4: smoke exit 1
+smoke: /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_080201_6c8ea66e
+gsm8k: -
+     36 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+     36 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+     36 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]     return self._call_impl(*args, **kwargs)
+     36 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]     return forward_call(*args, **kwargs)
+     36 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     36 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     30 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+     30 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]     return func(*args, **kwargs)
+     30 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+     12 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+     12 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]     return self._call_impl(*args, **kwargs)
+     12 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]     return forward_call(*args, **kwargs)
+     12 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     12 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     10 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+     10 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]     return func(*args, **kwargs)
+     10 ERROR 11-13 08:05:12 [multiproc_executor.py:1055]            ^^^^^^^^^^^^^^^^^^^^^
+      9 ERROR 11-13 08:05:13 [multiproc_executor.py:1055] 
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055] Traceback (most recent call last):
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055] Exception raised from malloc at /__w/pytorch/pytorch/c10/cuda/CUDACachingAllocator.cpp:1928 (most recent call first):
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "python/tvm_ffi/cython/function.pxi", line 968, in tvm_ffi.core.Function.__call__
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "<unknown>", line 0, in flashinfer::trtllm_fp4_block_scale_moe(long, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::TensorView, tvm::ffi::TensorView, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::TensorView, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::TensorView, tvm::ffi::TensorView, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::TensorView, tvm::ffi::TensorView, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Optional<tvm::ffi::TensorView, void>, long, long, tvm::ffi::Optional<long, void>, tvm::ffi::Optional<long, void>, tvm::ffi::Optional<long, void>, long, long, long, tvm::ffi::Optional<double, void>, long, bool, bool, long, tvm::ffi::TensorView, tvm::ffi::Array<long, void>, bool, tvm::ffi::Optional<tvm::ffi::TensorView, void>, tvm::ffi::Array<tvm::ffi::Tensor, void>, tvm::ffi::Array<tvm::ffi::Tensor, void>, bool)
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "<unknown>", line 0, in flashinfer::FP4BlockScaleLauncher::run(long, bool, bool, bool, bool)
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "<unknown>", line 0, in flashinfer::FP4BlockScaleLauncher::prepare_moe(long&)
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "<unknown>", line 0, in __tvm_ffi_trtllm_fp4_block_scale_moe
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "<unknown>", line 0, in TorchDLPackExchangeAPI::ManagedTensorAllocator(DLTensor*, DLManagedTensorVersioned**, void*, void (*)(void*, char const*, char const*))
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "<unknown>", line 0, in TVMFFIEnvTensorAlloc
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu_worker.py", line 570, in determine_available_memory
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 931, in capture_model
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/model_runner.py", line 898, in profile_cudagraph_memory
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 792, in profile_cudagraph_memory
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 617, in capture
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 581, in forward_fn
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu/cudagraph_utils.py", line 355, in capture
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/executor/multiproc_executor.py", line 1047, in _execute_worker_rpc
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 848, in forward
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 2126, in forward
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 1651, in forward
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 1368, in forward
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/model.py", line 1113, in forward
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/models/kimi_k3/nvidia/latent_moe_runner.py", line 316, in forward
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/quantization/mxfp4.py", line 849, in apply
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 913, in _forward_impl
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 728, in forward
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 630, in _apply_quant_method
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 164, in _moe_forward_shared
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/routed_experts.py", line 1252, in forward_modular
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/modular_kernel.py", line 1732, in apply
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/modular_kernel.py", line 1501, in apply
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/modular_kernel.py", line 1349, in _fused_experts
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/experts/trtllm_mxfp4_moe.py", line 440, in apply
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/experts/trtllm_mxfp4_moe.py", line 367, in _invoke_kernel
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/torch/_ops.py", line 1279, in __call__
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/fused_moe/core.py", line 6445, in trtllm_fp4_block_scale_routed_moe
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/fused_moe/core.py", line 3885, in trtllm_fp4_block_scale_moe_op
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/fused_moe/core.py", line 3813, in run_selected_tactic
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]   File "/usr/local/lib/python3.12/dist-packages/flashinfer/api_logging.py", line 2333, in _auto_dump_wrapper
+      6 ERROR 11-13 08:05:13 [multiproc_executor.py:1055]     trtllm_fp4_block_scale_routed_moe(

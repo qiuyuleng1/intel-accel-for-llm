@@ -1,0 +1,34 @@
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:10:00.0 NUMA=0 CPUs=0-23
+KVShrink QAT rank 0: indices=0,1,2,3 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=1) 0000:81:00.0(numa=2) 0000:86:00.0(numa=3)
+KVShrink GPU rank 0: index=0 pci=00000000:10:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+vLLM configuration:
+  MODEL=/home/intel/model-space/Qwen3.8-27B
+  TP_SIZE=1
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=1
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=1
+  VLLM_CPU_OMP_THREADS_BIND=0-23
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-23
+  KVSHRINK_QAT_DEVICES=0,1,2,3
+  KVSHRINK_DSA_DEVICES=wq0.0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=24
+  IAXL_QAT_INSTANCE_NUM=4
+  IAXL_IAA_INSTANCE_NUM=4
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=8
+  IAXL_USE_OMP=1
+SCRIPT_DIR: /home/intel/qiuyu/intel-accel-for-llm-b300/benchmark/tensor_xfer
+[kv_xfer] copy_chunks_batch: contiguous block size = 1.00 KB, blocks = 104857
+IAXL check failed: dsa_read_wq_attr("block_on_fault", 0) == 1 (dsa: WQ has block_on_fault=0, run tools/setup_dsa.sh to enable it) at /home/intel/qiuyu/intel-accel-for-llm-b300/iaxl/csrc/dsa_gd/dsa_memcpy.c:267
+benchmark/tensor_xfer/tensor_xfer_benchmark.sh: line 28: 1014692 Aborted                 (core dumped) numactl --cpunodebind=0 --membind=0 python3 "$SCRIPT_DIR/tensor_xfer_benchmark.py" "${ARGS[@]}"

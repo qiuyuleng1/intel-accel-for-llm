@@ -1,0 +1,33 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64 128000:64 256000:32] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261112_032431
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    [dry-run] serve: BASELINE= MAX_MODEL_LEN=256128 BLOCK_SIZE= bash examples/kvshrink-vllm-serve.sh > tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261112_032431/kvshrink/serve.log
+
+## kvshrink input_len=32000 concurrencies=[32 64]
+    [dry-run] prewarm: hit 100, 128 prompts, concurrency 64, seed 10000
+    [dry-run] bench: concurrency 32, hit 80, 320 prompts, seed 10112
+    [dry-run] bench: concurrency 32, hit 95, 320 prompts, seed 10127
+    [dry-run] bench: concurrency 64, hit 80, 640 prompts, seed 10144
+    [dry-run] bench: concurrency 64, hit 95, 640 prompts, seed 10159
+
+## kvshrink input_len=128000 concurrencies=[64]
+    [dry-run] prewarm: hit 100, 128 prompts, concurrency 64, seed 10000
+    [dry-run] bench: concurrency 64, hit 80, 640 prompts, seed 10144
+    [dry-run] bench: concurrency 64, hit 95, 640 prompts, seed 10159
+
+## kvshrink input_len=256000 concurrencies=[32]
+    [dry-run] prewarm: hit 100, 64 prompts, concurrency 32, seed 10000
+    [dry-run] bench: concurrency 32, hit 80, 320 prompts, seed 10112
+    [dry-run] bench: concurrency 32, hit 95, 320 prompts, seed 10127
+
+===========================================================
+Done: tests/bench_dev/results/dryrun-Qwen3.8-27B_tp4_20261112_032431/summary.csv
+===========================================================

@@ -1,0 +1,77 @@
+===========================================================
+Qwen3.8-27B frontend test  variants=[rust python rust-threads8 python-workers8]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6 VLLM_CPU_OMP_THREADS_BIND='0-23|24-47|48-71|72-95' KVSHRINK_QAT_DEVICES='0|1|2|3' KVSHRINK_DSA_DEVICES='wq0.0|wq2.0|wq4.0|wq6.0' KVSHRINK_IAA_DEVICES='0|1|2|3' LEN_CONCURRENCY='32000:256 128000:64' HIT_RATES=95 MAX_MODEL_LEN=256128 LMCACHE_CHUNK_SIZE=784 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 LMCACHE_L1_SIZE_GB=1000 DRY_RUN=0
+  KVShrink container=iaxl.vllm-fddeef0-qiuyu  timeout per variant 3600s
+  results -> bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613
+===========================================================
+Host settings (PERFORMANCE_MODE_SETUP.md):
+  intel_pstate status: active expected active
+  scaling driver:  192 intel_pstate; expected all intel_pstate
+  scaling governor:  192 performance; expected all performance
+  EPB:  192 0; expected all 0
+  no_turbo:  1 0; expected all 0
+  C-states: POLL C1 C1E C6 C6P expected POLL C1 enabled, every other one disabled
+  POLL disable flag:  192 0; expected all 0
+  C1 disable flag:  192 0; expected all 0
+  C1E disable flag:  192 1; expected all 1
+  C6 disable flag:  192 1; expected all 1
+  C6P disable flag:  192 1; expected all 1
+  Efficiency Latency Control: Latency Optimized Mode (LOM) expected Latency Optimized Mode (LOM)
+GPU 0000:10:00.0  port 0000:0f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:38:00.0  port 0000:37:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:5e:00.0  port 0000:5d:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:71:00.0  port 0000:70:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:90:00.0  port 0000:8f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b9:00.0  port 0000:b8:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:dd:00.0  port 0000:dc:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:ef:00.0  port 0000:ee:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+ACS is off on every GPU switch port.
+waiting for iaxl.vllm-fddeef0-qiuyu to finish pip install -e . (08:06:14)
+iaxl.vllm-fddeef0-qiuyu ready (08:06:14)
+
+### rust (2026-11-16 08:06:14): VLLM_USE_RUST_FRONTEND=1 VLLM_SERVE_EXTRA_ARGS='--chat-template /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/qwen38-27B-chat-template-no-generation.jinja' -> bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613/rust
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:256 128000:64] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613/rust
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[95]
+    serve pid=646266 log=bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613/rust/vllm-prefix/serve.log
+    serve ready after 150s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-prefix input_len=32000 concurrencies=[256]
+    max_concurrency for 32128 tokens per request: 393.17
+    prewarm: hit 100, 512 prompts, concurrency 256
+--- vllm-prefix_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    vllm-prefix,4,32000,128,256,95,2560,10351,784,393.17,2560,98.102,26.095,3340.186,804740.171,1673.264,1346.681,5093.382,63.808,65.586,69.424,0,74378864,78773063,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-prefix input_len=128000 concurrencies=[64]
+    max_concurrency for 128128 tokens per request: 98.59
+    prewarm: hit 100, 128 prompts, concurrency 64
+--- vllm-prefix_tp4_in128000_con64_hit95 prompts=640 seed=10159
+    vllm-prefix,4,128000,128,64,95,640,10159,784,98.59,640,121.064,5.286,676.665,649269.505,2487.93,1902.836,7888.788,75.531,78.433,83.66,0,74636016,79132856,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613/rust/summary.csv
+===========================================================
+
+### python (2026-11-16 08:30:12): VLLM_SERVE_EXTRA_ARGS='--chat-template /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/qwen38-27B-chat-template-no-generation.jinja' -> bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613/python
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:256 128000:64] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613/python
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[95]
+    serve pid=651356 log=bench-results/Qwen3.8-27B_tp4_frontend_20261116_080613/python/vllm-prefix/serve.log

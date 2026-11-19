@@ -1,0 +1,34 @@
+[07:15:53] code md5 ae305bfb, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261112_071553_ae305bfb
+[07:15:53] starting vLLM /home/intel/model-space/Kimi-K3, TP 8, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261112_071553_ae305bfb/serve.log
+[07:32:53] serve ready after 1020s
+INFO 11-12 07:16:38 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 11-12 07:19:46 [interface.py:918] Setting attention block size to 768 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-12 07:19:48 [interface.py:918] Setting attention block size to 768 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-12 07:19:49 [interface.py:918] Setting attention block size to 768 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-12 07:19:50 [interface.py:918] Setting attention block size to 768 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-12 07:19:51 [interface.py:918] Setting attention block size to 768 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-12 07:19:52 [interface.py:918] Setting attention block size to 768 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-12 07:22:02 [kv_cache_utils.py:2032] GPU KV cache size: 1,186,335 tokens, Maximum concurrency for 32,768 tokens per request: 36.20x
+INFO 11-12 07:32:42,672 [kvshrink_connector.py:154] KVShrinkConnector(SCHEDULER): block_size=768, has_mamba=True, mamba_cache_mode='align', prefix caching=False
+INFO:kvshrink.kvshrink_connector:Registered 93 KV cache layers (69 mamba) with shape [1774, 442368]
+short-1: prompt=101 completion=61 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-2: prompt=161 completion=140 finish=stop answer='18' target='18' correct=True garbled=False
+long-A: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-B: prompt=10316 completion=258 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-C: prompt=10301 completion=120 finish=stop answer='540' target='540' correct=True garbled=False
+(EngineCore pid=382649) INFO 11-12 07:33:22,738 [kvstore.py:457] [monitor][rank0] | mem pool 0.31/25.00G (1%) 14 grp | zip/raw 0.31/0.31G (1.00) | evict on/0 | host mem 365.2/2015.5G
+[07:33:35] serve stopped after 12s
+[07:33:35] serve log "Traceback": 0
+[07:33:35] serve log " ERROR ": 0
+[07:33:35] serve log "IAXL check failed": 0
+[07:33:35] serve log "cache key missing after retry": 0
+request  prompt    hit compl finish correct garbled  answer / target
+short-1     101      0    61 stop   True    False    'The user is asking a simple factual ques' / ''
+short-2     161      0   140 stop   True    False    '18' / '18'
+long-A    10293      0   112 stop   True    False    '3' / '3'
+long-A2   10293   9984   112 stop   True    False    '3' / '3'
+long-B    10316   9984   258 stop   True    False    '70000' / '70000'
+long-C    10301   9984   120 stop   True    False    '540' / '540'
+(hit -1: no connector line for the request)
+[07:33:36] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261112_071553_ae305bfb

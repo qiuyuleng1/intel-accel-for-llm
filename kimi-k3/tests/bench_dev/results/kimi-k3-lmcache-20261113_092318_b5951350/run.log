@@ -1,0 +1,115 @@
+[09:23:18] code md5 b5951350, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-lmcache-20261113_092318_b5951350
+[09:23:18] vllm 0.29.0 lmcache 0.5.7
+[09:23:38] lmcache server ready after 20s (process group 933, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-lmcache-20261113_092318_b5951350/lmcache_server.log)
+[09:23:38] starting vLLM /home/intel/model-space/Kimi-K3, DP 2 TP 4, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-lmcache-20261113_092318_b5951350/serve.log
+[09:33:28] vLLM ready after 590s
+      4 [32;20m[2026-11-13 09:28:24,396] LMCache INFO:[0m Resolved LMCache MP geometry: group_tokens_per_block=[1536, 1536, 1536, 1536], scheduler_block_size=1536, cache_model_name=/home/intel/model-space/Kimi-K3 [3m(lmcache_mp_connector.py:689:lmcache.integration.vllm.lmcache_mp_connector)[0m
+      4 [32;20m[2026-11-13 09:28:24,454] LMCache INFO:[0m Resolved LMCache MP geometry: group_tokens_per_block=[1536, 1536, 1536, 1536], scheduler_block_size=1536, cache_model_name=/home/intel/model-space/Kimi-K3 [3m(lmcache_mp_connector.py:689:lmcache.integration.vllm.lmcache_mp_connector)[0m
+      1 [32;20m[2026-11-13 09:33:15,064] LMCache INFO:[0m Resolved LMCache MP geometry: group_tokens_per_block=[1536, 1536, 1536, 1536], scheduler_block_size=1536, cache_model_name=/home/intel/model-space/Kimi-K3 [3m(lmcache_mp_connector.py:689:lmcache.integration.vllm.lmcache_mp_connector)[0m
+      1 [32;20m[2026-11-13 09:33:15,138] LMCache INFO:[0m Resolved LMCache MP geometry: group_tokens_per_block=[1536, 1536, 1536, 1536], scheduler_block_size=1536, cache_model_name=/home/intel/model-space/Kimi-K3 [3m(lmcache_mp_connector.py:689:lmcache.integration.vllm.lmcache_mp_connector)[0m
+      1 INFO 11-13 09:23:51 [__init__.py:95] LMCache hybrid patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+      1 INFO 11-13 09:24:07 [__init__.py:45] LMCache hybrid patch: prefix caching disabled, overriding mamba_cache_mode 'none' -> 'align' (mamba_block_size=1048576)
+      1 INFO 11-13 09:24:07 [__init__.py:70] LMCache hybrid patch: skipping validate_mamba_block_size (mamba_block_size=1048576, max_model_len=1048576, prefix caching=False)
+      2 INFO 11-13 09:24:21 [__init__.py:95] LMCache hybrid patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+      2 INFO 11-13 09:24:24 [__init__.py:45] LMCache hybrid patch: prefix caching disabled, overriding mamba_cache_mode 'none' -> 'align' (mamba_block_size=1048576)
+      2 INFO 11-13 09:24:24 [__init__.py:70] LMCache hybrid patch: skipping validate_mamba_block_size (mamba_block_size=1048576, max_model_len=1048576, prefix caching=False)
+      2 INFO 11-13 09:24:26 [__init__.py:95] LMCache hybrid patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+      5 INFO 11-13 09:24:39 [__init__.py:95] LMCache hybrid patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+      3 INFO 11-13 09:24:40 [__init__.py:95] LMCache hybrid patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+      1 INFO 11-13 09:24:52 [__init__.py:70] LMCache hybrid patch: skipping validate_mamba_block_size (mamba_block_size=1048576, max_model_len=1048576, prefix caching=False)
+      1 INFO 11-13 09:26:33 [model_runner.py:404] Model loading took 221.78 GiB memory and 102.275909 seconds
+      2 INFO 11-13 09:26:34 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 09:26:34 [model_runner.py:404] Model loading took 221.78 GiB memory and 103.180085 seconds
+      1 INFO 11-13 09:26:34 [model_runner.py:404] Model loading took 221.78 GiB memory and 103.280897 seconds
+      1 INFO 11-13 09:26:35 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 09:26:37 [model_runner.py:404] Model loading took 221.78 GiB memory and 106.363414 seconds
+      1 INFO 11-13 09:26:38 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 09:26:39 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 09:26:39 [model_runner.py:404] Model loading took 221.78 GiB memory and 107.391144 seconds
+      1 INFO 11-13 09:26:41 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 09:26:41 [model_runner.py:404] Model loading took 221.78 GiB memory and 109.426252 seconds
+      2 INFO 11-13 09:26:42 [interface.py:918] Setting attention block size to 1536 tokens to ensure that attention page size is >= mamba page size.
+      1 INFO 11-13 09:26:42 [model_runner.py:404] Model loading took 221.78 GiB memory and 111.047003 seconds
+      1 INFO 11-13 09:26:42 [model_runner.py:404] Model loading took 221.78 GiB memory and 111.387412 seconds
+      2 INFO 11-13 09:28:24 [kv_cache_utils.py:2032] GPU KV cache size: 228,775 tokens, Maximum concurrency for 227,328 tokens per request: 1.01x
+      2 INFO 11-13 09:28:24 [kv_cache_utils.py:2163] Auto-fit max_model_len: reduced from 1048576 to 227328 to fit in available GPU memory (6.22 GiB available for KV cache)
+[09:33:28] === smoke test, every request once per DP rank
+short-1@dp0: prompt=101 completion=78 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-1@dp1: prompt=101 completion=53 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-2@dp0: prompt=161 completion=146 finish=stop answer='18' target='18' correct=True garbled=False
+short-2@dp1: prompt=161 completion=140 finish=stop answer='18' target='18' correct=True garbled=False
+long-A@dp0: prompt=10293 completion=113 finish=stop answer='3' target='3' correct=True garbled=False
+long-A@dp1: prompt=10293 completion=123 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2@dp0: prompt=10293 completion=171 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2@dp1: prompt=10293 completion=123 finish=stop answer='3' target='3' correct=True garbled=False
+long-B@dp0: prompt=10316 completion=406 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-B@dp1: prompt=10316 completion=284 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-C@dp0: prompt=10301 completion=125 finish=stop answer='540' target='540' correct=True garbled=False
+long-C@dp1: prompt=10301 completion=107 finish=stop answer='540' target='540' correct=True garbled=False
+xlong-A@dp0: prompt=20177 completion=185 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A@dp1: prompt=20177 completion=221 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A2@dp0: prompt=20177 completion=214 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-A2@dp1: prompt=20177 completion=221 finish=stop answer='20' target='20' correct=True garbled=False
+xlong-B@dp0: prompt=20122 completion=361 finish=stop answer='64' target='64' correct=True garbled=False
+xlong-B@dp1: prompt=20122 completion=269 finish=stop answer='64' target='64' correct=True garbled=False
+request        prompt    hit    max compl finish correct garbled  answer / target
+short-1@dp0       101      0      0    78 stop   True    False    'The user is asking a simple factual ques' / ''
+short-1@dp1       101      0      0    53 stop   True    False    'The user is asking a simple factual ques' / ''
+short-2@dp0       161      0      0   146 stop   True    False    '18' / '18'
+short-2@dp1       161      0      0   140 stop   True    False    '18' / '18'
+long-A@dp0      10293      0   9216   113 stop   True    False    '3' / '3'
+long-A@dp1      10293   9216   9216   123 stop   True    False    '3' / '3'
+long-A2@dp0     10293   9216   9216   171 stop   True    False    '3' / '3'
+long-A2@dp1     10293   9216   9216   123 stop   True    False    '3' / '3'
+long-B@dp0      10316   9216   9216   406 stop   True    False    '70000' / '70000'
+long-B@dp1      10316   9216   9216   284 stop   True    False    '70000' / '70000'
+long-C@dp0      10301   9216   9216   125 stop   True    False    '540' / '540'
+long-C@dp1      10301   9216   9216   107 stop   True    False    '540' / '540'
+xlong-A@dp0     20177   9216  19968   185 stop   True    False    '20' / '20'
+xlong-A@dp1     20177  19968  19968   221 stop   True    False    '20' / '20'
+xlong-A2@dp0    20177  19968  19968   214 stop   True    False    '20' / '20'
+xlong-A2@dp1    20177  19968  19968   221 stop   True    False    '20' / '20'
+xlong-B@dp0     20122  19968  19968   361 stop   True    False    '64' / '64'
+xlong-B@dp1     20122  19968  19968   269 stop   True    False    '64' / '64'
+(hit: kvshrink connector line, else vLLM cached_tokens; -1: neither)
+[09:35:14] === capacity: 32k x 6 and 128k x 1 per DP rank
+[09:35:14] code md5 48c75f24, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-capacity-20261113_093514_48c75f24
+[09:35:14] vLLM process group 1047, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-lmcache-20261113_092318_b5951350/serve.log
+[09:35:14] === input 32000: 6 request(s) per DP rank, 2 ranks at once
+  DP0: completed 6, failed 0, mean TTFT 7342 ms, max TTFT 11632 ms
+  DP1: completed 6, failed 0, mean TTFT 8173 ms, max TTFT 12123 ms
+  max vllm:kv_cache_usage_perc engine 0: 0.955414
+  max vllm:kv_cache_usage_perc engine 1: 0.949045
+  max vllm:num_requests_running engine 0: 6
+  max vllm:num_requests_running engine 1: 6
+  max vllm:num_requests_waiting engine 0: 4
+  max vllm:num_requests_waiting engine 1: 4
+[09:35:54]   preemptions during the case: 0
+[09:35:54]   serve log "Traceback": 0
+[09:35:54]   serve log " ERROR ": 0
+[09:35:54]   serve log "IAXL check failed": 0
+[09:35:54]   serve log "cache key missing after retry": 0
+[09:35:54] === input 128000: 1 request(s) per DP rank, 2 ranks at once
+  DP0: completed 1, failed 0, mean TTFT 10337 ms, max TTFT 10337 ms
+  DP1: completed 1, failed 0, mean TTFT 10923 ms, max TTFT 10923 ms
+  max vllm:kv_cache_usage_perc engine 0: 0.592357
+  max vllm:kv_cache_usage_perc engine 1: 0.592357
+  max vllm:num_requests_running engine 0: 1
+  max vllm:num_requests_running engine 1: 1
+  max vllm:num_requests_waiting engine 0: 0
+  max vllm:num_requests_waiting engine 1: 0
+[09:36:32]   preemptions during the case: 0
+[09:36:32]   serve log "Traceback": 0
+[09:36:32]   serve log " ERROR ": 0
+[09:36:32]   serve log "IAXL check failed": 0
+[09:36:32]   serve log "cache key missing after retry": 0
+[09:36:32] vLLM left running (process group 1047)
+[09:36:32] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-capacity-20261113_093514_48c75f24
+[09:36:32] serve log "Traceback": 0
+[09:36:32] lmcache server log "Traceback": 0
+[09:36:32] serve log " ERROR ": 0
+[09:36:32] lmcache server log " ERROR ": 0
+[09:36:32] serve log "OutOfMemoryError": 0
+[09:36:32] lmcache server log "OutOfMemoryError": 0
+[09:36:32] vLLM (process group 1047) and lmcache server (process group 933) left running
+[09:36:32] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-lmcache-20261113_092318_b5951350

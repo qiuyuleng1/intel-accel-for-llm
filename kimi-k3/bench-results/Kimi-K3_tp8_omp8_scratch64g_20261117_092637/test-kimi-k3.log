@@ -1,0 +1,159 @@
+===========================================================
+Kimi-K3 test  model=/home/intel/model-space/Kimi-K3  layouts=[tp8]  configs=[kvshrink-nozip kvshrink]
+  hit rates=[80 95] cache=600 GB scratch=64 GB per rank
+  tp8: MAX_MODEL_LEN input:concurrency = 256128 32000:4,8,12,24 128000:2,6 256000:2
+  KVShrink container=iaxl.vllm-kimi-k3-qiuyu  LMCache container=lmcache.vllm-kimi-k3-qiuyu
+  left running at the end: none (KEEP_LAST_SERVE=0)
+  timeout per config 7200s
+  results -> bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637
+===========================================================
+Host settings (PERFORMANCE_MODE_SETUP.md):
+  intel_pstate status: active expected active
+  scaling driver:  192 intel_pstate; expected all intel_pstate
+  scaling governor:  192 performance; expected all performance
+  EPB:  192 0; expected all 0
+  no_turbo:  1 0; expected all 0
+  C-states: POLL C1 C1E C6 C6P expected POLL C1 enabled, every other one disabled
+  POLL disable flag:  192 0; expected all 0
+  C1 disable flag:  192 0; expected all 0
+  C1E disable flag:  192 1; expected all 1
+  C6 disable flag:  192 1; expected all 1
+  C6P disable flag:  192 1; expected all 1
+  Efficiency Latency Control: Latency Optimized Mode (LOM) expected Latency Optimized Mode (LOM)
+GPU 0000:10:00.0  port 0000:0f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:38:00.0  port 0000:37:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:5e:00.0  port 0000:5d:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:71:00.0  port 0000:70:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:90:00.0  port 0000:8f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b9:00.0  port 0000:b8:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:dd:00.0  port 0000:dc:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:ef:00.0  port 0000:ee:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+ACS is off on every GPU switch port.
+waiting for iaxl.vllm-kimi-k3-qiuyu to finish pip install -e . (09:26:39)
+iaxl.vllm-kimi-k3-qiuyu ready (09:26:39)
+
+### tp8 kvshrink-nozip (2026-11-17 09:26:39) -> bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/kvshrink-nozip
+  CONFIGS=kvshrink RESULTS_DIR=bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/kvshrink-nozip MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12,24 128000:2,6 256000:2' HIT_RATES='80 95' MAX_MODEL_LEN=256128 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128' LMCACHE_CHUNK_SIZE=768 IAXL_SCRATCH_POOL_SIZE_GB=64 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=0 IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1 IAXL_OMP_THREAD_NUM=8 timeout 7200 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12,24 128000:2,6 256000:2] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=64
+  LMCACHE_CHUNK_SIZE=768 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/kvshrink-nozip
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=882098 log=bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/kvshrink-nozip/kvshrink/serve.log
+    serve ready after 500s
+    block_size=768 kv_cache_tokens=1397876
+
+## kvshrink input_len=32000 concurrencies=[4 8 12 24]
+    max_concurrency for 32128 tokens per request: 43.51
+    prewarm: hit 100, 48 prompts, concurrency 24
+--- kvshrink_dp1tp8_in32000_con4_hit80 prompts=40 seed=10084
+    kvshrink,1,8,32000,128,4,80,40,10084,768,43.51,40,33.035,1.211,154.989,38902.205,1068.875,1149.693,1568.176,17.572,17.24,21.47,0,0,0,1074432,45,44,24419,1.32,10.81,75.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con4_hit95 prompts=40 seed=10099
+    kvshrink,1,8,32000,128,4,95,40,10099,768,43.51,40,27.874,1.435,183.687,46105.34,768.886,766.274,1655.151,15.87,15.431,18.09,0,0,0,1240320,45,44,28189,10.81,15.60,75.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con8_hit80 prompts=80 seed=10088
+    kvshrink,1,8,32000,128,8,80,80,10088,768,43.51,80,51.97,1.539,197.037,49456.198,1847.539,1842.053,3225.499,26.341,23.327,49.053,0,0,0,2072832,85,84,24677,15.60,34.54,75.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con8_hit95 prompts=80 seed=10103
+    kvshrink,1,8,32000,128,8,95,80,10103,768,43.51,80,35.483,2.255,288.588,72435.683,1113.301,1282.709,1837.812,19.129,17.811,24.751,0,0,0,2449152,85,84,29157,34.54,43.20,75.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con12_hit80 prompts=120 seed=10092
+    kvshrink,1,8,32000,128,12,80,120,10092,768,43.51,120,64.396,1.863,238.524,59869.429,2501.541,2786.722,4099.915,30.952,28.786,45.909,0,0,0,3095040,125,124,24960,43.20,72.16,75.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con12_hit95 prompts=120 seed=10107
+    kvshrink,1,8,32000,128,12,95,120,10107,768,43.51,120,43.277,2.773,354.927,89086.581,1494.289,1494.842,3289.52,22.265,21.649,29.764,0,0,0,3621120,125,124,29203,72.16,61.02,75.00,1.000,2,1,14,23,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con24_hit80 prompts=240 seed=10104
+    kvshrink,1,8,32000,128,24,80,240,10104,768,43.51,240,108.508,2.212,283.112,71061.056,4201.458,4767.913,6653.598,52.25,48.562,77.356,0,0,0,6127872,245,244,25114,61.02,64.31,75.00,1.000,3,1,24,43,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con24_hit95 prompts=240 seed=10119
+    kvshrink,1,8,32000,128,24,95,240,10119,768,43.51,240,62.137,3.862,494.389,124091.595,1988.576,1917.042,4716.309,33.162,32.281,42.917,0,0,0,7202304,245,244,29518,64.31,71.30,75.00,1.000,1,1,35,35,0,0,0,0.0,0.0
+
+## kvshrink input_len=128000 concurrencies=[2 6]
+    max_concurrency for 128128 tokens per request: 10.91
+    prewarm: hit 100, 12 prompts, concurrency 6
+--- kvshrink_dp1tp8_in128000_con2_hit80 prompts=20 seed=10082
+    kvshrink,1,8,128000,128,2,80,20,10082,768,10.91,20,52.339,0.382,48.912,48961.093,2773.029,2369.192,3750.524,19.357,19.301,26.15,0,0,0,2466816,25,24,102784,66.47,67.13,75.00,1.000,2,0,8,15,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in128000_con2_hit95 prompts=20 seed=10097
+    kvshrink,1,8,128000,128,2,95,20,10097,768,10.91,20,29.901,0.669,85.616,85701.993,1107.534,1090.169,1401.209,14.804,14.746,16.884,0,0,0,2829312,25,24,117888,67.13,64.54,75.00,1.000,1,0,8,8,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in128000_con6_hit80 prompts=60 seed=10086
+    kvshrink,1,8,128000,128,6,80,60,10086,768,10.91,60,119.836,0.501,64.087,64151.531,6502.483,6261.826,9754.966,43.106,42.158,79.72,0,0,0,6331392,65,64,98928,64.54,65.19,75.00,1.000,4,0,9,33,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in128000_con6_hit95 prompts=60 seed=10101
+    kvshrink,1,8,128000,128,6,95,60,10101,768,10.91,60,56.284,1.066,136.451,136587.207,2154.181,2209.604,3417.365,27.284,27.143,37.411,0,0,0,7461888,65,64,116592,65.19,71.06,75.00,1.000,1,1,31,31,0,0,0,0.0,0.0
+
+## kvshrink input_len=256000 concurrencies=[2]
+    max_concurrency for 256128 tokens per request: 5.46
+    prewarm: hit 100, 4 prompts, concurrency 2
+--- kvshrink_dp1tp8_in256000_con2_hit80 prompts=20 seed=10082
+    kvshrink,1,8,256000,128,2,80,20,10082,768,5.46,20,109.072,0.183,23.471,46964.819,7491.2,6379.576,9523.983,26.871,26.228,39.374,0,0,0,4919808,25,24,204992,61.01,63.79,75.00,1.000,3,1,14,30,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in256000_con2_hit95 prompts=20 seed=10097
+    kvshrink,1,8,256000,128,2,95,20,10097,768,5.46,20,46.18,0.433,55.436,110926.88,2269.548,2239.655,2878.941,18.47,18.309,23.018,0,0,0,5644800,25,24,235200,63.79,61.39,75.00,1.000,2,0,9,16,0,0,0,0.0,0.0
+    serve stopped after 46s + 15s settle
+
+===========================================================
+Done: bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/kvshrink-nozip/summary.csv
+===========================================================
+
+### tp8 kvshrink (2026-11-17 10:03:12) -> bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8
+  CONFIGS=kvshrink RESULTS_DIR=bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8 MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 LEN_CONCURRENCY='32000:4,8,12,24 128000:2,6 256000:2' HIT_RATES='80 95' MAX_MODEL_LEN=256128 VLLM_SERVE_EXTRA_ARGS='--gpu-memory-utilization 0.9 --max-num-seqs 128' LMCACHE_CHUNK_SIZE=768 IAXL_SCRATCH_POOL_SIZE_GB=64 IAXL_DDR_POOL_TOTAL_SIZE_GB=600 LMCACHE_L1_SIZE_GB=600 KEEP_SERVE=0 DRY_RUN=0 IAXL_OMP_THREAD_NUM=8 timeout 7200 bash kvshrink-benchmark.sh
+===========================================================
+Kimi-K3 benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=1 TP_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12,24 128000:2,6 256000:2] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=64
+  LMCACHE_CHUNK_SIZE=768 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=894891 log=bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/kvshrink/serve.log
+    serve ready after 735s
+    block_size=768 kv_cache_tokens=1397876
+
+## kvshrink input_len=32000 concurrencies=[4 8 12 24]
+    max_concurrency for 32128 tokens per request: 43.51
+    prewarm: hit 100, 48 prompts, concurrency 24
+--- kvshrink_dp1tp8_in32000_con4_hit80 prompts=40 seed=10084
+    kvshrink,1,8,32000,128,4,80,40,10084,768,43.51,40,32.129,1.245,159.36,39999.373,1085.232,1279.574,1452.858,16.727,16.834,20.831,0,0,0,1074432,45,44,24419,0.96,7.71,75.00,1.411,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con4_hit95 prompts=40 seed=10099
+    kvshrink,1,8,32000,128,4,95,40,10099,768,43.51,40,26.613,1.503,192.387,48289.191,711.86,768.427,1226.619,15.324,14.993,18.389,0,0,0,1240320,45,44,28189,7.71,11.16,75.00,1.412,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con8_hit80 prompts=80 seed=10088
+    kvshrink,1,8,32000,128,8,80,80,10088,768,43.51,80,50.671,1.579,202.088,50724.007,1958.178,1900.359,3070.686,24.439,22.216,34.042,0,0,0,2089728,85,84,24878,11.16,24.78,75.00,1.410,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con8_hit95 prompts=80 seed=10103
+    kvshrink,1,8,32000,128,8,95,80,10103,768,43.51,80,34.631,2.31,295.685,74216.891,1090.91,1095.393,3085.824,18.648,18.071,23.24,0,0,0,2423040,85,84,28846,24.78,30.93,75.00,1.412,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con12_hit80 prompts=120 seed=10092
+    kvshrink,1,8,32000,128,12,80,120,10092,768,43.51,120,62.778,1.911,244.671,61412.391,2450.913,2431.011,3958.542,30.082,29.878,44.617,0,0,0,3103488,125,124,25028,30.93,51.64,75.00,1.411,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con12_hit95 prompts=120 seed=10107
+    kvshrink,1,8,32000,128,12,95,120,10107,768,43.51,120,41.339,2.903,371.566,93263.003,1312.324,1333.686,1866.879,22.173,21.696,28.318,0,0,0,3647232,125,124,29413,51.64,60.42,75.00,1.412,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con24_hit80 prompts=240 seed=10104
+    kvshrink,1,8,32000,128,24,80,240,10104,768,43.51,240,107.0,2.243,287.102,72062.533,4249.623,4519.344,7051.441,50.688,49.174,76.39,0,0,0,6119424,245,244,25080,60.42,61.34,75.00,1.411,2,2,31,55,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in32000_con24_hit95 prompts=240 seed=10119
+    kvshrink,1,8,32000,128,24,95,240,10119,768,43.51,240,61.727,3.888,497.673,124915.874,1979.93,1864.655,4789.624,32.916,32.2,42.522,0,0,0,7202304,245,244,29518,61.34,67.09,75.00,1.413,1,1,20,20,0,0,0,0.0,0.0
+
+## kvshrink input_len=128000 concurrencies=[2 6]
+    max_concurrency for 128128 tokens per request: 10.91
+    prewarm: hit 100, 12 prompts, concurrency 6
+--- kvshrink_dp1tp8_in128000_con2_hit80 prompts=20 seed=10082
+    kvshrink,1,8,128000,128,2,80,20,10082,768,10.91,20,52.549,0.381,48.716,48765.01,2794.389,2400.899,3769.387,19.355,19.269,25.982,0,0,0,2466816,25,24,102784,59.67,60.87,75.00,1.411,1,1,11,11,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in128000_con2_hit95 prompts=20 seed=10097
+    kvshrink,1,8,128000,128,2,95,20,10097,768,10.91,20,29.907,0.669,85.598,85683.504,1116.118,1085.591,1412.623,14.737,14.67,16.842,0,0,0,2829312,25,24,117888,60.87,67.20,75.00,1.411,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in128000_con6_hit80 prompts=60 seed=10086
+    kvshrink,1,8,128000,128,6,80,60,10086,768,10.91,60,119.1,0.504,64.484,64548.091,6347.073,5628.093,9719.42,43.75,46.823,77.833,0,0,0,6331392,65,64,98928,67.20,59.36,75.00,1.409,2,1,15,24,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in128000_con6_hit95 prompts=60 seed=10101
+    kvshrink,1,8,128000,128,6,95,60,10101,768,10.91,60,55.576,1.08,138.189,138327.113,2114.321,2178.887,3350.226,27.033,26.706,36.756,0,0,0,7488768,65,64,117012,59.36,52.82,75.00,1.408,1,1,12,12,0,0,0,0.0,0.0
+
+## kvshrink input_len=256000 concurrencies=[2]
+    max_concurrency for 256128 tokens per request: 5.46
+    prewarm: hit 100, 4 prompts, concurrency 2
+--- kvshrink_dp1tp8_in256000_con2_hit80 prompts=20 seed=10082
+    kvshrink,1,8,256000,128,2,80,20,10082,768,5.46,20,108.817,0.184,23.526,47075.011,7460.941,6320.877,9460.909,26.908,26.268,39.428,0,0,0,4919808,25,24,204992,59.83,65.68,75.00,1.407,1,1,49,49,0,0,0,0.0,0.0
+--- kvshrink_dp1tp8_in256000_con2_hit95 prompts=20 seed=10097
+    kvshrink,1,8,256000,128,2,95,20,10097,768,5.46,20,46.163,0.433,55.455,110966.208,2273.185,2235.044,2879.216,18.424,18.248,22.884,0,0,0,5644800,25,24,235200,65.68,55.74,75.00,1.407,1,1,16,16,0,0,0,0.0,0.0
+    serve stopped after 54s + 15s settle
+
+===========================================================
+Done: bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/summary.csv
+===========================================================
+
+Done (2026-11-17 10:43:43): bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/<layout>/summary.csv

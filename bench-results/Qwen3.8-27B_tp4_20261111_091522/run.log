@@ -1,0 +1,74 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[8000:4] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [4:8] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_091522
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=226303 log=bench-results/Qwen3.8-27B_tp4_20261111_091522/kvshrink/serve.log
+    serve ready after 135s
+    block_size=784 kv_cache_tokens=12641032
+
+## kvshrink input_len=8000 concurrencies=[4]
+    max_concurrency for 8128 tokens per request: 1555.25
+    prewarm: hit 100, 8 prompts, concurrency 4
+--- kvshrink_tp4_in8000_con4_hit80 prompts=8 seed=10084
+    kvshrink,4,8000,128,4,80,8,10084,784,1555.25,8,5.439,1.471,188.271,11955.227,441.187,500.587,570.47,17.857,17.379,19.702,0,0,0,39200,13,5,7840,0.12,0.59,250.00,1.240,0,0,0,0,0,0,0,0.0,0.0
+    serve stopped after 16s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_091522/summary.csv
+===========================================================
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[8000:4] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [4:8] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_091522
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=229603 log=bench-results/Qwen3.8-27B_tp4_20261111_091522/vllm-prefix/serve.log
+    serve ready after 125s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-prefix input_len=8000 concurrencies=[4]
+    max_concurrency for 8128 tokens per request: 1554.11
+    prewarm: hit 100, 8 prompts, concurrency 4
+--- vllm-prefix_tp4_in8000_con4_hit80 prompts=8 seed=10084
+    vllm-prefix,4,8000,128,4,80,8,10084,784,1554.11,8,1.961,4.079,522.155,33156.84,222.597,237.653,293.744,5.953,5.634,7.033,0,76832,104000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_091522/summary.csv
+===========================================================
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[8000:4] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [4:8] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_091522
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=232711 log=bench-results/Qwen3.8-27B_tp4_20261111_091522/vllm-wo-prefix/serve.log
+    serve ready after 125s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-wo-prefix input_len=8000 concurrencies=[4]
+    max_concurrency for 8128 tokens per request: 1554.11
+--- vllm-wo-prefix_tp4_in8000_con4_hit80 prompts=8 seed=10084
+    vllm-wo-prefix,4,8000,128,4,80,8,10084,784,1554.11,8,2.465,3.245,415.403,26378.122,414.38,496.385,510.039,6.414,5.775,8.409,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_091522/summary.csv
+===========================================================

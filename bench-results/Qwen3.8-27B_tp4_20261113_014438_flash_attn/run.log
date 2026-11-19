@@ -1,0 +1,67 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[lmcache]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256,300 128000:64,80 256000:32,40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=896 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261113_014438_flash_attn
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=841 log=bench-results/Qwen3.8-27B_tp4_20261113_014438_flash_attn/lmcache/serve.log
+    serve ready after 290s
+    block_size=896 kv_cache_tokens=12581849
+
+## lmcache input_len=32000 concurrencies=[32 64 128 256 300]
+    max_concurrency for 32128 tokens per request: 391.62
+    prewarm: hit 100, 600 prompts, concurrency 300
+--- lmcache_tp4_in32000_con32_hit80 prompts=320 seed=10112
+    lmcache,4,32000,128,32,80,320,10112,896,391.62,320,75.262,4.252,544.235,136603.11,1674.826,1361.325,4645.544,45.847,44.911,67.641,0,0,0,7697536,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con32_hit95 prompts=320 seed=10127
+    lmcache,4,32000,128,32,95,320,10127,896,391.62,320,64.33,4.974,636.714,159815.168,1453.931,1157.766,4625.048,38.994,34.724,68.891,0,0,0,8798720,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con64_hit80 prompts=640 seed=10144
+    lmcache,4,32000,128,64,80,640,10144,896,391.62,640,142.67,4.486,574.192,144122.102,2585.282,1845.983,9157.038,91.385,89.814,131.578,0,0,0,15444352,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con64_hit95 prompts=640 seed=10159
+    lmcache,4,32000,128,64,95,640,10159,896,391.62,640,101.706,6.293,805.458,202169.966,1812.554,1096.832,9104.242,65.317,63.622,88.566,0,0,0,18320512,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con128_hit80 prompts=1280 seed=10208
+    lmcache,4,32000,128,128,80,1280,10208,896,391.62,1280,279.569,4.578,586.046,147097.439,3921.03,2190.136,18439.494,187.55,187.467,258.983,0,0,0,30961280,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con128_hit95 prompts=1280 seed=10223
+    lmcache,4,32000,128,128,95,1280,10223,896,391.62,1280,177.742,7.201,921.783,231367.581,2519.988,1522.017,10807.614,118.599,122.532,127.204,0,0,0,37492224,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con256_hit80 prompts=2560 seed=10336
+    lmcache,4,32000,128,256,80,2560,10336,896,391.62,2560,511.553,5.004,640.559,160780.283,8234.622,6713.449,23499.904,334.667,345.535,353.339,0,0,0,64059520,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    lmcache,4,32000,128,256,95,2560,10351,896,391.62,2560,337.086,7.595,972.097,243996.266,3634.152,2394.356,13736.034,234.454,242.437,246.957,0,0,0,75500544,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con300_hit80 prompts=3000 seed=10380
+    lmcache,4,32000,128,300,80,3000,10380,896,391.62,3000,594.988,5.042,645.391,161993.186,12251.495,10737.834,25991.998,367.659,380.664,389.163,0,0,0,75191424,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con300_hit95 prompts=3000 seed=10395
+    lmcache,4,32000,128,300,95,3000,10395,896,391.62,3000,392.13,7.651,979.268,245796.214,4394.503,2891.344,16429.373,271.45,280.433,286.391,0,0,0,88438784,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## lmcache input_len=128000 concurrencies=[64 80]
+    max_concurrency for 128128 tokens per request: 98.20
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- lmcache_tp4_in128000_con64_hit80 prompts=640 seed=10144
+    lmcache,4,128000,128,64,80,640,10144,896,98.20,640,577.027,1.109,141.969,142110.941,7517.18,5419.438,23266.694,391.722,410.0,422.688,0,0,0,65654400,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in128000_con64_hit95 prompts=640 seed=10159
+    lmcache,4,128000,128,64,95,640,10159,896,98.20,640,325.347,1.967,251.793,252044.785,4518.668,3196.178,16485.905,217.483,224.524,232.294,0,0,0,77330176,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in128000_con80_hit80 prompts=800 seed=10160
+    lmcache,4,128000,128,80,80,800,10160,896,98.20,800,725.53,1.103,141.138,141279.421,12163.959,10063.104,29610.917,470.91,488.626,503.798,0,0,0,82009984,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in128000_con80_hit95 prompts=800 seed=10175
+    lmcache,4,128000,128,80,95,800,10175,896,98.20,800,407.576,1.963,251.241,251492.61,5015.031,3224.144,20517.007,277.98,288.538,292.263,0,0,0,96711552,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## lmcache input_len=256000 concurrencies=[32 40]
+    max_concurrency for 256128 tokens per request: 49.12
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- lmcache_tp4_in256000_con32_hit80 prompts=320 seed=10112
+    lmcache,4,256000,128,32,80,320,10112,896,49.12,320,726.597,0.44,56.372,112801.187,13347.324,12022.112,31523.754,464.084,474.649,513.801,0,0,0,65961728,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in256000_con32_hit95 prompts=320 seed=10127
+    lmcache,4,256000,128,32,95,320,10127,896,49.12,320,354.74,0.902,115.465,231044.917,6090.057,4068.455,20554.618,228.164,241.531,248.373,0,0,0,78024576,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in256000_con40_hit80 prompts=400 seed=10120
+    lmcache,4,256000,128,40,80,400,10120,896,49.12,400,894.93,0.447,57.211,114479.557,13714.811,11086.233,39113.055,592.467,613.852,638.022,0,0,0,82412288,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in256000_con40_hit95 prompts=400 seed=10135
+    lmcache,4,256000,128,40,95,400,10135,896,49.12,400,441.155,0.907,116.059,232234.218,7956.752,4789.288,26822.948,280.564,303.116,311.786,0,0,0,97362048,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 72s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261113_014438_flash_attn/summary.csv
+===========================================================

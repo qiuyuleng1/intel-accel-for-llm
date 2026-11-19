@@ -1,0 +1,16 @@
+kvshrink: externally-cached tokens per request (last line per request)
+input hit con prompts requests_logged max_shared_prefix_hit | hit tokens (hit/input) x requests
+32000 prewarm(100) prompts=128 | 31360 (98.0%) x 123; 15680 (49.0%) x 4; 0 (0.0%) x 1
+32000 80 32 320 320 25088 | 31360 (98.0%) x 1; 25088 (78.4%) x 318; 15680 (49.0%) x 1 | requests whose lines differ: 0
+32000 95 32 320 320 29792 | 31360 (98.0%) x 1; 29792 (93.1%) x 318; 15680 (49.0%) x 1 | requests whose lines differ: 0
+32000 80 64 640 640 25088 | 31360 (98.0%) x 2; 25088 (78.4%) x 637; 15680 (49.0%) x 1 | requests whose lines differ: 0
+32000 95 64 640 640 29792 | 31360 (98.0%) x 1; 29792 (93.1%) x 638; 15680 (49.0%) x 1 | requests whose lines differ: 0
+128000 prewarm(100) prompts=128 | 127792 (99.8%) x 122; 125440 (98.0%) x 1; 109760 (85.8%) x 3; 47040 (36.8%) x 1; 31360 (24.5%) x 1
+128000 80 64 640 640 101920 | 127792 (99.8%) x 2; 101920 (79.6%) x 638 | requests whose lines differ: 0
+128000 95 64 640 640 121520 | 127792 (99.8%) x 1; 121520 (94.9%) x 638; 120736 (94.3%) x 1 | requests whose lines differ: 0
+256000 prewarm(100) prompts=64 | 255584 (99.8%) x 55; 250880 (98.0%) x 1; 235200 (91.9%) x 6; 47040 (18.4%) x 1; 0 (0.0%) x 1
+256000 80 32 320 320 204624 | 255584 (99.8%) x 1; 204624 (79.9%) x 318; 203840 (79.6%) x 1 | requests whose lines differ: 0
+256000 95 32 320 320 243040 | 255584 (99.8%) x 1; 243040 (94.9%) x 318; 241472 (94.3%) x 1 | requests whose lines differ: 0
+
+vllm-prefix: vLLM counters per run (warm-ups included)
+input hit con prompts hit_tokens query_tokens hit/query

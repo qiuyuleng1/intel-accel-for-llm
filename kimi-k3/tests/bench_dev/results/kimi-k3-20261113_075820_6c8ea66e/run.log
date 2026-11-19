@@ -1,0 +1,33 @@
+[07:58:20] code md5 6c8ea66e, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_075820_6c8ea66e
+[07:58:20] starting vLLM /home/intel/model-space/Kimi-K3, TP 2, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_075820_6c8ea66e/serve.log
+[08:02:01] ERROR: serve exited before becoming ready; last lines:
+(EngineCore_DP1 pid=471222) RuntimeError: Worker failed with error 'CUDA out of memory. Tried to allocate 77.62 GiB. GPU 2 has a total capacity of 267.69 GiB of which 23.08 GiB is free. Including non-PyTorch memory, this process has 244.59 GiB memory in use. Of the allocated memory 241.44 GiB is allocated by PyTorch, and 68.94 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)', please check the stack trace above for the root cause
+[iaxl] config: qat_zip=ON iaa_zip=ON cpu_zip=OFF qat_instances=4 iaa_instances=4 cpu_zip_threads=0 omp_threads=8 use_omp=ON cpus=192 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON profile=disabled
+[iaxl] config: qat_zip=ON iaa_zip=ON cpu_zip=OFF qat_instances=4 iaa_instances=4 cpu_zip_threads=0 omp_threads=8 use_omp=ON cpus=192 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON profile=disabled
+Traceback (most recent call last):
+  File "/usr/local/bin/vllm", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/main.py", line 97, in main
+    args.dispatch_function(args)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/serve.py", line 149, in cmd
+    run_multi_api_server(args)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/serve.py", line 330, in run_multi_api_server
+    with launch_core_engines(
+  File "/usr/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1240, in launch_core_engines
+    wait_for_engine_startup(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1320, in wait_for_engine_startup
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+INFO 11-13 08:01:48 [utils.py:620] [shutdown] Process manager: send sigterm to process ApiServer_0
+INFO 11-13 08:01:48 [utils.py:620] [shutdown] Process manager: send sigterm to process ApiServer_1
+INFO 11-13 08:01:48 [utils.py:620] [shutdown] Process manager: send sigterm to process ApiServer_2
+INFO 11-13 08:01:48 [utils.py:620] [shutdown] Process manager: send sigterm to process ApiServer_3
+INFO 11-13 08:01:49 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP0
+INFO 11-13 08:01:49 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP2
+INFO 11-13 08:01:49 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore_DP3
+INFO 11-13 08:01:51 [utils.py:620] [shutdown] Process manager: send sigterm to process VLLM_DP_Coordinator
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 11 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

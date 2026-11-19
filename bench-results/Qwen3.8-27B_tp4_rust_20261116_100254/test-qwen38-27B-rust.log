@@ -1,0 +1,424 @@
+===========================================================
+Qwen3.8-27B Rust-frontend test  settings=[kvshrink-zip-dsa lmcache vllm-prefix kvshrink-nozip-dsa kvshrink-nozip-nodsa vllm-wo-prefix kvshrink-zip-dsa-flash-attn]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6 VLLM_CPU_OMP_THREADS_BIND='0-23|24-47|48-71|72-95' KVSHRINK_QAT_DEVICES='0|1|2|3' KVSHRINK_DSA_DEVICES='wq0.0|wq2.0|wq4.0|wq6.0' KVSHRINK_IAA_DEVICES='0|1|2|3' LEN_CONCURRENCY='32000:32,64,128,256 128000:80 256000:40' HIT_RATES='80 95' MAX_MODEL_LEN=256128 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 LMCACHE_L1_SIZE_GB=1000 VLLM_USE_RUST_FRONTEND=1 VLLM_SERVE_EXTRA_ARGS='--chat-template /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/qwen38-27B-chat-template-no-generation.jinja' DRY_RUN=0
+  KVShrink container=iaxl.vllm-fddeef0-qiuyu  LMCache image=qiuyu/vllm-openai-lmcache:v0.29.0-lmcache0.5.7
+  timeout per setting 25200s
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254
+===========================================================
+Host settings (PERFORMANCE_MODE_SETUP.md):
+  intel_pstate status: active expected active
+  scaling driver:  192 intel_pstate; expected all intel_pstate
+  scaling governor:  192 performance; expected all performance
+  EPB:  192 0; expected all 0
+  no_turbo:  1 0; expected all 0
+  C-states: POLL C1 C1E C6 C6P expected POLL C1 enabled, every other one disabled
+  POLL disable flag:  192 0; expected all 0
+  C1 disable flag:  192 0; expected all 0
+  C1E disable flag:  192 1; expected all 1
+  C6 disable flag:  192 1; expected all 1
+  C6P disable flag:  192 1; expected all 1
+  Efficiency Latency Control: Latency Optimized Mode (LOM) expected Latency Optimized Mode (LOM)
+GPU 0000:10:00.0  port 0000:0f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:38:00.0  port 0000:37:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:5e:00.0  port 0000:5d:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:71:00.0  port 0000:70:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:90:00.0  port 0000:8f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b9:00.0  port 0000:b8:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:dd:00.0  port 0000:dc:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:ef:00.0  port 0000:ee:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+ACS is off on every GPU switch port.
+waiting for iaxl.vllm-fddeef0-qiuyu to finish pip install -e . (10:02:55)
+iaxl.vllm-fddeef0-qiuyu ready (10:02:55)
+
+### kvshrink-zip-dsa (2026-11-16 10:02:55): config kvshrink IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1  -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=684531 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa/kvshrink/serve.log
+    serve ready after 175s
+    block_size=784 kv_cache_tokens=12641032
+
+## kvshrink input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 393.46
+    prewarm: hit 100, 512 prompts, concurrency 256
+--- kvshrink_tp4_in32000_con32_hit80 prompts=320 seed=10112
+    kvshrink,4,32000,128,32,80,320,10112,784,393.46,320,63.085,5.073,649.282,156588.042,1829.307,1816.929,3706.057,35.127,34.326,42.85,0,0,0,7752976,325,323,24003,0.93,35.99,250.00,1.275,0,0,0,0,0,11,0,5.5,25.0
+--- kvshrink_tp4_in32000_con32_hit95 prompts=320 seed=10127
+    kvshrink,4,32000,128,32,95,320,10127,784,393.46,320,49.503,6.464,827.42,199290.625,1201.351,794.948,4398.406,29.427,28.728,46.491,0,0,0,8966608,325,323,27760,35.99,52.68,250.00,1.250,0,0,0,0,0,75,1,10.2,343.7
+--- kvshrink_tp4_in32000_con64_hit80 prompts=640 seed=10144
+    kvshrink,4,32000,128,64,80,640,10144,784,393.46,640,102.097,6.269,802.377,192746.89,2302.239,1925.375,7020.969,62.003,62.649,70.608,0,0,0,15494192,645,643,24097,52.68,121.37,250.00,1.263,0,0,0,0,0,339,23,15.7,800.5
+--- kvshrink_tp4_in32000_con64_hit95 prompts=640 seed=10159
+    kvshrink,4,32000,128,64,95,640,10159,784,393.46,640,61.023,10.488,1342.437,323021.746,2174.419,2039.287,6097.337,30.827,28.981,42.427,0,0,0,18453008,645,644,28654,121.37,153.29,250.00,1.248,0,0,0,0,0,1017,304,17.8,7102.4
+--- kvshrink_tp4_in32000_con128_hit80 prompts=1280 seed=10208
+    kvshrink,4,32000,128,128,80,1280,10208,784,393.46,1280,184.682,6.931,887.145,213946.715,3139.853,2077.775,13407.452,120.154,124.949,130.556,0,0,0,31080112,1285,1284,24206,153.29,189.46,250.00,1.259,1,1,38,38,0,1220,370,15.0,7405.6
+--- kvshrink_tp4_in32000_con128_hit95 prompts=1280 seed=10223
+    kvshrink,4,32000,128,128,95,1280,10223,784,393.46,1280,105.014,12.189,1560.17,375653.476,3354.675,2835.729,10178.844,56.06,55.885,71.878,0,0,0,37045568,1285,1284,28852,189.46,146.78,250.00,1.248,1,1,36,36,0,3542,1033,18.7,22503.7
+--- kvshrink_tp4_in32000_con256_hit80 prompts=2560 seed=10336
+    kvshrink,4,32000,128,256,80,2560,10336,784,393.46,2560,361.567,7.08,906.278,218709.225,4524.289,2291.807,22590.082,247.916,259.642,264.915,0,0,0,62309184,2565,2564,24302,146.78,231.25,250.00,1.258,3,3,41,81,0,3260,858,14.1,19043.4
+--- kvshrink_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    kvshrink,4,32000,128,256,95,2560,10351,784,393.46,2560,207.652,12.328,1578.027,380188.987,4537.202,3432.462,14226.81,127.303,130.746,145.733,0,0,0,74298112,2565,2564,28977,231.25,229.17,250.00,1.247,2,2,44,60,0,8288,2834,17.9,61776.3
+
+## kvshrink input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.66
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- kvshrink_tp4_in128000_con80_hit80 prompts=800 seed=10160
+    kvshrink,4,128000,128,80,80,800,10160,784,98.66,800,526.976,1.518,194.316,186536.917,6836.715,4319.588,31456.052,360.031,376.139,392.01,0,0,0,78502704,805,804,97640,144.16,167.25,250.00,1.272,3,3,57,127,0,3826,261,35.8,20862.2
+--- kvshrink_tp4_in128000_con80_hit95 prompts=800 seed=10175
+    kvshrink,4,128000,128,80,95,800,10175,784,98.66,800,260.473,3.071,393.131,377438.838,6354.259,5533.149,17604.971,154.617,158.828,180.878,0,0,0,92910272,805,804,115560,167.25,159.14,250.00,1.273,1,1,124,124,0,25209,1735,36.8,164489.7
+
+## kvshrink input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.35
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- kvshrink_tp4_in256000_con40_hit80 prompts=400 seed=10120
+    kvshrink,4,256000,128,40,80,400,10120,784,49.35,400,715.195,0.559,71.589,137322.034,12260.919,9460.966,42019.898,465.576,482.596,514.97,0,0,0,78573264,405,404,194488,171.04,228.51,250.00,1.287,2,2,74,120,0,3691,1108,62.8,40990.5
+--- kvshrink_tp4_in256000_con40_hit95 prompts=400 seed=10135
+    kvshrink,4,256000,128,40,95,400,10135,784,49.35,400,302.139,1.324,169.458,324813.696,8431.778,7687.136,20705.133,171.146,173.712,205.982,0,0,0,93162720,405,404,230601,228.51,204.87,250.00,1.288,1,1,46,46,0,14134,6136,72.1,170211.0
+    serve stopped after 18s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa/summary.csv
+===========================================================
+
+### lmcache (2026-11-16 12:21:19): config lmcache  ATTENTION_BACKEND=FLASH_ATTN LMCACHE_CHUNK_SIZE=896 -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/lmcache
+===========================================================
+Qwen3.8-27B benchmark  configs=[lmcache]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=896 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/lmcache
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=835 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/lmcache/lmcache/serve.log
+    serve ready after 270s
+    block_size=896 kv_cache_tokens=12579217
+
+## lmcache input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 391.53
+    prewarm: hit 100, 512 prompts, concurrency 256
+--- lmcache_tp4_in32000_con32_hit80 prompts=320 seed=10112
+    lmcache,4,32000,128,32,80,320,10112,896,391.53,320,65.562,4.881,624.749,150671.375,1578.924,1388.346,3404.17,39.051,39.466,46.076,0,0,0,7658112,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con32_hit95 prompts=320 seed=10127
+    lmcache,4,32000,128,32,95,320,10127,896,391.53,320,46.715,6.85,876.815,211187.726,1184.734,1043.518,3089.866,27.209,26.552,37.082,0,0,0,8954624,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con64_hit80 prompts=640 seed=10144
+    lmcache,4,32000,128,64,80,640,10144,896,391.53,640,122.885,5.208,666.638,160139.774,2335.876,2056.919,5566.492,77.996,78.938,87.507,0,0,0,15414784,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con64_hit95 prompts=640 seed=10159
+    lmcache,4,32000,128,64,95,640,10159,896,391.53,640,82.228,7.783,996.25,239720.9,1595.381,1153.547,4902.313,52.018,51.715,69.974,0,0,0,18013184,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con128_hit80 prompts=1280 seed=10208
+    lmcache,4,32000,128,128,80,1280,10208,896,391.53,1280,255.053,5.019,642.377,154917.666,3447.319,2202.545,14193.368,172.533,174.924,205.385,0,0,0,30373504,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con128_hit95 prompts=1280 seed=10223
+    lmcache,4,32000,128,128,95,1280,10223,896,391.53,1280,177.474,7.212,923.176,222279.849,2614.788,1073.686,15204.406,118.01,114.195,188.498,0,0,0,35338240,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con256_hit80 prompts=2560 seed=10336
+    lmcache,4,32000,128,256,80,2560,10336,896,391.53,2560,504.032,5.079,650.118,156890.807,8368.802,5666.553,29626.133,327.81,338.111,349.276,0,0,0,60835712,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    lmcache,4,32000,128,256,95,2560,10351,896,391.53,2560,338.457,7.564,968.158,233255.162,4743.655,1902.306,29413.654,226.344,226.13,296.147,0,0,0,71423744,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## lmcache input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.18
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- lmcache_tp4_in128000_con80_hit80 prompts=800 seed=10160
+    lmcache,4,128000,128,80,80,800,10160,896,98.18,800,699.637,1.143,146.362,140502.139,10212.259,8105.813,27642.773,466.58,481.718,501.929,0,0,0,78356992,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in128000_con80_hit95 prompts=800 seed=10175
+    lmcache,4,128000,128,80,95,800,10175,896,98.18,800,358.522,2.231,285.617,274216.744,4637.675,3666.359,13139.974,243.895,247.834,264.528,0,0,0,93046912,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## lmcache input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.11
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- lmcache_tp4_in256000_con40_hit80 prompts=400 seed=10120
+    lmcache,4,256000,128,40,80,400,10120,896,49.11,400,863.189,0.463,59.315,113778.156,11174.49,8379.202,35802.111,588.109,609.684,629.465,0,0,0,78693888,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_tp4_in256000_con40_hit95 prompts=400 seed=10135
+    lmcache,4,256000,128,40,95,400,10135,896,49.11,400,407.333,0.982,125.696,240930.719,5731.747,4732.926,13373.815,273.96,279.748,292.636,0,0,0,93230592,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 180s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/lmcache/summary.csv
+===========================================================
+
+### vllm-prefix (2026-11-16 15:03:46): config vllm-prefix   -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-prefix
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-prefix
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=727432 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-prefix/vllm-prefix/serve.log
+    serve ready after 105s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-prefix input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 393.17
+    prewarm: hit 100, 512 prompts, concurrency 256
+--- vllm-prefix_tp4_in32000_con32_hit80 prompts=320 seed=10112
+    vllm-prefix,4,32000,128,32,80,320,10112,784,393.17,320,43.219,7.404,947.742,228568.076,1238.009,1275.4,2456.951,24.229,23.691,30.23,0,7881552,9992436,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in32000_con32_hit95 prompts=320 seed=10127
+    vllm-prefix,4,32000,128,32,95,320,10127,784,393.17,320,20.903,15.309,1959.518,471965.43,922.768,981.815,1224.453,9.15,8.396,10.414,0,9377424,9977639,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in32000_con64_hit80 prompts=640 seed=10144
+    vllm-prefix,4,32000,128,64,80,640,10144,784,393.17,640,76.746,8.339,1067.414,256414.136,1489.452,1294.981,4022.903,48.606,49.851,54.911,0,15665104,19751267,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in32000_con64_hit95 prompts=640 seed=10159
+    vllm-prefix,4,32000,128,64,95,640,10159,784,393.17,640,31.648,20.222,2588.452,622841.885,1089.076,1065.246,1848.5,16.282,16.244,19.528,0,18656064,19782645,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in32000_con128_hit80 prompts=1280 seed=10208
+    vllm-prefix,4,32000,128,128,80,1280,10208,784,393.17,1280,148.309,8.631,1104.724,266418.595,1904.764,1314.195,7429.371,101.546,105.758,108.211,0,31225152,39503298,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in32000_con128_hit95 prompts=1280 seed=10223
+    vllm-prefix,4,32000,128,128,95,1280,10223,784,393.17,1280,53.52,23.916,3061.267,737083.342,1374.263,1306.415,2606.547,31.204,31.518,35.352,0,37226672,39438850,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in32000_con256_hit80 prompts=2560 seed=10336
+    vllm-prefix,4,32000,128,256,80,2560,10336,784,393.17,2560,290.086,8.825,1129.596,272601.823,2511.204,1316.413,14303.542,208.031,217.462,220.048,0,62363280,78905345,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    vllm-prefix,4,32000,128,256,95,2560,10351,784,393.17,2560,97.526,26.249,3359.926,809495.953,1525.273,1320.933,4466.744,64.524,66.221,69.408,0,74378864,78773063,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-prefix input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.59
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- vllm-prefix_tp4_in128000_con80_hit80 prompts=800 seed=10160
+    vllm-prefix,4,128000,128,80,80,800,10160,784,98.59,800,469.424,1.704,218.14,209406.8,4535.458,2231.749,24631.271,333.285,350.499,353.707,0,78842176,98816991,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in128000_con80_hit95 prompts=800 seed=10175
+    vllm-prefix,4,128000,128,80,95,800,10175,784,98.59,800,154.22,5.187,663.986,637482.505,2602.709,1902.561,9117.169,100.676,104.354,108.545,0,93223872,98825273,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-prefix input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.32
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- vllm-prefix_tp4_in256000_con40_hit80 prompts=400 seed=10120
+    vllm-prefix,4,256000,128,40,80,400,10120,784,49.32,400,651.212,0.614,78.623,150814.226,7779.5,4678.639,35149.166,450.845,471.084,486.676,0,79321200,99374924,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_tp4_in256000_con40_hit95 prompts=400 seed=10135
+    vllm-prefix,4,256000,128,40,95,400,10135,784,49.32,400,196.472,2.036,260.597,499506.739,4689.355,3880.009,14499.509,117.541,120.768,133.985,0,93900464,99316382,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 6s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-prefix/summary.csv
+===========================================================
+
+### kvshrink-nozip-dsa (2026-11-16 16:59:32): config kvshrink IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1  -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-dsa
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-dsa
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=744179 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-dsa/kvshrink/serve.log
+    serve ready after 140s
+    block_size=784 kv_cache_tokens=12641032
+
+## kvshrink input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 393.46
+    prewarm: hit 100, 512 prompts, concurrency 256
+--- kvshrink_tp4_in32000_con32_hit80 prompts=320 seed=10112
+    kvshrink,4,32000,128,32,80,320,10112,784,393.46,320,62.178,5.146,658.749,158871.235,1836.82,1868.843,3426.952,34.363,33.421,42.206,0,0,0,7777280,325,324,24004,1.18,45.81,250.00,1.000,0,0,0,0,0,2,0,2.4,4.0
+--- kvshrink_tp4_in32000_con32_hit95 prompts=320 seed=10127
+    kvshrink,4,32000,128,32,95,320,10127,784,393.46,320,52.328,6.115,782.76,188533.994,1384.218,1174.069,4651.569,30.155,27.432,48.103,0,0,0,8957984,325,324,27648,45.81,65.51,250.00,1.000,0,0,0,0,0,76,0,9.8,192.8
+--- kvshrink_tp4_in32000_con64_hit80 prompts=640 seed=10144
+    kvshrink,4,32000,128,64,80,640,10144,784,393.46,640,101.804,6.287,804.686,193301.764,2519.499,2209.621,6515.008,60.088,60.819,71.634,0,0,0,15560832,645,644,24163,65.51,153.12,250.00,1.000,0,0,0,0,0,835,22,18.3,2424.7
+--- kvshrink_tp4_in32000_con64_hit95 prompts=640 seed=10159
+    kvshrink,4,32000,128,64,95,640,10159,784,393.46,640,69.057,9.268,1186.267,285443.659,1548.219,945.434,7578.341,41.958,41.4,50.895,0,0,0,18241328,645,644,28325,153.12,190.66,250.00,1.000,0,0,0,0,0,760,18,15.0,2079.3
+--- kvshrink_tp4_in32000_con128_hit80 prompts=1280 seed=10208
+    kvshrink,4,32000,128,128,80,1280,10208,784,393.46,1280,189.153,6.767,866.177,208889.907,2997.588,1792.554,15548.38,124.819,128.737,135.756,0,0,0,30951536,1285,1284,24106,190.66,172.39,250.00,1.000,2,2,61,86,0,3639,33,20.5,7616.6
+--- kvshrink_tp4_in32000_con128_hit95 prompts=1280 seed=10223
+    kvshrink,4,32000,128,128,95,1280,10223,784,393.46,1280,122.065,10.486,1342.24,323180.88,3568.268,2931.188,14336.349,67.762,66.443,89.133,0,0,0,36833888,1285,1284,28687,172.39,147.64,250.00,1.000,1,1,88,88,0,11235,180,23.4,31217.0
+--- kvshrink_tp4_in32000_con256_hit80 prompts=2560 seed=10336
+    kvshrink,4,32000,128,256,80,2560,10336,784,393.46,2560,373.378,6.856,877.608,211790.42,5012.217,2414.926,29113.724,253.315,264.16,275.724,0,0,0,62315456,2565,2564,24304,147.64,223.74,250.00,1.000,5,5,57,136,0,12504,247,20.2,29655.2
+--- kvshrink_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    kvshrink,4,32000,128,256,95,2560,10351,784,393.46,2560,238.061,10.754,1376.452,331624.018,5810.551,4537.826,17256.015,141.208,145.149,163.894,0,0,0,74304384,2565,2564,28980,223.74,168.80,250.00,1.000,2,2,67,99,0,53431,1482,24.3,150912.1
+
+## kvshrink input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.66
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- kvshrink_tp4_in128000_con80_hit80 prompts=800 seed=10160
+    kvshrink,4,128000,128,80,80,800,10160,784,98.66,800,539.296,1.483,189.877,182275.789,8472.258,5652.34,38823.521,356.857,368.838,399.405,0,0,0,78504272,805,804,97642,171.93,200.66,250.00,1.000,6,6,30,122,0,4333,2047,96.9,50345.2
+--- kvshrink_tp4_in128000_con80_hit95 prompts=800 seed=10175
+    kvshrink,4,128000,128,80,95,800,10175,784,98.66,800,307.181,2.604,333.354,320047.435,7705.965,6465.099,25500.643,180.73,188.02,212.942,0,0,0,92842848,805,804,115476,200.66,215.56,250.00,1.000,1,1,53,53,0,20432,15923,370.6,274499.9
+
+## kvshrink input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.35
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- kvshrink_tp4_in256000_con40_hit80 prompts=400 seed=10120
+    kvshrink,4,256000,128,40,80,400,10120,784,49.35,400,746.883,0.536,68.552,131495.964,14389.544,11216.032,48424.295,473.779,491.374,533.045,0,0,0,78540336,405,404,194407,135.13,208.01,250.00,1.000,3,3,36,92,0,6467,5653,59.4,135971.1
+--- kvshrink_tp4_in256000_con40_hit95 prompts=400 seed=10135
+    kvshrink,4,256000,128,40,95,400,10135,784,49.35,400,359.165,1.114,142.553,273241.792,10619.232,9340.79,27243.321,198.827,204.074,241.566,0,0,0,93195648,405,404,230682,208.01,205.34,250.00,1.000,1,1,42,42,0,12446,12118,172.6,319456.6
+    serve stopped after 20s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-dsa/summary.csv
+===========================================================
+
+### kvshrink-nozip-nodsa (2026-11-16 19:27:09): config kvshrink IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=0  -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-nodsa
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=0
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-nodsa
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=764087 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-nodsa/kvshrink/serve.log
+    serve ready after 140s
+    block_size=784 kv_cache_tokens=12641032
+
+## kvshrink input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 393.46
+    prewarm: hit 100, 512 prompts, concurrency 256
+--- kvshrink_tp4_in32000_con32_hit80 prompts=320 seed=10112
+    kvshrink,4,32000,128,32,80,320,10112,784,393.46,320,66.417,4.818,616.711,148732.953,1939.184,1829.491,4286.932,36.882,35.385,48.398,0,0,0,7611856,325,323,23566,1.18,44.66,250.00,1.000,0,0,0,0,0,185,3,11.1,360.0
+--- kvshrink_tp4_in32000_con32_hit95 prompts=320 seed=10127
+    kvshrink,4,32000,128,32,95,320,10127,784,393.46,320,51.338,6.233,797.857,192170.045,1399.875,1167.396,4482.024,29.256,27.368,43.071,0,0,0,8966608,325,323,27760,44.66,64.65,250.00,1.000,0,0,0,0,0,159,12,15.0,431.7
+--- kvshrink_tp4_in32000_con64_hit80 prompts=640 seed=10144
+    kvshrink,4,32000,128,64,80,640,10144,784,393.46,640,108.105,5.92,757.779,182033.69,2514.702,1924.815,9184.152,65.075,64.516,84.15,0,0,0,15247232,645,643,23713,64.65,150.86,250.00,1.000,0,0,0,0,0,878,11,15.3,1651.2
+--- kvshrink_tp4_in32000_con64_hit95 prompts=640 seed=10159
+    kvshrink,4,32000,128,64,95,640,10159,784,393.46,640,81.994,7.805,999.103,240407.616,1617.827,680.295,9525.846,51.471,49.289,85.354,0,0,0,17872064,645,643,27795,150.86,188.69,250.00,1.000,0,0,0,0,0,1048,7,14.5,1676.2
+--- kvshrink_tp4_in32000_con128_hit80 prompts=1280 seed=10208
+    kvshrink,4,32000,128,128,80,1280,10208,784,393.46,1280,190.878,6.706,858.348,207001.84,3401.385,2258.691,13791.943,122.986,128.719,134.351,0,0,0,31138912,1285,1283,24270,188.69,176.48,250.00,1.000,2,2,32,58,0,5369,29,22.9,11021.5
+--- kvshrink_tp4_in32000_con128_hit95 prompts=1280 seed=10223
+    kvshrink,4,32000,128,128,95,1280,10223,784,393.46,1280,116.663,10.972,1404.391,338145.454,3838.396,3290.247,11065.757,61.348,60.67,80.117,0,0,0,37086336,1285,1284,28883,176.48,147.11,250.00,1.000,1,1,37,37,0,15908,275,26.2,40864.9
+--- kvshrink_tp4_in32000_con256_hit80 prompts=2560 seed=10336
+    kvshrink,4,32000,128,256,80,2560,10336,784,393.46,2560,377.374,6.784,868.317,209548.032,5020.413,2388.086,28556.881,256.491,268.074,280.756,0,0,0,62315456,2565,2564,24304,147.11,202.16,250.00,1.000,6,6,33,123,0,12480,432,41.1,29205.3
+--- kvshrink_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    kvshrink,4,32000,128,256,95,2560,10351,784,393.46,2560,251.308,10.187,1303.898,314143.832,6194.599,4951.421,17345.484,148.635,152.759,172.802,0,0,0,74298112,2565,2564,28977,202.16,154.28,250.00,1.000,2,2,42,80,0,58540,307,15.3,162800.9
+
+## kvshrink input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.66
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- kvshrink_tp4_in128000_con80_hit80 prompts=800 seed=10160
+    kvshrink,4,128000,128,80,80,800,10160,784,98.66,800,541.583,1.477,189.075,181506.077,7672.232,4893.297,37323.321,364.957,379.385,405.61,0,0,0,78507408,805,804,97646,157.40,210.24,250.00,1.000,6,6,30,119,0,3217,1275,150.8,33849.0
+--- kvshrink_tp4_in128000_con80_hit95 prompts=800 seed=10175
+    kvshrink,4,128000,128,80,95,800,10175,784,98.66,800,313.093,2.555,327.059,314004.541,7874.642,6259.815,25384.543,184.07,192.362,222.192,0,0,0,92907136,805,804,115556,210.24,130.82,250.00,1.000,2,2,34,65,0,16794,13790,385.9,248764.2
+
+## kvshrink input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.35
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- kvshrink_tp4_in256000_con40_hit80 prompts=400 seed=10120
+    kvshrink,4,256000,128,40,80,400,10120,784,49.35,400,736.216,0.543,69.545,133401.152,12650.05,9178.621,47353.141,479.079,496.437,525.861,0,0,0,78601488,405,404,194558,145.12,174.70,250.00,1.000,4,4,35,111,0,2976,2913,372.1,68252.3
+--- kvshrink_tp4_in256000_con40_hit95 prompts=400 seed=10135
+    kvshrink,4,256000,128,40,95,400,10135,784,49.35,400,370.373,1.08,138.239,264973.62,11001.528,9648.413,21123.972,204.631,212.657,247.851,0,0,0,93209760,405,404,230717,174.70,178.60,250.00,1.000,1,1,37,37,0,12311,12274,398.0,345838.8
+    serve stopped after 18s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-nozip-nodsa/summary.csv
+===========================================================
+
+### vllm-wo-prefix (2026-11-16 21:53:38): config vllm-wo-prefix   -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-wo-prefix
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-wo-prefix
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=783804 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-wo-prefix/vllm-wo-prefix/serve.log
+    serve ready after 105s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-wo-prefix input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 393.17
+--- vllm-wo-prefix_tp4_in32000_con32_hit80 prompts=64 seed=10112
+    vllm-wo-prefix,4,32000,128,32,80,64,10112,784,393.17,64,31.88,2.008,256.96,61967.965,4691.977,1475.655,13793.772,87.717,112.753,114.876,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_tp4_in32000_con64_hit80 prompts=128 seed=10144
+    vllm-wo-prefix,4,32000,128,64,80,128,10144,784,393.17,128,62.106,2.061,263.808,63404.54,8512.068,1490.367,27607.214,175.497,228.722,230.174,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_tp4_in32000_con128_hit80 prompts=256 seed=10208
+    vllm-wo-prefix,4,32000,128,128,80,256,10208,784,393.17,256,123.625,2.071,265.06,63829.987,30402.14,29864.859,55193.254,216.235,247.513,248.845,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_tp4_in32000_con256_hit80 prompts=512 seed=10336
+    vllm-wo-prefix,4,32000,128,256,80,512,10336,784,393.17,512,247.459,2.069,264.836,63909.716,76785.429,91568.87,110847.0,232.612,248.624,248.869,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-wo-prefix input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.59
+--- vllm-wo-prefix_tp4_in128000_con80_hit80 prompts=160 seed=10160
+    vllm-wo-prefix,4,128000,128,80,80,160,10160,784,98.59,160,376.396,0.425,54.411,52217.881,122281.433,149244.967,169107.451,284.401,300.379,301.008,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-wo-prefix input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.32
+--- vllm-wo-prefix_tp4_in256000_con40_hit80 prompts=80 seed=10120
+    vllm-wo-prefix,4,256000,128,40,80,80,10120,784,49.32,80,472.793,0.169,21.659,41576.882,154573.535,187812.173,212028.174,354.202,375.159,376.445,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-wo-prefix/summary.csv
+===========================================================
+
+### kvshrink-zip-dsa-flash-attn (2026-11-16 22:26:45): config kvshrink IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1 ATTENTION_BACKEND=FLASH_ATTN LMCACHE_CHUNK_SIZE=896 -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa-flash-attn
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=896 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa-flash-attn
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80 95]
+    serve pid=791145 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa-flash-attn/kvshrink/serve.log
+    serve ready after 125s
+    block_size=896 kv_cache_tokens=12637987
+
+## kvshrink input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 393.36
+    prewarm: hit 100, 512 prompts, concurrency 256
+--- kvshrink_tp4_in32000_con32_hit80 prompts=320 seed=10112
+    kvshrink,4,32000,128,32,80,320,10112,896,393.36,320,70.154,4.561,583.854,140808.837,2112.289,2100.27,4353.428,38.469,37.253,48.67,0,0,0,7711872,325,324,23802,0.97,37.41,250.00,1.290,0,0,0,0,0,261,22,20.4,827.0
+--- kvshrink_tp4_in32000_con32_hit95 prompts=320 seed=10127
+    kvshrink,4,32000,128,32,95,320,10127,896,393.36,320,54.242,5.899,755.129,181878.855,1324.273,1188.644,3956.027,32.15,31.436,37.901,0,0,0,9069312,325,324,27992,37.41,56.32,250.00,1.275,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_tp4_in32000_con64_hit80 prompts=640 seed=10144
+    kvshrink,4,32000,128,64,80,640,10144,896,393.36,640,132.392,4.834,618.769,148640.686,2603.466,2078.362,8089.969,83.449,84.818,92.991,0,0,0,15466752,645,644,24017,56.32,128.59,250.00,1.272,0,0,0,0,0,1877,26,26.5,3844.8
+--- kvshrink_tp4_in32000_con64_hit95 prompts=640 seed=10159
+    kvshrink,4,32000,128,64,95,640,10159,896,393.36,640,101.359,6.314,808.217,194475.98,3054.035,3114.705,7027.678,55.619,53.035,71.974,0,0,0,18276608,645,644,28380,128.59,165.98,250.00,1.260,0,0,0,0,0,5514,576,30.4,19496.7
+--- kvshrink_tp4_in32000_con128_hit80 prompts=1280 seed=10208
+    kvshrink,4,32000,128,128,80,1280,10208,896,393.36,1280,260.286,4.918,629.461,151802.662,3352.822,2170.101,12664.647,177.663,183.088,191.321,0,0,0,30940672,1285,1284,24097,165.98,207.73,250.00,1.264,1,1,35,35,0,3828,287,23.9,10245.6
+--- kvshrink_tp4_in32000_con128_hit95 prompts=1280 seed=10223
+    kvshrink,4,32000,128,128,95,1280,10223,896,393.36,1280,200.425,6.386,817.462,196826.3,4257.517,3693.554,13895.433,123.874,122.833,144.534,0,0,0,36605184,1285,1284,28509,207.73,171.07,250.00,1.253,1,1,31,31,0,9735,1479,35.9,44627.7
+--- kvshrink_tp4_in32000_con256_hit80 prompts=2560 seed=10336
+    kvshrink,4,32000,128,256,80,2560,10336,896,393.36,2560,522.892,4.896,626.668,151231.883,6348.386,3072.186,32710.729,358.737,375.224,379.673,0,0,0,62026496,2565,2564,24191,171.07,223.96,250.00,1.259,3,3,41,85,0,9812,1044,24.3,30414.0
+--- kvshrink_tp4_in32000_con256_hit95 prompts=2560 seed=10351
+    kvshrink,4,32000,128,256,95,2560,10351,896,393.36,2560,403.143,6.35,812.813,195828.503,6375.503,4614.629,21245.237,266.186,271.893,292.293,0,0,0,73446912,2565,2564,28645,223.96,167.25,250.00,1.249,2,2,38,69,0,26245,4576,30.4,118842.1
+
+## kvshrink input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.64
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- kvshrink_tp4_in128000_con80_hit80 prompts=800 seed=10160
+    kvshrink,4,128000,128,80,80,800,10160,896,98.64,800,739.964,1.081,138.385,132845.123,8244.212,4964.393,34493.929,514.394,534.664,543.477,0,0,0,78242304,805,804,97316,173.06,130.17,250.00,1.271,3,3,61,135,0,4008,1318,68.1,43838.5
+--- kvshrink_tp4_in128000_con80_hit95 prompts=800 seed=10175
+    kvshrink,4,128000,128,80,95,800,10175,896,98.64,800,452.547,1.768,226.275,217242.788,7239.442,5473.293,29328.117,298.21,303.664,331.037,0,0,0,93128448,805,804,115831,130.17,221.23,250.00,1.271,0,0,0,0,0,12646,7555,94.4,168855.7
+
+## kvshrink input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.34
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- kvshrink_tp4_in256000_con40_hit80 prompts=400 seed=10120
+    kvshrink,4,256000,128,40,80,400,10120,896,49.34,400,908.822,0.44,56.337,108065.234,11678.041,7718.586,49147.948,620.121,647.551,660.532,0,0,0,78339072,405,404,193909,134.49,199.75,250.00,1.283,2,2,42,76,0,2185,2099,100.4,45344.1
+--- kvshrink_tp4_in256000_con40_hit95 prompts=400 seed=10135
+    kvshrink,4,256000,128,40,95,400,10135,896,49.34,400,523.122,0.765,97.874,187602.465,9800.943,8348.75,25101.962,333.546,339.367,372.863,0,0,0,92877568,405,404,229895,199.75,185.62,250.00,1.284,1,1,113,113,0,10135,10085,108.2,263699.7
+    serve stopped after 18s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/kvshrink-zip-dsa-flash-attn/summary.csv
+===========================================================
+
+Done (2026-11-17 01:16:19): bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/<setting>/summary.csv

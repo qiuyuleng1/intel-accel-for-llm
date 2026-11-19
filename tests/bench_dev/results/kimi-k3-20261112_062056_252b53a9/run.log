@@ -1,0 +1,27 @@
+[06:20:56] code md5 252b53a9, results /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/kimi-k3-20261112_062056_252b53a9
+[06:20:56] starting vLLM /home/intel/model-space/Kimi-K3, TP 8, log /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/kimi-k3-20261112_062056_252b53a9/serve.log
+[06:47:37] serve ready after 1600s
+INFO 11-12 06:21:30 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 11-12 06:35:42 [interface.py:918] Setting attention block size to 768 tokens to ensure that attention page size is >= mamba page size.
+INFO 11-12 06:37:35 [kv_cache_utils.py:2032] GPU KV cache size: 1,117,892 tokens, Maximum concurrency for 32,768 tokens per request: 34.12x
+INFO 11-12 06:47:26,154 [kvshrink_connector.py:154] KVShrinkConnector(SCHEDULER): block_size=768, has_mamba=True, mamba_cache_mode='align', prefix caching=False
+short-1: prompt=101 completion=53 finish=stop answer='The user is asking a simple factual ques' target='' correct=True garbled=False
+short-2: prompt=161 completion=139 finish=stop answer='18' target='18' correct=True garbled=False
+long-A: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-A2: prompt=10293 completion=112 finish=stop answer='3' target='3' correct=True garbled=False
+long-B: prompt=10316 completion=259 finish=stop answer='70000' target='70000' correct=True garbled=False
+long-C: prompt=10301 completion=140 finish=stop answer='540' target='540' correct=True garbled=False
+[06:48:05] serve stopped after 12s
+[06:48:05] serve log "Traceback": 0
+[06:48:05] serve log " ERROR ": 0
+[06:48:05] serve log "IAXL check failed": 0
+[06:48:05] serve log "cache key missing after retry": 0
+request  prompt    hit compl finish correct garbled  answer / target
+short-1     101      0    53 stop   True    False    'The user is asking a simple factual ques' / ''
+short-2     161      0   139 stop   True    False    '18' / '18'
+long-A    10293      0   112 stop   True    False    '3' / '3'
+long-A2   10293      0   112 stop   True    False    '3' / '3'
+long-B    10316      0   259 stop   True    False    '70000' / '70000'
+long-C    10301      0   140 stop   True    False    '540' / '540'
+(hit -1: no connector line for the request)
+[06:48:06] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/kimi-k3-20261112_062056_252b53a9

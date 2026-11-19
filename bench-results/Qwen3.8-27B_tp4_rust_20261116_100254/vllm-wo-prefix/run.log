@@ -1,0 +1,41 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:32,64,128,256 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=1 IAXL_QAT_ZIP_ENABLE=1 IAXL_IAA_ZIP_ENABLE=1 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-wo-prefix
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=783804 log=bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-wo-prefix/vllm-wo-prefix/serve.log
+    serve ready after 105s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-wo-prefix input_len=32000 concurrencies=[32 64 128 256]
+    max_concurrency for 32128 tokens per request: 393.17
+--- vllm-wo-prefix_tp4_in32000_con32_hit80 prompts=64 seed=10112
+    vllm-wo-prefix,4,32000,128,32,80,64,10112,784,393.17,64,31.88,2.008,256.96,61967.965,4691.977,1475.655,13793.772,87.717,112.753,114.876,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_tp4_in32000_con64_hit80 prompts=128 seed=10144
+    vllm-wo-prefix,4,32000,128,64,80,128,10144,784,393.17,128,62.106,2.061,263.808,63404.54,8512.068,1490.367,27607.214,175.497,228.722,230.174,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_tp4_in32000_con128_hit80 prompts=256 seed=10208
+    vllm-wo-prefix,4,32000,128,128,80,256,10208,784,393.17,256,123.625,2.071,265.06,63829.987,30402.14,29864.859,55193.254,216.235,247.513,248.845,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_tp4_in32000_con256_hit80 prompts=512 seed=10336
+    vllm-wo-prefix,4,32000,128,256,80,512,10336,784,393.17,512,247.459,2.069,264.836,63909.716,76785.429,91568.87,110847.0,232.612,248.624,248.869,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-wo-prefix input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.59
+--- vllm-wo-prefix_tp4_in128000_con80_hit80 prompts=160 seed=10160
+    vllm-wo-prefix,4,128000,128,80,80,160,10160,784,98.59,160,376.396,0.425,54.411,52217.881,122281.433,149244.967,169107.451,284.401,300.379,301.008,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-wo-prefix input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.32
+--- vllm-wo-prefix_tp4_in256000_con40_hit80 prompts=80 seed=10120
+    vllm-wo-prefix,4,256000,128,40,80,80,10120,784,49.32,80,472.793,0.169,21.659,41576.882,154573.535,187812.173,212028.174,354.202,375.159,376.445,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_rust_20261116_100254/vllm-wo-prefix/summary.csv
+===========================================================

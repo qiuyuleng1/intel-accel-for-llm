@@ -1,0 +1,362 @@
+2026-11-11 08:19:48 - evalscope - [32mINFO[0m: Args: Task config is provided with CommandLine type.[0m
+2026-11-11 08:19:49 - evalscope - [32mINFO[0m: Running with native backend[0m
+2026-11-11 08:19:49 - evalscope - [32mINFO[0m: Dump task config to /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/gsm8k-20261111_081551_a82a7c51/Qwen3.8-27B/pass2/20261111_081949/configs/task_config.yaml[0m
+2026-11-11 08:19:49 - evalscope - [32mINFO[0m: {
+    "model_id": "Qwen3.8-27B",
+    "model_args": {},
+    "model_task": "text_generation",
+    "chat_template": null,
+    "datasets": [
+        "gsm8k"
+    ],
+    "dataset_args": {
+        "gsm8k": {
+            "few_shot_num": 26
+        }
+    },
+    "dataset_dir": "/home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/gsm8k-datasets",
+    "dataset_hub": "modelscope",
+    "repeats": 1,
+    "eval_type": "openai_api",
+    "eval_backend": "Native",
+    "eval_config": null,
+    "limit": 200,
+    "eval_batch_size": 50,
+    "use_cache": null,
+    "rerun_review": false,
+    "work_dir": "/home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/gsm8k-20261111_081551_a82a7c51/Qwen3.8-27B/pass2/20261111_081949",
+    "no_timestamp": false,
+    "enable_progress_tracker": false,
+    "ignore_errors": false,
+    "debug": false,
+    "dry_run": false,
+    "seed": 42,
+    "api_url": "http://127.0.0.1:8000/v1",
+    "api_key": "**********",
+    "timeout": null,
+    "stream": null,
+    "judge": {
+        "strategy": "auto",
+        "models": [],
+        "contract": {
+            "system_prompt": null,
+            "prompt_template": null,
+            "score_mapping": null,
+            "score_type": "pattern"
+        },
+        "repeats": 1,
+        "position_swap": "auto",
+        "aggregation": "mean",
+        "min_valid_judges": 1
+    },
+    "analysis_report": false,
+    "collect_perf": true,
+    "use_sandbox": false,
+    "sandbox_type": "docker",
+    "sandbox_manager_config": {},
+    "evalscope_version": "1.14.1",
+    "model": "/home/intel/model-space/Qwen3.8-27B",
+    "generation_config": {
+        "batch_size": 50,
+        "max_tokens": 2048,
+        "temperature": 0.0,
+        "extra_body": {
+            "chat_template_kwargs": {
+                "enable_thinking": false
+            }
+        }
+    },
+    "sandbox": {
+        "enabled": false,
+        "engine": "docker",
+        "default_config": {},
+        "manager_config": {},
+        "pool_size": null
+    },
+    "agent_config": null
+}[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]                                                           2026-11-11 08:19:49 - evalscope - [32mINFO[0m: Start loading benchmark dataset: gsm8k[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Processing records:   0%|          | 0/200 [00:00<?, ?it/s][AProcessing records: 100%|██████████| 200/200 [00:00<00:00, 299059.11it/s]
+
+Processing records:   0%|          | 0/26 [00:00<?, ?it/s][AProcessing records: 100%|██████████| 26/26 [00:00<00:00, 239148.91it/s]
+                                                           2026-11-11 08:19:49 - evalscope - [33mWARNING[0m: gsm8k: 200 samples to evaluate (1 subset, --limit=200 per subset). Remove `--limit` for a formal evaluation.[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]                                                           2026-11-11 08:19:49 - evalscope - [32mINFO[0m: Subsets of gsm8k: ['main'][0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A                                                           
+                                                          [A2026-11-11 08:19:49 - evalscope - [32mINFO[0m: Loading model for prediction...[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A                                                           
+                                                          [A2026-11-11 08:19:49 - evalscope - [32mINFO[0m: Creating model /home/intel/model-space/Qwen3.8-27B with eval_type=openai_api base_url=http://127.0.0.1:8000/v1, config={'retries': 5, 'retry_interval': 10, 'batch_size': 50, 'max_tokens': 2048, 'temperature': 0.0, 'anthropic_cache_strategy': 'evaluation', 'extra_body': {'chat_template_kwargs': {'enable_thinking': False}}}, model_args={}[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A                                                           
+                                                          [A2026-11-11 08:19:49 - evalscope - [32mINFO[0m: Model loaded successfully.[0m
+Running[eval]:   0%|          | 0/1 [00:00<?, ?benchmark/s]
+Evaluating[gsm8k]:   0%|          | 0/200 [00:00<?, ?it/s][A2026-11-11 08:19:52,614 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:52,933 - math_verify.parser - WARNING: Timeout is disabled as parsing_timeout is None or <= 0, you must provide                         the logic for timeout interuption yourself to prevent code getting stuck.
+2026-11-11 08:19:52,976 - math_verify.grader - WARNING: Timeout is disabled as timeout_seconds is None or <= 0, you must provide                         the logic for timeout interuption yourself to prevent code getting stuck.
+2026-11-11 08:19:52,988 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,185 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,302 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,403 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:   0%|          | 1/200 [00:04<13:20,  4.02s/it][A2026-11-11 08:19:53,487 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,651 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,706 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,706 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,806 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,873 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,924 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,941 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:53,958 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,158 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,208 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,292 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,326 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,326 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,376 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,376 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:54,443 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:   3%|▎         | 6/200 [00:05<02:10,  1.49it/s][A2026-11-11 08:19:55,246 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,282 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,347 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  11%|█         | 22/200 [00:06<00:33,  5.39it/s][A2026-11-11 08:19:55,515 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,749 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,814 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,831 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,865 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,899 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:55,900 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:56,000 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:56,034 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:56,285 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:56,352 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:56,402 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  16%|█▌        | 31/200 [00:07<00:26,  6.37it/s][A2026-11-11 08:19:56,555 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:56,652 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,207 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,244 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,258 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,307 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,391 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,426 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,475 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  20%|██        | 40/200 [00:08<00:22,  7.08it/s][A2026-11-11 08:19:57,673 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,966 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:57,982 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,049 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,083 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,217 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,251 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,368 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,369 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,408 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,419 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,457 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  24%|██▍       | 49/200 [00:09<00:19,  7.61it/s][A2026-11-11 08:19:58,628 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:58,742 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,070 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,168 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,235 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,252 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,269 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,369 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,453 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  30%|██▉       | 59/200 [00:10<00:17,  8.26it/s][A2026-11-11 08:19:59,623 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:19:59,755 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,097 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,131 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,401 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,501 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  34%|███▍      | 69/200 [00:11<00:15,  8.72it/s][A2026-11-11 08:20:00,620 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,621 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,658 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,685 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,959 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:00,977 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:01,060 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:01,127 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:01,378 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  40%|███▉      | 79/200 [00:12<00:13,  9.06it/s][A2026-11-11 08:20:01,596 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:01,841 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:02,048 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:02,217 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:02,218 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:02,318 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:02,402 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:02,520 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:02,520 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  44%|████▍     | 89/200 [00:13<00:11,  9.30it/s][A2026-11-11 08:20:03,050 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,089 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,152 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,186 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,203 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,205 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,253 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,522 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  50%|████▉     | 99/200 [00:14<00:10,  9.46it/s][A2026-11-11 08:20:03,622 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,662 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,866 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:03,997 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,030 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,032 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,033 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,230 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,264 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,281 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,498 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,581 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  55%|█████▍    | 109/200 [00:15<00:09,  9.56it/s][A2026-11-11 08:20:04,684 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,703 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:04,781 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,202 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,353 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,469 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,486 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,520 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,521 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,604 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:05,604 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  60%|█████▉    | 119/200 [00:16<00:08,  9.60it/s][A2026-11-11 08:20:06,128 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,228 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,245 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,263 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,281 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,346 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,413 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,630 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,664 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:06,683 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  64%|██████▍   | 129/200 [00:17<00:07,  9.63it/s][A2026-11-11 08:20:07,174 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:07,410 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:07,444 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:07,461 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:07,730 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:07,768 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,098 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,401 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,402 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,502 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,568 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,585 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,685 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,686 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  70%|██████▉   | 139/200 [00:19<00:08,  7.49it/s][A2026-11-11 08:20:08,731 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:08,754 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:09,151 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:09,352 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:09,370 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:09,503 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  74%|███████▍  | 148/200 [00:20<00:06,  7.79it/s][A2026-11-11 08:20:09,771 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:09,807 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:10,128 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:10,262 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:10,346 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:10,446 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:10,631 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:10,715 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  78%|███████▊  | 157/200 [00:21<00:05,  8.08it/s][A2026-11-11 08:20:10,899 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,050 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,184 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,369 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,503 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,587 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,737 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  83%|████████▎ | 166/200 [00:22<00:04,  8.32it/s][A2026-11-11 08:20:11,771 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,823 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,824 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,848 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:11,897 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:12,460 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:12,494 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:12,593 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:12,660 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:12,711 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  88%|████████▊ | 175/200 [00:23<00:02,  8.50it/s][A2026-11-11 08:20:12,828 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:12,912 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,080 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,080 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,097 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,119 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,281 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,348 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  92%|█████████▏| 184/200 [00:24<00:01,  8.63it/s][A2026-11-11 08:20:13,784 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,817 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,834 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,951 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:13,985 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:14,085 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:14,452 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:14,719 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  96%|█████████▋| 193/200 [00:25<00:00,  8.73it/s][A2026-11-11 08:20:15,682 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:15,699 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:16,796 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:18,874 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 08:20:21,782 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]:  99%|█████████▉| 198/200 [00:39<00:00,  8.73it/s][A2026-11-11 08:20:35,279 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]: 100%|█████████▉| 199/200 [00:46<00:00,  1.16it/s][A2026-11-11 08:20:37,131 - httpx2 - INFO: HTTP Request: POST http://127.0.0.1:8000/v1/chat/completions "HTTP/1.1 200 OK"
+
+Evaluating[gsm8k]: 100%|██████████| 200/200 [00:47<00:00,  1.13it/s][A                                                           
+                                                                    [A2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Evaluating[gsm8k] 100%| 200/200 [Elapsed: 00:47 < Remaining: 00:00,  1.13it/s][0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]
+Evaluating[gsm8k]: 100%|██████████| 200/200 [00:47<00:00,  1.13it/s][AEvaluating[gsm8k]: 100%|██████████| 200/200 [00:47<00:00,  4.19it/s]
+                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: gsm8k: predictions complete, aggregating scores...[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Aggregating scores for subset: main[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Generating report...[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: 
+gsm8k report table:
+┌─────────────┬───────────┬────────────┬──────────┬───────┬─────────┐
+│ Model       │ Dataset   │ Metric     │ Subset   │   Num │ Score   │
+├─────────────┼───────────┼────────────┼──────────┼───────┼─────────┤
+│ Qwen3.8-27B │ GSM8K     │ Accuracy ↑ │ main     │   200 │ 97.5%   │
+└─────────────┴───────────┴────────────┴──────────┴───────┴─────────┘ 
+[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Skipping report analysis (`analysis_report=False`).[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Dump report to: /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/gsm8k-20261111_081551_a82a7c51/Qwen3.8-27B/pass2/20261111_081949/reports/Qwen3.8-27B/gsm8k.json 
+[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: 
+gsm8k perf table:
+Model        Dataset      Num  Avg Lat    Avg TTFT    Avg TPOT    Avg Thpt       Avg In    Avg Out
+-----------  ---------  -----  ---------  ----------  ----------  -----------  --------  ---------
+Qwen3.8-27B  GSM8K        200  5.485 s    —           —           43.43 tok/s      5450        238
+[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]                                                           2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Benchmark gsm8k evaluation finished.[0m
+Running[eval]:   0%|          | 0/1 [00:47<?, ?benchmark/s]Running[eval]: 100%|██████████| 1/1 [00:47<00:00, 47.80s/benchmark]                                                                   2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Running[eval] 100%| 1/1 [Elapsed: 00:47 < Remaining: 00:00, 47.80s/benchmark][0m
+Running[eval]: 100%|██████████| 1/1 [00:47<00:00, 47.80s/benchmark]Running[eval]: 100%|██████████| 1/1 [00:47<00:00, 47.80s/benchmark]
+2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Overall report table: 
+┌─────────────┬───────────┬────────────┬──────────┬───────┬─────────┐
+│ Model       │ Dataset   │ Metric     │ Subset   │   Num │ Score   │
+├─────────────┼───────────┼────────────┼──────────┼───────┼─────────┤
+│ Qwen3.8-27B │ GSM8K     │ Accuracy ↑ │ main     │   200 │ 97.5%   │
+└─────────────┴───────────┴────────────┴──────────┴───────┴─────────┘ 
+[0m
+2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Overall perf table: 
+Model        Dataset      Num  Avg Lat    Avg TTFT    Avg TPOT    Avg Thpt       Avg In    Avg Out
+-----------  ---------  -----  ---------  ----------  ----------  -----------  --------  ---------
+Qwen3.8-27B  GSM8K        200  5.485 s    —           —           43.43 tok/s      5450        238 
+[0m
+2026-11-11 08:20:37 - evalscope - [32mINFO[0m: HTML report generated: /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/gsm8k-20261111_081551_a82a7c51/Qwen3.8-27B/pass2/20261111_081949/reports/report.html[0m
+2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Finished evaluation for Qwen3.8-27B on ['gsm8k'][0m
+2026-11-11 08:20:37 - evalscope - [32mINFO[0m: Output directory: /home/intel/qiuyu/intel-accel-for-llm-b300/tests/bench_dev/results/gsm8k-20261111_081551_a82a7c51/Qwen3.8-27B/pass2/20261111_081949[0m

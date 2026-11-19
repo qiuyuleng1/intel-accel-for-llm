@@ -1,0 +1,32 @@
+[08:54:18] code md5 bf0156e3, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-capacity-20261113_085418_bf0156e3
+[08:54:18] vLLM process group 480023, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_083807_6c8ea66e/serve.log
+[08:54:18] === input 32000: 6 request(s) per DP rank, 2 ranks at once
+  DP0: completed 6, failed 0, mean TTFT 918 ms, max TTFT 1143 ms
+  DP1: completed 6, failed 0, mean TTFT 1289 ms, max TTFT 1726 ms
+  max vllm:kv_cache_usage_perc engine 0: 0.923077
+  max vllm:kv_cache_usage_perc engine 1: 0.974359
+  max vllm:num_requests_running engine 0: 6
+  max vllm:num_requests_running engine 1: 6
+  max vllm:num_requests_waiting engine 0: 0
+  max vllm:num_requests_waiting engine 1: 1
+[08:54:51]   preemptions during the case: 0
+[08:54:51]   serve log "Traceback": 0
+[08:54:51]   serve log " ERROR ": 0
+[08:54:51]   serve log "IAXL check failed": 0
+[08:54:51]   serve log "cache key missing after retry": 0
+[08:54:51] === input 32000: 5 request(s) per DP rank, 2 ranks at once
+  DP0: completed 5, failed 0, mean TTFT 839 ms, max TTFT 1096 ms
+  DP1: completed 5, failed 0, mean TTFT 1374 ms, max TTFT 1487 ms
+  max vllm:kv_cache_usage_perc engine 0: 0.769231
+  max vllm:kv_cache_usage_perc engine 1: 0.769231
+  max vllm:num_requests_running engine 0: 5
+  max vllm:num_requests_running engine 1: 5
+  max vllm:num_requests_waiting engine 0: 2
+  max vllm:num_requests_waiting engine 1: 0
+[08:55:24]   preemptions during the case: 0
+[08:55:24]   serve log "Traceback": 0
+[08:55:24]   serve log " ERROR ": 0
+[08:55:24]   serve log "IAXL check failed": 0
+[08:55:24]   serve log "cache key missing after retry": 0
+[08:55:24] vLLM left running (process group 480023)
+[08:55:24] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-capacity-20261113_085418_bf0156e3

@@ -1,0 +1,40 @@
+INFO 11-13 10:09:30 [vllm_patch.py:108] Mamba align patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size; Kimi-K3 MLA KV transfer hook registered
+Namespace(subparser='bench', bench_type='serve', dispatch_function=<function BenchmarkServingSubcommand.cmd at 0x7882e0f70680>, trust_remote_code=True, seed=10103, num_prompts=80, dataset_name='random', no_stream=False, dataset_path=None, no_oversample=False, skip_chat_template=False, enable_multimodal_chat=False, disable_shuffle=False, custom_output_len=256, custom_ensure_client_side_data=False, spec_bench_output_len=256, spec_bench_category=None, sonnet_input_len=550, sonnet_output_len=150, sonnet_prefix_len=200, sharegpt_output_len=None, timed_trace_chunk_hash_size=16, timed_trace_sec_multiplier=1, timed_trace_label_timestamp='timestamp', timed_trace_label_input_length='input_length', timed_trace_label_output_length='output_length', timed_trace_label_hash_ids='hash_ids', blazedit_min_distance=0.0, blazedit_max_distance=1.0, asr_max_audio_len_sec=inf, asr_min_audio_len_sec=0.0, random_input_len=1600, random_output_len=128, random_range_ratio='0.0', random_prefix_len=30400, random_batch_size=1, no_reranker=False, random_mm_base_items_per_request=1, random_mm_num_mm_items_range_ratio=0.0, random_mm_limit_mm_per_prompt={'image': 255, 'video': 1}, random_mm_bucket_config={(256, 256, 1): 0.5, (720, 1280, 1): 0.5, (720, 1280, 16): 0.0}, hf_subset=None, hf_split=None, hf_name=None, hf_output_len=None, bfcl_categories=None, prefix_repetition_prefix_len=256, prefix_repetition_suffix_len=256, prefix_repetition_num_prefixes=10, prefix_repetition_output_len=128, speed_bench_dataset_subset='qualitative', speed_bench_output_len=4096, speed_bench_category=None, label=None, backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', header=None, max_concurrency=8, model='/home/intel/model-space/Kimi-K3', input_len=None, output_len=None, tokenizer='/home/intel/model-space/Kimi-K3', tokenizer_mode='auto', use_beam_search=False, logprobs=None, request_rate=inf, burstiness=1.0, probe_request_rate=0.0, disable_tqdm=False, num_warmups=5, profile=False, save_result=True, save_detailed=False, append_result=False, metadata=None, result_dir='bench-results/Kimi-K3_20261113_095102/dp2tp4/kvshrink/in32000', result_filename='kvshrink_dp2tp4_in32000_con8_hit95.json', ignore_eos=True, self_timed=None, percentile_metrics='ttft,tpot', metric_percentiles='50,95', goodput=None, request_id_prefix='bench-182cdd94-', top_p=None, top_k=None, min_p=None, temperature=None, frequency_penalty=None, presence_penalty=None, repetition_penalty=None, served_model_name=None, lora_modules=None, lora_assignment='random', ramp_up_strategy=None, ramp_up_start_rps=None, ramp_up_end_rps=None, ready_check_timeout_sec=0, chat_template_kwargs=None, extra_body=None, skip_tokenizer_init=False, insecure=False, plot_timeline=False, timeline_itl_thresholds='25,50', plot_dataset_stats=False)
+INFO 11-13 10:09:30 [kimi_k3.py:116] Overriding vision_config.text_hidden_size from 2304 to 4096 to match text_config.hidden_size
+WARNING 11-13 10:09:31 [registry.py:259] Using a slow tokenizer. This might cause a significant slowdown. Consider using a fast tokenizer instead.
+INFO 11-13 10:09:31 [utils.py:90] Sampling input_len from [1600, 1600] and output_len from [128, 128]
+WARNING: vllm bench serve no longer sets temperature==0 (greedy) in requests by default. The default will be determined on the server side and can be model/API specific. For the old behavior, include --temperature=0.
+Starting initial single prompt test run...
+Skipping endpoint ready check.
+Warming up with 5 requests...
+  0%|          | 0/5 [00:00<?, ?it/s] 20%|██        | 1/5 [00:08<00:34,  8.58s/it]100%|██████████| 5/5 [00:08<00:00,  1.30s/it]100%|██████████| 5/5 [00:08<00:00,  1.74s/it]
+Warmup run completed.
+Starting main benchmark run...
+Traffic request rate: inf
+Burstiness factor: 1.0 (Poisson process)
+Maximum request concurrency: 8
+  0%|          | 0/80 [00:00<?, ?it/s]  1%|▏         | 1/80 [00:07<10:09,  7.71s/it]  2%|▎         | 2/80 [00:07<04:12,  3.24s/it]  9%|▉         | 7/80 [00:07<00:46,  1.56it/s] 12%|█▎        | 10/80 [00:12<01:12,  1.03s/it] 21%|██▏       | 17/80 [00:17<00:52,  1.21it/s] 24%|██▍       | 19/80 [00:17<00:41,  1.47it/s] 31%|███▏      | 25/80 [00:22<00:40,  1.34it/s] 35%|███▌      | 28/80 [00:22<00:29,  1.75it/s] 41%|████▏     | 33/80 [00:27<00:33,  1.39it/s] 45%|████▌     | 36/80 [00:27<00:24,  1.79it/s] 51%|█████▏    | 41/80 [00:32<00:27,  1.41it/s] 55%|█████▌    | 44/80 [00:32<00:19,  1.82it/s] 61%|██████▏   | 49/80 [00:37<00:21,  1.42it/s] 65%|██████▌   | 52/80 [00:37<00:15,  1.82it/s] 71%|███████▏  | 57/80 [00:42<00:16,  1.42it/s] 75%|███████▌  | 60/80 [00:42<00:10,  1.83it/s] 81%|████████▏ | 65/80 [00:47<00:10,  1.43it/s] 85%|████████▌ | 68/80 [00:47<00:06,  1.84it/s] 91%|█████████▏| 73/80 [00:52<00:04,  1.43it/s] 95%|█████████▌| 76/80 [00:52<00:02,  1.85it/s]100%|██████████| 80/80 [00:52<00:00,  1.52it/s]
+tip: install termplotlib and gnuplot to plot the metrics
+============ Serving Benchmark Result ============
+Successful requests:                     80        
+Failed requests:                         0         
+Maximum request concurrency:             8         
+Benchmark duration (s):                  52.64     
+Total input tokens:                      2560000   
+Total generated tokens:                  10240     
+Request throughput (req/s):              1.52      
+Output token throughput (tok/s):         194.54    
+Peak output token throughput (tok/s):    304.00    
+Peak concurrent requests:                16.00     
+Total token throughput (tok/s):          48829.38  
+---------------Time to First Token----------------
+Mean TTFT (ms):                          1446.47   
+Median TTFT (ms):                        1519.06   
+P50 TTFT (ms):                           1519.06   
+P95 TTFT (ms):                           3623.12   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          30.03     
+Median TPOT (ms):                        28.89     
+P50 TPOT (ms):                           28.89     
+P95 TPOT (ms):                           35.16     
+==================================================

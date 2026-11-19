@@ -1,0 +1,32 @@
+[06:38:58] step 0: check that no process uses a GPU
+[06:38:58] processes holding /dev/nvidia*: nv-hosten 
+[06:38:58] stop nvidia-dcgm
+[06:39:04] nvidia-dcgm: inactive
+[06:39:04] stop nvidia-fabricmanager
+[06:39:04] nvidia-fabricmanager: inactive
+[06:39:04] stop nvidia-persistenced
+[06:39:04] nvidia-persistenced: inactive
+[06:39:04] processes holding /dev/nvidia* after stopping: none
+[06:39:04] step 4: nvidia-smi -r (all GPUs)
+GPU 00000000:10:00.0 was successfully reset.
+GPU 00000000:38:00.0 was successfully reset.
+GPU 00000000:5E:00.0 was successfully reset.
+GPU 00000000:71:00.0 was successfully reset.
+GPU 00000000:90:00.0 was successfully reset.
+GPU 00000000:B9:00.0 was successfully reset.
+GPU 00000000:DD:00.0 was successfully reset.
+GPU 00000000:EF:00.0 was successfully reset.
+All done.
+[06:39:43] nvidia-smi -r exit 0
+[06:39:43] step 5: start the services again
+[06:39:43] start nvidia-persistenced: active
+[06:39:48] start nvidia-fabricmanager: active
+[06:39:48] start nvidia-dcgm: active
+[06:39:48] fabric manager started at Mon 2026-11-16 06:39:48 UTC
+Nov 16 06:39:04 aquila nv-fabricmanager[594900]: Successfully cleaned up and exiting fabric manager.
+Nov 16 06:39:48 aquila nv-fabricmanager[623594]: NodeId 0 partition id 57082 is activated.
+Nov 16 06:39:48 aquila nv-fabricmanager[623594]: Successfully configured all the available GPUs and NVSwitches to route NVLink traffic. NVLink Peer-to-Peer support will be enabled once the GPUs are successfully registered with the NVLink fabric.
+[06:39:48] fabric state per GPU:
+      8         State                                          : Completed	        Status                                         : Success
+[06:39:57] kernel messages since the reset:
+[06:39:57] DONE

@@ -1,0 +1,163 @@
+===========================================================
+Kimi-K3 benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/Kimi-K3_20261113_095102/dp2tp4
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=131200 hit_rates=[80 95]
+    serve pid=513649 log=bench-results/Kimi-K3_20261113_095102/dp2tp4/kvshrink/serve.log
+    serve ready after 475s
+    block_size=1536 kv_cache_tokens=216825
+
+## kvshrink input_len=32000 concurrencies=[4 8 12]
+    max_concurrency for 32128 tokens per request: 13.50
+    prewarm: hit 100, 24 prompts, concurrency 12
+--- kvshrink_dp2tp4_in32000_con4_hit80 prompts=40 seed=10084
+    kvshrink,2,4,32000,128,4,80,40,10084,1536,13.50,40,52.212,0.766,98.061,24613.406,1313.59,1339.601,1861.606,30.73,29.232,37.384,0,0,0,1019904,45,42,24283,1.60,6.33,75.00,1.414,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp2tp4_in32000_con4_hit95 prompts=40 seed=10099
+    kvshrink,2,4,32000,128,4,95,40,10099,1536,13.50,40,48.871,0.818,104.766,26296.15,1015.426,1079.969,1453.806,30.427,30.367,34.482,0,0,0,1205760,45,43,28041,7.13,10.24,75.00,1.418,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp2tp4_in32000_con8_hit80 prompts=80 seed=10088
+    kvshrink,2,4,32000,128,8,80,80,10088,1536,13.50,80,74.989,1.067,136.553,34274.923,2134.155,2013.875,4257.947,42.181,36.491,68.35,0,0,0,1964544,85,83,23669,11.04,20.05,75.00,1.419,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp2tp4_in32000_con8_hit95 prompts=80 seed=10103
+    kvshrink,2,4,32000,128,8,95,80,10103,1536,13.50,80,52.637,1.52,194.539,48829.379,1446.469,1519.064,3623.12,30.025,28.89,35.159,0,0,0,2280960,85,82,27817,20.85,26.07,75.00,1.422,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp2tp4_in32000_con12_hit80 prompts=120 seed=10092
+    kvshrink,2,4,32000,128,12,80,120,10092,1536,13.50,120,83.605,1.435,183.721,46113.881,2781.03,2636.127,6316.785,41.824,39.668,55.46,0,0,0,2939904,125,122,24098,26.87,39.82,75.00,1.419,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp2tp4_in32000_con12_hit95 prompts=120 seed=10107
+    kvshrink,2,4,32000,128,12,95,120,10107,1536,13.50,120,67.125,1.788,228.828,57435.78,1871.821,1486.502,5285.223,36.461,34.773,45.573,0,0,0,3460608,125,122,28366,40.62,47.89,75.00,1.422,0,0,0,0,0,0,0,0.0,0.0
+
+## kvshrink input_len=128000 concurrencies=[2]
+    max_concurrency for 128128 tokens per request: 3.38
+    prewarm: hit 100, 4 prompts, concurrency 2
+--- kvshrink_dp2tp4_in128000_con2_hit80 prompts=20 seed=10082
+    kvshrink,2,4,128000,128,2,80,20,10082,1536,3.38,20,80.026,0.25,31.99,32021.54,3770.714,3405.367,5020.925,30.938,27.29,42.0,0,0,0,2436096,25,23,105917,54.96,65.67,75.00,1.419,0,0,0,0,0,0,0,0.0,0.0
+--- kvshrink_dp2tp4_in128000_con2_hit95 prompts=20 seed=10097
+    kvshrink,2,4,128000,128,2,95,20,10097,1536,3.38,20,48.073,0.416,53.253,53305.845,1340.208,1242.82,1674.78,27.253,27.131,29.543,1,0,0,2698752,25,23,122145,36.87,42.40,75.00,1.419,0,0,0,0,0,0,0,0.0,0.0
+    serve stopped after 14s + 15s settle
+
+===========================================================
+Done: bench-results/Kimi-K3_20261113_095102/dp2tp4/summary.csv
+===========================================================
+===========================================================
+Kimi-K3 benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/Kimi-K3_20261113_095102/dp2tp4
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=131200 hit_rates=[80 95]
+    serve pid=527495 log=bench-results/Kimi-K3_20261113_095102/dp2tp4/vllm-prefix/serve.log
+    serve ready after 495s
+    block_size=1536 kv_cache_tokens=204395
+
+## vllm-prefix input_len=32000 concurrencies=[4 8 12]
+    max_concurrency for 32128 tokens per request: 12.72
+    prewarm: hit 100, 24 prompts, concurrency 12
+--- vllm-prefix_dp2tp4_in32000_con4_hit80 prompts=40 seed=10084
+    vllm-prefix,2,4,32000,128,4,80,40,10084,1536,12.72,40,47.636,0.84,107.482,26978.024,1286.957,1192.808,2037.672,27.362,26.821,32.349,0,993792,1440000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_dp2tp4_in32000_con4_hit95 prompts=40 seed=10099
+    vllm-prefix,2,4,32000,128,4,95,40,10099,1536,12.72,40,40.779,0.981,125.556,31514.613,740.535,678.569,1080.532,26.255,25.329,32.77,0,1188864,1440000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_dp2tp4_in32000_con8_hit80 prompts=80 seed=10088
+    vllm-prefix,2,4,32000,128,8,80,80,10088,1536,12.72,80,70.25,1.139,145.766,36587.235,2071.988,2085.289,3947.413,38.952,34.891,58.113,0,1990656,2720000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_dp2tp4_in32000_con8_hit95 prompts=80 seed=10103
+    vllm-prefix,2,4,32000,128,8,95,80,10103,1536,12.72,80,46.44,1.723,220.501,55345.739,1141.367,941.123,2221.445,27.558,28.201,32.56,0,2356224,2720000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_dp2tp4_in32000_con12_hit80 prompts=120 seed=10092
+    vllm-prefix,2,4,32000,128,12,80,120,10092,1536,12.72,120,78.437,1.53,195.826,49152.429,2511.802,2528.114,5007.44,41.937,38.645,62.958,0,2959872,4000000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_dp2tp4_in32000_con12_hit95 prompts=120 seed=10107
+    vllm-prefix,2,4,32000,128,12,95,120,10107,1536,12.72,120,58.797,2.041,261.236,65570.307,1477.885,1525.355,2563.241,34.621,32.969,41.055,0,3494400,4000000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-prefix input_len=128000 concurrencies=[2]
+    max_concurrency for 128128 tokens per request: 3.19
+    prewarm: hit 100, 4 prompts, concurrency 2
+--- vllm-prefix_dp2tp4_in128000_con2_hit80 prompts=20 seed=10082
+    vllm-prefix,2,4,128000,128,2,80,20,10082,1536,3.19,20,88.281,0.227,28.998,29027.353,4100.95,3412.259,9112.828,34.983,27.613,46.557,1,2233344,3200000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-prefix_dp2tp4_in128000_con2_hit95 prompts=20 seed=10097
+    vllm-prefix,2,4,128000,128,2,95,20,10097,1536,3.19,20,59.569,0.336,42.975,43018.181,1939.455,1294.044,9288.671,31.62,27.659,68.311,1,2445312,3200000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 6s + 15s settle
+
+===========================================================
+Done: bench-results/Kimi-K3_20261113_095102/dp2tp4/summary.csv
+===========================================================
+===========================================================
+Kimi-K3 benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/Kimi-K3_20261113_095102/dp2tp4
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=131200 hit_rates=[80]
+    serve pid=540582 log=bench-results/Kimi-K3_20261113_095102/dp2tp4/vllm-wo-prefix/serve.log
+    serve ready after 295s
+    block_size=1536 kv_cache_tokens=204395
+
+## vllm-wo-prefix input_len=32000 concurrencies=[4 8 12]
+    max_concurrency for 32128 tokens per request: 12.72
+--- vllm-wo-prefix_dp2tp4_in32000_con4_hit80 prompts=8 seed=10084
+    vllm-wo-prefix,2,4,32000,128,4,80,8,10084,1536,12.72,8,15.248,0.525,67.158,16856.565,3551.108,3476.785,4737.258,31.838,30.203,41.517,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_dp2tp4_in32000_con8_hit80 prompts=16 seed=10088
+    vllm-wo-prefix,2,4,32000,128,8,80,16,10088,1536,12.72,16,22.533,0.71,90.889,22813.061,5437.13,5649.108,8401.001,45.562,40.39,68.393,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- vllm-wo-prefix_dp2tp4_in32000_con12_hit80 prompts=24 seed=10092
+    vllm-wo-prefix,2,4,32000,128,12,80,24,10092,1536,12.72,24,131.115,0.183,23.43,5880.886,15123.066,6661.588,71905.904,387.314,359.424,569.948,119,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-wo-prefix input_len=128000 concurrencies=[2]
+    max_concurrency for 128128 tokens per request: 3.19
+--- vllm-wo-prefix_dp2tp4_in128000_con2_hit80 prompts=4 seed=10082
+    vllm-wo-prefix,2,4,128000,128,2,80,4,10082,1536,3.19,4,30.767,0.13,16.641,16658.11,12214.651,12023.923,14767.942,24.884,23.434,28.391,1,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 6s + 15s settle
+
+===========================================================
+Done: bench-results/Kimi-K3_20261113_095102/dp2tp4/summary.csv
+===========================================================
+===========================================================
+Kimi-K3 benchmark  configs=[lmcache]
+  MODEL=/home/intel/model-space/Kimi-K3 DP_SIZE=2 TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 KEEP_SERVE=0
+  input_len:concurrencies=[32000:4,8,12 128000:2] output_len=128 MAX_MODEL_LEN=131200 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=600 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=1536 LMCACHE_L1_SIZE_GB=600
+  results -> bench-results/Kimi-K3_20261113_095102/dp2tp4
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=131200 hit_rates=[80 95]
+    serve pid=7449 log=bench-results/Kimi-K3_20261113_095102/dp2tp4/lmcache/serve.log
+    serve ready after 590s
+    block_size=1536 kv_cache_tokens=189204
+
+## lmcache input_len=32000 concurrencies=[4 8 12]
+    max_concurrency for 32128 tokens per request: 11.78
+    WARNING: concurrency 12 exceeds vLLM's maximum (11.78)
+    prewarm: hit 100, 24 prompts, concurrency 12
+--- lmcache_dp2tp4_in32000_con4_hit80 prompts=40 seed=10084
+    lmcache,2,4,32000,128,4,80,40,10084,1536,11.78,40,63.755,0.627,80.308,20157.227,2012.158,1831.808,3122.076,34.287,34.423,42.796,0,0,0,720384,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_dp2tp4_in32000_con4_hit95 prompts=40 seed=10099
+    lmcache,2,4,32000,128,4,95,40,10099,1536,11.78,40,63.392,0.631,80.767,20272.524,2010.197,1818.998,3115.478,34.017,33.311,42.73,0,0,0,720384,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_dp2tp4_in32000_con8_hit80 prompts=80 seed=10088
+    lmcache,2,4,32000,128,8,80,80,10088,1536,11.78,80,67.152,1.191,152.491,38275.156,2263.077,2356.694,4196.247,34.992,34.23,49.955,0,0,0,1881600,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_dp2tp4_in32000_con8_hit95 prompts=80 seed=10103
+    lmcache,2,4,32000,128,8,95,80,10103,1536,11.78,80,62.319,1.284,164.316,41243.303,1946.212,1717.575,4343.489,33.683,31.598,51.747,0,0,0,2016768,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_dp2tp4_in32000_con12_hit80 prompts=120 seed=10092
+    lmcache,2,4,32000,128,12,80,120,10092,1536,11.78,120,91.753,1.308,167.407,42019.07,3436.674,2734.13,8159.976,42.802,39.051,64.942,0,0,0,2820096,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_dp2tp4_in32000_con12_hit95 prompts=120 seed=10107
+    lmcache,2,4,32000,128,12,95,120,10107,1536,11.78,120,76.062,1.578,201.941,50687.265,2549.483,1617.067,6654.795,37.897,35.938,51.274,0,0,0,3285504,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## lmcache input_len=128000 concurrencies=[2]
+    max_concurrency for 128128 tokens per request: 2.95
+    prewarm: hit 100, 4 prompts, concurrency 2
+--- lmcache_dp2tp4_in128000_con2_hit80 prompts=20 seed=10082
+    lmcache,2,4,128000,128,2,80,20,10082,1536,2.95,20,75.755,0.264,33.793,33826.817,3699.469,3286.596,4901.875,28.202,24.615,39.567,0,0,0,2436096,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+--- lmcache_dp2tp4_in128000_con2_hit95 prompts=20 seed=10097
+    lmcache,2,4,128000,128,2,95,20,10097,1536,2.95,20,50.986,0.392,50.21,50259.986,1777.28,1595.511,2193.035,26.128,24.473,29.298,1,0,0,2757120,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 60s + 15s settle
+
+===========================================================
+Done: bench-results/Kimi-K3_20261113_095102/dp2tp4/summary.csv
+===========================================================

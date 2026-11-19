@@ -1,0 +1,37 @@
+[07:00:56] code md5 3a3a7495, results /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_070056_3a3a7495_limit30
+[07:00:56] vLLM process group 459995, log /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-20261113_064905_f41e29c1/serve.log
+[07:00:56] serve ready (waited 0s)
+[07:00:56] gsm8k 26 shots pass1: 30 questions, 50 in parallel
+[07:01:15] 26 shots pass1: evalscope exit 0, 30 connector lines, score "score": 0.9667
+[07:01:15] gsm8k 26 shots pass2: 30 questions, 50 in parallel
+[07:01:30] 26 shots pass2: evalscope exit 0, 30 connector lines, score "score": 0.9667
+[07:01:30] gsm8k 140 shots pass1: 30 questions, 50 in parallel
+[07:01:55] 140 shots pass1: evalscope exit 0, 30 connector lines, score "score": 1.0
+[07:01:55] gsm8k 140 shots pass2: 30 questions, 50 in parallel
+[07:02:19] 140 shots pass2: evalscope exit 0, 30 connector lines, score "score": 1.0
+[07:02:19] serve log of this run "Traceback": 0
+[07:02:19] serve log of this run " ERROR ": 0
+[07:02:19] serve log of this run "IAXL check failed": 0
+[07:02:19] serve log of this run "cache key missing after retry": 0
+[07:02:19] serve log of this run "cache miss on unzip": 0
+== Per pass
+config       shots    pass     qs prompt tokens     acc garbled  GPU prefix hit/query (vLLM)   external hit
+kvshrink     shots26  pass1    30   4727-4808     96.7%       0                      0/0 (-)         133632
+kvshrink     shots26  pass2    30   4727-4808     96.7%       0                      0/0 (-)         138240
+kvshrink     shots140 pass1    30  23934-24015   100.0%       0                      0/0 (-)         589824
+kvshrink     shots140 pass2    30  23934-24015   100.0%       0                      0/0 (-)         714240
+
+== kvshrink: requests by external hit (connector log, last line per request)
+shots    pass      hit source     requests correct      acc
+shots26  pass1    4608 chunk_end        29      28    96.6%
+shots26  pass1       0 none              1       1   100.0%
+shots26  pass2    4608 chunk_end        30      29    96.7%
+shots140 pass1   20736 chunk_end        28      28   100.0%
+shots140 pass1    4608 chunk_end         2       2   100.0%
+shots140 pass2   23808 chunk_end        30      30   100.0%
+
+== kvshrink: wrong answers with an external hit (2)
+shots26 pass1 question 12: hit 4608 (chunk_end), answer 12, expected 13
+shots26 pass2 question 12: hit 4608 (chunk_end), answer 12, expected 13
+[07:02:19] vLLM left running (process group 459995)
+[07:02:19] ALL_DONE /home/intel/qiuyu/intel-accel-for-llm-kimi-k3/tests/bench_dev/results/kimi-k3-gsm8k-20261113_070056_3a3a7495_limit30

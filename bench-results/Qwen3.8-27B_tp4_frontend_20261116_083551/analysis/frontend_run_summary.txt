@@ -1,0 +1,32 @@
+== python: input 32000, concurrency 256, 1024 requests
+  duration 69.8 s, 14.68 req/s, TTFT mean/median/p95 6069/5011/14286 ms, TPOT mean/median/p95 86.1/92.5/94.2 ms
+  engine per request (1030 requests): prompt tokens 31969, prefix-cache hit 29716, computed 2253
+  engine lines (7): running 168, waiting 0, outside the engine 88
+  CPU % of one core, 70 one-second samples:
+    api_server    mean   127 max   141 | threads >= 10%:  2 | top: vllm/661296 93, vllm (main)/658551 34
+    engine_core   mean    99 max   102 | threads >= 10%:  1 | top: VLLM::EngineCor (main)/658684 97, VLLM::EngineCor/660387 2
+    bench_client  mean     6 max    27 | threads >= 10%:  0 | top: vllm (main)/660637 6
+== python-workers8: input 32000, concurrency 256, 1024 requests
+  duration 50.6 s, 20.23 req/s, TTFT mean/median/p95 3925/3315/10294 ms, TPOT mean/median/p95 68.1/71.0/85.2 ms
+  engine per request (1030 requests): prompt tokens 31969, prefix-cache hit 29716, computed 2253
+  engine lines (5): running 193, waiting 52, outside the engine 11
+  CPU % of one core, 51 one-second samples:
+    api_server    mean   260 max   803 | threads >= 10%:  9 | top: vllm (main)/664479 47, vllm/667490 29, vllm/667491 28, vllm/667489 27
+    engine_core   mean    99 max   103 | threads >= 10%:  1 | top: VLLM::EngineCor (main)/664611 95, VLLM::EngineCor/666596 4
+    bench_client  mean     8 max    25 | threads >= 10%:  0 | top: vllm (main)/666886 8
+== rust: input 32000, concurrency 256, 1024 requests
+  duration 40.7 s, 25.18 req/s, TTFT mean/median/p95 2237/1345/7747 ms, TPOT mean/median/p95 61.8/66.3/72.1 ms
+  engine per request (1030 requests): prompt tokens 30679, prefix-cache hit 28934, computed 1745
+  engine lines (4): running 220, waiting 21, outside the engine 14
+  CPU % of one core, 41 one-second samples:
+    rust_frontend mean    19 max   109 | threads >= 10%:  0 | top: vllm-zmq-0/657363 0, vllm-request/657966 0, vllm-request/657952 0, vllm-request/657951 0
+    engine_core   mean   100 max   103 | threads >= 10%:  1 | top: VLLM::EngineCor (main)/655661 96, VLLM::EngineCor/657356 4
+    bench_client  mean    11 max    34 | threads >= 10%:  1 | top: vllm (main)/657397 11
+== rust-threads8: input 32000, concurrency 256, 1024 requests
+  duration 40.8 s, 25.11 req/s, TTFT mean/median/p95 2239/1345/7791 ms, TPOT mean/median/p95 62.0/66.5/72.5 ms
+  engine per request (1030 requests): prompt tokens 30679, prefix-cache hit 28934, computed 1745
+  engine lines (5): running 149, waiting 33, outside the engine 74
+  CPU % of one core, 41 one-second samples:
+    rust_frontend mean    18 max    93 | threads >= 10%:  0 | top: vllm-request/664050 1, vllm-request/664046 1, vllm-request/664051 0, vllm-zmq-0/663403 0
+    engine_core   mean   100 max   103 | threads >= 10%:  1 | top: VLLM::EngineCor (main)/661664 96, VLLM::EngineCor/663396 4
+    bench_client  mean    10 max    29 | threads >= 10%:  1 | top: vllm (main)/663442 10

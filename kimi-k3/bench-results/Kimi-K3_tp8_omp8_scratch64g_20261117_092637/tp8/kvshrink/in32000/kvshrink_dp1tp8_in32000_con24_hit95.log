@@ -1,0 +1,40 @@
+INFO 11-17 10:26:08 [vllm_patch.py:113] Mamba align patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+Namespace(subparser='bench', bench_type='serve', dispatch_function=<function BenchmarkServingSubcommand.cmd at 0x71e5959a1760>, trust_remote_code=True, seed=10119, num_prompts=240, dataset_name='random', no_stream=False, dataset_path=None, no_oversample=False, skip_chat_template=False, enable_multimodal_chat=False, disable_shuffle=False, custom_output_len=256, custom_ensure_client_side_data=False, spec_bench_output_len=256, spec_bench_category=None, sonnet_input_len=550, sonnet_output_len=150, sonnet_prefix_len=200, sharegpt_output_len=None, timed_trace_chunk_hash_size=16, timed_trace_sec_multiplier=1, timed_trace_label_timestamp='timestamp', timed_trace_label_input_length='input_length', timed_trace_label_output_length='output_length', timed_trace_label_hash_ids='hash_ids', blazedit_min_distance=0.0, blazedit_max_distance=1.0, asr_max_audio_len_sec=inf, asr_min_audio_len_sec=0.0, random_input_len=1600, random_output_len=128, random_range_ratio='0.0', random_prefix_len=30400, random_batch_size=1, no_reranker=False, random_mm_base_items_per_request=1, random_mm_num_mm_items_range_ratio=0.0, random_mm_limit_mm_per_prompt={'image': 255, 'video': 1}, random_mm_bucket_config={(256, 256, 1): 0.5, (720, 1280, 1): 0.5, (720, 1280, 16): 0.0}, hf_subset=None, hf_split=None, hf_name=None, hf_output_len=None, bfcl_categories=None, prefix_repetition_prefix_len=256, prefix_repetition_suffix_len=256, prefix_repetition_num_prefixes=10, prefix_repetition_output_len=128, speed_bench_dataset_subset='qualitative', speed_bench_output_len=4096, speed_bench_category=None, label=None, backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', header=None, max_concurrency=24, model='/home/intel/model-space/Kimi-K3', input_len=None, output_len=None, tokenizer='/home/intel/model-space/Kimi-K3', tokenizer_mode='auto', use_beam_search=False, logprobs=None, request_rate=inf, burstiness=1.0, probe_request_rate=0.0, disable_tqdm=False, num_warmups=5, profile=False, save_result=True, save_detailed=False, append_result=False, metadata=None, result_dir='bench-results/Kimi-K3_tp8_omp8_scratch64g_20261117_092637/tp8/kvshrink/in32000', result_filename='kvshrink_dp1tp8_in32000_con24_hit95.json', ignore_eos=True, self_timed=None, percentile_metrics='ttft,tpot', metric_percentiles='50,95', goodput=None, request_id_prefix='bench-28057f6f-', top_p=None, top_k=None, min_p=None, temperature=None, frequency_penalty=None, presence_penalty=None, repetition_penalty=None, served_model_name=None, lora_modules=None, lora_assignment='random', ramp_up_strategy=None, ramp_up_start_rps=None, ramp_up_end_rps=None, ready_check_timeout_sec=0, chat_template_kwargs=None, extra_body=None, skip_tokenizer_init=False, insecure=False, plot_timeline=False, timeline_itl_thresholds='25,50', plot_dataset_stats=False)
+INFO 11-17 10:26:10 [kimi_k3.py:116] Overriding vision_config.text_hidden_size from 2304 to 4096 to match text_config.hidden_size
+WARNING 11-17 10:26:11 [registry.py:259] Using a slow tokenizer. This might cause a significant slowdown. Consider using a fast tokenizer instead.
+INFO 11-17 10:26:11 [utils.py:90] Sampling input_len from [1600, 1600] and output_len from [128, 128]
+WARNING: vllm bench serve no longer sets temperature==0 (greedy) in requests by default. The default will be determined on the server side and can be model/API specific. For the old behavior, include --temperature=0.
+Starting initial single prompt test run...
+Skipping endpoint ready check.
+Warming up with 5 requests...
+  0%|          | 0/5 [00:00<?, ?it/s] 20%|██        | 1/5 [00:06<00:24,  6.23s/it]100%|██████████| 5/5 [00:06<00:00,  1.26s/it]
+Warmup run completed.
+Starting main benchmark run...
+Traffic request rate: inf
+Burstiness factor: 1.0 (Poisson process)
+Maximum request concurrency: 24
+  0%|          | 0/240 [00:00<?, ?it/s]  0%|          | 1/240 [00:07<31:17,  7.86s/it]  1%|          | 2/240 [00:07<13:09,  3.32s/it]  2%|▏         | 5/240 [00:08<03:48,  1.03it/s]  5%|▌         | 12/240 [00:08<01:09,  3.27it/s] 10%|█         | 25/240 [00:13<01:21,  2.64it/s] 11%|█▏        | 27/240 [00:13<01:13,  2.89it/s] 12%|█▎        | 30/240 [00:14<01:00,  3.46it/s] 15%|█▌        | 37/240 [00:14<00:35,  5.64it/s] 17%|█▋        | 41/240 [00:14<00:28,  6.91it/s] 20%|█▉        | 47/240 [00:14<00:21,  9.03it/s] 21%|██        | 50/240 [00:19<01:22,  2.31it/s] 22%|██▎       | 54/240 [00:20<00:59,  3.12it/s] 24%|██▍       | 57/240 [00:20<00:48,  3.79it/s] 26%|██▋       | 63/240 [00:20<00:31,  5.53it/s] 28%|██▊       | 66/240 [00:21<00:29,  5.90it/s] 30%|██▉       | 71/240 [00:21<00:23,  7.26it/s] 30%|███       | 73/240 [00:25<01:18,  2.13it/s] 31%|███▏      | 75/240 [00:25<01:06,  2.50it/s] 32%|███▎      | 78/240 [00:26<00:49,  3.26it/s] 37%|███▋      | 88/240 [00:26<00:20,  7.24it/s] 39%|███▉      | 93/240 [00:26<00:16,  9.13it/s] 40%|████      | 97/240 [00:31<00:57,  2.50it/s] 41%|████▏     | 99/240 [00:31<00:50,  2.81it/s] 42%|████▏     | 101/240 [00:32<00:43,  3.21it/s] 46%|████▋     | 111/240 [00:32<00:18,  6.85it/s] 48%|████▊     | 115/240 [00:32<00:15,  8.13it/s] 50%|█████     | 121/240 [00:37<00:44,  2.68it/s] 51%|█████▏    | 123/240 [00:37<00:39,  2.98it/s] 52%|█████▏    | 125/240 [00:37<00:34,  3.35it/s] 56%|█████▋    | 135/240 [00:38<00:15,  6.88it/s] 58%|█████▊    | 139/240 [00:38<00:12,  8.15it/s] 60%|██████    | 144/240 [00:38<00:09,  9.75it/s] 61%|██████▏   | 147/240 [00:43<00:40,  2.30it/s] 63%|██████▎   | 152/240 [00:44<00:27,  3.21it/s] 69%|██████▉   | 165/240 [00:44<00:11,  6.46it/s] 70%|███████   | 169/240 [00:49<00:26,  2.70it/s] 71%|███████▏  | 171/240 [00:49<00:23,  2.95it/s] 72%|███████▎  | 174/240 [00:49<00:18,  3.52it/s] 76%|███████▌  | 182/240 [00:50<00:09,  6.08it/s] 79%|███████▉  | 190/240 [00:50<00:05,  8.82it/s] 81%|████████  | 194/240 [00:55<00:17,  2.69it/s] 82%|████████▎ | 198/240 [00:55<00:12,  3.34it/s] 85%|████████▌ | 205/240 [00:55<00:06,  5.10it/s] 87%|████████▋ | 209/240 [00:56<00:04,  6.22it/s] 89%|████████▉ | 214/240 [00:56<00:03,  7.59it/s] 90%|█████████ | 217/240 [01:01<00:09,  2.30it/s] 91%|█████████▏| 219/240 [01:01<00:07,  2.63it/s] 94%|█████████▍| 226/240 [01:01<00:03,  4.57it/s]100%|██████████| 240/240 [01:01<00:00,  3.89it/s]
+tip: install termplotlib and gnuplot to plot the metrics
+============ Serving Benchmark Result ============
+Successful requests:                     240       
+Failed requests:                         0         
+Maximum request concurrency:             24        
+Benchmark duration (s):                  61.73     
+Total input tokens:                      7680000   
+Total generated tokens:                  30720     
+Request throughput (req/s):              3.89      
+Output token throughput (tok/s):         497.67    
+Peak output token throughput (tok/s):    1061.00   
+Peak concurrent requests:                46.00     
+Total token throughput (tok/s):          124915.87 
+---------------Time to First Token----------------
+Mean TTFT (ms):                          1979.93   
+Median TTFT (ms):                        1864.66   
+P50 TTFT (ms):                           1864.66   
+P95 TTFT (ms):                           4789.62   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          32.92     
+Median TPOT (ms):                        32.20     
+P50 TPOT (ms):                           32.20     
+P95 TPOT (ms):                           42.52     
+==================================================

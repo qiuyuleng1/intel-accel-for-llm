@@ -1,0 +1,47 @@
+iaxl.vllm-fddeef0-qiuyu does not exist; running ./start.sh in tmux session iaxl-vllm-fddeef0-qiuyu
+waiting for iaxl.vllm-fddeef0-qiuyu to finish pip install -e . (02:47:55)
+tools/bench-host-setup.sh: line 106: /proc/
+0/cmdline: No such file or directory
+iaxl.vllm-fddeef0-qiuyu ready (02:49:15)
+  free 4 MiB blocks per NUMA node: 107624 106719 123562 120578
+=== TP_SIZE=4 GPUs=0,2,4,6 input_len=32768 MAX_MODEL_LEN=32896 -> tests/bench_dev/results/probe-tp4-20261111_025214/serve_in32768.log
+    serve ready after 275s
+=== input_len=32768 MAX_MODEL_LEN=32896 TP_SIZE=4 GPUs=0,2,4,6
+      1 Available KV cache memory: 196.62 GiB
+      1 GPU KV cache size: 11,263,453 tokens, Maximum concurrency for 32,896 tokens per request: 342.40x
+      4 KVShrinkConnector(WORKER): block_size=784, has_mamba=True, mamba_cache_mode='align', prefix caching=False
+      1 Model loading took 13.11 GiB memory and 31.926985 seconds
+      1 Model loading took 13.11 GiB memory and 32.078575 seconds
+      1 Model loading took 13.11 GiB memory and 32.123038 seconds
+      1 Model loading took 13.11 GiB memory and 32.345726 seconds
+      4 Setting attention block size to 784 tokens
+      1 max_num_batched_tokens=16384
+    serve stopped after 18s
+=== TP_SIZE=4 GPUs=0,2,4,6 input_len=131072 MAX_MODEL_LEN=131200 -> tests/bench_dev/results/probe-tp4-20261111_025214/serve_in131072.log
+    serve ready after 190s
+=== input_len=131072 MAX_MODEL_LEN=131200 TP_SIZE=4 GPUs=0,2,4,6
+      1 Available KV cache memory: 196.61 GiB
+      1 GPU KV cache size: 12,392,367 tokens, Maximum concurrency for 131,200 tokens per request: 94.45x
+      4 KVShrinkConnector(WORKER): block_size=784, has_mamba=True, mamba_cache_mode='align', prefix caching=False
+      1 Model loading took 13.11 GiB memory and 4.762439 seconds
+      1 Model loading took 13.11 GiB memory and 5.122280 seconds
+      1 Model loading took 13.11 GiB memory and 5.326903 seconds
+      1 Model loading took 13.11 GiB memory and 5.430970 seconds
+      4 Setting attention block size to 784 tokens
+      1 max_num_batched_tokens=16384
+    serve stopped after 20s
+=== TP_SIZE=4 GPUs=0,2,4,6 input_len=262016 MAX_MODEL_LEN=262144 -> tests/bench_dev/results/probe-tp4-20261111_025214/serve_in262016.log
+    serve ready after 190s
+=== input_len=262016 MAX_MODEL_LEN=262144 TP_SIZE=4 GPUs=0,2,4,6
+      1 Available KV cache memory: 196.61 GiB
+      1 GPU KV cache size: 12,634,418 tokens, Maximum concurrency for 262,144 tokens per request: 48.20x
+      4 KVShrinkConnector(WORKER): block_size=784, has_mamba=True, mamba_cache_mode='align', prefix caching=False
+      1 Model loading took 13.11 GiB memory and 4.489890 seconds
+      1 Model loading took 13.11 GiB memory and 4.648803 seconds
+      1 Model loading took 13.11 GiB memory and 5.252047 seconds
+      1 Model loading took 13.11 GiB memory and 5.282746 seconds
+      4 Setting attention block size to 784 tokens
+      1 max_num_batched_tokens=16384
+    serve stopped after 20s
+=== done: tests/bench_dev/results/probe-tp4-20261111_025214/summary.txt
+EXIT=0

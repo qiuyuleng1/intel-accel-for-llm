@@ -1,0 +1,133 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_034030
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=188529 log=bench-results/Qwen3.8-27B_tp4_20261111_034030/kvshrink/serve.log
+    serve ready after 180s
+    block_size=784 kv_cache_tokens=12641032
+
+## kvshrink input_len=32000 concurrencies=[300]
+    max_concurrency for 32128 tokens per request: 393.46
+    prewarm: hit 100, 600 prompts, concurrency 300
+ERROR: serve died during prewarm; first errors in bench-results/Qwen3.8-27B_tp4_20261111_034030/kvshrink/serve.log:
+IAXL check failed: dsa_memcpy_batch_wait(ticket) == 0 (dsa_wait_ticket: DSA batch failed) at /home/intel/qiuyu/intel-accel-for-llm-b300/iaxl/csrc/kv_xfer/dsa.cpp:107
+(EngineCore pid=188674) ERROR 11-11 03:51:33 [multiproc_executor.py:314] Worker proc VllmWorker-1 died unexpectedly (exit code: None), shutting down executor.
+(EngineCore pid=188674) ERROR 11-11 03:51:42 [dump_input.py:72] Dumping input data for V1 LLM engine (v0.29.0) with config: model='/home/intel/model-space/Qwen3.8-27B', speculative_config=None, tokenizer='/home/intel/model-space/Qwen3.8-27B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=256128, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/home/intel/model-space/Qwen3.8-27B, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::qwen4_exp_compute_ple_ngram_ids', 'vllm::qwen4_exp_ple_short_conv', 'vllm::qwen4_exp_qsa_with_output', 'vllm::linear_attention', 'vllm::qwen_gdn_attention_core', 'vllm::qwen_gdn_attention_core_fused_norm_packed', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::hpc_rope_norm_forward', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [6553, 6553, 16384], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.PIECEWISE: 1>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512, 528, 544, 560, 576, 592, 608, 624, 640, 656, 672, 688, 704, 720, 736, 752, 768, 784, 800, 816, 832, 848, 864, 880, 896, 912, 928, 944, 960, 976, 992, 1008, 1024], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': True, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 1024, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto'), 
+(EngineCore pid=188674) ERROR 11-11 03:51:42 [dump_input.py:79] Dumping scheduler output for model execution: SchedulerOutput(scheduled_new_reqs=[], scheduled_cached_reqs=CachedRequestData(req_ids=['cmpl-bench-58fe2b31-249-0-96e8bb0d', 'cmpl-bench-58fe2b31-250-0-9661c380', 'cmpl-bench-58fe2b31-251-0-ad3acd49', 'cmpl-bench-58fe2b31-252-0-8fa02ea4', 'cmpl-bench-58fe2b31-253-0-84b0d5e7', 'cmpl-bench-58fe2b31-254-0-84ebd194', 'cmpl-bench-58fe2b31-255-0-9918814a', 'cmpl-bench-58fe2b31-256-0-83b7f2eb', 'cmpl-bench-58fe2b31-257-0-a3b03d97', 'cmpl-bench-58fe2b31-258-0-bb4de222', 'cmpl-bench-58fe2b31-259-0-8b0d4773', 'cmpl-bench-58fe2b31-260-0-9fee7f06', 'cmpl-bench-58fe2b31-261-0-97d302f3', 'cmpl-bench-58fe2b31-262-0-a54a7082', 'cmpl-bench-58fe2b31-263-0-b7b17abe', 'cmpl-bench-58fe2b31-264-0-bc67bfe8', 'cmpl-bench-58fe2b31-265-0-bd7098d4', 'cmpl-bench-58fe2b31-266-0-a0f03b2c', 'cmpl-bench-58fe2b31-267-0-bf1bc196', 'cmpl-bench-58fe2b31-268-0-8c4f33c0', 'cmpl-bench-58fe2b31-269-0-91b84abf', 'cmpl-bench-58fe2b31-270-0-ae84e4f4', 'cmpl-bench-58fe2b31-271-0-80bd372a', 'cmpl-bench-58fe2b31-272-0-82005786', 'cmpl-bench-58fe2b31-273-0-aa17cae0', 'cmpl-bench-58fe2b31-274-0-aa5e66ec', 'cmpl-bench-58fe2b31-275-0-9126b033', 'cmpl-bench-58fe2b31-276-0-819a2ba2', 'cmpl-bench-58fe2b31-277-0-8dbe3f85', 'cmpl-bench-58fe2b31-278-0-811f3e1e', 'cmpl-bench-58fe2b31-279-0-96fead36', 'cmpl-bench-58fe2b31-280-0-83fd41e1', 'cmpl-bench-58fe2b31-281-0-a23b25ce', 'cmpl-bench-58fe2b31-282-0-8be6c133', 'cmpl-bench-58fe2b31-284-0-851225c4', 'cmpl-bench-58fe2b31-285-0-bc91bdd6', 'cmpl-bench-58fe2b31-286-0-b77623c4', 'cmpl-bench-58fe2b31-287-0-8b2553ed', 'cmpl-bench-58fe2b31-288-0-b7dfa878', 'cmpl-bench-58fe2b31-289-0-813cdf12', 'cmpl-bench-58fe2b31-290-0-acc4be32', 'cmpl-bench-58fe2b31-291-0-93d2dd7b', 'cmpl-bench-58fe2b31-292-0-9e6b9722', 'cmpl-bench-58fe2b31-293-0-96ee045e', 'cmpl-bench-58fe2b31-283-0-a4fe4340', 'cmpl-bench-58fe2b31-294-0-9db2e81a', 'cmpl-bench-58fe2b31-295-0-aa951a57', 'cmpl-bench-58fe2b31-296-0-a94becc4'],resumed_req_ids=set(),new_token_ids_lens=[],all_token_ids_lens={},new_block_ids=[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None],num_computed_tokens=[32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32126, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32125, 32124, 32116, 32098, 32080, 32063, 32045, 32027, 32009],num_output_tokens=[127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 125, 117, 99, 81, 64, 46, 28, 10]), num_scheduled_tokens={cmpl-bench-58fe2b31-269-0-91b84abf: 1, cmpl-bench-58fe2b31-282-0-8be6c133: 1, cmpl-bench-58fe2b31-251-0-ad3acd49: 1, cmpl-bench-58fe2b31-253-0-84b0d5e7: 1, cmpl-bench-58fe2b31-275-0-9126b033: 1, cmpl-bench-58fe2b31-252-0-8fa02ea4: 1, cmpl-bench-58fe2b31-254-0-84ebd194: 1, cmpl-bench-58fe2b31-295-0-aa951a57: 1, cmpl-bench-58fe2b31-264-0-bc67bfe8: 1, cmpl-bench-58fe2b31-267-0-bf1bc196: 1, cmpl-bench-58fe2b31-268-0-8c4f33c0: 1, cmpl-bench-58fe2b31-284-0-851225c4: 1, cmpl-bench-58fe2b31-277-0-8dbe3f85: 1, cmpl-bench-58fe2b31-262-0-a54a7082: 1, cmpl-bench-58fe2b31-258-0-bb4de222: 1, cmpl-bench-58fe2b31-289-0-813cdf12: 1, cmpl-bench-58fe2b31-259-0-8b0d4773: 1, cmpl-bench-58fe2b31-257-0-a3b03d97: 1, cmpl-bench-58fe2b31-261-0-97d302f3: 1, cmpl-bench-58fe2b31-285-0-bc91bdd6: 1, cmpl-bench-58fe2b31-274-0-aa5e66ec: 1, cmpl-bench-58fe2b31-288-0-b7dfa878: 1, cmpl-bench-58fe2b31-291-0-93d2dd7b: 1, cmpl-bench-58fe2b31-293-0-96ee045e: 1, cmpl-bench-58fe2b31-290-0-acc4be32: 1, cmpl-bench-58fe2b31-296-0-a94becc4: 1, cmpl-bench-58fe2b31-271-0-80bd372a: 1, cmpl-bench-58fe2b31-281-0-a23b25ce: 1, cmpl-bench-58fe2b31-265-0-bd7098d4: 1, cmpl-bench-58fe2b31-280-0-83fd41e1: 1, cmpl-bench-58fe2b31-279-0-96fead36: 1, cmpl-bench-58fe2b31-256-0-83b7f2eb: 1, cmpl-bench-58fe2b31-287-0-8b2553ed: 1, cmpl-bench-58fe2b31-278-0-811f3e1e: 1, cmpl-bench-58fe2b31-283-0-a4fe4340: 1, cmpl-bench-58fe2b31-249-0-96e8bb0d: 1, cmpl-bench-58fe2b31-260-0-9fee7f06: 1, cmpl-bench-58fe2b31-263-0-b7b17abe: 1, cmpl-bench-58fe2b31-292-0-9e6b9722: 1, cmpl-bench-58fe2b31-255-0-9918814a: 1, cmpl-bench-58fe2b31-266-0-a0f03b2c: 1, cmpl-bench-58fe2b31-272-0-82005786: 1, cmpl-bench-58fe2b31-273-0-aa17cae0: 1, cmpl-bench-58fe2b31-276-0-819a2ba2: 1, cmpl-bench-58fe2b31-294-0-9db2e81a: 1, cmpl-bench-58fe2b31-270-0-ae84e4f4: 1, cmpl-bench-58fe2b31-286-0-b77623c4: 1, cmpl-bench-58fe2b31-250-0-9661c380: 1}, total_num_scheduled_tokens=48, scheduled_spec_decode_tokens={}, scheduled_encoder_inputs={}, num_common_prefix_blocks=[0, 0, 0, 0], finished_req_ids=['cmpl-bench-58fe2b31-211-0-90b2a361', 'cmpl-bench-58fe2b31-217-0-838fba7b', 'cmpl-bench-58fe2b31-206-0-b193ec8f', 'cmpl-bench-58fe2b31-220-0-a68df21b', 'cmpl-bench-58fe2b31-210-0-bd3d7e44', 'cmpl-bench-58fe2b31-212-0-9365dd52', 'cmpl-bench-58fe2b31-209-0-8e535fb8', 'cmpl-bench-58fe2b31-202-0-8cd8ca16', 'cmpl-bench-58fe2b31-201-0-aad9f478', 'cmpl-bench-58fe2b31-215-0-b6f95d03', 'cmpl-bench-58fe2b31-205-0-b73ae491', 'cmpl-bench-58fe2b31-207-0-ba630b7b', 'cmpl-bench-58fe2b31-216-0-a0cef478', 'cmpl-bench-58fe2b31-219-0-aa1ae163', 'cmpl-bench-58fe2b31-208-0-ab0be1f0', 'cmpl-bench-58fe2b31-222-0-b00e2397', 'cmpl-bench-58fe2b31-218-0-bf8824e7', 'cmpl-bench-58fe2b31-221-0-80dab8be', 'cmpl-bench-58fe2b31-200-0-972e0fb1', 'cmpl-bench-58fe2b31-213-0-bf6b7b1d', 'cmpl-bench-58fe2b31-214-0-ae6e975f', 'cmpl-bench-58fe2b31-223-0-b5088304', 'cmpl-bench-58fe2b31-204-0-beba4677', 'cmpl-bench-58fe2b31-203-0-83a619cb', 'cmpl-bench-58fe2b31-224-0-a6d2c026'], free_encoder_mm_hashes=[], scheduled_encoder_input_stats=null, preempted_req_ids=[], has_structured_output_requests=false, pending_structured_output_tokens=false, num_invalid_spec_tokens=null, kv_connector_metadata=KVShrinkConnectorMetadata(reqs_to_load=RequestMetadata(requests={}), reqs_to_save=RequestMetadata(requests={}), scheduled_req_ids=['cmpl-bench-58fe2b31-278-0-811f3e1e', 'cmpl-bench-58fe2b31-267-0-bf1bc196', 'cmpl-bench-58fe2b31-293-0-96ee045e', 'cmpl-bench-58fe2b31-273-0-aa17cae0', 'cmpl-bench-58fe2b31-282-0-8be6c133', 'cmpl-bench-58fe2b31-263-0-b7b17abe', 'cmpl-bench-58fe2b31-294-0-9db2e81a', 'cmpl-bench-58fe2b31-275-0-9126b033', 'cmpl-bench-58fe2b31-281-0-a23b25ce', 'cmpl-bench-58fe2b31-285-0-bc91bdd6', 'cmpl-bench-58fe2b31-283-0-a4fe4340', 'cmpl-bench-58fe2b31-274-0-aa5e66ec', 'cmpl-bench-58fe2b31-253-0-84b0d5e7', 'cmpl-bench-58fe2b31-266-0-a0f03b2c', 'cmpl-bench-58fe2b31-277-0-8dbe3f85', 'cmpl-bench-58fe2b31-260-0-9fee7f06', 'cmpl-bench-58fe2b31-288-0-b7dfa878', 'cmpl-bench-58fe2b31-272-0-82005786', 'cmpl-bench-58fe2b31-265-0-bd7098d4', 'cmpl-bench-58fe2b31-284-0-851225c4', 'cmpl-bench-58fe2b31-290-0-acc4be32', 'cmpl-bench-58fe2b31-276-0-819a2ba2', 'cmpl-bench-58fe2b31-254-0-84ebd194', 'cmpl-bench-58fe2b31-252-0-8fa02ea4', 'cmpl-bench-58fe2b31-264-0-bc67bfe8', 'cmpl-bench-58fe2b31-259-0-8b0d4773', 'cmpl-bench-58fe2b31-280-0-83fd41e1', 'cmpl-bench-58fe2b31-258-0-bb4de222', 'cmpl-bench-58fe2b31-271-0-80bd372a', 'cmpl-bench-58fe2b31-262-0-a54a7082', 'cmpl-bench-58fe2b31-269-0-91b84abf', 'cmpl-bench-58fe2b31-286-0-b77623c4', 'cmpl-bench-58fe2b31-249-0-96e8bb0d', 'cmpl-bench-58fe2b31-292-0-9e6b9722', 'cmpl-bench-58fe2b31-251-0-ad3acd49', 'cmpl-bench-58fe2b31-261-0-97d302f3', 'cmpl-bench-58fe2b31-268-0-8c4f33c0', 'cmpl-bench-58fe2b31-270-0-ae84e4f4', 'cmpl-bench-58fe2b31-295-0-aa951a57', 'cmpl-bench-58fe2b31-291-0-93d2dd7b', 'cmpl-bench-58fe2b31-255-0-9918814a', 'cmpl-bench-58fe2b31-279-0-96fead36', 'cmpl-bench-58fe2b31-287-0-8b2553ed', 'cmpl-bench-58fe2b31-289-0-813cdf12', 'cmpl-bench-58fe2b31-256-0-83b7f2eb', 'cmpl-bench-58fe2b31-250-0-9661c380', 'cmpl-bench-58fe2b31-257-0-a3b03d97', 'cmpl-bench-58fe2b31-296-0-a94becc4']), has_sync_kv_loads=true, ec_connector_metadata=null, ec_manager_metadata=null, new_block_ids_to_zero=null, kv_cache_block_copies=null, kv_connector_block_state=null, num_spec_tokens_to_schedule=0)
+(EngineCore pid=188674) ERROR 11-11 03:51:42 [dump_input.py:81] Dumping scheduler stats: SchedulerStats(num_running_reqs=48, num_waiting_reqs=0, num_skipped_waiting_reqs=10, step_counter=0, current_wave=0, kv_cache_usage=0.28854813192162587, iteration_details=None, prefix_cache_stats=PrefixCacheStats(reset=False, requests=0, queries=0, hits=0, preempted_requests=0, preempted_queries=0, preempted_hits=0), connector_prefix_cache_stats=PrefixCacheStats(reset=False, requests=0, queries=0, hits=0, preempted_requests=0, preempted_queries=0, preempted_hits=0), kv_cache_eviction_events=[], spec_decoding_stats=None, kv_connector_stats=None, waiting_lora_adapters={}, running_lora_adapters={}, cudagraph_stats=None, perf_stats=None)
+    serve stopped after 90s + 15s settle
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_034030
+===========================================================
+
+### vllm-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=prefix_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=192090 log=bench-results/Qwen3.8-27B_tp4_20261111_034030/vllm-prefix/serve.log
+    serve ready after 175s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-prefix input_len=32000 concurrencies=[300]
+    max_concurrency for 32128 tokens per request: 393.17
+    prewarm: hit 100, 600 prompts, concurrency 300
+--- vllm-prefix_tp4_in32000_con300_hit80 prompts=300 seed=10380
+    vllm-prefix,4,32000,128,300,80,300,10380,784,393.17,300,38.133,7.867,1007.004,252757.979,18692.884,18564.28,34310.191,145.3,147.233,258.392,0,7633024,9760000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-prefix input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.59
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- vllm-prefix_tp4_in128000_con80_hit80 prompts=80 seed=10160
+    vllm-prefix,4,128000,128,80,80,80,10160,784,98.59,80,52.659,1.519,194.457,194651.548,27048.398,26933.556,48709.966,194.893,196.683,358.687,0,8588720,10880000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-prefix input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.32
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- vllm-prefix_tp4_in256000_con40_hit80 prompts=40 seed=10120
+    vllm-prefix,4,256000,128,40,80,40,10120,784,49.32,40,73.835,0.542,69.343,138756.044,39416.263,39161.92,69617.555,264.784,267.227,493.24,0,9053632,11520000,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_034030/summary.csv
+===========================================================
+===========================================================
+Qwen3.8-27B benchmark  configs=[lmcache]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_034030
+===========================================================
+
+### lmcache serve=examples/lmcache-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=829 log=bench-results/Qwen3.8-27B_tp4_20261111_034030/lmcache/serve.log
+    serve ready after 290s
+    block_size=784 kv_cache_tokens=12584883
+
+## lmcache input_len=32000 concurrencies=[300]
+    max_concurrency for 32128 tokens per request: 391.71
+    prewarm: hit 100, 600 prompts, concurrency 300
+--- lmcache_tp4_in32000_con300_hit80 prompts=300 seed=10380
+    lmcache,4,32000,128,300,80,300,10380,784,391.71,300,152.736,1.964,251.414,63104.917,76396.018,76357.19,144062.867,224.914,251.832,252.095,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## lmcache input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.22
+    prewarm: hit 100, 160 prompts, concurrency 80
+--- lmcache_tp4_in128000_con80_hit80 prompts=80 seed=10160
+    lmcache,4,128000,128,80,80,80,10160,784,98.22,80,200.118,0.4,51.17,51220.854,101329.485,101301.298,189436.784,272.545,303.618,304.201,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## lmcache input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.14
+    prewarm: hit 100, 80 prompts, concurrency 40
+--- lmcache_tp4_in256000_con40_hit80 prompts=40 seed=10120
+    lmcache,4,256000,128,40,80,40,10120,784,49.14,40,252.874,0.158,20.247,40514.768,129868.281,129816.481,239882.854,341.041,382.477,383.825,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 76s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_034030/summary.csv
+===========================================================
+===========================================================
+Qwen3.8-27B benchmark  configs=[vllm-wo-prefix]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300 128000:80 256000:40] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300 80:80 40:40] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_034030
+===========================================================
+
+### vllm-wo-prefix serve=examples/kvshrink-vllm-serve.sh BASELINE=no_cache MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=205379 log=bench-results/Qwen3.8-27B_tp4_20261111_034030/vllm-wo-prefix/serve.log
+    serve ready after 130s
+    block_size=784 kv_cache_tokens=12631802
+
+## vllm-wo-prefix input_len=32000 concurrencies=[300]
+    max_concurrency for 32128 tokens per request: 393.17
+--- vllm-wo-prefix_tp4_in32000_con300_hit80 prompts=300 seed=10380
+    vllm-wo-prefix,4,32000,128,300,80,300,10380,784,393.17,300,151.852,1.976,252.878,63472.384,75915.556,75870.875,143168.529,223.9,250.093,250.73,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-wo-prefix input_len=128000 concurrencies=[80]
+    max_concurrency for 128128 tokens per request: 98.59
+--- vllm-wo-prefix_tp4_in128000_con80_hit80 prompts=80 seed=10160
+    vllm-wo-prefix,4,128000,128,80,80,80,10160,784,98.59,80,198.816,0.402,51.505,51556.351,100615.079,100605.478,188156.619,270.84,301.687,302.232,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+
+## vllm-wo-prefix input_len=256000 concurrencies=[40]
+    max_concurrency for 256128 tokens per request: 49.32
+--- vllm-wo-prefix_tp4_in256000_con40_hit80 prompts=40 seed=10120
+    vllm-wo-prefix,4,256000,128,40,80,40,10120,784,49.32,40,251.807,0.159,20.333,40686.355,129232.416,129175.305,238914.633,339.658,380.949,382.18,0,0,0,0,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na,na
+    serve stopped after 4s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_034030/summary.csv
+===========================================================

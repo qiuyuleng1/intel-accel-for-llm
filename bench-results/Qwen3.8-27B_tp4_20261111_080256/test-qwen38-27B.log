@@ -1,0 +1,59 @@
+===========================================================
+Qwen3.8-27B test  model=/home/intel/model-space/Qwen3.8-27B  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6 VLLM_CPU_OMP_THREADS_BIND='0-23|24-47|48-71|72-95' KVSHRINK_QAT_DEVICES='0|1|2|3' KVSHRINK_DSA_DEVICES='wq0.0|wq2.0|wq4.0|wq6.0' LEN_CONCURRENCY='32000:300' HIT_RATES='80' MAX_MODEL_LEN=256128 LMCACHE_CHUNK_SIZE=784 IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 LMCACHE_L1_SIZE_GB=1000 NUM_PROMPTS_BY_CONCURRENCY='300:300' DRY_RUN=0
+  KVShrink container=iaxl.vllm-fddeef0-qiuyu  LMCache image=qiuyu/vllm-openai-lmcache:v0.29.0-lmcache0.5.7
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_080256
+===========================================================
+Host settings (PERFORMANCE_MODE_SETUP.md):
+  intel_pstate status: active expected active
+  scaling driver:  192 intel_pstate; expected all intel_pstate
+  scaling governor:  192 performance; expected all performance
+  EPB:  192 0; expected all 0
+  no_turbo:  1 0; expected all 0
+  C-states: POLL C1 C1E C6 C6P expected POLL C1 enabled, every other one disabled
+  POLL disable flag:  192 0; expected all 0
+  C1 disable flag:  192 0; expected all 0
+  C1E disable flag:  192 1; expected all 1
+  C6 disable flag:  192 1; expected all 1
+  C6P disable flag:  192 1; expected all 1
+  Efficiency Latency Control: Latency Optimized Mode (LOM) expected Latency Optimized Mode (LOM)
+GPU 0000:10:00.0  port 0000:0f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:38:00.0  port 0000:37:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:5e:00.0  port 0000:5d:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:71:00.0  port 0000:70:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:90:00.0  port 0000:8f:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:b9:00.0  port 0000:b8:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:dd:00.0  port 0000:dc:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+GPU 0000:ef:00.0  port 0000:ee:00.0  ACSCtl:	SrcValid- TransBlk- ReqRedir- CmpltRedir- UpstreamFwd- EgressCtrl- DirectTrans-
+ACS is off on every GPU switch port.
+waiting for iaxl.vllm-fddeef0-qiuyu to finish pip install -e . (08:02:57)
+iaxl.vllm-fddeef0-qiuyu ready (08:02:57)
+
+### kvshrink (2026-11-11 08:02:57) -> bench-results/Qwen3.8-27B_tp4_20261111_080256
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_080256
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=215518 log=bench-results/Qwen3.8-27B_tp4_20261111_080256/kvshrink/serve.log
+    serve ready after 135s
+    block_size=784 kv_cache_tokens=12641032
+
+## kvshrink input_len=32000 concurrencies=[300]
+    max_concurrency for 32128 tokens per request: 393.46
+    prewarm: hit 100, 600 prompts, concurrency 300
+--- kvshrink_tp4_in32000_con300_hit80 prompts=300 seed=10380
+    kvshrink,4,32000,128,300,80,300,10380,784,393.46,300,62.469,4.802,614.704,154290.742,35733.658,38539.864,57621.177,187.261,178.002,342.889,0,0,0,6864704,305,304,22581,0.41,34.88,250.00,1.276,0,0,0,0,0,998,81,12.7,3367.2
+    serve stopped after 16s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_080256/summary.csv
+===========================================================
+
+Done (2026-11-11 08:09:28): bench-results/Qwen3.8-27B_tp4_20261111_080256/summary.csv

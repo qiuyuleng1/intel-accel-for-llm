@@ -1,0 +1,352 @@
+diff --git a/examples/kvshrink-vllm-serve.sh b/examples/kvshrink-vllm-serve.sh
+index d07136c..08a6c86 100755
+--- a/examples/kvshrink-vllm-serve.sh
++++ b/examples/kvshrink-vllm-serve.sh
+@@ -22,7 +22,19 @@ fi
+ block_args=()
+ [[ -n "$BLOCK_SIZE" ]] && block_args=(--block-size "$BLOCK_SIZE")
+ 
+-serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" --no-enable-prefix-caching)
++# Benchmark baselines: BASELINE=no_cache is plain vLLM without KV reuse,
++# BASELINE=prefix_cache is plain vLLM with its GPU prefix cache.
++connector_args=(--kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}')
++prefix_caching_arg=--no-enable-prefix-caching
++if [[ "$BASELINE" == no_cache ]]; then
++    connector_args=()
++fi
++if [[ "$BASELINE" == prefix_cache ]]; then
++    connector_args=()
++    prefix_caching_arg=--enable-prefix-caching
++fi
++
++serve_args=(--trust-remote-code --max-model-len "${MAX_MODEL_LEN:-32765}" --port "${PORT:-8000}" "$prefix_caching_arg")
+ # vLLM CPU inference sizes its KV cache from VLLM_CPU_KVCACHE_SPACE (GiB) instead.
+ [[ "$DEVICE" == cpu ]] || serve_args+=(--gpu-memory-utilization 0.8)
+ if [[ -n "${VLLM_SERVE_CMDLINE_ARGS:-}" ]]; then
+@@ -31,7 +43,7 @@ fi
+ read -r -a extra_args <<<"${VLLM_SERVE_EXTRA_ARGS:-}"
+ 
+ vllm serve "$MODEL" \
+-    --kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}' \
++    "${connector_args[@]}" \
+     "${parallel_args[@]}" \
+     "${block_args[@]}" \
+     "${serve_args[@]}" \
+diff --git a/iaxl/utils/affinity.py b/iaxl/utils/affinity.py
+index b55d7c0..45c7899 100644
+--- a/iaxl/utils/affinity.py
++++ b/iaxl/utils/affinity.py
+@@ -43,10 +43,12 @@ def bind_cpu_affinity(rank: int, tp_size: int, spec: Optional[str]) -> None:
+ 
+ 
+ def bind_intel_accel(rank: int) -> None:
+-    """KVSHRINK_QAT_DEVICES / KVSHRINK_DSA_DEVICES (`|` per rank) -> IAXL_QAT_DEVICES / IAXL_DSA_WQS."""
++    """KVSHRINK_QAT_DEVICES / KVSHRINK_DSA_DEVICES / KVSHRINK_IAA_DEVICES (`|` per rank)
++    -> IAXL_QAT_DEVICES / IAXL_DSA_WQS / IAXL_IAA_DEVICES (IAA: NUMA node indices)."""
+     for source, target in (
+         ("KVSHRINK_QAT_DEVICES", "IAXL_QAT_DEVICES"),
+         ("KVSHRINK_DSA_DEVICES", "IAXL_DSA_WQS"),
++        ("KVSHRINK_IAA_DEVICES", "IAXL_IAA_DEVICES"),
+     ):
+         spec = os.getenv(source)
+         if not spec:
+diff --git a/kvshrink/kvshrink_connector.py b/kvshrink/kvshrink_connector.py
+index 94f1d21..f262c92 100644
+--- a/kvshrink/kvshrink_connector.py
++++ b/kvshrink/kvshrink_connector.py
+@@ -41,6 +41,7 @@ from iaxl.envs import envs as iaxl_envs
+ from iaxl.utils.affinity import bind_cpu_affinity, bind_intel_accel
+ 
+ from .async_load_config import load_async_load_layer_config_from_env
++from .vllm_patch import patch_kimi_k3_mla_kv_transfer
+ 
+ setup_root_logger(show_pid_tid=False)
+ logger = logging.getLogger(__name__)
+@@ -136,11 +137,15 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
+         # (is_mamba, layer_names) per KV cache group; all groups share one
+         # block size, which is the enlarged one on hybrid models.
+         self.groups: list[tuple[bool, list[str]]] = []
++        # Whether a mamba group writes in-prefill checkpoints (FlashKDA).
++        self.has_prefill_checkpoint = False
+         for group in kv_cache_config.kv_cache_groups:
+             spec = group.kv_cache_spec
+             if isinstance(spec, UniformTypeKVCacheSpecs):
+                 spec = next(iter(spec.kv_cache_specs.values()))
+             self.groups.append((isinstance(spec, MambaSpec), list(group.layer_names)))
++            if isinstance(spec, MambaSpec) and spec.num_prefill_checkpoint_blocks > 0:
++                self.has_prefill_checkpoint = True
+         self.has_mamba = any(is_mamba for is_mamba, _ in self.groups)
+         if self.has_mamba and vllm_config.cache_config.mamba_cache_mode != "align":
+             raise ValueError(
+@@ -151,12 +156,22 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
+         block_sizes = {g.kv_cache_spec.block_size for g in kv_cache_config.kv_cache_groups}
+         assert len(block_sizes) == 1, block_sizes
+         self.block_size = block_sizes.pop()
++        if self.has_prefill_checkpoint:
++            from vllm.models.kimi_k3.nvidia.kda_metadata import FLASHKDA_CHUNK_SIZE
++
++            # FlashKDA writes a checkpoint only at offsets that are a multiple of its chunk size.
++            if self.block_size % FLASHKDA_CHUNK_SIZE != 0:
++                raise ValueError(
++                    f"KVShrinkConnector needs block_size {self.block_size} to be a "
++                    f"multiple of FLASHKDA_CHUNK_SIZE {FLASHKDA_CHUNK_SIZE}"
++                )
+         logger.info(
+             "KVShrinkConnector(%s): block_size=%d, has_mamba=%s, "
+-            "mamba_cache_mode=%r, prefix caching=%s",
++            "prefill checkpoint=%s, mamba_cache_mode=%r, prefix caching=%s",
+             role.name,
+             self.block_size,
+             self.has_mamba,
++            self.has_prefill_checkpoint,
+             vllm_config.cache_config.mamba_cache_mode,
+             vllm_config.cache_config.enable_prefix_caching,
+         )
+@@ -253,6 +268,8 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
+             )
+         else:
+             self.kvstore = None
++            # The model is loaded by now and CUDA graphs are captured after this.
++            patch_kimi_k3_mla_kv_transfer()
+             if not iaxl_envs.IAXL_RDMA_ENABLE:  # compression/DSA run on the daemon node
+                 self._bind_cpu_affinity()
+                 self._bind_intel_accel()
+@@ -410,11 +427,15 @@ class KVShrinkConnector(KVConnectorBase_V1, SupportsHMA):
+         if end <= start:
+             return
+ 
+-        # Attention saves every full block; mamba only holds the state at the
+-        # end of a block-aligned chunk, in slot end - 1.
++        # Attention saves every full block; mamba saves only the state in slot end - 1.
++        chunk_ends_on_block = end * self.block_size == num_tokens
++        # FlashKDA writes the state at the chunk's last full block when the chunk starts on one.
++        prefill_checkpoint = (
++            self.has_prefill_checkpoint and num_computed_tokens % self.block_size == 0
++        )
+         save_mamba = (
+             self.has_mamba
+-            and end * self.block_size == num_tokens
++            and (chunk_ends_on_block or prefill_checkpoint)
+             and not state.mamba_existence_cache[end - 1]
+         )
+         block_ids = tuple(
+diff --git a/kvshrink/vllm_patch.py b/kvshrink/vllm_patch.py
+index dd77295..3d0db7d 100644
+--- a/kvshrink/vllm_patch.py
++++ b/kvshrink/vllm_patch.py
+@@ -2,6 +2,7 @@
+ """vLLM general plugin (entry point group ``vllm.general_plugins``)."""
+ 
+ import dataclasses
++import sys
+ 
+ from vllm.logger import init_logger
+ 
+@@ -67,6 +68,40 @@ def _patch_mamba_block_size_validator() -> None:
+     rebuild_dataclass(VllmConfig, force=True)
+ 
+ 
++def patch_kimi_k3_mla_kv_transfer() -> None:
++    """Hook Kimi-K3's MLA layers into the KV connector; no-op unless the model loaded them."""
++    mla_module = sys.modules.get("vllm.models.kimi_k3.nvidia.mla")
++    if mla_module is None:
++        return
++    from vllm.compilation.breakable_cudagraph import eager_break_during_capture
++    from vllm.model_executor.layers.attention.kv_transfer_utils import (
++        maybe_transfer_kv_layer,
++    )
++
++    attention_class = mla_module.MultiHeadLatentAttention
++    # eager_break_during_capture keeps the undecorated function in __wrapped__.
++    raw_attention = getattr(
++        attention_class._attention,
++        "__wrapped__",
++        attention_class._attention,
++    )
++
++    @maybe_transfer_kv_layer
++    def attention_with_kv_transfer(
++        layer, positions, q, kv_c_normed, k_pe, attn_out, layer_name
++    ) -> None:
++        raw_attention(layer, positions, q, kv_c_normed, k_pe, attn_out)
++
++    def _attention(self, positions, q, kv_c_normed, k_pe, attn_out) -> None:
++        attention_with_kv_transfer(
++            self, positions, q, kv_c_normed, k_pe, attn_out, self.layer_name
++        )
++
++    # The hook sits inside the eager break so CUDA graph replay still runs it.
++    attention_class._attention = eager_break_during_capture(_attention)
++    logger.info("Kimi-K3 MLA KV transfer hook registered")
++
++
+ def register() -> None:
+     from vllm.model_executor.models.config import MambaModelConfig
+ 
+diff --git a/setvars.sh b/setvars.sh
+index 99107a4..a7660bc 100644
+--- a/setvars.sh
++++ b/setvars.sh
+@@ -36,7 +36,7 @@ $TOP_DIR/tools/setup_system.sh
+ 
+ export IAXL_VERSION=${IAXL_VERSION:-1.6.0}
+ export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
+-export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev:$IAXL_VERSION"}
++export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev-kimi-k3-qiuyu:$IAXL_VERSION"}
+ export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
+ 
+ # =============================================================================
+@@ -159,8 +159,13 @@ export IAXL_IAA_ZIP_INSTANCES_PER_DEVICE=${IAXL_IAA_ZIP_INSTANCES_PER_DEVICE:-4}
+ case "${IAXL_IAA_ZIP_ENABLE,,}" in
+     1|true|yes|on)
+     	export IAXL_IAA_INSTANCE_NUM=${IAXL_IAA_INSTANCE_NUM:-4}
++        KVSHRINK_IAA_DEVICES="${KVSHRINK_IAA_DEVICES:-$(iaa_auto_detect "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
++        export KVSHRINK_IAA_DEVICES # Per-rank IAA NUMA nodes
++        ;;
++    *)
++        export IAXL_IAA_INSTANCE_NUM=0
++        unset KVSHRINK_IAA_DEVICES
+         ;;
+-    *) export IAXL_IAA_INSTANCE_NUM=0 ;;
+ esac
+ export IAXL_IAA_ZIP_QUEUE_DEPTH=${IAXL_IAA_ZIP_QUEUE_DEPTH:-4} # In-flight requests per instance (<= 4)
+ 
+@@ -233,7 +238,7 @@ export https_proxy=$http_proxy
+ # ---- docker (used by start.sh) ---------------------------------------------
+ # A recipe's setvars.post.sh may edit CONTAINER_NAME, ENV_VARS and DOCKER_RUN_ARGS; --name and
+ # the -e flags for ENV_VARS are appended after it.
+-CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm}
++CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm-kimi-k3-qiuyu}
+ # Host variables forwarded into the container with -e VAR=value. Forward inputs only: setvars.sh and
+ # the recipe run again in the container and derive everything else from them.
+ ENV_VARS=(
+diff --git a/tools/auto_config.sh b/tools/auto_config.sh
+index ef851db..43f285c 100644
+--- a/tools/auto_config.sh
++++ b/tools/auto_config.sh
+@@ -220,7 +220,8 @@ cpu_auto_detect() {
+ qat_auto_detect() {
+     local tp_size=${1:-${TP_SIZE:-}}
+     local path driver devices_per_rank extra_devices next_device rank count offset pci numa group result
+-    local -a qat_devices=() indices=() pci_devices=() rank_groups=()
++    local gpu_output gpu_index pci_bus gpu_numa
++    local -a qat_devices=() indices=() pci_devices=() rank_groups=() gpu_rows=()
+ 
+     validate_tp_size "$tp_size" || return 1
+     for path in /sys/bus/pci/devices/*; do
+@@ -237,9 +238,28 @@ qat_auto_detect() {
+         return 1
+     fi
+     mapfile -t qat_devices < <(printf '%s\n' "${qat_devices[@]}" | LC_ALL=C sort)
++    # Fewer devices than workers: each worker shares the QAT devices on its GPU's NUMA node.
+     if ((${#qat_devices[@]} < tp_size)); then
+-        echo "ERROR: TP_SIZE=$tp_size requires at least $tp_size QAT devices, but only ${#qat_devices[@]} were found" >&2
+-        return 1
++        gpu_output=$(gpu_rows "$tp_size") || return 1
++        mapfile -t gpu_rows <<<"$gpu_output"
++        for ((rank = 0; rank < tp_size; rank++)); do
++            read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
++            indices=()
++            for ((next_device = 0; next_device < ${#qat_devices[@]}; next_device++)); do
++                numa=$(<"/sys/bus/pci/devices/${qat_devices[$next_device]}/numa_node")
++                [[ "$numa" == "$gpu_numa" ]] && indices+=("$next_device")
++            done
++            if ((${#indices[@]} == 0)); then
++                echo "ERROR: no QAT device on NUMA $gpu_numa for GPU $gpu_index" >&2
++                return 1
++            fi
++            group=$(IFS=,; echo "${indices[*]}")
++            rank_groups+=("$group")
++            echo "KVShrink QAT rank $rank: indices=$group (shared on NUMA $gpu_numa)" >&2
++        done
++        result=$(IFS='|'; echo "${rank_groups[*]}")
++        echo "$result"
++        return
+     fi
+ 
+     devices_per_rank=$((${#qat_devices[@]} / tp_size))
+@@ -269,8 +289,8 @@ qat_auto_detect() {
+ dsa_auto_detect() {
+     local tp_size=${1:-${TP_SIZE:-}}
+     local gpu_output rank gpu_index pci_bus gpu_numa dsa_path dsa_name dsa_numa dsa_id wq_path
+-    local selected_dsa selected_wq result
+-    local -a gpu_rows=() dsa_paths=() used_dsa=() rank_wqs=() candidate_wqs=()
++    local selected_dsa selected_wq wq result
++    local -a gpu_rows=() dsa_paths=() used_wqs=() rank_wqs=() candidate_wqs=()
+ 
+     gpu_output=$(gpu_rows "$tp_size") || return 1
+     mapfile -t gpu_rows <<<"$gpu_output"
+@@ -279,10 +299,6 @@ dsa_auto_detect() {
+             [[ -d "$dsa_path" ]] && echo "$dsa_path"
+         done | sort -V
+     )
+-    if ((${#dsa_paths[@]} < tp_size)); then
+-        echo "ERROR: TP_SIZE=$tp_size requires at least $tp_size DSA devices, but only ${#dsa_paths[@]} were found" >&2
+-        return 1
+-    fi
+ 
+     for ((rank = 0; rank < tp_size; rank++)); do
+         read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
+@@ -292,7 +308,6 @@ dsa_auto_detect() {
+         selected_wq=""
+         for dsa_path in "${dsa_paths[@]}"; do
+             dsa_name=${dsa_path##*/}
+-            [[ " ${used_dsa[*]} " == *" $dsa_name "* ]] && continue
+             dsa_numa=$(<"$dsa_path/numa_node")
+             [[ "$dsa_numa" == "$gpu_numa" ]] || continue
+ 
+@@ -305,17 +320,21 @@ dsa_auto_detect() {
+                     basename "$wq_path"
+                 done | sort -V
+             )
+-            ((${#candidate_wqs[@]} > 0)) || continue
+-            selected_dsa=$dsa_name
+-            selected_wq=${candidate_wqs[0]}
+-            break
++            # A dedicated WQ opens in one process only, so ranks sharing a DSA take different WQs.
++            for wq in "${candidate_wqs[@]}"; do
++                [[ " ${used_wqs[*]} " == *" $wq "* ]] && continue
++                selected_dsa=$dsa_name
++                selected_wq=$wq
++                break
++            done
++            [[ -n "$selected_wq" ]] && break
+         done
+ 
+-        if [[ -z "$selected_dsa" ]]; then
+-            echo "ERROR: no unused DSA with enabled user WQs is available on NUMA $gpu_numa for GPU $gpu_index" >&2
++        if [[ -z "$selected_wq" ]]; then
++            echo "ERROR: no unused enabled user DSA WQ is available on NUMA $gpu_numa for GPU $gpu_index" >&2
+             return 1
+         fi
+-        used_dsa+=("$selected_dsa")
++        used_wqs+=("$selected_wq")
+         rank_wqs+=("$selected_wq")
+         echo "KVShrink GPU rank $rank: DSA=$selected_dsa WQ=$selected_wq" >&2
+     done
+@@ -324,6 +343,25 @@ dsa_auto_detect() {
+     echo "$result"
+ }
+ 
++# Per-rank NUMA node of the rank's GPU, so each rank drives only the IAA devices of its node.
++iaa_auto_detect() {
++    local tp_size=${1:-${TP_SIZE:-}}
++    local gpu_output rank gpu_index pci_bus gpu_numa result
++    local -a gpu_rows=() rank_nodes=()
++
++    gpu_output=$(gpu_rows "$tp_size") || return 1
++    mapfile -t gpu_rows <<<"$gpu_output"
++    for ((rank = 0; rank < tp_size; rank++)); do
++        read -r gpu_index pci_bus gpu_numa < <(gpu_info "${gpu_rows[$rank]}") || return 1
++        iaa_thread_count "$gpu_numa" 1 >/dev/null || return 1
++        rank_nodes+=("$gpu_numa")
++        echo "KVShrink IAA rank $rank: GPU=$gpu_index NUMA=$gpu_numa" >&2
++    done
++
++    result=$(IFS='|'; echo "${rank_nodes[*]}")
++    echo "$result"
++}
++
+ rank_cpu_counts() {
+     local affinity=$1
+     local tp_size=$2

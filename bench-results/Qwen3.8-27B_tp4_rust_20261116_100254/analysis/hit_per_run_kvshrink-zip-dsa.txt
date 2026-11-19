@@ -1,0 +1,18 @@
+kvshrink: externally-cached tokens per request (last line per request)
+input hit con prompts requests_logged max_shared_prefix_hit | hit tokens (hit/input) x requests
+32000 prewarm(100) prompts=512 | 30576 (95.5%) x 494; 15680 (49.0%) x 17; 0 (0.0%) x 1
+32000 80 32 320 320 25088 | 30576 (95.5%) x 1; 24304 (76.0%) x 308; 17248 (53.9%) x 11 | requests whose lines differ: 0
+32000 95 32 320 320 29792 | 30576 (95.5%) x 1; 29008 (90.7%) x 288; 17248 (53.9%) x 31 | requests whose lines differ: 0
+32000 80 64 640 640 25088 | 30576 (95.5%) x 2; 24304 (76.0%) x 621; 17248 (53.9%) x 17 | requests whose lines differ: 0
+32000 95 64 640 640 29792 | 29792 (93.1%) x 1; 29008 (90.7%) x 625; 16464 (51.5%) x 14 | requests whose lines differ: 0
+32000 80 128 1280 1280 25088 | 30576 (95.5%) x 2; 29792 (93.1%) x 1; 24304 (76.0%) x 1263; 16464 (51.5%) x 14 | requests whose lines differ: 0
+32000 95 128 1280 1280 29792 | 30576 (95.5%) x 2; 29008 (90.7%) x 1266; 16464 (51.5%) x 12 | requests whose lines differ: 0
+32000 80 256 2560 2560 25088 | 30576 (95.5%) x 6; 29792 (93.1%) x 4; 24304 (76.0%) x 2546; 16464 (51.5%) x 4 | requests whose lines differ: 0
+32000 95 256 2560 2560 29792 | 30576 (95.5%) x 16; 29008 (90.7%) x 2540; 16464 (51.5%) x 4 | requests whose lines differ: 0
+128000 prewarm(100) prompts=160 | 122304 (95.5%) x 80; 31360 (24.5%) x 75; 15680 (12.2%) x 4; 0 (0.0%) x 1
+128000 80 80 800 800 101920 | 123088 (96.2%) x 1; 120736 (94.3%) x 1; 98000 (76.6%) x 793; 96432 (75.3%) x 5 | requests whose lines differ: 0
+128000 95 80 800 800 121520 | 122304 (95.5%) x 4; 116032 (90.7%) x 794; 114464 (89.4%) x 2 | requests whose lines differ: 0
+256000 prewarm(100) prompts=80 | 245392 (95.9%) x 40; 31360 (12.2%) x 33; 15680 (6.1%) x 6; 0 (0.0%) x 1
+256000 80 40 400 400 204624 | 246960 (96.5%) x 2; 242256 (94.6%) x 1; 196000 (76.6%) x 389; 191296 (74.7%) x 8 | requests whose lines differ: 0
+256000 95 40 400 400 243040 | 245392 (95.9%) x 1; 232848 (91.0%) x 377; 230496 (90.0%) x 22 | requests whose lines differ: 0
+

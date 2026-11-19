@@ -1,0 +1,25 @@
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/home/intel/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6
+  input_len:concurrencies=[32000:300] output_len=128 MAX_MODEL_LEN=256128 BLOCK_SIZE=<vLLM default>
+  num_prompts=by concurrency [300:300] warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  LMCACHE_CHUNK_SIZE=784 LMCACHE_L1_SIZE_GB=1000
+  results -> bench-results/Qwen3.8-27B_tp4_20261111_080256
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=256128 hit_rates=[80]
+    serve pid=215518 log=bench-results/Qwen3.8-27B_tp4_20261111_080256/kvshrink/serve.log
+    serve ready after 135s
+    block_size=784 kv_cache_tokens=12641032
+
+## kvshrink input_len=32000 concurrencies=[300]
+    max_concurrency for 32128 tokens per request: 393.46
+    prewarm: hit 100, 600 prompts, concurrency 300
+--- kvshrink_tp4_in32000_con300_hit80 prompts=300 seed=10380
+    kvshrink,4,32000,128,300,80,300,10380,784,393.46,300,62.469,4.802,614.704,154290.742,35733.658,38539.864,57621.177,187.261,178.002,342.889,0,0,0,6864704,305,304,22581,0.41,34.88,250.00,1.276,0,0,0,0,0,998,81,12.7,3367.2
+    serve stopped after 16s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_20261111_080256/summary.csv
+===========================================================

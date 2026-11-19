@@ -1,0 +1,233 @@
+#### TTFT（ms，mean/p50/p95），FlashInfer
+
+| 输入 | 并发 | hit | vllm-wo-prefix | vllm-prefix | kvshrink-zip-dsa | kvshrink-nozip-dsa | kvshrink-nozip-nodsa |
+|---|---|---|---|---|---|---|---|
+| 32k | 32 | 80 | 4692/1476/13794 | 1238/1275/2457 | 1829/1817/3706 | 1837/1869/3427 | 1939/1829/4287 |
+| 32k | 32 | 95 | 4692/1476/13794 | 923/982/1224 | 1201/795/4398 | 1384/1174/4652 | 1400/1167/4482 |
+| 32k | 64 | 80 | 8512/1490/27607 | 1489/1295/4023 | 2302/1925/7021 | 2519/2210/6515 | 2515/1925/9184 |
+| 32k | 64 | 95 | 8512/1490/27607 | 1089/1065/1848 | 2174/2039/6097 | 1548/945/7578 | 1618/680/9526 |
+| 32k | 128 | 80 | 30402/29865/55193 | 1905/1314/7429 | 3140/2078/13407 | 2998/1793/15548 | 3401/2259/13792 |
+| 32k | 128 | 95 | 30402/29865/55193 | 1374/1306/2607 | 3355/2836/10179 | 3568/2931/14336 | 3838/3290/11066 |
+| 32k | 256 | 80 | 76785/91569/110847 | 2511/1316/14304 | 4524/2292/22590 | 5012/2415/29114 | 5020/2388/28557 |
+| 32k | 256 | 95 | 76785/91569/110847 | 1525/1321/4467 | 4537/3432/14227 | 5811/4538/17256 | 6195/4951/17345 |
+| 128k | 80 | 80 | 122281/149245/169107 | 4535/2232/24631 | 6837/4320/31456 | 8472/5652/38824 | 7672/4893/37323 |
+| 128k | 80 | 95 | 122281/149245/169107 | 2603/1903/9117 | 6354/5533/17605 | 7706/6465/25501 | 7875/6260/25385 |
+| 256k | 40 | 80 | 154574/187812/212028 | 7780/4679/35149 | 12261/9461/42020 | 14390/11216/48424 | 12650/9179/47353 |
+| 256k | 40 | 95 | 154574/187812/212028 | 4689/3880/14500 | 8432/7687/20705 | 10619/9341/27243 | 11002/9648/21124 |
+
+#### TTFT（ms，mean/p50/p95），FLASH_ATTN
+
+| 输入 | 并发 | hit | kvshrink-zip-dsa-flash-attn | lmcache |
+|---|---|---|---|---|
+| 32k | 32 | 80 | 2112/2100/4353 | 1579/1388/3404 |
+| 32k | 32 | 95 | 1324/1189/3956 | 1185/1044/3090 |
+| 32k | 64 | 80 | 2603/2078/8090 | 2336/2057/5566 |
+| 32k | 64 | 95 | 3054/3115/7028 | 1595/1154/4902 |
+| 32k | 128 | 80 | 3353/2170/12665 | 3447/2203/14193 |
+| 32k | 128 | 95 | 4258/3694/13895 | 2615/1074/15204 |
+| 32k | 256 | 80 | 6348/3072/32711 | 8369/5667/29626 |
+| 32k | 256 | 95 | 6376/4615/21245 | 4744/1902/29414 |
+| 128k | 80 | 80 | 8244/4964/34494 | 10212/8106/27643 |
+| 128k | 80 | 95 | 7239/5473/29328 | 4638/3666/13140 |
+| 256k | 40 | 80 | 11678/7719/49148 | 11174/8379/35802 |
+| 256k | 40 | 95 | 9801/8349/25102 | 5732/4733/13374 |
+
+#### TPOT（ms，mean/p50/p95），FlashInfer
+
+| 输入 | 并发 | hit | vllm-wo-prefix | vllm-prefix | kvshrink-zip-dsa | kvshrink-nozip-dsa | kvshrink-nozip-nodsa |
+|---|---|---|---|---|---|---|---|
+| 32k | 32 | 80 | 87.7/112.8/114.9 | 24.2/23.7/30.2 | 35.1/34.3/42.9 | 34.4/33.4/42.2 | 36.9/35.4/48.4 |
+| 32k | 32 | 95 | 87.7/112.8/114.9 | 9.2/8.4/10.4 | 29.4/28.7/46.5 | 30.2/27.4/48.1 | 29.3/27.4/43.1 |
+| 32k | 64 | 80 | 175.5/228.7/230.2 | 48.6/49.9/54.9 | 62.0/62.6/70.6 | 60.1/60.8/71.6 | 65.1/64.5/84.2 |
+| 32k | 64 | 95 | 175.5/228.7/230.2 | 16.3/16.2/19.5 | 30.8/29.0/42.4 | 42.0/41.4/50.9 | 51.5/49.3/85.4 |
+| 32k | 128 | 80 | 216.2/247.5/248.8 | 101.5/105.8/108.2 | 120.2/124.9/130.6 | 124.8/128.7/135.8 | 123.0/128.7/134.4 |
+| 32k | 128 | 95 | 216.2/247.5/248.8 | 31.2/31.5/35.4 | 56.1/55.9/71.9 | 67.8/66.4/89.1 | 61.3/60.7/80.1 |
+| 32k | 256 | 80 | 232.6/248.6/248.9 | 208.0/217.5/220.0 | 247.9/259.6/264.9 | 253.3/264.2/275.7 | 256.5/268.1/280.8 |
+| 32k | 256 | 95 | 232.6/248.6/248.9 | 64.5/66.2/69.4 | 127.3/130.7/145.7 | 141.2/145.1/163.9 | 148.6/152.8/172.8 |
+| 128k | 80 | 80 | 284.4/300.4/301.0 | 333.3/350.5/353.7 | 360.0/376.1/392.0 | 356.9/368.8/399.4 | 365.0/379.4/405.6 |
+| 128k | 80 | 95 | 284.4/300.4/301.0 | 100.7/104.4/108.5 | 154.6/158.8/180.9 | 180.7/188.0/212.9 | 184.1/192.4/222.2 |
+| 256k | 40 | 80 | 354.2/375.2/376.4 | 450.8/471.1/486.7 | 465.6/482.6/515.0 | 473.8/491.4/533.0 | 479.1/496.4/525.9 |
+| 256k | 40 | 95 | 354.2/375.2/376.4 | 117.5/120.8/134.0 | 171.1/173.7/206.0 | 198.8/204.1/241.6 | 204.6/212.7/247.9 |
+
+#### TPOT（ms，mean/p50/p95），FLASH_ATTN
+
+| 输入 | 并发 | hit | kvshrink-zip-dsa-flash-attn | lmcache |
+|---|---|---|---|---|
+| 32k | 32 | 80 | 38.5/37.3/48.7 | 39.1/39.5/46.1 |
+| 32k | 32 | 95 | 32.1/31.4/37.9 | 27.2/26.6/37.1 |
+| 32k | 64 | 80 | 83.4/84.8/93.0 | 78.0/78.9/87.5 |
+| 32k | 64 | 95 | 55.6/53.0/72.0 | 52.0/51.7/70.0 |
+| 32k | 128 | 80 | 177.7/183.1/191.3 | 172.5/174.9/205.4 |
+| 32k | 128 | 95 | 123.9/122.8/144.5 | 118.0/114.2/188.5 |
+| 32k | 256 | 80 | 358.7/375.2/379.7 | 327.8/338.1/349.3 |
+| 32k | 256 | 95 | 266.2/271.9/292.3 | 226.3/226.1/296.1 |
+| 128k | 80 | 80 | 514.4/534.7/543.5 | 466.6/481.7/501.9 |
+| 128k | 80 | 95 | 298.2/303.7/331.0 | 243.9/247.8/264.5 |
+| 256k | 40 | 80 | 620.1/647.6/660.5 | 588.1/609.7/629.5 |
+| 256k | 40 | 95 | 333.5/339.4/372.9 | 274.0/279.7/292.6 |
+
+#### 出 tok/s，FlashInfer
+
+| 输入 | 并发 | hit | vllm-wo-prefix | vllm-prefix | kvshrink-zip-dsa | kvshrink-nozip-dsa | kvshrink-nozip-nodsa |
+|---|---|---|---|---|---|---|---|
+| 32k | 32 | 80 | 257 | 948 | 649 | 659 | 617 |
+| 32k | 32 | 95 | 257 | 1960 | 827 | 783 | 798 |
+| 32k | 64 | 80 | 264 | 1067 | 802 | 805 | 758 |
+| 32k | 64 | 95 | 264 | 2588 | 1342 | 1186 | 999 |
+| 32k | 128 | 80 | 265 | 1105 | 887 | 866 | 858 |
+| 32k | 128 | 95 | 265 | 3061 | 1560 | 1342 | 1404 |
+| 32k | 256 | 80 | 265 | 1130 | 906 | 878 | 868 |
+| 32k | 256 | 95 | 265 | 3360 | 1578 | 1376 | 1304 |
+| 128k | 80 | 80 | 54 | 218 | 194 | 190 | 189 |
+| 128k | 80 | 95 | 54 | 664 | 393 | 333 | 327 |
+| 256k | 40 | 80 | 22 | 79 | 72 | 69 | 70 |
+| 256k | 40 | 95 | 22 | 261 | 169 | 143 | 138 |
+
+#### 出 tok/s，FLASH_ATTN
+
+| 输入 | 并发 | hit | kvshrink-zip-dsa-flash-attn | lmcache |
+|---|---|---|---|---|
+| 32k | 32 | 80 | 584 | 625 |
+| 32k | 32 | 95 | 755 | 877 |
+| 32k | 64 | 80 | 619 | 667 |
+| 32k | 64 | 95 | 808 | 996 |
+| 32k | 128 | 80 | 629 | 642 |
+| 32k | 128 | 95 | 817 | 923 |
+| 32k | 256 | 80 | 627 | 650 |
+| 32k | 256 | 95 | 813 | 968 |
+| 128k | 80 | 80 | 138 | 146 |
+| 128k | 80 | 95 | 226 | 286 |
+| 256k | 40 | 80 | 56 | 59 |
+| 256k | 40 | 95 | 98 | 126 |
+
+#### 实际命中率，FlashInfer
+
+| 输入 | 并发 | hit | vllm-wo-prefix | vllm-prefix | kvshrink-zip-dsa | kvshrink-nozip-dsa | kvshrink-nozip-nodsa |
+|---|---|---|---|---|---|---|---|
+| 32k | 32 | 80 | 0.0% | 78.9% | 77.6% | 77.8% | 76.2% |
+| 32k | 32 | 95 | 0.0% | 94.0% | 89.9% | 89.8% | 89.9% |
+| 32k | 64 | 80 | 0.0% | 79.3% | 78.4% | 78.8% | 77.2% |
+| 32k | 64 | 95 | 0.0% | 94.3% | 93.3% | 92.2% | 90.3% |
+| 32k | 128 | 80 | 0.0% | 79.0% | 78.7% | 78.4% | 78.8% |
+| 32k | 128 | 95 | 0.0% | 94.4% | 93.9% | 93.4% | 94.0% |
+| 32k | 256 | 80 | 0.0% | 79.0% | 79.0% | 79.0% | 79.0% |
+| 32k | 256 | 95 | 0.0% | 94.4% | 94.3% | 94.3% | 94.3% |
+| 128k | 80 | 80 | 0.0% | 79.8% | 79.4% | 79.4% | 79.4% |
+| 128k | 80 | 95 | 0.0% | 94.3% | 94.0% | 93.9% | 94.0% |
+| 256k | 40 | 80 | 0.0% | 79.8% | 79.1% | 79.0% | 79.1% |
+| 256k | 40 | 95 | 0.0% | 94.5% | 93.8% | 93.8% | 93.9% |
+
+#### 实际命中率，FLASH_ATTN
+
+| 输入 | 并发 | hit | kvshrink-zip-dsa-flash-attn | lmcache |
+|---|---|---|---|---|
+| 32k | 32 | 80 | 77.2% | 76.6% |
+| 32k | 32 | 95 | 90.9% | 89.7% |
+| 32k | 64 | 80 | 78.3% | 78.0% |
+| 32k | 64 | 95 | 92.4% | 91.1% |
+| 32k | 128 | 80 | 78.3% | 76.9% |
+| 32k | 128 | 95 | 92.8% | 89.6% |
+| 32k | 256 | 80 | 78.6% | 77.1% |
+| 32k | 256 | 95 | 93.2% | 90.7% |
+| 128k | 80 | 80 | 79.2% | 79.3% |
+| 128k | 80 | 95 | 94.2% | 94.2% |
+| 256k | 40 | 80 | 78.8% | 79.2% |
+| 256k | 40 | 95 | 93.5% | 93.9% |
+
+#### ScratchPool 等待（次数 / >10 ms 次数 / 最长 ms / 合计 ms，所有 TP rank 相加）
+
+| 输入 | 并发 | hit | kvshrink-zip-dsa | kvshrink-nozip-dsa | kvshrink-nozip-nodsa | kvshrink-zip-dsa-flash-attn |
+|---|---|---|---|---|---|---|
+| 32k | 32 | 80 | 11 / 0 / 5.5 / 25 | 2 / 0 / 2.4 / 4 | 185 / 3 / 11.1 / 360 | 261 / 22 / 20.4 / 827 |
+| 32k | 32 | 95 | 75 / 1 / 10.2 / 344 | 76 / 0 / 9.8 / 193 | 159 / 12 / 15.0 / 432 | 0 / 0 / 0.0 / 0 |
+| 32k | 64 | 80 | 339 / 23 / 15.7 / 800 | 835 / 22 / 18.3 / 2425 | 878 / 11 / 15.3 / 1651 | 1877 / 26 / 26.5 / 3845 |
+| 32k | 64 | 95 | 1017 / 304 / 17.8 / 7102 | 760 / 18 / 15.0 / 2079 | 1048 / 7 / 14.5 / 1676 | 5514 / 576 / 30.4 / 19497 |
+| 32k | 128 | 80 | 1220 / 370 / 15.0 / 7406 | 3639 / 33 / 20.5 / 7617 | 5369 / 29 / 22.9 / 11022 | 3828 / 287 / 23.9 / 10246 |
+| 32k | 128 | 95 | 3542 / 1033 / 18.7 / 22504 | 11235 / 180 / 23.4 / 31217 | 15908 / 275 / 26.2 / 40865 | 9735 / 1479 / 35.9 / 44628 |
+| 32k | 256 | 80 | 3260 / 858 / 14.1 / 19043 | 12504 / 247 / 20.2 / 29655 | 12480 / 432 / 41.1 / 29205 | 9812 / 1044 / 24.3 / 30414 |
+| 32k | 256 | 95 | 8288 / 2834 / 17.9 / 61776 | 53431 / 1482 / 24.3 / 150912 | 58540 / 307 / 15.3 / 162801 | 26245 / 4576 / 30.4 / 118842 |
+| 128k | 80 | 80 | 3826 / 261 / 35.8 / 20862 | 4333 / 2047 / 96.9 / 50345 | 3217 / 1275 / 150.8 / 33849 | 4008 / 1318 / 68.1 / 43838 |
+| 128k | 80 | 95 | 25209 / 1735 / 36.8 / 164490 | 20432 / 15923 / 370.6 / 274500 | 16794 / 13790 / 385.9 / 248764 | 12646 / 7555 / 94.4 / 168856 |
+| 256k | 40 | 80 | 3691 / 1108 / 62.8 / 40990 | 6467 / 5653 / 59.4 / 135971 | 2976 / 2913 / 372.1 / 68252 | 2185 / 2099 / 100.4 / 45344 |
+| 256k | 40 | 95 | 14134 / 6136 / 72.1 / 170211 | 12446 / 12118 / 172.6 / 319457 | 12311 / 12274 / 398.0 / 345839 | 10135 / 10085 / 108.2 / 263700 |
+
+#### checks per run: completed/prompts, preemptions, evict count / >10 ms / longest ms, DSA batch failures, block size, GPU prefix cache hit/query (warm-ups included)
+
+- vllm-wo-prefix 32k con 32 hit 80: 64/64, preempt 0, evict na / na / na, DSA failed na, block 784
+- vllm-wo-prefix 32k con 64 hit 80: 128/128, preempt 0, evict na / na / na, DSA failed na, block 784
+- vllm-wo-prefix 32k con 128 hit 80: 256/256, preempt 0, evict na / na / na, DSA failed na, block 784
+- vllm-wo-prefix 32k con 256 hit 80: 512/512, preempt 0, evict na / na / na, DSA failed na, block 784
+- vllm-wo-prefix 128k con 80 hit 80: 160/160, preempt 0, evict na / na / na, DSA failed na, block 784
+- vllm-wo-prefix 256k con 40 hit 80: 80/80, preempt 0, evict na / na / na, DSA failed na, block 784
+- vllm-prefix 32k con 32 hit 80: 320/320, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 78.9%
+- vllm-prefix 32k con 32 hit 95: 320/320, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 94.0%
+- vllm-prefix 32k con 64 hit 80: 640/640, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 79.3%
+- vllm-prefix 32k con 64 hit 95: 640/640, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 94.3%
+- vllm-prefix 32k con 128 hit 80: 1280/1280, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 79.0%
+- vllm-prefix 32k con 128 hit 95: 1280/1280, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 94.4%
+- vllm-prefix 32k con 256 hit 80: 2560/2560, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 79.0%
+- vllm-prefix 32k con 256 hit 95: 2560/2560, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 94.4%
+- vllm-prefix 128k con 80 hit 80: 800/800, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 79.8%
+- vllm-prefix 128k con 80 hit 95: 800/800, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 94.3%
+- vllm-prefix 256k con 40 hit 80: 400/400, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 79.8%
+- vllm-prefix 256k con 40 hit 95: 400/400, preempt 0, evict na / na / na, DSA failed na, block 784, GPU prefix 94.5%
+- kvshrink-zip-dsa 32k con 32 hit 80: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-zip-dsa 32k con 32 hit 95: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-zip-dsa 32k con 64 hit 80: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-zip-dsa 32k con 64 hit 95: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-zip-dsa 32k con 128 hit 80: 1280/1280, preempt 0, evict 1 / 1 / 38, DSA failed 0, block 784
+- kvshrink-zip-dsa 32k con 128 hit 95: 1280/1280, preempt 0, evict 1 / 1 / 36, DSA failed 0, block 784
+- kvshrink-zip-dsa 32k con 256 hit 80: 2560/2560, preempt 0, evict 3 / 3 / 41, DSA failed 0, block 784
+- kvshrink-zip-dsa 32k con 256 hit 95: 2560/2560, preempt 0, evict 2 / 2 / 44, DSA failed 0, block 784
+- kvshrink-zip-dsa 128k con 80 hit 80: 800/800, preempt 0, evict 3 / 3 / 57, DSA failed 0, block 784
+- kvshrink-zip-dsa 128k con 80 hit 95: 800/800, preempt 0, evict 1 / 1 / 124, DSA failed 0, block 784
+- kvshrink-zip-dsa 256k con 40 hit 80: 400/400, preempt 0, evict 2 / 2 / 74, DSA failed 0, block 784
+- kvshrink-zip-dsa 256k con 40 hit 95: 400/400, preempt 0, evict 1 / 1 / 46, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 32 hit 80: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 32 hit 95: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 64 hit 80: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 64 hit 95: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 128 hit 80: 1280/1280, preempt 0, evict 2 / 2 / 61, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 128 hit 95: 1280/1280, preempt 0, evict 1 / 1 / 88, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 256 hit 80: 2560/2560, preempt 0, evict 5 / 5 / 57, DSA failed 0, block 784
+- kvshrink-nozip-dsa 32k con 256 hit 95: 2560/2560, preempt 0, evict 2 / 2 / 67, DSA failed 0, block 784
+- kvshrink-nozip-dsa 128k con 80 hit 80: 800/800, preempt 0, evict 6 / 6 / 30, DSA failed 0, block 784
+- kvshrink-nozip-dsa 128k con 80 hit 95: 800/800, preempt 0, evict 1 / 1 / 53, DSA failed 0, block 784
+- kvshrink-nozip-dsa 256k con 40 hit 80: 400/400, preempt 0, evict 3 / 3 / 36, DSA failed 0, block 784
+- kvshrink-nozip-dsa 256k con 40 hit 95: 400/400, preempt 0, evict 1 / 1 / 42, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 32 hit 80: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 32 hit 95: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 64 hit 80: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 64 hit 95: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 128 hit 80: 1280/1280, preempt 0, evict 2 / 2 / 32, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 128 hit 95: 1280/1280, preempt 0, evict 1 / 1 / 37, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 256 hit 80: 2560/2560, preempt 0, evict 6 / 6 / 33, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 32k con 256 hit 95: 2560/2560, preempt 0, evict 2 / 2 / 42, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 128k con 80 hit 80: 800/800, preempt 0, evict 6 / 6 / 30, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 128k con 80 hit 95: 800/800, preempt 0, evict 2 / 2 / 34, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 256k con 40 hit 80: 400/400, preempt 0, evict 4 / 4 / 35, DSA failed 0, block 784
+- kvshrink-nozip-nodsa 256k con 40 hit 95: 400/400, preempt 0, evict 1 / 1 / 37, DSA failed 0, block 784
+- kvshrink-zip-dsa-flash-attn 32k con 32 hit 80: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 32k con 32 hit 95: 320/320, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 32k con 64 hit 80: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 32k con 64 hit 95: 640/640, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 32k con 128 hit 80: 1280/1280, preempt 0, evict 1 / 1 / 35, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 32k con 128 hit 95: 1280/1280, preempt 0, evict 1 / 1 / 31, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 32k con 256 hit 80: 2560/2560, preempt 0, evict 3 / 3 / 41, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 32k con 256 hit 95: 2560/2560, preempt 0, evict 2 / 2 / 38, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 128k con 80 hit 80: 800/800, preempt 0, evict 3 / 3 / 61, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 128k con 80 hit 95: 800/800, preempt 0, evict 0 / 0 / 0, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 256k con 40 hit 80: 400/400, preempt 0, evict 2 / 2 / 42, DSA failed 0, block 896
+- kvshrink-zip-dsa-flash-attn 256k con 40 hit 95: 400/400, preempt 0, evict 1 / 1 / 113, DSA failed 0, block 896
+- lmcache 32k con 32 hit 80: 320/320, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 32k con 32 hit 95: 320/320, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 32k con 64 hit 80: 640/640, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 32k con 64 hit 95: 640/640, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 32k con 128 hit 80: 1280/1280, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 32k con 128 hit 95: 1280/1280, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 32k con 256 hit 80: 2560/2560, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 32k con 256 hit 95: 2560/2560, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 128k con 80 hit 80: 800/800, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 128k con 80 hit 95: 800/800, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 256k con 40 hit 80: 400/400, preempt 0, evict na / na / na, DSA failed na, block 896
+- lmcache 256k con 40 hit 95: 400/400, preempt 0, evict na / na / na, DSA failed na, block 896
