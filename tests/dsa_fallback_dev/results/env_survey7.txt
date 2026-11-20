@@ -1,0 +1,78 @@
+# Someone else on GPU0 or wq0.0 would distort the numbers, so stop instead of measuring.
+require_gpu0_and_wq_free() {
+    local gpu_memory_mib wq_clients
+    gpu_memory_mib=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits -i 0)
+    wq_clients=$(cat /sys/bus/dsa/devices/wq0.0/clients)
+    if ((gpu_memory_mib > GPU_BUSY_MIB)); then
+        log "ERROR: GPU0 busy (${gpu_memory_mib} MiB used)"
+        return 1
+    fi
+    if [[ "$wq_clients" != 0 ]]; then
+        log "ERROR: wq0.0 busy (clients=$wq_clients)"
+        return 1
+    fi
+}
+
+run_one() {
+    local setting=$1 round=$2
+    local run_log="$RESULT_DIR/$setting/run$round.log"
+    local command=(
+        docker exec -w "$REPO_DIR" "$CONTAINER" bash benchmark/tensor_xfer/tensor_xfer_benchmark.sh
+        --methods batch,iaxl --direction both --frag-sizes "$FRAG_SIZES"
+        --total-gib "${TOTAL_GIB[$setting]}" --warmup "${WARMUP[$setting]}" --iterations "${ITERATIONS[$setting]}"
+        --output-dir "$RESULT_DIR" --plot ''
+    )
+    if [[ "$DRY_RUN" == 1 ]]; then
+        echo "DRY_RUN: ${command[*]} > $run_log 2>&1"
+        return 0
+    fi
+    mkdir -p "$RESULT_DIR/$setting"
+    if ! "${command[@]}" >"$run_log" 2>&1; then
+        log "ERROR: benchmark exited non-zero, see $run_log"
+        return 1
+    fi
+    if grep -q " FAIL$" "$run_log"; then
+        log "ERROR: copy check FAIL, see $run_log"
+        return 1
+    fi
+    local result_lines
+    result_lines=$(grep -c -E " (PASS|FAIL)$" "$run_log")
+    if ((result_lines != EXPECTED_RESULT_LINES)); then
+        log "ERROR: $result_lines result lines (expected $EXPECTED_RESULT_LINES), see $run_log"
+        return 1
+    fi
+}
+
+mkdir -p "$RESULT_DIR"
+log "start: settings=$SETTINGS rounds=$ROUNDS result_dir=$RESULT_DIR"
+if [[ "$DRY_RUN" != 1 ]]; then
+    wait_container_ready || exit 1
+    {
+        echo "git: $(git -C "$REPO_DIR" rev-parse HEAD) branch $(git -C "$REPO_DIR" branch --show-current)"
+        echo "image: $(docker inspect -f '{{.Config.Image}}' "$CONTAINER")"
+        md5sum "$REPO_DIR"/benchmark/tensor_xfer/tensor_xfer_benchmark.{sh,py} "$REPO_DIR/tests/dsa_fallback_dev/stability_runs.sh"
+    } >"$RESULT_DIR/env.txt"
+fi
+
+setting_count=$(wc -w <<<"$SETTINGS")
+total_runs=$((ROUNDS * setting_count))
+run_index=0
+first_run_started=$(date +%s)
+for round in $(seq 1 "$ROUNDS"); do
+    for setting in $SETTINGS; do
+        run_index=$((run_index + 1))
+        if [[ "$DRY_RUN" != 1 ]]; then
+            require_gpu0_and_wq_free || exit 1
+        fi
+        run_started=$(date +%s)
+        run_one "$setting" "$round" || exit 1
+        now=$(date +%s)
+        seconds_left=$(((now - first_run_started) * (total_runs - run_index) / run_index))
+        log "run $run_index/$total_runs done: setting $setting round $round ($((now - run_started))s), about $((seconds_left / 60))m$((seconds_left % 60))s left"
+    done
+done
+
+if [[ "$DRY_RUN" != 1 ]]; then
+    python3 "$REPO_DIR/tests/dsa_fallback_dev/stability_tables.py" "$RESULT_DIR" >"$RESULT_DIR/tables.md"
+fi
+log "ALL DONE. Tables: $RESULT_DIR/tables.md"

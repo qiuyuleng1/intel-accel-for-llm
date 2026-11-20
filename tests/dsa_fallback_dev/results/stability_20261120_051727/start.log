@@ -1,0 +1,886 @@
+export http_proxy=http://proxy.ims.intel.com:911 https_proxy=http://proxy.ims.intel.com:911; IAXL_DEV_DOCKER_IMAGE=vllm-iaxl-dev-pr70:1.6.0 ./start.sh; echo START_SH_EXIT=$?
+[?2004h(base) pese@h8263-6000d:~/qiuyu/intel-accel-for-llm-1119$ export http_proxy=http://proxy.ims.intel.com:911 https_proxy=http://proxy.ims.intel.com:911; IAXL_DEV_DOCKER_IMAGE=vllm-iaxl-dev-pr70:1.6.0 ./start.sh; echo START_SH_EXIT=$?
+[?2004lKVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-31
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=32-63
+KVShrink QAT rank 0: indices=0,1,2,3 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0) 0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 1: indices=4,5,6,7 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1) 0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+vLLM configuration:
+  MODEL=Qwen/Qwen3-32B
+  TP_SIZE=2
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=0
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_DSA_DEVICES=disabled
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=32,32
+  IAXL_QAT_INSTANCE_NUM=4
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+Using pip 26.2.1 from /usr/local/lib/python3.12/dist-packages/pip (python 3.12)
+Obtaining file:///home/pese/qiuyu/intel-accel-for-llm-1119
+  Running command Checking if build backend supports build_editable
+  Checking if build backend supports build_editable ... [?25l[?25hdone
+  Running command Preparing editable metadata (pyproject.toml)
+  [INFO] Package data: {}
+  running dist_info
+  creating /tmp/pip-modern-metadata-t3qu2y1r/iaxl.egg-info
+  writing /tmp/pip-modern-metadata-t3qu2y1r/iaxl.egg-info/PKG-INFO
+  writing dependency_links to /tmp/pip-modern-metadata-t3qu2y1r/iaxl.egg-info/dependency_links.txt
+  writing entry points to /tmp/pip-modern-metadata-t3qu2y1r/iaxl.egg-info/entry_points.txt
+  writing top-level names to /tmp/pip-modern-metadata-t3qu2y1r/iaxl.egg-info/top_level.txt
+  writing manifest file '/tmp/pip-modern-metadata-t3qu2y1r/iaxl.egg-info/SOURCES.txt'
+  writing manifest file '/tmp/pip-modern-metadata-t3qu2y1r/iaxl.egg-info/SOURCES.txt'
+  creating '/tmp/pip-modern-metadata-t3qu2y1r/iaxl-1.6.0.dist-info'
+  Preparing editable metadata (pyproject.toml) ... [?25l[?25hdone
+Building wheels for collected packages: iaxl
+  Running command Building editable for iaxl (pyproject.toml)
+  [INFO] Package data: {}
+  running editable_wheel
+  creating /tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl.egg-info
+  writing /tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl.egg-info/PKG-INFO
+  writing dependency_links to /tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl.egg-info/dependency_links.txt
+  writing entry points to /tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl.egg-info/entry_points.txt
+  writing top-level names to /tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl.egg-info/top_level.txt
+  writing manifest file '/tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl.egg-info/SOURCES.txt'
+  writing manifest file '/tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl.egg-info/SOURCES.txt'
+  creating '/tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl-1.6.0.dist-info'
+  creating /tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl-1.6.0.dist-info/WHEEL
+  running build_py
+  running build_ext
+  -- The C compiler identification is GNU 13.3.0
+  -- The CXX compiler identification is GNU 13.3.0
+  -- Detecting C compiler ABI info
+  -- Detecting C compiler ABI info - done
+  -- Check for working C compiler: /usr/bin/cc - skipped
+  -- Detecting C compile features
+  -- Detecting C compile features - done
+  -- Detecting CXX compiler ABI info
+  -- Detecting CXX compiler ABI info - done
+  -- Check for working CXX compiler: /usr/bin/c++ - skipped
+  -- Detecting CXX compile features
+  -- Detecting CXX compile features - done
+  -- Found Python: /usr/bin/python3.12 (found version "3.12.3") found components: Interpreter Development Development.Module Development.Embed
+  -- Performing Test HAS_FLTO_AUTO
+  -- Performing Test HAS_FLTO_AUTO - Success
+  -- Found pybind11: /usr/local/lib/python3.12/dist-packages/pybind11/include (found version "3.1.0")
+  -- QAT user space: out-of-tree QAT20 package (/home/pese/qiuyu/intel-accel-for-llm-1119/_lib)
+  -- Found ZLIB: /usr/lib/x86_64-linux-gnu/libz.so (found version "1.3")
+  -- NIXL: /usr/local/include /usr/local/lib/x86_64-linux-gnu/libnixl.so
+  -- Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include;/usr/local/cuda/targets/x86_64-linux/include/cccl (found version "13.0.88")
+  -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+  -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+  -- Found Threads: TRUE
+  -- NVTX enabled from /usr/local/lib/python3.12/dist-packages/nvidia/cu13/include
+  -- Configuring done (2.3s)
+  -- Generating done (0.0s)
+  -- Build files have been written to: /tmp/tmpqhs2t3r7.build-temp
+  [  4%] Building Intel QPL (IAA) user-space library
+  [  9%] Building Intel QAT user-space libraries
+  make[3]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+  make[3]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+  checking for a BSD-compatible install... /usr/bin/install -c
+  checking whether build environment is sane... yes
+  checking for a thread-safe mkdir -p... /usr/bin/mkdir -p
+  checking for gawk... no
+  checking for mawk... mawk
+  checking whether make sets $(MAKE)... yes
+  checking whether make supports nested variables... yes
+  checking whether to enable maintainer-specific portions of Makefiles... no
+  checking for gawk... (cached) mawk
+  checking for g++... g++
+  checking whether the C++ compiler works... yes
+  checking for C++ compiler default output file name... a.out
+  checking for suffix of executables...
+  checking whether we are cross compiling... no
+  checking for suffix of object files... o
+  checking whether we are using the GNU C++ compiler... yes
+  checking whether g++ accepts -g... yes
+  checking whether make supports the include directive... yes (GNU style)
+  checking dependency style of g++... none
+  checking for cc... cc
+  checking whether we are using the GNU C compiler... yes
+  checking whether cc accepts -g... yes
+  checking for cc option to accept ISO C89... none needed
+  checking whether cc understands -c and -o together... yes
+  checking dependency style of cc... none
+  checking whether ln -s works... yes
+  checking whether make sets $(MAKE)... (cached) yes
+  checking for pkg-config... /usr/bin/pkg-config
+  checking pkg-config is at least version 0.9.0... yes
+  checking for C compiler vendor... -- The C compiler identification is GNU 13.3.0
+  -- The CXX compiler identification is GNU 13.3.0
+  -- Detecting C compiler ABI info
+  gnu
+  checking for a sed that does not truncate output... /usr/bin/sed
+  checking for C compiler version... -- Detecting C compiler ABI info - done
+  -- Check for working C compiler: /usr/bin/cc - skipped
+  -- Detecting C compile features
+  -- Detecting C compile features - done
+  -- Detecting CXX compiler ABI info
+  -- Detecting CXX compiler ABI info - done
+  13.3.0
+  checking for C++ compiler vendor... -- Check for working CXX compiler: /usr/bin/c++ - skipped
+  -- Detecting CXX compile features
+  -- Detecting CXX compile features - done
+  -- Intel QPL version: 1.9.0
+  -- Build type: Release
+  -- Sanitizer used for build and testing:
+  -- Hardware initialization logging: OFF
+  -- IAA execution information logging to job structure: OFF
+  -- Efficient wait instructions: OFF
+  -- Fuzz testing build: OFF
+  -- Load libaccel-config dynamically with dlopen: ON
+  -- Run clang-tidy: OFF
+  -- Library build type: SHARED
+  -- The ASM compiler identification is GNU
+  -- Found assembler: /usr/bin/cc
+  -- The ASM_NASM compiler identification is NASM
+  -- Found assembler: /usr/bin/nasm
+  -- Performing Test HAVE_CXX_KNOWS_WAITPKG
+  gnu
+  checking for C++ compiler version... 13.3.0
+  checking how to run the C preprocessor... cc -E
+  checking for grep that handles long lines and -e... /usr/bin/grep
+  checking for egrep... /usr/bin/grep -E
+  checking for ANSI C header files... yes
+  checking for sys/types.h... yes
+  checking for sys/stat.h... yes
+  checking for stdlib.h... yes
+  checking for string.h... yes
+  checking for memory.h... yes
+  checking for strings.h... yes
+  checking for inttypes.h... yes
+  checking for stdint.h... yes
+  -- Performing Test HAVE_CXX_KNOWS_WAITPKG - success
+  checking for unistd.h... -- Build with examples: OFF
+  -- Build with tests and benchmarks framework: OFF
+  -- Configuring done (1.0s)
+  yes
+  checking zlib.h usability... yes
+  checking zlib.h presence... yes
+  checking for zlib.h... yes
+  checking for deflate in -lz... -- Generating done (0.1s)
+  -- Build files have been written to: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/qpl/build
+  yes
+  checking zlib version... 1.3
+  checking boost/version.hpp usability... yes
+  checking boost/version.hpp presence... yes
+  checking for boost/version.hpp... yes
+  checking boost/regex.hpp usability... yes
+  checking boost/regex.hpp presence... yes
+  checking for boost/regex.hpp... yes
+  checking for main in -lboost_regex... [  1%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/adler32_base.c.o
+  [  1%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/igzip.c.o
+  [  3%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/hufftables_c.c.o
+  [  3%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_gen_icf_map_lh1_06.asm.o
+  [  3%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/huff_codes.c.o
+  [  3%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/aecs/datatables.c.o
+  [  3%] Building C object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/bit_writer.c.o
+  [  3%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/aecs/hw_aecs_compress.c.o
+  [  3%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_decode_block_stateless_04.asm.o
+  [  4%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_body.asm.o
+  [  4%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/aecs/hw_huffman_table.c.o
+  [  6%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_finish.asm.o
+  [  6%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/descriptors/hw_analytic_descriptor_base.c.o
+  [  6%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/igzip_icf_base.c.o
+  [  6%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/dispatcher/simple_memory_ops_c_bind.cpp.o
+  [  7%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/dispatcher/dispatcher.cpp.o
+  [  8%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_decode_block_stateless_01.asm.o
+  [  8%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/bit_rev.c.o
+  [  9%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_crc64.cpp.o
+  [ 10%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/accelerator/context.cpp.o
+  [ 10%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/dictionary.cpp.o
+  [ 10%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/proc_heap.asm.o
+  [ 11%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/descriptors/hw_crc64_descriptor.c.o
+  [ 11%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/huffman_table.cpp.o
+  [ 11%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/igzip_base.c.o
+  [ 11%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_gen_icf_map_lh1_04.asm.o
+  [ 12%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_icf_body_h1_gr_bt.asm.o
+  [ 12%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/descriptors/hw_decompress_descriptor.c.o
+  [ 15%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/flatten_ll.c.o
+  [ 15%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/compressor.cpp.o
+  [ 15%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_deflate_fix.cpp.o
+  [ 16%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/aecs/hw_aecs_decompress.c.o
+  [ 16%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/encode_df_04.asm.o
+  [ 16%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/analytics/extract.cpp.o
+  [ 16%] Building C object sources/isal/CMakeFiles/isal.dir/crc/crc_base.c.o
+  [ 16%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/encode_df.c.o
+  [ 16%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/decompressor.cpp.o
+  [ 17%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/igzip_icf_body.c.o
+  [ 17%] Building C object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/qpl_deflate_slow.c.o
+  [ 18%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/encode_df_06.asm.o
+  [ 19%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/descriptors/hw_analytic_descriptor_operations.c.o
+  [ 19%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/descriptors/hw_compress_descriptor.c.o
+  [ 20%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/analytics/input_stream.cpp.o
+  [ 21%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_aggregates.cpp.o
+  [ 21%] Building C object sources/isal/CMakeFiles/isal.dir/crc/crc64_base.c.o
+  [ 21%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/descriptors/hw_descriptor.c.o
+  [ 22%] Building C object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/own_deflate_job.c.o
+  [ 22%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/driver_loader/hw_configuration_driver.c.o
+  [ 23%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/filter_operations/expand_job.cpp.o
+  [ 23%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_deflate.cpp.o
+  [ 23%] Building C object sources/isal/CMakeFiles/isal.dir/igzip/igzip_inflate.c.o
+  [ 24%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/analytics/expand.cpp.o
+  [ 24%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/analytics/output_stream.cpp.o
+  [ 25%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/filter_operations/extract_job.cpp.o
+  [ 25%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_extract.cpp.o
+  [ 25%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_memory_copy.cpp.o
+  [ 25%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/compression_operations/statistics.cpp.o
+  [ 26%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_move.cpp.o
+  [ 26%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/common/bit_buffer.cpp.o
+  [ 27%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_extract_i.cpp.o
+  [ 27%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/filter_operations/scan_job.cpp.o
+  [ 28%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/analytics/select.cpp.o
+  [ 28%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/filter_operations/select_job.cpp.o
+  [ 29%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/job_execution_api.cpp.o
+  [ 29%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/legacy_hw_path/qpl_hw_check_job.cpp.o
+  [ 29%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/job_initialization_api.cpp.o
+  [ 29%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_expand.cpp.o
+  [ 30%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_pack_index.cpp.o
+  [ 30%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/accelerator/enqueue.cpp.o
+  [ 30%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_pack.cpp.o
+  [ 31%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/common/limited_buffer.cpp.o
+  [ 31%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/compression_units/auxiliary_units.cpp.o
+  [ 31%] Building C object sources/core-iaa/CMakeFiles/core_iaa.dir/sources/descriptors/hw_analytic_descriptor_suboperations.c.o
+  [ 31%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/common/buffer.cpp.o
+  [ 32%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_scan_i.cpp.o
+  [ 32%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_icf_finish.asm.o
+  [ 32%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_select.cpp.o
+  [ 32%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_scan.cpp.o
+  [ 33%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/compression_units/compression_units.cpp.o
+  [ 34%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_inflate_multibinary.asm.o
+  [ 34%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_setup_dictionary.cpp.o
+  [ 35%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/legacy_hw_path/qpl_hw_compress_job.cpp.o
+  [ 36%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/compression_units/stored_block_units.cpp.o
+  [ 36%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_update_histogram_01.asm.o
+  [ 37%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_select_i.cpp.o
+  [ 38%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_update_histogram_04.asm.o
+  [ 38%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/rfc1951_lookup.asm.o
+  [ 38%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/adler32_sse.asm.o
+  [ 39%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/adler32_avx2_4.asm.o
+  [ 39%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_unpack.cpp.o
+  [ 39%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_deflate_hash.asm.o
+  [ 40%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_unpack_prle.cpp.o
+  [ 41%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_set_long_icf_fg_04.asm.o
+  [ 41%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/containers/huffman_table.cpp.o
+  [ 41%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_set_long_icf_fg_06.asm.o
+  [ 42%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/legacy_hw_path/qpl_hw_inflate_job.cpp.o
+  [ 43%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/igzip/igzip_multibinary.asm.o
+  [ 43%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_xor_checksum.cpp.o
+  [ 43%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc_multibinary.asm.o
+  [ 45%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/px_zero.cpp.o
+  [ 45%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/containers/index_table.cpp.o
+  [ 46%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/other_operations/crc64.cpp.o
+  [ 46%] Building C object sources/c_api/CMakeFiles/qpl_c_api.dir/legacy_hw_path/qpl_hw_get_size.c.o
+  [ 46%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/compression_units/icf_units.cpp.o
+  [ 47%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_gzip_refl_by8.asm.o
+  [ 47%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/legacy_hw_path/qpl_hw_submit_job.cpp.o
+  [ 47%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_gzip_refl_by16_10.asm.o
+  [ 47%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_gzip_refl_by8_02.asm.o
+  [ 47%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/serialization/huffman_table_serialization.cpp.o
+  [ 49%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_ieee_01.asm.o
+  [ 49%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/deflate.cpp.o
+  [ 49%] Building CXX object sources/c_api/CMakeFiles/qpl_c_api.dir/utils_api.cpp.o
+  [ 49%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_ieee_02.asm.o
+  [ 50%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/streams/compression_stream.cpp.o
+  [ 50%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/histogram.cpp.o
+  [ 51%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_aggregates.cpp.o
+  [ 51%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_ieee_by4.asm.o
+  [ 52%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_crc64.cpp.o
+  [ 52%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/streams/compression_stream_builder.cpp.o
+  [ 52%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_deflate_fix.cpp.o
+  [ 53%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/streams/sw_compression_stream.cpp.o
+  [ 54%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_ieee_by16_10.asm.o
+  [ 54%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_expand.cpp.o
+  [ 55%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/dictionary/dictionary_utils.cpp.o
+  [ 55%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/deflate/utils/huffman_table_utils.cpp.o
+  [ 55%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_only/huffman_only_compression.cpp.o
+  [ 55%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_only/huffman_only_decompression.cpp.o
+  [ 55%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_deflate.cpp.o
+  [ 56%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_only/huffman_only_units.cpp.o
+  [ 56%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_extract.cpp.o
+  [ 56%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_table/deflate_huffman_table.cpp.o
+  [ 57%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_table/huffman_table.cpp.o
+  [ 58%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_table/huffman_table_utils.cpp.o
+  [ 58%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_extract_i.cpp.o
+  [ 58%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_memory_copy.cpp.o
+  [ 59%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_move.cpp.o
+  [ 60%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_pack.cpp.o
+  [ 60%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_iscsi_00.asm.o
+  [ 61%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_table/inflate_huffman_table.cpp.o
+  [ 62%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_iscsi_by16_10.asm.o
+  [ 62%] Building ASM_NASM object sources/isal/CMakeFiles/isal_asm.dir/crc/crc32_iscsi_01.asm.o
+  [ 63%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_pack_index.cpp.o
+  [ 63%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_scan.cpp.o
+  [ 63%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_scan_i.cpp.o
+  [ 63%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/huffman_table/serialization_utils.cpp.o
+  [ 64%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_select.cpp.o
+  [ 65%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/inflate/deflate_body_decompression.cpp.o
+  [ 65%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/inflate/deflate_header_decompression.cpp.o
+  [ 66%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_setup_dictionary.cpp.o
+  [ 66%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/inflate/inflate.cpp.o
+  [ 67%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/inflate/isal_kernels_wrappers.cpp.o
+  [ 67%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_select_i.cpp.o
+  [ 67%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/multitask/multi_task.cpp.o
+  [ 68%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/stream_decorators/gzip_decorator.cpp.o
+  [ 68%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_unpack.cpp.o
+  [ 68%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_xor_checksum.cpp.o
+  [ 69%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_unpack_prle.cpp.o
+  [ 69%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/stream_decorators/zlib_decorator.cpp.o
+  [ 70%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/verification/verification_units.cpp.o
+  [ 71%] Building CXX object sources/core-sw/CMakeFiles/qplcore_sw_dispatcher.dir/generated/avx512_zero.cpp.o
+  [ 71%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/compression/verification/verify.cpp.o
+  [ 71%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/dispatcher/hw_device.cpp.o
+  [ 72%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/dispatcher/hw_dispatcher.cpp.o
+  [ 72%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/dispatcher/hw_queue.cpp.o
+  [ 72%] Built target isal_asm
+  [ 73%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/other/crc.cpp.o
+  [ 73%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/util/awaiter.cpp.o
+  [ 74%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/util/checksum.cpp.o
+  [ 74%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/util/indexing.cpp.o
+  [ 75%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/util/library_version.cpp.o
+  [ 75%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/util/multi_descriptor_processing.cpp.o
+  [ 75%] Building CXX object sources/middle-layer/CMakeFiles/middle_layer_lib.dir/util/topology.cpp.o
+  yes
+  checking build system type... [ 75%] Built target core_iaa
+  x86_64-unknown-linux-gnu
+  checking host system type... x86_64-unknown-linux-gnu
+  checking for boostlib >= 1.14... yes
+  checking libudev.h usability... yes
+  checking libudev.h presence... yes
+  checking for libudev.h... yes
+  checking for libudev... yes
+  checking for nasm... yes
+  checking fcntl.h usability... yes
+  checking fcntl.h presence... yes
+  checking for fcntl.h... yes
+  checking limits.h usability... yes
+  checking limits.h presence... yes
+  checking for limits.h... yes
+  checking stddef.h usability... yes
+  checking stddef.h presence... yes
+  checking for stddef.h... yes
+  checking for stdint.h... (cached) yes
+  checking for stdlib.h... (cached) yes
+  checking for string.h... (cached) yes
+  checking sys/ioctl.h usability... yes
+  checking sys/ioctl.h presence... yes
+  checking for sys/ioctl.h... yes
+  checking sys/param.h usability... yes
+  checking sys/param.h presence... yes
+  checking for sys/param.h... yes
+  checking sys/time.h usability... yes
+  checking sys/time.h presence... yes
+  checking for sys/time.h... yes
+  checking syslog.h usability... yes
+  checking syslog.h presence... yes
+  checking for syslog.h... yes
+  checking for unistd.h... (cached) yes
+  checking utmpx.h usability... yes
+  checking utmpx.h presence... yes
+  checking for utmpx.h... yes
+  checking for stdbool.h that conforms to C99... yes
+  checking for _Bool... yes
+  checking for inline... inline
+  checking for int16_t... [ 75%] Built target qplcore_sw_dispatcher
+  yes
+  checking for int32_t... yes
+  checking for int64_t... yes
+  checking for int8_t... yes
+  checking for pid_t... yes
+  checking for C/C++ restrict keyword... __restrict
+  checking for size_t... yes
+  checking for ssize_t... yes
+  checking for uint16_t... yes
+  checking for uint32_t... yes
+  checking for uint64_t... yes
+  checking for uint8_t... yes
+  checking for stdlib.h... (cached) yes
+  checking for GNU libc compatible malloc... yes
+  checking for stdlib.h... (cached) yes
+  checking for unistd.h... (cached) yes
+  checking for sys/param.h... (cached) yes
+  checking for getpagesize... yes
+  checking for working mmap... yes
+  checking for alarm... yes
+  checking for getpagesize... (cached) yes
+  checking for gettimeofday... yes
+  checking for memmove... [ 75%] Built target middle_layer_lib
+  [ 75%] Built target qpl_c_api
+  [ 75%] Built target isal
+  [ 75%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/checksums/qplc_checksum.c.o
+  [ 76%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/compression/deflate_hash_table.c.o
+  [ 77%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/compression/deflate_slow.c.o
+  [ 77%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/compression/deflate_histogram.c.o
+  [ 77%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/compression/deflate_slow_icf.c.o
+  [ 77%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/compression/deflate_slow_matcher.c.o
+  [ 78%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/checksums/qplc_checksum.c.o
+  [ 78%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/compression/deflate_slow_utils.c.o
+  [ 78%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/compression/deflate_hash_table.c.o
+  [ 79%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_expand.c.o
+  [ 79%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_aggregates.c.o
+  [ 80%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/compression/deflate_histogram.c.o
+  [ 80%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_extract.c.o
+  [ 80%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/compression/deflate_slow.c.o
+  [ 81%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_16u.c.o
+  [ 81%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_32u.c.o
+  [ 82%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/compression/deflate_slow_matcher.c.o
+  [ 82%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/compression/deflate_slow_icf.c.o
+  [ 84%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/compression/deflate_slow_utils.c.o
+  [ 84%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_8u.c.o
+  yes
+  [ 84%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_be_16u.c.o
+  [ 84%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_expand.c.o
+  [ 84%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_aggregates.c.o
+  [ 84%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_be_32u.c.o
+  [ 85%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_16u.c.o
+  [ 85%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_extract.c.o
+  [ 86%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_be_8u.c.o
+  [ 86%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_be_idx.c.o
+  [ 87%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_pack_idx.c.o
+  [ 87%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_scan.c.o
+  [ 88%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_32u.c.o
+  [ 88%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_unpack_32u.c.o
+  [ 89%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_select.c.o
+  [ 89%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_unpack_16u.c.o
+  [ 89%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_8u.c.o
+  [ 89%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_unpack_be_16u.c.o
+  [ 90%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_unpack_8u.c.o
+  [ 91%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_be_16u.c.o
+  [ 92%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_unpack_be_32u.c.o
+  [ 93%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_unpack_prle.c.o
+  [ 93%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_idx.c.o
+  [ 93%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/filtering/qplc_unpack_be_8u.c.o
+  checking for memset... [ 94%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_scan.c.o
+  [ 94%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_be_idx.c.o
+  [ 95%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_select.c.o
+  [ 95%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_unpack_16u.c.o
+  [ 95%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_be_32u.c.o
+  [ 95%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_unpack_32u.c.o
+  [ 96%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_pack_be_8u.c.o
+  [ 97%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_unpack_8u.c.o
+  [ 98%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_unpack_be_8u.c.o
+  [ 98%] Building C object sources/core-sw/CMakeFiles/qplcore_px.dir/src/other/qplc_memop.c.o
+  [ 98%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_unpack_prle.c.o
+  [ 98%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_unpack_be_16u.c.o
+  [ 98%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/filtering/qplc_unpack_be_32u.c.o
+  [ 99%] Building C object sources/core-sw/CMakeFiles/qplcore_avx512.dir/src/other/qplc_memop.c.o
+  yes
+  checking for mkdir... yes
+  checking for munmap... yes
+  checking for rmdir... yes
+  checking for select... yes
+  checking for strerror... yes
+  checking for strtol... yes
+  checking for strtoul... yes
+  checking for strtoull... yes
+  checking for kernel sources... yes
+  ./configure: line 9289: lspci: command not found
+  checking that generated files are newer than configure... done
+  configure: creating ./config.status
+  config.status: creating Makefile
+  config.status: creating config.h
+  config.status: executing depfiles commands
+
+  ============================================================================
+  Type make followed by make install to build QAT with the following options
+  ============================================================================
+      ICP_ROOT [/home/pese/qiuyu/intel-accel-for-llm-1119/_build/qat]
+      ICP_ARCH_USER [x86_64]
+      ICP_BUILDSYSTEM_PATH [/home/pese/qiuyu/intel-accel-for-llm-1119/_build/qat/quickassist/build_system]
+      ICP_BUILD_OUTPUT [/home/pese/qiuyu/intel-accel-for-llm-1119/_build/qat/build]
+      ICP_ENV_DIR [/home/pese/qiuyu/intel-accel-for-llm-1119/_build/qat/quickassist/build_system/build_files/env_files]
+      ICP_TOOLS_TARGET [accelcomp]
+      MAX_MR [50]
+      KERNEL_SOURCE_ROOT [/usr/src/linux-headers-6.8.0-71-generic]
+      ICP_DEBUG [false]
+      ICP_PARAM_CHECK [false]
+      ICP_DC_DYN_NOT_SUPPORTED [false]
+      DISABLE_STATS [false]
+      ICP_LOG_SYSLOG [false]
+      ICP_NONBLOCKING_PARTIALS_PERFORM [false]
+      ICP_TRACE [false]
+      ICP_ASYM_ONLY [false]
+      ICP_SYM_ONLY [false]
+      ICP_DC_ONLY [false]
+      ICP_DC_RETURN_COUNTERS_ON_ERROR [false]
+      ICP_DISABLE_INLINE [false]
+      KPT_ENABLED [false]
+      ICP_ENABLE_LEGACY_ALGO [false]
+      ICP_THREAD_SPECIFIC_USDM [false]
+      QAE_USE_128K_SLABS [false]
+      ICP_WITHOUT_QP_SUBMISSION_LOCK [false]
+  ============================================================================
+
+  Cleaning qat_direct
+  Removing derived objects...
+  [ 99%] Built target qplcore_px
+
+  Cleaning qat_kernel
+  Removing derived objects...
+
+  Cleaning common memory driver
+  Removing derived objects...
+  Removing derived objects...
+
+  Cleaning OSAL
+  Removing derived objects...
+
+  linux/user_space :
+  Removing derived objects...
+  Removing derived objects...
+
+  linux/kernel_space :
+  [ 99%] Built target qplcore_avx512
+  [100%] Linking CXX shared library libqpl.so
+  [100%] Built target qpl
+  Removing derived objects...
+
+  Cleaning LAC
+  -- Install configuration: "Release"
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/cmake/QPL/QPLTargets.cmake
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/cmake/QPL/QPLTargets-release.cmake
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/cmake/QPL/QPLConfig.cmake
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/cmake/QPL/QPLConfigVersion.cmake
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/libqpl.so.1.9.0
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/libqpl.so.1
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/libqpl.so
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/qpl.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/statistics.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/defs.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/huffman_table.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/project_version.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/dictionary.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/job.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/index_table.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/utility.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/version.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/status.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/triplet.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/include/qpl/c_api/serialization.h
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/lib/pkgconfig/qpl.pc
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n4d1e1w-s-n1.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n4d1e1w-s-n2.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n1d8e1w-s-n2.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n4d8e1w-s-n1.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n3d8e1w-s-n2.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/2n4d8e1w-s.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n3d8e1w-s-n1.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/2n1d8e1w-s.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/2n3d8e1w-s.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/2n2d8e1w-s.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n2d8e1w-s-n2.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n1d1e1w-s-n1.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n1d8e1w-s-n1.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n2d8e1w-s-n1.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n4d8e1w-s-n2.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/2n1d1e1w-s.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/configs/1n1d1e1w-s-n2.conf
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/scripts
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/scripts/accel_conf.py
+  -- Installing: /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qpl/install/share/QPL/scripts/accel_conf.sh
+  [  9%] Built target qpl_userspace_libs
+  Removing derived objects...
+
+  common/utils :
+  Removing derived objects...
+
+  common/ctrl :
+  Removing derived objects...
+
+  common/compression :
+  Removing derived objects...
+
+  common/crypto/sym :
+  Removing derived objects...
+
+  common/crypto/sym/qat :
+  Removing derived objects...
+
+  common/crypto/sym/key :
+  Removing derived objects...
+
+  common/crypto/asym/pke_common :
+  Removing derived objects...
+
+  common/crypto/asym/diffie_hellman :
+  Removing derived objects...
+
+  common/crypto/asym/rsa :
+  Removing derived objects...
+
+  common/crypto/asym/dsa :
+  Removing derived objects...
+
+  common/crypto/asym/prime :
+  Removing derived objects...
+
+  common/crypto/asym/large_number :
+  Removing derived objects...
+
+  common/crypto/asym/ecc :
+  Removing derived objects...
+
+  common/crypto/kpt/provision :
+  Removing derived objects...
+
+  common/crypto/kpt/crypto :
+  Removing derived objects...
+
+  common/qat_comms :
+  Removing derived objects...
+
+  device :
+  Removing derived objects...
+
+  user/ :
+  Removing derived objects...
+  Removing derived objects...
+
+  common/utils :
+  Removing derived objects...
+
+  common/ctrl :
+  Removing derived objects...
+
+  common/compression :
+  Removing derived objects...
+
+  common/crypto/sym :
+  Removing derived objects...
+
+  common/crypto/sym/qat :
+  Removing derived objects...
+
+  common/crypto/sym/key :
+  Removing derived objects...
+
+  common/crypto/asym/pke_common :
+  Removing derived objects...
+
+  common/crypto/asym/diffie_hellman :
+  Removing derived objects...
+
+  common/crypto/asym/rsa :
+  Removing derived objects...
+
+  common/crypto/asym/dsa :
+  Removing derived objects...
+
+  common/crypto/asym/prime :
+  Removing derived objects...
+
+  common/crypto/asym/large_number :
+  Removing derived objects...
+
+  common/crypto/asym/ecc :
+  Removing derived objects...
+
+  common/crypto/kpt/provision :
+  Removing derived objects...
+
+  common/crypto/kpt/crypto :
+  Removing derived objects...
+
+  common/qat_comms :
+  Removing derived objects...
+
+  Cleaning Binaries in Output Dir
+  Cleaning done
+
+  Building OSAL for user space
+
+  Building common mem driver for user space
+  Removing derived objects...
+
+  linux/user_space :
+  Removing derived objects...
+  Creating output directory
+  Removing derived objects...
+
+  linux/user_space :
+  Creating output directory
+  Creating output directory
+  ar: creating libusdm_drv.a
+
+  Copying Common mem library
+  ar: creating libosal.a
+
+  Copying OSAL library
+
+  Building qat_direct for user space
+  Creating output directory
+  ar: creating libadf_user.a
+
+  Copying qat_direct library
+
+  Building LAC in user space
+  Entering Directory common/utils
+  Entering Directory common/ctrl
+  Entering Directory common/compression
+  Entering Directory common/crypto/sym
+  Entering Directory common/crypto/sym/qat
+  Entering Directory common/crypto/sym/key
+  Entering Directory common/crypto/asym/pke_common
+  Entering Directory common/crypto/asym/diffie_hellman
+  Entering Directory common/crypto/asym/rsa
+  Entering Directory common/crypto/asym/dsa
+  Entering Directory common/crypto/asym/prime
+  Entering Directory common/crypto/asym/large_number
+  Entering Directory common/crypto/asym/ecc
+  Entering Directory common/crypto/kpt/provision
+  Entering Directory common/crypto/kpt/crypto
+  Entering Directory common/qat_comms
+  Entering Directory device
+  Entering Directory user/
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  ar: creating diffie_hellman.a
+  ar: creating dsa.a
+  ar: creating kptcycomm.a
+  ar: creating qat_comms.a
+  ar: creating pke_common.a
+  ar: creating device_info.a
+  ar: creating kptpro.a
+  ar: creating sym_key.a
+  ar: creating user.a
+  ar: creating sym_qat.a
+  ar: creating utils.a
+  ar: creating rsa.a
+  ar: creating prime.a
+  ar: creating ln.a
+  ar: creating sym.a
+  ar: creating compression.a
+  ar: creating elliptic_curve.a
+  ar: creating init.a
+  ar: creating libqat.a
+  ar r libqat.a crc32_gzip_refl_by8.o crc64_ecma_norm_by8.o dc_buffers.o dc_chain.o dc_crc32.o dc_crc64.o dc_datapath.o dc_dp.o dc_header_cksum_lz4.o dc_header_footer.o dc_header_footer_lz4.o dc_ns_datapath.o dc_ns_header_footer.o dc_session.o dc_stats.o dev_info.o icp_sal_dc_err_sim.o lac_buffer_desc.o lac_dh_control_path.o lac_dh_data_path.o lac_dh_interface_check.o lac_dh_stats.o lac_dsa.o lac_dsa_interface_check.o lac_ec.o lac_ec_common.o lac_ec_montedwds.o lac_ec_nist_curves.o lac_ecdh.o lac_ecdsa.o lac_ecsm2.o lac_kpt_crypto_qat_comms.o lac_kpt_ecdsa.o lac_kpt_pro_qat_comms.o lac_kpt_provision.o lac_kpt_rsa_decrypt.o lac_ln.o lac_ln_interface_check.o lac_log_message.o lac_mem.o lac_mem_pools.o lac_pke_mmp.o lac_pke_qat_comms.o lac_pke_utils.o lac_prime.o lac_prime_interface_check.o lac_rsa.o lac_rsa_control_path.o lac_rsa_decrypt.o lac_rsa_encrypt.o lac_rsa_interface_check.o lac_rsa_keygen.o lac_rsa_stats.o lac_sw_responses.o lac_sym_alg_chain.o lac_sym_api.o lac_sym_auth_enc.o lac_sym_cb.o lac_sym_cipher.o lac_sym_compile_check.o lac_sym_dp.o lac_sym_hash.o lac_sym_hash_sw_precomputes.o lac_sym_key.o lac_sym_partial.o lac_sym_qat.o lac_sym_qat_cipher.o lac_sym_qat_constants_table.o lac_sym_qat_hash.o lac_sym_qat_hash_defs_lookup.o lac_sym_qat_key.o lac_sym_queue.o lac_sym_stats.o lac_sync.o sal_compression.o sal_create_services.o sal_crypto.o sal_ctrl_services.o sal_dc_chain.o sal_get_instances.o sal_list.o sal_misc_error_stats.o sal_qat_cmn_msg.o sal_service_state.o sal_statistics.o sal_string_parse.o sal_user.o sal_user_process.o sal_user_sla.o sal_user_tl.o sal_versions.o
+  Entering Directory common/utils
+  Entering Directory common/ctrl
+  Entering Directory common/compression
+  Entering Directory common/crypto/sym
+  Entering Directory common/crypto/sym/qat
+  Entering Directory common/crypto/sym/key
+  Entering Directory common/crypto/asym/pke_common
+  Entering Directory common/crypto/asym/diffie_hellman
+  Entering Directory common/crypto/asym/rsa
+  Entering Directory common/crypto/asym/dsa
+  Entering Directory common/crypto/asym/prime
+  Entering Directory common/crypto/asym/large_number
+  Entering Directory common/crypto/asym/ecc
+  Entering Directory common/crypto/kpt/provision
+  Entering Directory common/crypto/kpt/crypto
+  Entering Directory common/qat_comms
+  Entering Directory device
+  Entering Directory user/
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  Creating output directory
+  ld -z noexecstack -z relro -z now -shared -soname libqat_s.so -o libqat_s.so  /home/pese/qiuyu/intel-accel-for-llm-1119/_build/qat/build/libusdm_drv_s.so *.o -lpthread -ludev                 -Bstatic -L/home/pese/qiuyu/intel-accel-for-llm-1119/_build/qat/quickassist/lookaside/access_layer/src/qat_direct///src/build/linux_2.6/user_space -ladf_user -L/home/pese/qiuyu/intel-accel-for-llm-1119/_build/qat/quickassist/utilities/osal/src/build/linux_2.6/user_space/ -losal -Bdynamic -lc
+  Build Done
+  [  9%] Built target qat_userspace_libs
+  [ 22%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/torch_ext/zip.cpp.o
+  [ 22%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/torch_ext/xfer.cpp.o
+  [ 22%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/torch_ext/torch_ext.cpp.o
+  [ 31%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/mem.cpp.o
+  [ 31%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/pool.cpp.o
+  [ 36%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/record.cpp.o
+  [ 45%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/storage.cpp.o
+  [ 45%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_zip/kv_zip.cpp.o
+  [ 50%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_zip/lossy.cpp.o
+  [ 54%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/qat_zip/qat_zip.c.o
+  [ 59%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/cpu_zip/cpu_zip.c.o
+  [ 63%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/iaa_zip/iaa_zip.c.o
+  [ 68%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/common/envs.c.o
+  [ 72%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/common/parallel.cpp.o
+  [ 77%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_xfer/cuda.cpp.o
+  [ 81%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_xfer/dsa.cpp.o
+  [ 86%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/dsa_gd/dsa_gd.c.o
+  [ 90%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/dsa_gd/dsa_memcpy.c.o
+  [ 95%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_xfer/rdma.cpp.o
+  [100%] Linking CXX shared module /home/pese/qiuyu/intel-accel-for-llm-1119/iaxl/torch_ext.cpython-312-x86_64-linux-gnu.so
+  [100%] Built target torch_ext
+  Editable install will be performed using a meta path finder.
+
+  Options like `package-data`, `include/exclude-package-data` or
+  `packages.find.exclude/include` may have no effect.
+
+  [INFO] CMake command: cmake -DCMAKE_BUILD_TYPE=Release -DCXX11_ABI=1 -DCMAKE_PREFIX_PATH=/usr/local/lib/python3.12/dist-packages/torch/share/cmake;/usr/local/lib/python3.12/dist-packages/pybind11/share/cmake/pybind11 -DDEVICE=cuda -DIAXL_PROJECT_VERSION=1.6.0 /home/pese/qiuyu/intel-accel-for-llm-1119
+  adding '__editable___iaxl_1_6_0_finder.py'
+  adding '__editable__.iaxl-1.6.0.pth'
+  creating '/tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpfpzh8bzb/.tmp-at019rwz/iaxl-1.6.0-0.editable-cp312-cp312-linux_x86_64.whl' and adding '/tmp/tmpyhdoklu9iaxl-1.6.0-0.editable-cp312-cp312-linux_x86_64.whl' to it
+  adding 'iaxl-1.6.0.dist-info/METADATA'
+  adding 'iaxl-1.6.0.dist-info/WHEEL'
+  adding 'iaxl-1.6.0.dist-info/entry_points.txt'
+  adding 'iaxl-1.6.0.dist-info/top_level.txt'
+  adding 'iaxl-1.6.0.dist-info/RECORD'
+  /usr/local/lib/python3.12/dist-packages/setuptools/command/editable_wheel.py:352: InformationOnly: Editable installation.
+  !!
+
+          ********************************************************************************
+          Please be careful with folders in your working directory with the same
+          name as your package as they may take precedence during imports.
+          ********************************************************************************
+
+  !!
+    with strategy, WheelFile(wheel_path, "w") as wheel_obj:
+  Building editable for iaxl (pyproject.toml) ... [?25l[?25hdone
+  Created wheel for iaxl: filename=iaxl-1.6.0-0.editable-cp312-cp312-linux_x86_64.whl size=2958 sha256=ca854bf0acc54a4a70c7827fe662349002987c4f6d8db4f0d9964345186c0557
+  Stored in directory: /tmp/pip-ephem-wheel-cache-omgahcms/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af
+Successfully built iaxl
+Installing collected packages: iaxl
+Successfully installed iaxl-1.6.0
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.1[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpython3.12 -m pip install --upgrade pip[0m
+[?2004h]0;root@h8263-6000d: /home/pese/qiuyu/intel-accel-for-llm-1119root@h8263-6000d:/home/pese/qiuyu/intel-accel-for-llm-1119# 

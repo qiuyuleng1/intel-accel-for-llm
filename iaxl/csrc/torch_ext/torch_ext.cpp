@@ -634,6 +634,20 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
         "Stable-sort the waiting OMP-Main tasks of level `priority` by sort_key",
         py::arg("priority"), py::call_guard<py::gil_scoped_release>());
 
+#if defined(CUDA_SUPPORT) && defined(DSA_SUPPORT)
+    m.def("dsa_auto_fallback_enabled", &kv_xfer::dsa_auto_fallback_enabled,
+          "IAXL_DSA_AUTO_FALLBACK_ENABLE and IAXL_DSA_GD_ENABLE are both on");
+    // GIL released: this rank's mgmt HTTP thread must keep answering other ranks while measuring.
+    m.def("dsa_calibrate_crossover", &kv_xfer::dsa_calibrate_crossover, py::arg("device_index"),
+          "Measure DSA vs CUDA batch; returns (h2d_bytes, d2h_bytes), INT64_MAX = never fall back",
+          py::call_guard<py::gil_scoped_release>());
+    m.def("dsa_set_crossover", &kv_xfer::dsa_set_crossover, py::arg("h2d_bytes"),
+          py::arg("d2h_bytes"),
+          "Copies with contiguous block size >= the crossover use CUDA batch");
+#else
+    m.def("dsa_auto_fallback_enabled", []() { return false; });
+#endif
+
 #ifndef CPU_SUPPORT // RDMA (remote_pool) runs on NIXL, which DEVICE=cpu builds do not link
     m.def("rdma_init", &kv_xfer::rdma_init, py::arg("name"), py::arg("listen_port"),
           py::call_guard<py::gil_scoped_release>());

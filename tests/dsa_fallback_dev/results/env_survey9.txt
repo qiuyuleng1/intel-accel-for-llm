@@ -1,0 +1,92 @@
+set -uo pipefail
+REPO_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+cd "$REPO_ROOT"
+MODEL=/home/intel/model-space/Qwen3.8-27B
+CONFIGS=${CONFIGS:-"kvshrink vllm-prefix vllm-wo-prefix lmcache"}
+HIT_RATES=${HIT_RATES:-"80 95"}
+ATTENTION_BACKEND=${ATTENTION_BACKEND:-}
+DRY_RUN=${DRY_RUN:-0}
+KVSHRINK_CONTAINER=$(sed -n 's/^CONTAINER_NAME=//p' setvars.sh)
+KVSHRINK_TMUX_SESSION=${KVSHRINK_CONTAINER//./-}
+LMCACHE_IMAGE=qiuyu/vllm-openai-lmcache:v0.29.0-lmcache0.5.7
+LMCACHE_CONTAINER=iaxl.lmcache-bench
+MODEL_TAG=$(basename "$MODEL")
+if [ "$DRY_RUN" = "1" ]; then
+    RESULTS_ROOT=tests/bench_dev/results/dryrun-${MODEL_TAG}_tp4_$(date +%Y%m%d_%H%M%S)${ATTENTION_BACKEND:+_${ATTENTION_BACKEND,,}}
+else
+    RESULTS_ROOT=bench-results/${MODEL_TAG}_tp4_$(date +%Y%m%d_%H%M%S)${ATTENTION_BACKEND:+_${ATTENTION_BACKEND,,}}
+fi
+ACCEL_ENV="TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,2,4,6"
+ACCEL_ENV+=" VLLM_CPU_OMP_THREADS_BIND='0-23|24-47|48-71|72-95'"
+ACCEL_ENV+=" KVSHRINK_QAT_DEVICES='0|1|2|3' KVSHRINK_DSA_DEVICES='wq0.0|wq2.0|wq4.0|wq6.0'"
+ACCEL_ENV+=" KVSHRINK_IAA_DEVICES='0|1|2|3'"
+KVSHRINK_START_ENV=$ACCEL_ENV
+LEN_CONCURRENCY=${LEN_CONCURRENCY:-"32000:32,64,128,256,300 128000:64,80 256000:32,40"}
+BENCH_ENV="MODEL=$MODEL $ACCEL_ENV"
+BENCH_ENV+=" LEN_CONCURRENCY='$LEN_CONCURRENCY' HIT_RATES='$HIT_RATES'"
+LMCACHE_CHUNK_SIZE=784
+if [ "$ATTENTION_BACKEND" = "FLASH_ATTN" ]; then
+    LMCACHE_CHUNK_SIZE=896
+fi
+BENCH_ENV+=" MAX_MODEL_LEN=256128 LMCACHE_CHUNK_SIZE=$LMCACHE_CHUNK_SIZE"
+BENCH_ENV+=" IAXL_SCRATCH_POOL_SIZE_GB=8 IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 LMCACHE_L1_SIZE_GB=1000"
+if [ -n "${NUM_PROMPTS_BY_CONCURRENCY:-}" ]; then
+    BENCH_ENV+=" NUM_PROMPTS_BY_CONCURRENCY='$NUM_PROMPTS_BY_CONCURRENCY'"
+fi
+if [ -n "$ATTENTION_BACKEND" ]; then
+    BENCH_ENV+=" ATTENTION_BACKEND=$ATTENTION_BACKEND"
+fi
+BENCH_ENV+=" DRY_RUN=$DRY_RUN"
+mkdir -p "$RESULTS_ROOT"
+exec > >(tee -a "$RESULTS_ROOT/test-qwen38-27B.log") 2>&1
+cp "${BASH_SOURCE[0]}" "$RESULTS_ROOT/"
+source tools/bench-host-setup.sh
+run_config() {
+    local config=$1
+    local bench_cmd="CONFIGS=$config RESULTS_DIR=$RESULTS_ROOT $BENCH_ENV bash kvshrink-benchmark.sh"
+    if [ "$config" = "lmcache" ]; then
+        docker run --rm --name "$LMCACHE_CONTAINER" --gpus all --network host --ipc host \
+            -v "$REPO_ROOT:$REPO_ROOT" -v /home/intel/model-space:/home/intel/model-space -w "$REPO_ROOT" \
+            --entrypoint bash "$LMCACHE_IMAGE" -c "$bench_cmd"
+    else
+        docker exec -w "$REPO_ROOT" "$KVSHRINK_CONTAINER" bash -lc "$bench_cmd"
+    fi
+}
+echo "==========================================================="
+echo "Qwen3.8-27B test  model=$MODEL  configs=[$CONFIGS]"
+echo "  $BENCH_ENV"
+echo "  KVShrink container=$KVSHRINK_CONTAINER  LMCache image=$LMCACHE_IMAGE"
+===KB
+3:# Qwen3.8-27B serving benchmark: KVShrink and LMCache against two plain-vLLM
+6:#   kvshrink        KVShrink: QAT + IAA compression, DSA transfers, every layer
+37:# CUDA_VISIBLE_DEVICES and LEN_CONCURRENCY explicitly. kvshrink, vllm-prefix
+38:# and vllm-wo-prefix run in the KVShrink container; lmcache and
+42:#   CONFIGS="kvshrink vllm-prefix vllm-wo-prefix" RESULTS_DIR=bench-results/<name> \
+44:#       LEN_CONCURRENCY="100000:8,16,32 200000:8,16" bash kvshrink-benchmark.sh
+52:# BLOCK_SIZE (passed to vLLM as --block-size by both serve scripts),
+54:# IAXL_KVSTORE_SKIP_COMPRESSION_LAYERS (leading layers kvshrink stores uncompressed),
+56:# IAXL_CPU_ZIP_ENABLE and IAXL_DSA_GD_ENABLE (kvshrink switches, see below),
+73:CONFIGS=${CONFIGS:-"kvshrink vllm-prefix vllm-wo-prefix"}
+87:# kvshrink feature switches, read by setvars.sh inside the serve script. The
+88:# baselines load no KVShrink connector, so these do not affect them. Defaults:
+110:# caching off (bench-results/Qwen3.8-27B_tp8_20261105_094321/kvshrink/serve.log).
+112:# KVShrink DDR pool size.
+117:# BASELINE value for examples/kvshrink-vllm-serve.sh; empty selects KVShrink.
+121:        kvshrink) echo "" ;;
+126:        *) echo "Unknown config: $1 (expected kvshrink, lmcache, vllm-prefix, vllm-prefix-v033 or vllm-wo-prefix)" >&2; return 1 ;;
+132:        kvshrink|vllm-prefix|vllm-wo-prefix) echo "examples/kvshrink-vllm-serve.sh" ;;
+134:        *) echo "Unknown config: $1 (expected kvshrink, lmcache, vllm-prefix, vllm-prefix-v033 or vllm-wo-prefix)" >&2; return 1 ;;
+140:        kvshrink|lmcache|vllm-prefix|vllm-prefix-v033) echo "${HIT_RATES:-80 95 100}" ;;
+142:        *) echo "Unknown config: $1 (expected kvshrink, lmcache, vllm-prefix, vllm-prefix-v033 or vllm-wo-prefix)" >&2; return 1 ;;
+149:        kvshrink|lmcache|vllm-prefix|vllm-prefix-v033) echo 10 ;;
+151:        *) echo "Unknown config: $1 (expected kvshrink, lmcache, vllm-prefix, vllm-prefix-v033 or vllm-wo-prefix)" >&2; return 1 ;;
+200:# other configs in the KVShrink container, so one run cannot mix them.
+241:# their runs record no repo state; they must not overwrite what the KVShrink run
+249:md5sum "${BASH_SOURCE[0]}" examples/kvshrink-vllm-serve.sh examples/lmcache-vllm-serve.sh setvars.sh \
+250:    kvshrink/*.py iaxl/kvstore/*.py iaxl/kvflow/*.py > "$RESULTS_DIR/code_md5.txt"
+527:echo "  input_len:concurrencies=[$LEN_CONCURRENCY] output_len=$OUTPUT_LEN MAX_MODEL_LEN=$MAX_MODEL_LEN BLOCK_SIZE=${BLOCK_SIZE:-<vLLM default>}"
+554:        echo "    [dry-run] serve: BASELINE=$baseline MAX_MODEL_LEN=$MAX_MODEL_LEN BLOCK_SIZE=${BLOCK_SIZE:-} bash $serve_script > $serve_log"
+562:        # otherwise it uses --block-size, which the serve scripts pass from BLOCK_SIZE.
+564:            block_size=${BLOCK_SIZE:-}
+645:            if [ "$config" = "kvshrink" ]; then
+670:            if [ "$config" = "kvshrink" ]; then

@@ -103,6 +103,7 @@ __attribute__((constructor(101))) void envs_init(void) {
     envs.IAXL_CACHE_CACHEGROUP_NUM = env_int("IAXL_CACHE_CACHEGROUP_NUM", 100000);
 
     envs.IAXL_DSA_GD_ENABLE = env_bool("IAXL_DSA_GD_ENABLE", 0);
+    envs.IAXL_DSA_AUTO_FALLBACK_ENABLE = env_bool("IAXL_DSA_AUTO_FALLBACK_ENABLE", 1);
 
     envs.IAXL_DEBUG_LOG = env_bool("IAXL_DEBUG_LOG", 0);
     envs.IAXL_PROFILE_MODE = env_str("IAXL_PROFILE_MODE", "disabled");

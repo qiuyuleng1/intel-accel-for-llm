@@ -12,6 +12,7 @@ import numpy as np
 from typing import Dict, List, Mapping, Optional, Set, TYPE_CHECKING, Union, cast
 import psutil
 from ..envs import envs
+from .. import torch_ext as _iqt
 from ..kvflow import KVFlow, Task, get_accelerator_device
 from ..remote_pool.remote_tensor import RemoteTensor
 from ..utils.profiler import (
@@ -26,6 +27,7 @@ from .api import (
     register as mgmt_register,
     start_mgmt_server,
     stop_mgmt_server,
+    wait_for_worker,
 )
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,16 @@ logger = logging.getLogger(__name__)
 def _get_default_cache_size_gb() -> float:
     available_bytes = psutil.virtual_memory().available
     return available_bytes / (10 * 1024**3)
+
+
+_INT64_MAX = 2**63 - 1
+
+
+def _format_crossover(nbytes: int) -> str:
+    # dsa_calibrate_crossover returns INT64_MAX when DSA beats CUDA batch at every block size.
+    if nbytes == _INT64_MAX:
+        return "no crossover (all copies use DSA)"
+    return f"{nbytes // 1024} KB"
 
 
 def _abort_on_error(fn):
@@ -187,6 +199,10 @@ class KVStoreLocal:
         self._mgmt_server = start_mgmt_server(
             role=role, rank=self.rank, num_workers=self.tp_size
         )
+        if role == "worker" and _iqt.dsa_auto_fallback_enabled():
+            first_tensor = next(iter(self.kv_caches.values()))
+            if first_tensor.is_cuda:
+                self._calibrate_dsa_crossover(first_tensor.device.index)
         if role == "controller":
             self._controller = cast(ControllerServer, self._mgmt_server)
             # Workers start with an empty DDR pool: every row already in the DB is disk-only.
@@ -464,6 +480,40 @@ class KVStoreLocal:
             zip_bytes / gib, zip_bytes / ratio / gib if ratio else 0.0, ratio,
             "on" if self._evict_enabled else "off", st["evictions"],
             st["host_mem_used_bytes"] / gib, st["host_mem_total_bytes"] / gib,
+        )
+
+    def _calibrate_dsa_crossover(self, device_index: int) -> None:
+        # All TP ranks measure together like real TP copies; all use the first rank's result.
+        tp_group_first_rank = self.rank - self.rank % self.tp_size
+        wait_start = time.monotonic()
+        deadline = wait_start + envs.IAXL_API_TIMEOUT
+        for tp_rank in range(self.tp_size):
+            wait_for_worker(tp_group_first_rank + tp_rank, "/v1/health", deadline)
+        measure_start = time.monotonic()
+        h2d_crossover, d2h_crossover = _iqt.dsa_calibrate_crossover(device_index)
+        measure_end = time.monotonic()
+        if self.rank == tp_group_first_rank:
+            crossover = {"h2d": h2d_crossover, "d2h": d2h_crossover}
+            mgmt_register("GET", "/v1/dsa/crossover", lambda params, c=crossover: c)
+        else:
+            crossover = wait_for_worker(
+                tp_group_first_rank,
+                "/v1/dsa/crossover",
+                measure_end + envs.IAXL_API_TIMEOUT,
+            )
+        result_received = time.monotonic()
+        _iqt.dsa_set_crossover(crossover["h2d"], crossover["d2h"])
+        logger.info(
+            "[rank%d] DSA crossover measured by rank %d: H2D %s, D2H %s | "
+            "wait for TP ranks %.2fs, measure %.2fs, wait for rank %d result %.2fs",
+            self.rank,
+            tp_group_first_rank,
+            _format_crossover(crossover["h2d"]),
+            _format_crossover(crossover["d2h"]),
+            measure_start - wait_start,
+            measure_end - measure_start,
+            tp_group_first_rank,
+            result_received - measure_end,
         )
 
     def status(self) -> dict:

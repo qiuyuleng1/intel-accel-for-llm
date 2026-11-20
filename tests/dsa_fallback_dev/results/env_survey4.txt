@@ -1,0 +1,138 @@
+#!/bin/bash -e
+# Usage: kvstore_benchmark.sh [--ranks N] [--qat] [--iaa] [--dsa] [--nsys] [kvstore_benchmark.py options]
+#   --qat / --iaa select the compression engines (none -> compression off); --dsa enables DSA gather/scatter.
+
+export IAXL_CPU_ZIP_ENABLE=0
+export IAXL_KVSTORE_SKIP_COMPRESSION_LAYERS=0
+export IAXL_DDR_POOL_SIZE_GB=32
+
+RANKS=1
+USE_QAT=0
+USE_IAA=0
+USE_DSA=0
+USE_NSYS=0
+PY_ARGS=()
+
+while (($#)); do
+    case "$1" in
+        --ranks) RANKS=$2; shift 2 ;;
+        --ranks=*) RANKS=${1#--ranks=}; shift ;;
+        --qat) USE_QAT=1; shift ;;
+        --iaa) USE_IAA=1; shift ;;
+        --dsa) USE_DSA=1; shift ;;
+        --nsys) USE_NSYS=1; shift ;;
+        *) PY_ARGS+=("$1"); shift ;;
+    esac
+done
+if ((!USE_QAT && !USE_IAA)); then
+    echo -e "\033[31mWARNING: neither --qat nor --iaa given, running with compression disabled\033[0m" >&2
+    export IAXL_KV_COMPRESSION=0
+fi
+export IAXL_QAT_ZIP_ENABLE=$USE_QAT
+export IAXL_IAA_ZIP_ENABLE=$USE_IAA
+export IAXL_DSA_GD_ENABLE=$USE_DSA
+export TP_SIZE=$RANKS
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../setvars.sh"
+
+export LD_PRELOAD="$IAXL_LD_PRELOAD${LD_PRELOAD:+:$LD_PRELOAD}"
+
+# Each rank process binds its own CPUs / accelerators via iaxl.utils.affinity.
+BENCH=(python3 "$SCRIPT_DIR/kvstore_benchmark_multi_ranks.py" "${PY_ARGS[@]}")
+
+if [[ "$USE_NSYS" == "1" ]]; then
+    export IAXL_PROFILE_MODE=nvtx
+    export VLLM_NVTX_SCOPES_FOR_PROFILING=1
+
+    rm -f /_data/nsys_report*
+
+    nsys profile -o /_data/nsys_report \
+        -t cuda,nvtx,nccl,python-gil,osrt \
+        --python-sampling=true \
+        --python-backtrace=cuda \
+        --trace-fork-before-exec=true \
+        "${BENCH[@]}"
+else
+    "${BENCH[@]}"
+fi
+===MR
+11:and its own KVStore(rank=r). Timed steps start simultaneously on all ranks and
+43:def worker(rank, tp_size, gpu, args, conn, barrier) -> None:
+49:    bind_cpu_affinity(rank, tp_size, os.getenv("VLLM_CPU_OMP_THREADS_BIND"))
+64:    logger.info("Bound rank %d to GPU %s (%s)", rank, gpu, torch.cuda.get_device_name(0))
+65:    bench = RankBenchmark(args, rank, tp_size)
+97:def schedule(kb, tp_size: int, conns: list) -> bool:
+98:    def call(step: str, ranks=range(tp_size)) -> list:
+113:    call("setup", range(1, tp_size))
+133:    for rank in range(tp_size):
+160:        total_blocks * tp_size,
+161:        total_bytes * tp_size,
+162:        title=f"Aggregate over {tp_size} ranks (wall time = slowest rank)",
+168:    tp_size = int(os.environ.get("TP_SIZE", "1"))
+171:    gpu_count = torch.cuda.device_count()
+172:    if gpu_count < tp_size:
+173:        sys.exit(f"TP_SIZE={tp_size} needs {tp_size} GPUs, but only {gpu_count} are visible")
+182:    barrier = ctx.Barrier(tp_size, timeout=600)
+184:    for rank in range(tp_size):
+188:            args=(rank, tp_size, gpus[rank], args, child_conn, barrier),
+196:        verified = schedule(kb, tp_size, conns)
+===KB
+35:from iaxl.kvstore import KVStore, get_accelerator_device
+49:BLOCK_DIM = 1
+222:    generator = torch.Generator(device="cuda").manual_seed(SEED)
+226:        device="cuda",
+231:        device="cuda",
+236:        device="cuda",
+239:    token_positions = torch.linspace(-1.0, 1.0, block_tokens, device="cuda").view(
+250:        device="cuda",
+258:            device="cuda",
+320:        device_map="cuda",
+466:        self.rank = rank
+467:        self.tp_size = tp_size
+504:            device="cuda",
+513:            block_dim=BLOCK_DIM,
+514:            rank=self.rank,
+515:            tp_size=self.tp_size,
+631:    if get_accelerator_device() != "cuda":
+632:        print("No CUDA device available; KVStore benchmark cannot run.")
+654:def main() -> int:
+658:if __name__ == "__main__":
+===SETVARS_DSA
+        export KVSHRINK_QAT_DEVICES # Per-rank QAT device indices
+        ;;
+    *)
+        unset KVSHRINK_QAT_DEVICES
+        ;;
+esac
+case "${IAXL_DSA_GD_ENABLE,,}" in
+    1|true|yes|on)
+        KVSHRINK_DSA_DEVICES="${KVSHRINK_DSA_DEVICES:-$(dsa_auto_detect "$NUM_WORKERS")}" || return 1 2>/dev/null || exit 1
+        export KVSHRINK_DSA_DEVICES # Per-rank DSA work queues
+        export IAXL_DSA_WQS="${IAXL_DSA_WQS:-${KVSHRINK_DSA_DEVICES%%|*}}" # Use rank 0 DSA work queues by default
+        ;;
+    *)
+        unset KVSHRINK_DSA_DEVICES
+        ;;
+esac
+
+printf '%s\n' \
+    "vLLM configuration:" \
+    "  MODEL=$MODEL" \
+    "  TP_SIZE=$TP_SIZE" \
+    "  DP_SIZE=$DP_SIZE" \
+    "  IAXL_KV_COMPRESSION=$IAXL_KV_COMPRESSION" \
+    "  IAXL_QAT_ZIP_ENABLE=$IAXL_QAT_ZIP_ENABLE" \
+    "  IAXL_IAA_ZIP_ENABLE=$IAXL_IAA_ZIP_ENABLE" \
+    "  IAXL_CPU_ZIP_ENABLE=$IAXL_CPU_ZIP_ENABLE" \
+    "  IAXL_DSA_GD_ENABLE=$IAXL_DSA_GD_ENABLE" \
+    "  VLLM_CPU_OMP_THREADS_BIND=$VLLM_CPU_OMP_THREADS_BIND" \
+    "  KVSHRINK_CPU_OMP_THREADS_BIND=$KVSHRINK_CPU_OMP_THREADS_BIND" \
+    "  KVSHRINK_QAT_DEVICES=${KVSHRINK_QAT_DEVICES:-disabled}" \
+    "  KVSHRINK_DSA_DEVICES=${KVSHRINK_DSA_DEVICES:-disabled}" \
+69:export TP_SIZE="${TP_SIZE:-$IAXL_DEFAULT_TP_SIZE}" # Tensor-parallel worker count (default 2, in tools/auto_config.sh)
+90:        export IAXL_DSA_WQS="${IAXL_DSA_WQS:-${KVSHRINK_DSA_DEVICES%%|*}}" # Use rank 0 DSA work queues by default
+100:    "  TP_SIZE=$TP_SIZE" \
+205:export IAXL_DSA_WQS=${IAXL_DSA_WQS:-wq0.0}                             # Comma/space separated DSA work-queue names
+223:export IAXL_RDMA_TP_SIZE=${IAXL_RDMA_TP_SIZE:-$TP_SIZE}       # Daemon rank process count (must equal client TP)
+245:    TP_SIZE

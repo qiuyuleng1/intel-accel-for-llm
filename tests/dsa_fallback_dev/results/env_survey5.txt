@@ -1,0 +1,44 @@
+iaxl/csrc/torch_ext/torch_ext.cpp:20:    kv_xfer::dsa_install_pool_hooks();
+iaxl/csrc/dsa_gd/dsa_memcpy.c:245:static int dsa_init(void) {
+iaxl/csrc/dsa_gd/dsa_memcpy.c:298:            fprintf(stderr, "dsa_init: descriptor alloc failed\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:314:            "dsa_init: mapped %zu WQ(s) from $" DSA_WQS_ENV " (first %s), "
+iaxl/csrc/dsa_gd/dsa_memcpy.c:359:    if (dsa_init())
+iaxl/csrc/dsa_gd/dsa_memcpy.c:472:    if (dsa_init())
+iaxl/csrc/dsa_gd/dsa_memcpy.c:648:    if (dsa_init() || dsa_check_entries("dsa_memcpy_batch_async", dest, src, n, count))
+iaxl/csrc/test/dsa_memcpy_test.c:152:    /* Warm-up: dsa_init, OMP thread pool, IOMMU/TLB fills for both buffers. */
+iaxl/csrc/kv_xfer/dsa.cpp:97:void dsa_install_pool_hooks() { kv_pool::add_pool_hooks({dsa_on_register, dsa_on_unregister}); }
+iaxl/csrc/include/kv_xfer.h:50:void dsa_install_pool_hooks();
+===INIT
+iaxl/csrc/dsa_gd/dsa_memcpy.c:35:#define DSA_WQS_ENV "IAXL_DSA_WQS"
+iaxl/csrc/dsa_gd/dsa_memcpy.c:230:    const char *env = envs.IAXL_DSA_WQS();
+iaxl/csrc/test/dsa_memcpy_test.c:118:            "WQs come from $IAXL_DSA_WQS (default wq0.0).\n",
+iaxl/csrc/test/dsa_memcpy_test.c:161:           block >> 10, envs.IAXL_DSA_WQS(), iters);
+iaxl/csrc/common/envs.c:36:        cached = env_str("IAXL_DSA_WQS", "wq0.0");
+===AFF
+46:    """KVSHRINK_QAT_DEVICES / KVSHRINK_DSA_DEVICES (`|` per rank) -> IAXL_QAT_DEVICES / IAXL_DSA_WQS."""
+49:        ("KVSHRINK_DSA_DEVICES", "IAXL_DSA_WQS"),
+===TX
+5:"""Compare fragmented CUDA, Triton, and IAXL DSA transfers.
+8:    IAXL_DSA_GD_ENABLE=1 \
+12:import argparse
+13:import os
+14:import time
+15:from collections.abc import Callable
+16:from dataclasses import dataclass
+17:from typing import Any
+19:import cupy  # pyright: ignore[reportMissingImports]
+20:import matplotlib
+21:import torch
+22:import triton
+23:import triton.language as tl
+24:from cuda.bindings import runtime as cuda_runtime  # pyright: ignore[reportAttributeAccessIssue]
+27:import matplotlib.pyplot as plt
+29:from iaxl.tensor_ops import SliceCopier
+30:from iaxl.utils.flamegraph import PerfRecorder
+39:    "iaxl": "IAXL DSA",
+45:    "IAXL DSA": "#1f77b4",
+===HIT
+168:        logger.info(
+287:            logger.info(
+377:        logger.info(
+612:        logger.info(

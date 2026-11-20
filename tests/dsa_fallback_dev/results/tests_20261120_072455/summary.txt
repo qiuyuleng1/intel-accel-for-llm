@@ -1,0 +1,28 @@
+step1 switch_default: PASS (ENABLED True)
+step1 switch_fallback0: PASS (ENABLED False)
+step1 switch_gd0: PASS (ENABLED False)
+step1 calibrate: PASS 3 calls, identical result: CALL 1 h2d_bytes=524288 d2h_bytes=262144 seconds=0.36
+step1 calibrate details: CALL 1 h2d_bytes=524288 d2h_bytes=262144 seconds=0.36;CALL 2 h2d_bytes=524288 d2h_bytes=262144 seconds=0.35;CALL 3 h2d_bytes=524288 d2h_bytes=262144 seconds=0.35;FREE_MIB before=84569 after=84569 used_by_calls=0;
+step2 H2D=DSA D2H=DSA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using Intel DSA backend;copy_chunks_batch H2D: using Intel DSA backend;
+step2 H2D=CUDA D2H=CUDA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using CUDA backend;copy_chunks_batch H2D: using CUDA backend;
+step2 H2D=DSA D2H=CUDA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using CUDA backend;copy_chunks_batch H2D: using Intel DSA backend;
+step2 H2D=CUDA D2H=DSA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using Intel DSA backend;copy_chunks_batch H2D: using CUDA backend;
+step3 ranks1_16k: PASS (1 crossover lines, Verification: passed)
+step3 ranks1_16k crossover lines: [rank0] DSA crossover measured by rank 0: H2D 384 KB, D2H 256 KB | wait for TP ranks 0.02s, measure 0.28s, wait for rank 0 result 0.00s;
+step3 ranks1_16k backends:       1 copy_chunks_batch D2H: using Intel DSA backend;      1 copy_chunks_batch H2D: using Intel DSA backend;
+step3 ranks1_784k: PASS (1 crossover lines, Verification: passed)
+step3 ranks1_784k crossover lines: [rank0] DSA crossover measured by rank 0: H2D 512 KB, D2H 256 KB | wait for TP ranks 0.02s, measure 0.35s, wait for rank 0 result 0.00s;
+step3 ranks1_784k backends:       1 copy_chunks_batch D2H: using CUDA backend;      1 copy_chunks_batch H2D: using CUDA backend;
+step3 ranks2_16k: FAIL (exit 1, 0 crossover lines, ''), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_072455/step3/ranks2_16k.log
+step3 ranks2_16k crossover lines: 
+step3 ranks2_16k backends: 
+step3 timeout: PASS (RAISED after 7.6s (IAXL_API_TIMEOUT=5): worker rank 0 did not answer GET /v1/health in time: <urlopen error [Errno 111] Connection refused>)
+step4 Qwen3-32B: FAIL, see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_072455/step4/Qwen3-32B/check.txt
+step4 Qwen3-32B PASS =1: 8 ranks log the crossover
+step4 Qwen3-32B PASS =1: all ranks use the same crossover
+step4 Qwen3-32B PASS =0: no rank calibrates
+step4 Qwen3-32B PASS =1: every prompt hits in round 3
+step4 Qwen3-32B PASS =1: no Traceback
+step4 Qwen3-32B PASS =0: every prompt hits in round 3
+step4 Qwen3-32B PASS =0: no Traceback
+step4 Qwen3-32B FAIL =1 and =0 replies identical

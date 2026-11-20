@@ -1,0 +1,149 @@
+export http_proxy=http://proxy.ims.intel.com:911 https_proxy=http://proxy.ims.intel.com:911; MODEL=/media/model-space IAXL_DEV_DOCKER_IMAGE=vllm-iaxl-dev-pr70:1.6.0 ./start.sh; echo START_SH_EXIT=$?
+[?2004h(base) pese@h8263-6000d:~/qiuyu/intel-accel-for-llm-1119$ export http_proxy=http://proxy.ims.intel.com:911 https_proxy=http://proxy.ims.intel.com:911; MODEL=/media/model-space IAXL_DEV_DOCKER_IMAGE=vllm-iaxl-dev-pr70:1.6.0 ./start.sh; echo START_SH_EXIT=$?
+[?2004lKVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-31
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=32-63
+KVShrink QAT rank 0: indices=0,1,2,3 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0) 0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 1: indices=4,5,6,7 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1) 0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+vLLM configuration:
+  MODEL=/media/model-space
+  TP_SIZE=2
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=0
+  VLLM_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-31|32-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3|4,5,6,7
+  KVSHRINK_DSA_DEVICES=disabled
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=32,32
+  IAXL_QAT_INSTANCE_NUM=4
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+Using pip 26.2.1 from /usr/local/lib/python3.12/dist-packages/pip (python 3.12)
+Obtaining file:///home/pese/qiuyu/intel-accel-for-llm-1119
+  Running command Checking if build backend supports build_editable
+  Checking if build backend supports build_editable ... [?25l[?25hdone
+  Running command Preparing editable metadata (pyproject.toml)
+  [INFO] Including ['*.so'] for package: iaxl
+  [INFO] Package data: {'iaxl': ['*.so']}
+  running dist_info
+  creating /tmp/pip-modern-metadata-3cbs67tk/iaxl.egg-info
+  writing /tmp/pip-modern-metadata-3cbs67tk/iaxl.egg-info/PKG-INFO
+  writing dependency_links to /tmp/pip-modern-metadata-3cbs67tk/iaxl.egg-info/dependency_links.txt
+  writing entry points to /tmp/pip-modern-metadata-3cbs67tk/iaxl.egg-info/entry_points.txt
+  writing top-level names to /tmp/pip-modern-metadata-3cbs67tk/iaxl.egg-info/top_level.txt
+  writing manifest file '/tmp/pip-modern-metadata-3cbs67tk/iaxl.egg-info/SOURCES.txt'
+  writing manifest file '/tmp/pip-modern-metadata-3cbs67tk/iaxl.egg-info/SOURCES.txt'
+  creating '/tmp/pip-modern-metadata-3cbs67tk/iaxl-1.6.0.dist-info'
+  Preparing editable metadata (pyproject.toml) ... [?25l[?25hdone
+Building wheels for collected packages: iaxl
+  Running command Building editable for iaxl (pyproject.toml)
+  [INFO] Including ['*.so'] for package: iaxl
+  [INFO] Package data: {'iaxl': ['*.so']}
+  running editable_wheel
+  creating /tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl.egg-info
+  writing /tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl.egg-info/PKG-INFO
+  writing dependency_links to /tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl.egg-info/dependency_links.txt
+  writing entry points to /tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl.egg-info/entry_points.txt
+  writing top-level names to /tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl.egg-info/top_level.txt
+  writing manifest file '/tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl.egg-info/SOURCES.txt'
+  writing manifest file '/tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl.egg-info/SOURCES.txt'
+  creating '/tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl-1.6.0.dist-info'
+  creating /tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl-1.6.0.dist-info/WHEEL
+  running build_py
+  running build_ext
+  -- The C compiler identification is GNU 13.3.0
+  -- The CXX compiler identification is GNU 13.3.0
+  -- Detecting C compiler ABI info
+  -- Detecting C compiler ABI info - done
+  -- Check for working C compiler: /usr/bin/cc - skipped
+  -- Detecting C compile features
+  -- Detecting C compile features - done
+  -- Detecting CXX compiler ABI info
+  -- Detecting CXX compiler ABI info - done
+  -- Check for working CXX compiler: /usr/bin/c++ - skipped
+  -- Detecting CXX compile features
+  -- Detecting CXX compile features - done
+  -- Found Python: /usr/bin/python3.12 (found version "3.12.3") found components: Interpreter Development Development.Module Development.Embed
+  -- Performing Test HAS_FLTO_AUTO
+  -- Performing Test HAS_FLTO_AUTO - Success
+  -- Found pybind11: /usr/local/lib/python3.12/dist-packages/pybind11/include (found version "3.1.0")
+  -- QAT user space: out-of-tree QAT20 package (/home/pese/qiuyu/intel-accel-for-llm-1119/_lib)
+  -- Found ZLIB: /usr/lib/x86_64-linux-gnu/libz.so (found version "1.3")
+  -- NIXL: /usr/local/include /usr/local/lib/x86_64-linux-gnu/libnixl.so
+  -- Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include;/usr/local/cuda/targets/x86_64-linux/include/cccl (found version "13.0.88")
+  -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+  -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+  -- Found Threads: TRUE
+  -- NVTX enabled from /usr/local/lib/python3.12/dist-packages/nvidia/cu13/include
+  -- Configuring done (2.3s)
+  -- Generating done (0.0s)
+  -- Build files have been written to: /tmp/tmpysp5we9k.build-temp
+  [  4%] Built target qpl_userspace_libs
+  [  9%] Built target qat_userspace_libs
+  [ 13%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/torch_ext/torch_ext.cpp.o
+  [ 18%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/torch_ext/xfer.cpp.o
+  [ 22%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/torch_ext/zip.cpp.o
+  [ 27%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/mem.cpp.o
+  [ 36%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/record.cpp.o
+  [ 36%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/pool.cpp.o
+  [ 45%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_zip/kv_zip.cpp.o
+  [ 45%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_pool/storage.cpp.o
+  [ 50%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_zip/lossy.cpp.o
+  [ 54%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/qat_zip/qat_zip.c.o
+  [ 59%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/cpu_zip/cpu_zip.c.o
+  [ 63%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/iaa_zip/iaa_zip.c.o
+  [ 68%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/common/envs.c.o
+  [ 72%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/common/parallel.cpp.o
+  [ 77%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_xfer/cuda.cpp.o
+  [ 81%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_xfer/dsa.cpp.o
+  [ 86%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/dsa_gd/dsa_gd.c.o
+  [ 90%] Building C object CMakeFiles/torch_ext.dir/iaxl/csrc/dsa_gd/dsa_memcpy.c.o
+  [ 95%] Building CXX object CMakeFiles/torch_ext.dir/iaxl/csrc/kv_xfer/rdma.cpp.o
+  [100%] Linking CXX shared module /home/pese/qiuyu/intel-accel-for-llm-1119/iaxl/torch_ext.cpython-312-x86_64-linux-gnu.so
+  [100%] Built target torch_ext
+  Editable install will be performed using a meta path finder.
+
+  Options like `package-data`, `include/exclude-package-data` or
+  `packages.find.exclude/include` may have no effect.
+
+  [INFO] CMake command: cmake -DCMAKE_BUILD_TYPE=Release -DCXX11_ABI=1 -DCMAKE_PREFIX_PATH=/usr/local/lib/python3.12/dist-packages/torch/share/cmake;/usr/local/lib/python3.12/dist-packages/pybind11/share/cmake/pybind11 -DDEVICE=cuda -DIAXL_PROJECT_VERSION=1.6.0 /home/pese/qiuyu/intel-accel-for-llm-1119
+  adding '__editable___iaxl_1_6_0_finder.py'
+  adding '__editable__.iaxl-1.6.0.pth'
+  creating '/tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af/tmpenx6czb2/.tmp-nzap33sg/iaxl-1.6.0-0.editable-cp312-cp312-linux_x86_64.whl' and adding '/tmp/tmpor6mp12kiaxl-1.6.0-0.editable-cp312-cp312-linux_x86_64.whl' to it
+  adding 'iaxl-1.6.0.dist-info/METADATA'
+  adding 'iaxl-1.6.0.dist-info/WHEEL'
+  adding 'iaxl-1.6.0.dist-info/entry_points.txt'
+  adding 'iaxl-1.6.0.dist-info/top_level.txt'
+  adding 'iaxl-1.6.0.dist-info/RECORD'
+  /usr/local/lib/python3.12/dist-packages/setuptools/command/editable_wheel.py:352: InformationOnly: Editable installation.
+  !!
+
+          ********************************************************************************
+          Please be careful with folders in your working directory with the same
+          name as your package as they may take precedence during imports.
+          ********************************************************************************
+
+  !!
+    with strategy, WheelFile(wheel_path, "w") as wheel_obj:
+  Building editable for iaxl (pyproject.toml) ... [?25l[?25hdone
+  Created wheel for iaxl: filename=iaxl-1.6.0-0.editable-cp312-cp312-linux_x86_64.whl size=2958 sha256=5d45f5e4eef5bb0bb5521f742da135094cb27e9ea1283d0fa3c0eea1611bb215
+  Stored in directory: /tmp/pip-ephem-wheel-cache-50bbdbcp/wheels/77/31/02/b9beed55135e53b3a663383b31c62ee5c10c73b9dc0ddf31af
+Successfully built iaxl
+Installing collected packages: iaxl
+Successfully installed iaxl-1.6.0
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.1[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpython3.12 -m pip install --upgrade pip[0m
+[?2004h]0;root@h8263-6000d: /home/pese/qiuyu/intel-accel-for-llm-1119root@h8263-6000d:/home/pese/qiuyu/intel-accel-for-llm-1119# 

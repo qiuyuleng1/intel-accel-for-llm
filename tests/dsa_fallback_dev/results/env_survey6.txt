@@ -1,0 +1,53 @@
+                    f"KVShrinkConnector needs block_size {self.block_size} to be a "
+                    f"multiple of FLASHKDA_CHUNK_SIZE {FLASHKDA_CHUNK_SIZE}"
+                )
+        logger.info(
+            "KVShrinkConnector(%s): block_size=%d, has_mamba=%s, "
+            "prefill checkpoint=%s, mamba_cache_mode=%r, prefix caching=%s",
+            role.name,
+            self.block_size,
+            self.has_mamba,
+            self.has_prefill_checkpoint,
+            vllm_config.cache_config.mamba_cache_mode,
+            vllm_config.cache_config.enable_prefix_caching,
+-----
+                    f"but rank is {self.global_rank}"
+                )
+            os.environ["IAXL_CPU_OMP_THREADS_BIND"] = cpus[self.global_rank]
+            logger.info(
+                "Bound rank %d: IAXL_CPU_OMP_THREADS_BIND=%s",
+                self.global_rank,
+                cpus[self.global_rank],
+            )
+        if self.vllm_device == "cpu":  # vLLM's CPU worker binds itself
+            return
+        bind_cpu_affinity(
+            self.global_rank, self.global_size, envs.VLLM_CPU_OMP_THREADS_BIND
+-----
+        if use_async:
+            state.async_load_layers = selected_layers
+
+        logger.info(
+            f"get_num_new_matched_tokens, req-{request.request_id}, "
+            f"externally-cached tokens: {num_new_tokens}, "
+            f"locally-cached tokens: {num_computed_tokens}, async={use_async}, "
+            f"selected_load_layers={selected_layers}, "
+            f"async_load_layers={state.async_load_layers}, "
+            f"shared_prefix_boundary={request.shared_prefix_boundary}"
+        )
+        return num_new_tokens, use_async
+-----
+            rank=self.global_rank,
+            tp_size=self.tp_size,
+        )
+        logger.info(
+            "Registered %d KV cache layers (%d mamba) with shape %s",
+            len(kv_caches),
+            self.num_mamba_layers,
+            list(first_kv_cache.shape),
+        )
+
+    def start_load_kv(
+        self,
+-----
+7:316-            logger.warning("Discarded stale state for request %s", request.request_id)

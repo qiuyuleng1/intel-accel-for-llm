@@ -1,0 +1,72 @@
+== IAXL_DSA_AUTO_FALLBACK_ENABLE=1
+KVStore calibration lines: 8
+  rank 0: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.34s, wait for result 0.00s
+  rank 3: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.34s, wait for result 0.01s
+  rank 6: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.29s, wait for result 0.05s
+  rank 2: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.34s, wait for result 0.01s
+  rank 4: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.28s, wait for result 0.07s
+  rank 1: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.34s, wait for result 0.01s
+  rank 5: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.44s, wait for result 0.00s
+  rank 7: measured by rank 0, H2D 256 KB, D2H 256 KB, wait for TP ranks 0.02s, measure 0.51s, wait for result 0.00s
+C++ calibration lines: 16
+  GPU3 H2D: crossover 256 KB (DSA 22.1 GB/s, CUDA batch 27.6 GB/s, 1 block sizes measured)
+  GPU2 H2D: crossover 256 KB (DSA 27.3 GB/s, CUDA batch 28.4 GB/s, 1 block sizes measured)
+  GPU4 H2D: crossover 256 KB (DSA 22.3 GB/s, CUDA batch 27.5 GB/s, 1 block sizes measured)
+  GPU1 H2D: crossover 256 KB (DSA 22.2 GB/s, CUDA batch 27.6 GB/s, 1 block sizes measured)
+  GPU0 H2D: crossover 256 KB (DSA 26.9 GB/s, CUDA batch 28.7 GB/s, 1 block sizes measured)
+  GPU6 H2D: crossover 256 KB (DSA 21.7 GB/s, CUDA batch 27.2 GB/s, 1 block sizes measured)
+  GPU4 D2H: crossover 256 KB (DSA 30.7 GB/s, CUDA batch 49.4 GB/s, 1 block sizes measured)
+  GPU6 D2H: crossover 256 KB (DSA 29.4 GB/s, CUDA batch 49.4 GB/s, 1 block sizes measured)
+  GPU3 D2H: crossover 256 KB (DSA 18.5 GB/s, CUDA batch 28.9 GB/s, 1 block sizes measured)
+  GPU2 D2H: crossover 256 KB (DSA 20.7 GB/s, CUDA batch 28.7 GB/s, 1 block sizes measured)
+  GPU1 D2H: crossover 256 KB (DSA 18.5 GB/s, CUDA batch 29.0 GB/s, 1 block sizes measured)
+  GPU0 D2H: crossover 256 KB (DSA 20.3 GB/s, CUDA batch 28.8 GB/s, 1 block sizes measured)
+  GPU5 H2D: crossover 512 KB (DSA 44.4 GB/s, CUDA batch 46.7 GB/s, 3 block sizes measured)
+  GPU7 H2D: crossover 640 KB (DSA 43.6 GB/s, CUDA batch 48.1 GB/s, 4 block sizes measured)
+  GPU5 D2H: crossover 256 KB (DSA 36.4 GB/s, CUDA batch 49.8 GB/s, 1 block sizes measured)
+  GPU7 D2H: crossover 256 KB (DSA 36.1 GB/s, CUDA batch 49.7 GB/s, 1 block sizes measured)
+contiguous block size lines (KB: processes): {'400.00': 8}
+backend lines (direction backend: processes): {'D2H CUDA': 8, 'H2D CUDA': 8}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 '\n\n80393'
+  1 1 15336 0 '\n\n88312'
+  1 2 15336 0 '\n\n96231'
+  1 3 15337 0 '\n\n4150'
+  2 0 15333 15200 '\n\n80393'
+  2 1 15336 15200 '\n\n88312'
+  2 2 15336 15200 '\n\n96231'
+  2 3 15337 15200 '\n\n4150'
+  3 0 15333 15200 '\n\n80393'
+  3 1 15336 15200 '\n\n88312'
+  3 2 15336 15200 '\n\n96231'
+  3 3 15337 15200 '\n\n4150'
+== IAXL_DSA_AUTO_FALLBACK_ENABLE=0
+KVStore calibration lines: 0
+C++ calibration lines: 0
+contiguous block size lines (KB: processes): {'400.00': 8}
+backend lines (direction backend: processes): {'D2H Intel DSA': 8, 'H2D Intel DSA': 8}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 '\n\n80393'
+  1 1 15336 0 '\n\n88312'
+  1 2 15336 0 '\n\n96231'
+  1 3 15337 0 '\n\n4150'
+  2 0 15333 15200 '\n\n80393'
+  2 1 15336 15200 '\n\n88312'
+  2 2 15336 15200 '\n\n96231'
+  2 3 15337 15200 '\n\n4150'
+  3 0 15333 15200 '\n\n80393'
+  3 1 15336 15200 '\n\n88312'
+  3 2 15336 15200 '\n\n96231'
+  3 3 15337 15200 '\n\n4150'
+== checks
+PASS =1: 8 ranks log the crossover
+PASS =1: all ranks use the same crossover
+PASS =0: no rank calibrates
+PASS =1: every prompt hits in round 3
+PASS =1: no Traceback
+PASS =1: every reply is non-empty printable ASCII
+PASS =0: every prompt hits in round 3
+PASS =0: no Traceback
+PASS =0: every reply is non-empty printable ASCII

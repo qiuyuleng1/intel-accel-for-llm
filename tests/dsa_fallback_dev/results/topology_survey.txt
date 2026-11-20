@@ -1,0 +1,782 @@
+=== nvidia-smi topo -m
+	[4mGPU0	GPU1	GPU2	GPU3	GPU4	GPU5	GPU6	GPU7	CPU Affinity	NUMA Affinity	GPU NUMA ID[0m
+GPU0	 X 	PIX	NODE	NODE	SYS	SYS	SYS	SYS	0-63,128-191	0		N/A
+GPU1	PIX	 X 	NODE	NODE	SYS	SYS	SYS	SYS	0-63,128-191	0		N/A
+GPU2	NODE	NODE	 X 	PIX	SYS	SYS	SYS	SYS	0-63,128-191	0		N/A
+GPU3	NODE	NODE	PIX	 X 	SYS	SYS	SYS	SYS	0-63,128-191	0		N/A
+GPU4	SYS	SYS	SYS	SYS	 X 	PIX	NODE	NODE	64-127,192-255	1		N/A
+GPU5	SYS	SYS	SYS	SYS	PIX	 X 	NODE	NODE	64-127,192-255	1		N/A
+GPU6	SYS	SYS	SYS	SYS	NODE	NODE	 X 	PIX	64-127,192-255	1		N/A
+GPU7	SYS	SYS	SYS	SYS	NODE	NODE	PIX	 X 	64-127,192-255	1		N/A
+
+Legend:
+
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+  NV#  = Connection traversing a bonded set of # NVLinks
+=== GPU PCI path, NUMA node, link
+GPU0 0000:38:00.0 numa=0 path=/sys/devices/pci0000:35/0000:35:02.0/0000:36:00.0/0000:37:00.0/0000:38:00.0
+  link: 2.5 GT/s PCIe x16
+GPU1 0000:3a:00.0 numa=0 path=/sys/devices/pci0000:35/0000:35:02.0/0000:36:00.0/0000:37:02.0/0000:3a:00.0
+  link: 2.5 GT/s PCIe x16
+GPU2 0000:48:00.0 numa=0 path=/sys/devices/pci0000:45/0000:45:02.0/0000:46:00.0/0000:47:00.0/0000:48:00.0
+  link: 2.5 GT/s PCIe x16
+GPU3 0000:49:00.0 numa=0 path=/sys/devices/pci0000:45/0000:45:02.0/0000:46:00.0/0000:47:01.0/0000:49:00.0
+  link: 2.5 GT/s PCIe x16
+GPU4 0000:b8:00.0 numa=1 path=/sys/devices/pci0000:b5/0000:b5:02.0/0000:b6:00.0/0000:b7:00.0/0000:b8:00.0
+  link: 2.5 GT/s PCIe x16
+GPU5 0000:b9:00.0 numa=1 path=/sys/devices/pci0000:b5/0000:b5:02.0/0000:b6:00.0/0000:b7:01.0/0000:b9:00.0
+  link: 2.5 GT/s PCIe x16
+GPU6 0000:c8:00.0 numa=1 path=/sys/devices/pci0000:c5/0000:c5:02.0/0000:c6:00.0/0000:c7:00.0/0000:c8:00.0
+  link: 2.5 GT/s PCIe x16
+GPU7 0000:c9:00.0 numa=1 path=/sys/devices/pci0000:c5/0000:c5:02.0/0000:c6:00.0/0000:c7:01.0/0000:c9:00.0
+  link: 2.5 GT/s PCIe x16
+=== DSA / IAA devices: PCI path, NUMA node, WQs, engines
+dsa0 numa=0 state=enabled path=/sys/devices/pci0000:00/0000:00:01.0
+  wq0.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine0.0 group=0
+  engine0.1 group=0
+  engine0.2 group=0
+  engine0.3 group=0
+dsa10 numa=1 state=enabled path=/sys/devices/pci0000:85/0000:85:01.0
+  wq10.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine10.0 group=0
+  engine10.1 group=0
+  engine10.2 group=0
+  engine10.3 group=0
+dsa12 numa=1 state=enabled path=/sys/devices/pci0000:8a/0000:8a:01.0
+  wq12.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine12.0 group=0
+  engine12.1 group=0
+  engine12.2 group=0
+  engine12.3 group=0
+dsa14 numa=1 state=enabled path=/sys/devices/pci0000:8f/0000:8f:01.0
+  wq14.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine14.0 group=0
+  engine14.1 group=0
+  engine14.2 group=0
+  engine14.3 group=0
+dsa2 numa=0 state=enabled path=/sys/devices/pci0000:05/0000:05:01.0
+  wq2.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine2.0 group=0
+  engine2.1 group=0
+  engine2.2 group=0
+  engine2.3 group=0
+dsa4 numa=0 state=enabled path=/sys/devices/pci0000:0a/0000:0a:01.0
+  wq4.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine4.0 group=0
+  engine4.1 group=0
+  engine4.2 group=0
+  engine4.3 group=0
+dsa6 numa=0 state=enabled path=/sys/devices/pci0000:0f/0000:0f:01.0
+  wq6.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine6.0 group=0
+  engine6.1 group=0
+  engine6.2 group=0
+  engine6.3 group=0
+dsa8 numa=1 state=enabled path=/sys/devices/pci0000:80/0000:80:01.0
+  wq8.0 mode=dedicated size=256 group=0 clients=0 name=dsa_gpu
+  engine8.0 group=0
+  engine8.1 group=0
+  engine8.2 group=0
+  engine8.3 group=0
+dsa!wq0.0 numa= state= path=/sys/devices/pci0000:00/0000:00:01.0/dsa0/wq0.0
+dsa!wq10.0 numa= state= path=/sys/devices/pci0000:85/0000:85:01.0/dsa10/wq10.0
+dsa!wq12.0 numa= state= path=/sys/devices/pci0000:8a/0000:8a:01.0/dsa12/wq12.0
+dsa!wq14.0 numa= state= path=/sys/devices/pci0000:8f/0000:8f:01.0/dsa14/wq14.0
+dsa!wq2.0 numa= state= path=/sys/devices/pci0000:05/0000:05:01.0/dsa2/wq2.0
+dsa!wq4.0 numa= state= path=/sys/devices/pci0000:0a/0000:0a:01.0/dsa4/wq4.0
+dsa!wq6.0 numa= state= path=/sys/devices/pci0000:0f/0000:0f:01.0/dsa6/wq6.0
+dsa!wq8.0 numa= state= path=/sys/devices/pci0000:80/0000:80:01.0/dsa8/wq8.0
+iax1 numa=0 state=enabled path=/sys/devices/pci0000:00/0000:00:02.0
+  wq1.0 mode=shared size=128 group=0 clients=0 name=app1
+  engine1.0 group=0
+  engine1.1 group=0
+  engine1.2 group=0
+  engine1.3 group=0
+  engine1.4 group=0
+  engine1.5 group=0
+  engine1.6 group=0
+  engine1.7 group=0
+iax11 numa=1 state=enabled path=/sys/devices/pci0000:85/0000:85:02.0
+  wq11.0 mode=shared size=128 group=0 clients=0 name=app6
+  engine11.0 group=0
+  engine11.1 group=0
+  engine11.2 group=0
+  engine11.3 group=0
+  engine11.4 group=0
+  engine11.5 group=0
+  engine11.6 group=0
+  engine11.7 group=0
+iax13 numa=1 state=enabled path=/sys/devices/pci0000:8a/0000:8a:02.0
+  wq13.0 mode=shared size=128 group=0 clients=0 name=app7
+  engine13.0 group=0
+  engine13.1 group=0
+  engine13.2 group=0
+  engine13.3 group=0
+  engine13.4 group=0
+  engine13.5 group=0
+  engine13.6 group=0
+  engine13.7 group=0
+iax15 numa=1 state=enabled path=/sys/devices/pci0000:8f/0000:8f:02.0
+  wq15.0 mode=shared size=128 group=0 clients=0 name=app8
+  engine15.0 group=0
+  engine15.1 group=0
+  engine15.2 group=0
+  engine15.3 group=0
+  engine15.4 group=0
+  engine15.5 group=0
+  engine15.6 group=0
+  engine15.7 group=0
+iax3 numa=0 state=enabled path=/sys/devices/pci0000:05/0000:05:02.0
+  wq3.0 mode=shared size=128 group=0 clients=0 name=app2
+  engine3.0 group=0
+  engine3.1 group=0
+  engine3.2 group=0
+  engine3.3 group=0
+  engine3.4 group=0
+  engine3.5 group=0
+  engine3.6 group=0
+  engine3.7 group=0
+iax5 numa=0 state=enabled path=/sys/devices/pci0000:0a/0000:0a:02.0
+  wq5.0 mode=shared size=128 group=0 clients=0 name=app3
+  engine5.0 group=0
+  engine5.1 group=0
+  engine5.2 group=0
+  engine5.3 group=0
+  engine5.4 group=0
+  engine5.5 group=0
+  engine5.6 group=0
+  engine5.7 group=0
+iax7 numa=0 state=enabled path=/sys/devices/pci0000:0f/0000:0f:02.0
+  wq7.0 mode=shared size=128 group=0 clients=0 name=app4
+  engine7.0 group=0
+  engine7.1 group=0
+  engine7.2 group=0
+  engine7.3 group=0
+  engine7.4 group=0
+  engine7.5 group=0
+  engine7.6 group=0
+  engine7.7 group=0
+iax9 numa=1 state=enabled path=/sys/devices/pci0000:80/0000:80:02.0
+  wq9.0 mode=shared size=128 group=0 clients=0 name=app5
+  engine9.0 group=0
+  engine9.1 group=0
+  engine9.2 group=0
+  engine9.3 group=0
+  engine9.4 group=0
+  engine9.5 group=0
+  engine9.6 group=0
+  engine9.7 group=0
+iax!wq1.0 numa= state= path=/sys/devices/pci0000:00/0000:00:02.0/iax1/wq1.0
+iax!wq11.0 numa= state= path=/sys/devices/pci0000:85/0000:85:02.0/iax11/wq11.0
+iax!wq13.0 numa= state= path=/sys/devices/pci0000:8a/0000:8a:02.0/iax13/wq13.0
+iax!wq15.0 numa= state= path=/sys/devices/pci0000:8f/0000:8f:02.0/iax15/wq15.0
+iax!wq3.0 numa= state= path=/sys/devices/pci0000:05/0000:05:02.0/iax3/wq3.0
+iax!wq5.0 numa= state= path=/sys/devices/pci0000:0a/0000:0a:02.0/iax5/wq5.0
+iax!wq7.0 numa= state= path=/sys/devices/pci0000:0f/0000:0f:02.0/iax7/wq7.0
+iax!wq9.0 numa= state= path=/sys/devices/pci0000:80/0000:80:02.0/iax9/wq9.0
+=== CPU NUMA nodes
+Model name:                              Intel(R) Xeon(R) 6767P
+Socket(s):                               2
+NUMA node(s):                            2
+NUMA node0 CPU(s):                       0-63,128-191
+NUMA node1 CPU(s):                       64-127,192-255
+=== PCIe tree
+-+-[0000:ff]-+-00.0  Intel Corporation Device 324d
+ |           +-00.1  Intel Corporation Device 324d
+ |           +-00.2  Intel Corporation Device 324d
+ |           +-00.3  Intel Corporation Device 324d
+ |           +-00.4  Intel Corporation Device 324d
+ |           +-00.5  Intel Corporation Device 324d
+ |           +-00.6  Intel Corporation Device 324d
+ |           +-00.7  Intel Corporation Device 324d
+ |           +-01.0  Intel Corporation Device 324d
+ |           +-01.1  Intel Corporation Device 324d
+ |           +-01.2  Intel Corporation Device 324d
+ |           +-01.3  Intel Corporation Device 324d
+ |           +-01.4  Intel Corporation Device 324d
+ |           +-01.5  Intel Corporation Device 324d
+ |           +-01.6  Intel Corporation Device 324d
+ |           +-01.7  Intel Corporation Device 324d
+ |           +-02.0  Intel Corporation Device 324d
+ |           +-02.1  Intel Corporation Device 324d
+ |           +-02.2  Intel Corporation Device 324d
+ |           +-02.3  Intel Corporation Device 324d
+ |           +-02.4  Intel Corporation Device 324d
+ |           +-02.5  Intel Corporation Device 324d
+ |           +-02.6  Intel Corporation Device 324d
+ |           +-02.7  Intel Corporation Device 324d
+ |           +-03.0  Intel Corporation Device 324d
+ |           +-03.1  Intel Corporation Device 324d
+ |           +-03.2  Intel Corporation Device 324d
+ |           +-03.3  Intel Corporation Device 324d
+ |           +-03.4  Intel Corporation Device 324d
+ |           +-03.5  Intel Corporation Device 324d
+ |           +-03.6  Intel Corporation Device 324d
+ |           +-03.7  Intel Corporation Device 324d
+ |           +-04.0  Intel Corporation Device 324d
+ |           +-04.1  Intel Corporation Device 324d
+ |           +-04.2  Intel Corporation Device 324d
+ |           +-04.3  Intel Corporation Device 324d
+ |           +-04.4  Intel Corporation Device 324d
+ |           +-04.5  Intel Corporation Device 324d
+ |           +-04.6  Intel Corporation Device 324d
+ |           +-04.7  Intel Corporation Device 324d
+ |           +-05.0  Intel Corporation Device 324d
+ |           +-05.1  Intel Corporation Device 324d
+ |           +-05.2  Intel Corporation Device 324d
+ |           +-05.3  Intel Corporation Device 324d
+ |           +-05.4  Intel Corporation Device 324d
+ |           +-05.5  Intel Corporation Device 324d
+ |           +-05.6  Intel Corporation Device 324d
+ |           +-05.7  Intel Corporation Device 324d
+ |           +-06.0  Intel Corporation Device 324d
+ |           +-06.1  Intel Corporation Device 324d
+ |           +-06.2  Intel Corporation Device 324d
+ |           +-06.3  Intel Corporation Device 324d
+ |           +-06.4  Intel Corporation Device 324d
+ |           +-06.5  Intel Corporation Device 324d
+ |           +-06.6  Intel Corporation Device 324d
+ |           +-06.7  Intel Corporation Device 324d
+ |           +-07.0  Intel Corporation Device 324d
+ |           +-07.1  Intel Corporation Device 324d
+ |           +-07.2  Intel Corporation Device 324d
+ |           +-07.3  Intel Corporation Device 324d
+ |           +-07.4  Intel Corporation Device 324d
+ |           +-07.5  Intel Corporation Device 324d
+ |           +-07.6  Intel Corporation Device 324d
+ |           +-07.7  Intel Corporation Device 324d
+ |           +-08.0  Intel Corporation Device 324d
+ |           +-08.1  Intel Corporation Device 324d
+ |           +-08.2  Intel Corporation Device 324d
+ |           +-08.3  Intel Corporation Device 324d
+ |           +-08.4  Intel Corporation Device 324d
+ |           +-08.5  Intel Corporation Device 324d
+ |           +-08.6  Intel Corporation Device 324d
+ |           +-08.7  Intel Corporation Device 324d
+ |           +-09.0  Intel Corporation Device 324d
+ |           +-09.1  Intel Corporation Device 324d
+ |           +-09.2  Intel Corporation Device 324d
+ |           +-09.3  Intel Corporation Device 324d
+ |           +-09.4  Intel Corporation Device 324d
+ |           +-09.5  Intel Corporation Device 324d
+ |           +-09.6  Intel Corporation Device 324d
+ |           +-09.7  Intel Corporation Device 324d
+ |           +-0a.0  Intel Corporation Device 324d
+ |           +-0a.1  Intel Corporation Device 324d
+ |           +-0a.2  Intel Corporation Device 324d
+ |           +-0a.3  Intel Corporation Device 324d
+ |           +-10.0  Intel Corporation Device 3245
+ |           +-10.1  Intel Corporation Device 3241
+ |           +-10.2  Intel Corporation Device 3242
+ |           +-10.3  Intel Corporation Device 3240
+ |           +-11.0  Intel Corporation Device 3245
+ |           +-11.1  Intel Corporation Device 3241
+ |           +-11.2  Intel Corporation Device 3242
+ |           +-11.3  Intel Corporation Device 3240
+ |           +-12.0  Intel Corporation Device 3245
+ |           +-12.1  Intel Corporation Device 3241
+ |           +-12.2  Intel Corporation Device 3242
+ |           +-12.3  Intel Corporation Device 3240
+ |           +-13.0  Intel Corporation Device 3245
+ |           +-13.1  Intel Corporation Device 3241
+ |           +-13.2  Intel Corporation Device 3242
+ |           +-13.3  Intel Corporation Device 3240
+ |           +-18.0  Intel Corporation Device 3245
+ |           +-19.0  Intel Corporation Device 3245
+ |           +-1a.0  Intel Corporation Device 3245
+ |           \-1b.0  Intel Corporation Device 3245
+ +-[0000:fe]-+-00.0  Intel Corporation Device 3250
+ |           +-00.1  Intel Corporation Device 3251
+ |           +-00.2  Intel Corporation Device 3252
+ |           +-02.0  Intel Corporation Device 0998
+ |           +-05.0  Intel Corporation Device 3258
+ |           +-05.1  Intel Corporation Device 324a
+ |           +-05.2  Intel Corporation Device 324a
+ |           +-05.3  Intel Corporation Device 324a
+ |           +-05.4  Intel Corporation Device 324a
+ |           +-05.5  Intel Corporation Device 324a
+ |           +-05.6  Intel Corporation Device 324a
+ |           +-05.7  Intel Corporation Device 324a
+ |           +-06.0  Intel Corporation Device 3258
+ |           +-06.1  Intel Corporation Device 324a
+ |           +-07.0  Intel Corporation Device 3258
+ |           +-09.0  Intel Corporation Device 3258
+ |           +-0d.0  Intel Corporation Device 344f
+ |           +-0d.1  Intel Corporation Device 3457
+ |           +-0e.0  Intel Corporation Device 324c
+ |           +-0e.1  Intel Corporation Device 324c
+ |           +-0e.2  Intel Corporation Device 324c
+ |           +-0e.3  Intel Corporation Device 324c
+ |           +-0e.4  Intel Corporation Device 324c
+ |           +-0e.5  Intel Corporation Device 324c
+ |           +-0e.6  Intel Corporation Device 324c
+ |           +-0e.7  Intel Corporation Device 324c
+ |           +-0f.0  Intel Corporation Device 324c
+ |           +-0f.1  Intel Corporation Device 324c
+ |           +-0f.2  Intel Corporation Device 324c
+ |           +-0f.3  Intel Corporation Device 324c
+ |           +-0f.4  Intel Corporation Device 324c
+ |           +-0f.5  Intel Corporation Device 324c
+ |           +-0f.6  Intel Corporation Device 324c
+ |           +-0f.7  Intel Corporation Device 324c
+ |           +-10.0  Intel Corporation Device 324c
+ |           +-10.1  Intel Corporation Device 324c
+ |           +-10.2  Intel Corporation Device 324c
+ |           +-10.3  Intel Corporation Device 324c
+ |           +-10.4  Intel Corporation Device 324c
+ |           +-10.5  Intel Corporation Device 324c
+ |           +-10.6  Intel Corporation Device 324c
+ |           +-10.7  Intel Corporation Device 324c
+ |           +-11.0  Intel Corporation Device 324c
+ |           +-11.1  Intel Corporation Device 324c
+ |           +-11.2  Intel Corporation Device 324c
+ |           +-11.3  Intel Corporation Device 324c
+ |           +-11.4  Intel Corporation Device 324c
+ |           +-11.5  Intel Corporation Device 324c
+ |           +-11.6  Intel Corporation Device 324c
+ |           +-11.7  Intel Corporation Device 324c
+ |           +-12.0  Intel Corporation Device 324c
+ |           +-12.1  Intel Corporation Device 324c
+ |           +-12.2  Intel Corporation Device 324c
+ |           +-12.3  Intel Corporation Device 324c
+ |           +-12.4  Intel Corporation Device 324c
+ |           +-12.5  Intel Corporation Device 324c
+ |           +-12.6  Intel Corporation Device 324c
+ |           +-12.7  Intel Corporation Device 324c
+ |           +-13.0  Intel Corporation Device 324c
+ |           +-13.1  Intel Corporation Device 324c
+ |           +-13.2  Intel Corporation Device 324c
+ |           +-13.3  Intel Corporation Device 324c
+ |           +-13.4  Intel Corporation Device 324c
+ |           +-13.5  Intel Corporation Device 324c
+ |           +-13.6  Intel Corporation Device 324c
+ |           +-13.7  Intel Corporation Device 324c
+ |           +-14.0  Intel Corporation Device 324c
+ |           +-14.1  Intel Corporation Device 324c
+ |           +-14.2  Intel Corporation Device 324c
+ |           +-14.3  Intel Corporation Device 324c
+ |           +-14.4  Intel Corporation Device 324c
+ |           +-14.5  Intel Corporation Device 324c
+ |           +-14.6  Intel Corporation Device 324c
+ |           +-14.7  Intel Corporation Device 324c
+ |           +-15.0  Intel Corporation Device 324c
+ |           +-15.1  Intel Corporation Device 324c
+ |           +-15.2  Intel Corporation Device 324c
+ |           +-15.3  Intel Corporation Device 324c
+ |           +-15.4  Intel Corporation Device 324c
+ |           +-15.5  Intel Corporation Device 324c
+ |           +-15.6  Intel Corporation Device 324c
+ |           +-15.7  Intel Corporation Device 324c
+ |           +-16.0  Intel Corporation Device 324c
+ |           +-16.1  Intel Corporation Device 324c
+ |           +-16.2  Intel Corporation Device 324c
+ |           +-16.3  Intel Corporation Device 324c
+ |           +-16.4  Intel Corporation Device 324c
+ |           +-16.5  Intel Corporation Device 324c
+ |           +-16.6  Intel Corporation Device 324c
+ |           +-16.7  Intel Corporation Device 324c
+ |           +-17.0  Intel Corporation Device 324c
+ |           +-17.1  Intel Corporation Device 324c
+ |           +-17.2  Intel Corporation Device 324c
+ |           +-17.3  Intel Corporation Device 324c
+ |           +-17.4  Intel Corporation Device 324c
+ |           +-17.5  Intel Corporation Device 324c
+ |           +-17.6  Intel Corporation Device 324c
+ |           +-17.7  Intel Corporation Device 324c
+ |           +-18.0  Intel Corporation Device 324c
+ |           +-18.1  Intel Corporation Device 324c
+ |           +-18.2  Intel Corporation Device 324c
+ |           \-18.3  Intel Corporation Device 324c
+ +-[0000:e5]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-02.0-[e6]--
+ |           \-06.0-[e7]--
+ +-[0000:d5]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           \-02.0-[d6]--+-00.0  Intel Corporation I350 Gigabit Network Connection
+ |                        \-00.1  Intel Corporation I350 Gigabit Network Connection
+ +-[0000:c5]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           \-02.0-[c6-ca]----00.0-[c7-ca]--+-00.0-[c8]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           +-01.0-[c9]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           \-02.0-[ca]----00.0  Broadcom / LSI Device 02b2
+ +-[0000:b5]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           \-02.0-[b6-bc]----00.0-[b7-bc]--+-00.0-[b8]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           +-01.0-[b9]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           +-02.0-[ba]----00.0  Broadcom / LSI Device 02b2
+ |                                           +-1e.0-[bb]----00.0  Broadcom / LSI PEX890xx PCIe Gen 5 Switch
+ |                                           \-1f.0-[bc]----00.0  Broadcom / LSI PCIe Switch management endpoint
+ +-[0000:a5]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-06.0-[a6]--
+ |           \-08.0-[a7]--
+ +-[0000:95]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-02.0-[96]--
+ |           +-04.0-[97]--
+ |           +-06.0-[98]--
+ |           \-08.0-[99]--
+ +-[0000:92]---00.0  Intel Corporation Device 2714
+ +-[0000:90]---00.0  Intel Corporation Device 4944
+ +-[0000:8f]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-01.0  Intel Corporation Device 0b25
+ |           \-02.0  Intel Corporation Device 0cfe
+ +-[0000:8d]---00.0  Intel Corporation Device 2714
+ +-[0000:8b]---00.0  Intel Corporation Device 4944
+ +-[0000:8a]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-01.0  Intel Corporation Device 0b25
+ |           \-02.0  Intel Corporation Device 0cfe
+ +-[0000:88]---00.0  Intel Corporation Device 2714
+ +-[0000:86]---00.0  Intel Corporation Device 4944
+ +-[0000:85]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-01.0  Intel Corporation Device 0b25
+ |           \-02.0  Intel Corporation Device 0cfe
+ +-[0000:83]---00.0  Intel Corporation Device 2714
+ +-[0000:81]---00.0  Intel Corporation Device 4944
+ +-[0000:80]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-01.0  Intel Corporation Device 0b25
+ |           +-02.0  Intel Corporation Device 0cfe
+ |           +-03.0  Intel Corporation Device 09a6
+ |           \-03.1  Intel Corporation Device 09a7
+ +-[0000:7f]-+-00.0  Intel Corporation Device 324d
+ |           +-00.1  Intel Corporation Device 324d
+ |           +-00.2  Intel Corporation Device 324d
+ |           +-00.3  Intel Corporation Device 324d
+ |           +-00.4  Intel Corporation Device 324d
+ |           +-00.5  Intel Corporation Device 324d
+ |           +-00.6  Intel Corporation Device 324d
+ |           +-00.7  Intel Corporation Device 324d
+ |           +-01.0  Intel Corporation Device 324d
+ |           +-01.1  Intel Corporation Device 324d
+ |           +-01.2  Intel Corporation Device 324d
+ |           +-01.3  Intel Corporation Device 324d
+ |           +-01.4  Intel Corporation Device 324d
+ |           +-01.5  Intel Corporation Device 324d
+ |           +-01.6  Intel Corporation Device 324d
+ |           +-01.7  Intel Corporation Device 324d
+ |           +-02.0  Intel Corporation Device 324d
+ |           +-02.1  Intel Corporation Device 324d
+ |           +-02.2  Intel Corporation Device 324d
+ |           +-02.3  Intel Corporation Device 324d
+ |           +-02.4  Intel Corporation Device 324d
+ |           +-02.5  Intel Corporation Device 324d
+ |           +-02.6  Intel Corporation Device 324d
+ |           +-02.7  Intel Corporation Device 324d
+ |           +-03.0  Intel Corporation Device 324d
+ |           +-03.1  Intel Corporation Device 324d
+ |           +-03.2  Intel Corporation Device 324d
+ |           +-03.3  Intel Corporation Device 324d
+ |           +-03.4  Intel Corporation Device 324d
+ |           +-03.5  Intel Corporation Device 324d
+ |           +-03.6  Intel Corporation Device 324d
+ |           +-03.7  Intel Corporation Device 324d
+ |           +-04.0  Intel Corporation Device 324d
+ |           +-04.1  Intel Corporation Device 324d
+ |           +-04.2  Intel Corporation Device 324d
+ |           +-04.3  Intel Corporation Device 324d
+ |           +-04.4  Intel Corporation Device 324d
+ |           +-04.5  Intel Corporation Device 324d
+ |           +-04.6  Intel Corporation Device 324d
+ |           +-04.7  Intel Corporation Device 324d
+ |           +-05.0  Intel Corporation Device 324d
+ |           +-05.1  Intel Corporation Device 324d
+ |           +-05.2  Intel Corporation Device 324d
+ |           +-05.3  Intel Corporation Device 324d
+ |           +-05.4  Intel Corporation Device 324d
+ |           +-05.5  Intel Corporation Device 324d
+ |           +-05.6  Intel Corporation Device 324d
+ |           +-05.7  Intel Corporation Device 324d
+ |           +-06.0  Intel Corporation Device 324d
+ |           +-06.1  Intel Corporation Device 324d
+ |           +-06.2  Intel Corporation Device 324d
+ |           +-06.3  Intel Corporation Device 324d
+ |           +-06.4  Intel Corporation Device 324d
+ |           +-06.5  Intel Corporation Device 324d
+ |           +-06.6  Intel Corporation Device 324d
+ |           +-06.7  Intel Corporation Device 324d
+ |           +-07.0  Intel Corporation Device 324d
+ |           +-07.1  Intel Corporation Device 324d
+ |           +-07.2  Intel Corporation Device 324d
+ |           +-07.3  Intel Corporation Device 324d
+ |           +-07.4  Intel Corporation Device 324d
+ |           +-07.5  Intel Corporation Device 324d
+ |           +-07.6  Intel Corporation Device 324d
+ |           +-07.7  Intel Corporation Device 324d
+ |           +-08.0  Intel Corporation Device 324d
+ |           +-08.1  Intel Corporation Device 324d
+ |           +-08.2  Intel Corporation Device 324d
+ |           +-08.3  Intel Corporation Device 324d
+ |           +-08.4  Intel Corporation Device 324d
+ |           +-08.5  Intel Corporation Device 324d
+ |           +-08.6  Intel Corporation Device 324d
+ |           +-08.7  Intel Corporation Device 324d
+ |           +-09.0  Intel Corporation Device 324d
+ |           +-09.1  Intel Corporation Device 324d
+ |           +-09.2  Intel Corporation Device 324d
+ |           +-09.3  Intel Corporation Device 324d
+ |           +-09.4  Intel Corporation Device 324d
+ |           +-09.5  Intel Corporation Device 324d
+ |           +-09.6  Intel Corporation Device 324d
+ |           +-09.7  Intel Corporation Device 324d
+ |           +-0a.0  Intel Corporation Device 324d
+ |           +-0a.1  Intel Corporation Device 324d
+ |           +-0a.2  Intel Corporation Device 324d
+ |           +-0a.3  Intel Corporation Device 324d
+ |           +-10.0  Intel Corporation Device 3245
+ |           +-10.1  Intel Corporation Device 3241
+ |           +-10.2  Intel Corporation Device 3242
+ |           +-10.3  Intel Corporation Device 3240
+ |           +-11.0  Intel Corporation Device 3245
+ |           +-11.1  Intel Corporation Device 3241
+ |           +-11.2  Intel Corporation Device 3242
+ |           +-11.3  Intel Corporation Device 3240
+ |           +-12.0  Intel Corporation Device 3245
+ |           +-12.1  Intel Corporation Device 3241
+ |           +-12.2  Intel Corporation Device 3242
+ |           +-12.3  Intel Corporation Device 3240
+ |           +-13.0  Intel Corporation Device 3245
+ |           +-13.1  Intel Corporation Device 3241
+ |           +-13.2  Intel Corporation Device 3242
+ |           +-13.3  Intel Corporation Device 3240
+ |           +-18.0  Intel Corporation Device 3245
+ |           +-19.0  Intel Corporation Device 3245
+ |           +-1a.0  Intel Corporation Device 3245
+ |           \-1b.0  Intel Corporation Device 3245
+ +-[0000:7e]-+-00.0  Intel Corporation Device 3250
+ |           +-00.1  Intel Corporation Device 3251
+ |           +-00.2  Intel Corporation Device 3252
+ |           +-02.0  Intel Corporation Device 0998
+ |           +-05.0  Intel Corporation Device 3258
+ |           +-05.1  Intel Corporation Device 324a
+ |           +-05.2  Intel Corporation Device 324a
+ |           +-05.3  Intel Corporation Device 324a
+ |           +-05.4  Intel Corporation Device 324a
+ |           +-05.5  Intel Corporation Device 324a
+ |           +-05.6  Intel Corporation Device 324a
+ |           +-05.7  Intel Corporation Device 324a
+ |           +-06.0  Intel Corporation Device 3258
+ |           +-06.1  Intel Corporation Device 324a
+ |           +-07.0  Intel Corporation Device 3258
+ |           +-09.0  Intel Corporation Device 3258
+ |           +-0d.0  Intel Corporation Device 344f
+ |           +-0d.1  Intel Corporation Device 3457
+ |           +-0e.0  Intel Corporation Device 324c
+ |           +-0e.1  Intel Corporation Device 324c
+ |           +-0e.2  Intel Corporation Device 324c
+ |           +-0e.3  Intel Corporation Device 324c
+ |           +-0e.4  Intel Corporation Device 324c
+ |           +-0e.5  Intel Corporation Device 324c
+ |           +-0e.6  Intel Corporation Device 324c
+ |           +-0e.7  Intel Corporation Device 324c
+ |           +-0f.0  Intel Corporation Device 324c
+ |           +-0f.1  Intel Corporation Device 324c
+ |           +-0f.2  Intel Corporation Device 324c
+ |           +-0f.3  Intel Corporation Device 324c
+ |           +-0f.4  Intel Corporation Device 324c
+ |           +-0f.5  Intel Corporation Device 324c
+ |           +-0f.6  Intel Corporation Device 324c
+ |           +-0f.7  Intel Corporation Device 324c
+ |           +-10.0  Intel Corporation Device 324c
+ |           +-10.1  Intel Corporation Device 324c
+ |           +-10.2  Intel Corporation Device 324c
+ |           +-10.3  Intel Corporation Device 324c
+ |           +-10.4  Intel Corporation Device 324c
+ |           +-10.5  Intel Corporation Device 324c
+ |           +-10.6  Intel Corporation Device 324c
+ |           +-10.7  Intel Corporation Device 324c
+ |           +-11.0  Intel Corporation Device 324c
+ |           +-11.1  Intel Corporation Device 324c
+ |           +-11.2  Intel Corporation Device 324c
+ |           +-11.3  Intel Corporation Device 324c
+ |           +-11.4  Intel Corporation Device 324c
+ |           +-11.5  Intel Corporation Device 324c
+ |           +-11.6  Intel Corporation Device 324c
+ |           +-11.7  Intel Corporation Device 324c
+ |           +-12.0  Intel Corporation Device 324c
+ |           +-12.1  Intel Corporation Device 324c
+ |           +-12.2  Intel Corporation Device 324c
+ |           +-12.3  Intel Corporation Device 324c
+ |           +-12.4  Intel Corporation Device 324c
+ |           +-12.5  Intel Corporation Device 324c
+ |           +-12.6  Intel Corporation Device 324c
+ |           +-12.7  Intel Corporation Device 324c
+ |           +-13.0  Intel Corporation Device 324c
+ |           +-13.1  Intel Corporation Device 324c
+ |           +-13.2  Intel Corporation Device 324c
+ |           +-13.3  Intel Corporation Device 324c
+ |           +-13.4  Intel Corporation Device 324c
+ |           +-13.5  Intel Corporation Device 324c
+ |           +-13.6  Intel Corporation Device 324c
+ |           +-13.7  Intel Corporation Device 324c
+ |           +-14.0  Intel Corporation Device 324c
+ |           +-14.1  Intel Corporation Device 324c
+ |           +-14.2  Intel Corporation Device 324c
+ |           +-14.3  Intel Corporation Device 324c
+ |           +-14.4  Intel Corporation Device 324c
+ |           +-14.5  Intel Corporation Device 324c
+ |           +-14.6  Intel Corporation Device 324c
+ |           +-14.7  Intel Corporation Device 324c
+ |           +-15.0  Intel Corporation Device 324c
+ |           +-15.1  Intel Corporation Device 324c
+ |           +-15.2  Intel Corporation Device 324c
+ |           +-15.3  Intel Corporation Device 324c
+ |           +-15.4  Intel Corporation Device 324c
+ |           +-15.5  Intel Corporation Device 324c
+ |           +-15.6  Intel Corporation Device 324c
+ |           +-15.7  Intel Corporation Device 324c
+ |           +-16.0  Intel Corporation Device 324c
+ |           +-16.1  Intel Corporation Device 324c
+ |           +-16.2  Intel Corporation Device 324c
+ |           +-16.3  Intel Corporation Device 324c
+ |           +-16.4  Intel Corporation Device 324c
+ |           +-16.5  Intel Corporation Device 324c
+ |           +-16.6  Intel Corporation Device 324c
+ |           +-16.7  Intel Corporation Device 324c
+ |           +-17.0  Intel Corporation Device 324c
+ |           +-17.1  Intel Corporation Device 324c
+ |           +-17.2  Intel Corporation Device 324c
+ |           +-17.3  Intel Corporation Device 324c
+ |           +-17.4  Intel Corporation Device 324c
+ |           +-17.5  Intel Corporation Device 324c
+ |           +-17.6  Intel Corporation Device 324c
+ |           +-17.7  Intel Corporation Device 324c
+ |           +-18.0  Intel Corporation Device 324c
+ |           +-18.1  Intel Corporation Device 324c
+ |           +-18.2  Intel Corporation Device 324c
+ |           \-18.3  Intel Corporation Device 324c
+ +-[0000:65]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           \-02.0-[66]--
+ +-[0000:55]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-02.0-[56]--
+ |           \-06.0-[57]--
+ +-[0000:45]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           \-02.0-[46-4a]----00.0-[47-4a]--+-00.0-[48]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           +-01.0-[49]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           \-02.0-[4a]----00.0  Broadcom / LSI Device 02b2
+ +-[0000:35]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           \-02.0-[36-3c]----00.0-[37-3c]--+-00.0-[38]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           +-01.0-[39]----00.0  Broadcom / LSI Device 02b2
+ |                                           +-02.0-[3a]----00.0  NVIDIA Corporation Device 2bb9
+ |                                           +-1e.0-[3b]----00.0  Broadcom / LSI PEX890xx PCIe Gen 5 Switch
+ |                                           \-1f.0-[3c]----00.0  Broadcom / LSI PCIe Switch management endpoint
+ +-[0000:25]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-06.0-[26-27]----00.0-[27]--+-00.0  ASPEED Technology, Inc. ASPEED Graphics Family
+ |           |                            \-01.0  ASPEED Technology, Inc. Device 2402
+ |           \-07.0-[28]----00.0  Renesas Technology Corp. uPD720201 USB 3.0 Host Controller
+ +-[0000:15]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-02.0-[16]--
+ |           +-04.0-[17]--
+ |           +-06.0-[18]----00.0  Samsung Electronics Co Ltd NVMe SSD Controller PM174X
+ |           \-08.0-[19]--
+ +-[0000:12]---00.0  Intel Corporation Device 2714
+ +-[0000:10]---00.0  Intel Corporation Device 4944
+ +-[0000:0f]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-01.0  Intel Corporation Device 0b25
+ |           \-02.0  Intel Corporation Device 0cfe
+ +-[0000:0d]---00.0  Intel Corporation Device 2714
+ +-[0000:0b]---00.0  Intel Corporation Device 4944
+ +-[0000:0a]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-01.0  Intel Corporation Device 0b25
+ |           \-02.0  Intel Corporation Device 0cfe
+ +-[0000:08]---00.0  Intel Corporation Device 2714
+ +-[0000:06]---00.0  Intel Corporation Device 4944
+ +-[0000:05]-+-00.0  Intel Corporation Device 09a2
+ |           +-00.1  Intel Corporation Device 09a4
+ |           +-00.2  Intel Corporation Device 09a3
+ |           +-00.4  Intel Corporation Device 0b23
+ |           +-01.0  Intel Corporation Device 0b25
+ |           \-02.0  Intel Corporation Device 0cfe
+ +-[0000:03]---00.0  Intel Corporation Device 2714
+ +-[0000:01]---00.0  Intel Corporation Device 4944
+ \-[0000:00]-+-00.0  Intel Corporation Device 09a2
+             +-00.1  Intel Corporation Device 09a4
+             +-00.2  Intel Corporation Device 09a3
+             +-00.4  Intel Corporation Device 0b23
+             +-01.0  Intel Corporation Device 0b25
+             +-02.0  Intel Corporation Device 0cfe
+             +-03.0  Intel Corporation Device 09a6
+             +-03.1  Intel Corporation Device 09a7
+             +-1f.0  Intel Corporation Device 5795
+             +-1f.4  Intel Corporation Device 5796
+             \-1f.5  Intel Corporation Device 5794
+=== which DSA WQ each rank used in the vLLM runs
+--- /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_072455/step4/Qwen3-32B/fallback1/serve.log
+  KVSHRINK_DSA_DEVICES=wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+  VLLM_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq0.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq10.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq12.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq14.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq2.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq4.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq6.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq8.0), max_transfer_size=2147483648, max_batch_size=1024
+--- /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_072455/step4/Qwen3.8-27B/fallback1/serve.log
+  KVSHRINK_DSA_DEVICES=wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+  VLLM_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+--- /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_074556_rest/step4/Qwen3.8-27B/fallback1/serve.log
+  KVSHRINK_DSA_DEVICES=wq0.0|wq2.0|wq4.0|wq6.0|wq8.0|wq10.0|wq12.0|wq14.0
+  VLLM_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63|64-79|80-95|96-111|112-127
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq0.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq10.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq12.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq14.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq2.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq4.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq6.0), max_transfer_size=2147483648, max_batch_size=1024
+      1 dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq8.0), max_transfer_size=2147483648, max_batch_size=1024

@@ -1,0 +1,161 @@
+0, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+1, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+2, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+3, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+4, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+5, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+6, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+7, NVIDIA RTX 6000D, 0 MiB, 85651 MiB
+===SETVARS
+    source "$IAXL_RECIPE_DIR/setvars.pre.sh" || {
+        echo "ERROR: recipe hook $IAXL_RECIPE_DIR/setvars.pre.sh failed" >&2
+        return 1 2>/dev/null || exit 1
+    }
+fi
+$TOP_DIR/tools/setup_system.sh
+
+export IAXL_VERSION=${IAXL_VERSION:-1.6.0}
+export IAXL_BASE_DOCKER_IMAGE=${IAXL_BASE_DOCKER_IMAGE:-"vllm/vllm-openai:v0.29.0"}
+export IAXL_DEV_DOCKER_IMAGE=${IAXL_DEV_DOCKER_IMAGE:-"vllm-iaxl-dev:$IAXL_VERSION"}
+export IAXL_BUILDER_DOCKER_IMAGE=${IAXL_BUILDER_DOCKER_IMAGE:-"vllm-iaxl-builder"}
+
+# =============================================================================
+# Configurable runtime / build environment variables (all IAXL_* prefixed).
+# Each keeps its default unless already set in the environment; edit as needed.
+# =============================================================================
+
+# ---- Build ------------------------------------------------------------------
+export DEVICE=${DEVICE:-cuda}                 # Build backend: cuda | xpu | cpu (vLLM CPU inference)
+export IAXL_CMAKE_ARGS=${IAXL_CMAKE_ARGS:-""} # Extra cmake flags, e.g. "-DENABLE_NVTX=OFF"
+# export IAXL_QATLIB=intree                   # Optional: qatlib for the in-tree driver (system qatlib if pkg-config finds it, else built into _lib); unset = out-of-tree QAT20 package
+# export IAXL_QATLIB_VERSION=26.02.0          # Optional: qatlib tag built into _lib for IAXL_QATLIB=intree; match the host qatmgr
+export NVIDIA_RUNTIME=${NVIDIA_RUNTIME:-}     # Set to "none" to skip the nvidia docker runtime/gpus args (e.g. on a storage-only node without GPUs)
+
+# ---- Feature switches -------------------------------------------------------
+export IAXL_KV_COMPRESSION=${IAXL_KV_COMPRESSION:-1} # Enable DEFLATE compression (0/1)
+export IAXL_QAT_ZIP_ENABLE=${IAXL_QAT_ZIP_ENABLE:-1} # Enable QAT compression workers (0/1)
+export IAXL_IAA_ZIP_ENABLE=${IAXL_IAA_ZIP_ENABLE:-0} # Enable IAA (QPL) compression workers (0/1)
+export IAXL_CPU_ZIP_ENABLE=${IAXL_CPU_ZIP_ENABLE:-0} # Enable CPU compression workers (0/1); costs a lot of CPU, keep off unless needed
+export IAXL_DSA_GD_ENABLE=${IAXL_DSA_GD_ENABLE:-0}   # Use Intel DSA + GDRCopy transfers (0/1)
+
+===SETVARS2
+export http_proxy="${http_proxy:-}"
+export https_proxy=$http_proxy
+
+# ---- docker (used by start.sh) ---------------------------------------------
+# A recipe's setvars.post.sh may edit CONTAINER_NAME, ENV_VARS and DOCKER_RUN_ARGS; --name and
+# the -e flags for ENV_VARS are appended after it.
+CONTAINER_NAME=${CONTAINER_NAME:-iaxl.vllm}
+# Host variables forwarded into the container with -e VAR=value. Forward inputs only: setvars.sh and
+# the recipe run again in the container and derive everything else from them.
+ENV_VARS=(
+    no_proxy
+    http_proxy
+    https_proxy
+    HOST_IP
+    MODEL
+    TP_SIZE
+    DEVICE
+    IAXL_QATLIB
+    IAXL_QATLIB_VERSION
+    IAXL_VERSION
+    IAXL_LD_PRELOAD
+    IAXL_RECIPE
+)
+
+DOCKER_RUN_ARGS=(
+    --rm
+    --privileged
+    --pid host
+    --net host
+    -it
+    -v /dev:/dev
+    --entrypoint ""
+)
+case "$DEVICE" in
+    cuda)
+        if [[ "$NVIDIA_RUNTIME" != "none" ]]; then
+            DOCKER_RUN_ARGS+=("--runtime" "nvidia" "--gpus" "all")
+        fi
+        ;;
+    xpu)
+        DOCKER_RUN_ARGS+=("--device" "/dev/dri")
+        ;;
+    cpu) ;;
+    *)
+        echo "Unsupported DEVICE: $DEVICE (expected cuda, xpu or cpu)" >&2
+        return 1 2>/dev/null || exit 1
+        ;;
+esac
+DOCKER_RUN_ARGS+=("-e" "HF_HOME=/_data/hf_home")
+DOCKER_RUN_ARGS+=("-v" "$PWD/_data:/_data")
+# qatlib (in-tree driver) shares the host's QAT VFs through the host qatmgr socket.
+if [[ -d /run/qat ]]; then
+    DOCKER_RUN_ARGS+=("-v" "/run/qat:/run/qat")
+fi
+if [[ -d "$MODEL" ]]; then
+    MODEL_DIR=$(realpath "$MODEL")
+    DOCKER_RUN_ARGS+=("-v" "$MODEL_DIR:$MODEL_DIR:ro")
+fi
+DOCKER_RUN_ARGS+=("-v" "$PWD:$PWD" "-w" "$PWD")
+
+if [[ -f "${IAXL_RECIPE_DIR:-}/setvars.post.sh" ]]; then
+    source "$IAXL_RECIPE_DIR/setvars.post.sh" || {
+        echo "ERROR: recipe hook $IAXL_RECIPE_DIR/setvars.post.sh failed" >&2
+        return 1 2>/dev/null || exit 1
+    }
+fi
+
+DOCKER_RUN_ARGS+=("--name" "$CONTAINER_NAME")
+for var in "${ENV_VARS[@]}"; do
+    DOCKER_RUN_ARGS+=("-e" "$var=${!var:-}")
+done
+===START
+#!/bin/bash -e
+# NVIDIA_RUNTIME=none ./start.sh  -> skip nvidia docker runtime/gpus args (e.g. on a storage-only node)
+# ./start.sh --rebuild            -> rebuild the dev image even if it already exists
+# DEVICE=cpu ./start.sh           -> vLLM CPU inference; also set the CPU base image (see doc/usage/vllm-cpu-inference.en.md)
+# IAXL_RECIPE=<name> ./start.sh   -> apply the overrides in examples/recipes/<name> (see doc/design/recipes.md)
+REBUILD=0
+for arg in "$@"; do
+    case "$arg" in
+        --rebuild) REBUILD=1 ;;
+        *) echo "Usage: $0 [--rebuild]" >&2; exit 1 ;;
+    esac
+done
+set --
+
+source setvars.sh
+
+if [[ $REBUILD == 1 ]] || ! docker image inspect "$IAXL_DEV_DOCKER_IMAGE" >/dev/null 2>&1; then
+    docker build -f docker/Dockerfile.dev -t "$IAXL_DEV_DOCKER_IMAGE" . \
+        --build-arg "BASE=$IAXL_BASE_DOCKER_IMAGE" \
+        --build-arg "DEVICE=$DEVICE" \
+        --build-arg IAXL_QATLIB_VERSION \
+        --build-arg http_proxy --build-arg https_proxy --build-arg no_proxy
+fi
+
+# All docker run flags come from DOCKER_RUN_ARGS in setvars.sh (a recipe's setvars.post.sh can edit them).
+docker run \
+    "${DOCKER_RUN_ARGS[@]}" \
+    "$IAXL_DEV_DOCKER_IMAGE" \
+    bash -c '
+        for gid in $(id -G); do
+            getent group "$gid" >/dev/null 2>&1 || groupadd -g "$gid" "hostgrp$gid" 2>/dev/null || true
+        done
+        git config --global --add safe.directory "$PWD"
+        pip install -e . --verbose --no-build-isolation
+        exec bash'
+vllm-iaxl-dev-pr70:1.6.0 4 hours ago
+tangyang/vllm-iaxl:0.33.0 2 weeks ago
+vllm-iaxl-dev:1.5.1 3 weeks ago
+vllm-iaxl-78aaef4-benchmark:1.5.1 3 weeks ago
+vllm-iaxl-dev-1103-dsa-pagefault-dev:1.5.1 3 weeks ago
+vllm-iaxl-dev-qiuyu-1026:1.5.1 3 weeks ago
+vllm-iaxl-dev-qiuyu-omp-main-task-release-dev:1.5.1 3 weeks ago
+vllm-iaxl-dev-qiuyu-python-overhead-dev:1.5.1 3 weeks ago
+vllm-iaxl-dev-qwen38-benchmark:1.5.1 3 weeks ago
+vllm-iaxl-dev:latest 5 weeks ago
+vllm-iaxl-dev-qiuyu-v29:latest 5 weeks ago
+vllm-iaxl-dev-liang1:latest 2 months ago
+vllm-iaxl-dev-qiuyu:latest 2 months ago

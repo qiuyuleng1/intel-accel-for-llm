@@ -1,0 +1,41 @@
+[2026-11-20 07:46:39 UTC] start: steps=2 3 4 result_dir=/home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_074556_rest
+[2026-11-20 07:46:39 UTC] waiting for container iaxl.vllm + pip install -e . (watching /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_074556_rest/start.log)
+[2026-11-20 07:46:39 UTC] container iaxl.vllm running, waiting for pip install -e . (start.log line 144)
+[2026-11-20 07:46:39 UTC] container iaxl.vllm ready (waited 0s)
+[2026-11-20 07:46:39 UTC] step 2 started
+step2 H2D=DSA D2H=DSA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using Intel DSA backend;copy_chunks_batch H2D: using Intel DSA backend;
+step2 H2D=CUDA D2H=CUDA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using CUDA backend;copy_chunks_batch H2D: using CUDA backend;
+step2 H2D=DSA D2H=CUDA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using CUDA backend;copy_chunks_batch H2D: using Intel DSA backend;
+step2 H2D=CUDA D2H=DSA: PASS (COMPARE tested_blocks_per_layer=32 layers=32 mismatched_layers=0) backends: copy_chunks_batch D2H: using Intel DSA backend;copy_chunks_batch H2D: using CUDA backend;
+[2026-11-20 07:47:19 UTC] step 2 PASS (40s)
+[2026-11-20 07:47:19 UTC] step 3 started
+step3 ranks1_16k: PASS (1 crossover lines, Verification: passed)
+step3 ranks1_16k crossover lines: [rank0] DSA crossover measured by rank 0: H2D 384 KB, D2H 256 KB | wait for TP ranks 0.02s, measure 0.27s, wait for rank 0 result 0.00s;
+step3 ranks1_16k backends:       1 copy_chunks_batch D2H: using Intel DSA backend;      1 copy_chunks_batch H2D: using Intel DSA backend;
+step3 ranks1_784k: PASS (1 crossover lines, Verification: passed)
+step3 ranks1_784k crossover lines: [rank0] DSA crossover measured by rank 0: H2D 384 KB, D2H 256 KB | wait for TP ranks 0.02s, measure 0.29s, wait for rank 0 result 0.00s;
+step3 ranks1_784k backends:       1 copy_chunks_batch D2H: using CUDA backend;      1 copy_chunks_batch H2D: using CUDA backend;
+step3 ranks2_16k: PASS (2 crossover lines, Verification: passed)
+step3 ranks2_16k crossover lines: [rank0] DSA crossover measured by rank 0: H2D 256 KB, D2H 256 KB | wait for TP ranks 0.18s, measure 0.25s, wait for rank 0 result 0.00s;[rank1] DSA crossover measured by rank 0: H2D 256 KB, D2H 256 KB | wait for TP ranks 0.04s, measure 0.41s, wait for rank 0 result 0.00s;
+step3 ranks2_16k backends:       2 copy_chunks_batch D2H: using Intel DSA backend;      2 copy_chunks_batch H2D: using Intel DSA backend;
+step3 timeout: PASS (RAISED after 7.6s (IAXL_API_TIMEOUT=5): worker rank 0 did not answer GET /v1/health in time: <urlopen error [Errno 111] Connection refused>)
+[2026-11-20 07:48:19 UTC] step 3 PASS (60s)
+[2026-11-20 07:48:19 UTC] step 4 started
+[2026-11-20 07:48:21 UTC] starting vLLM: /media/model-space/Qwen3.8-27B TP=8 IAXL_DSA_AUTO_FALLBACK_ENABLE=1, log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_074556_rest/step4/Qwen3.8-27B/fallback1/serve.log
+[2026-11-20 07:53:31 UTC] vLLM ready after 310s, sending requests
+[2026-11-20 07:53:41 UTC] stopping vLLM pid 3471196 (process tree: 3471196 3471299 3471300 3471325 3471326 3471327 3471328 3471329 3471330 3471331 3471332)
+[2026-11-20 07:53:52 UTC] starting vLLM: /media/model-space/Qwen3.8-27B TP=8 IAXL_DSA_AUTO_FALLBACK_ENABLE=0, log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_074556_rest/step4/Qwen3.8-27B/fallback0/serve.log
+[2026-11-20 07:55:37 UTC] vLLM ready after 105s, sending requests
+[2026-11-20 07:55:48 UTC] stopping vLLM pid 3484231 (process tree: 3484231 3484331 3484332 3484387 3484388 3484389 3484390 3484391 3484392 3484393 3484394)
+step4 Qwen3.8-27B: PASS, see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_074556_rest/step4/Qwen3.8-27B/check.txt
+step4 Qwen3.8-27B PASS =1: 8 ranks log the crossover
+step4 Qwen3.8-27B PASS =1: all ranks use the same crossover
+step4 Qwen3.8-27B PASS =0: no rank calibrates
+step4 Qwen3.8-27B PASS =1: every prompt hits in round 3
+step4 Qwen3.8-27B PASS =1: no Traceback
+step4 Qwen3.8-27B PASS =1: every reply is non-empty printable ASCII
+step4 Qwen3.8-27B PASS =0: every prompt hits in round 3
+step4 Qwen3.8-27B PASS =0: no Traceback
+step4 Qwen3.8-27B PASS =0: every reply is non-empty printable ASCII
+[2026-11-20 07:55:58 UTC] step 4 PASS (459s)
+[2026-11-20 07:55:58 UTC] ALL DONE. Summary: /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261120_074556_rest/summary.txt

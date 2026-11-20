@@ -1,0 +1,498 @@
+diff --git a/benchmark/kvstore/kvstore_benchmark.py b/benchmark/kvstore/kvstore_benchmark.py
+index 0030a0a..6bcc174 100755
+--- a/benchmark/kvstore/kvstore_benchmark.py
++++ b/benchmark/kvstore/kvstore_benchmark.py
+@@ -507,6 +507,9 @@ class Benchmark:
+             name: tensor.index_select(BLOCK_DIM, self.index).clone()
+             for name, tensor in self.kv_caches.items()
+         }
++
++    # Separate from setup(): KVStore creation waits for all TP ranks, so all ranks call this together.
++    def create_store(self) -> None:
+         self.kvstore = KVStore(
+             model_name="kvstore_benchmark",
+             kv_caches=self.kv_caches,
+@@ -635,6 +638,7 @@ def run_benchmark(args: argparse.Namespace) -> bool:
+     bench = Benchmark(args)
+     bench.print_config()
+     bench.setup()
++    bench.create_store()
+     bench.warmup()
+     put_time = bench.put()
+     get_time = bench.get()
+diff --git a/benchmark/kvstore/kvstore_benchmark_multi_ranks.py b/benchmark/kvstore/kvstore_benchmark_multi_ranks.py
+index c5f500a..888b319 100644
+--- a/benchmark/kvstore/kvstore_benchmark_multi_ranks.py
++++ b/benchmark/kvstore/kvstore_benchmark_multi_ranks.py
+@@ -5,7 +5,7 @@
+ """Run kvstore_benchmark.py with one process per TP rank, mirroring vLLM.
+ 
+ The main process is the scheduler: it drives every rank worker through the same
+-steps (setup, warmup, PUT, GET, verify) over a pipe and prints the report.
++steps (setup, create_store, warmup, PUT, GET, verify) over a pipe and prints the report.
+ Rank r is bound to its CPUs / QAT / DSA via iaxl.utils.affinity (using the
+ per-rank env from setvars.sh), gets its own GPU through CUDA_VISIBLE_DEVICES
+ and its own KVStore(rank=r). Timed steps start simultaneously on all ranks and
+@@ -111,6 +111,7 @@ def schedule(kb, tp_size: int, conns: list) -> bool:
+ 
+     call("setup", [0])  # rank 0 writes the model KV cache file the others reuse
+     call("setup", range(1, tp_size))
++    call("create_store")
+     total_blocks = call("total_blocks", [0])[0]
+     total_bytes = call("total_bytes", [0])[0]
+     call("warmup")
+diff --git a/iaxl/csrc/common/envs.c b/iaxl/csrc/common/envs.c
+index 88a9885..206d05a 100644
+--- a/iaxl/csrc/common/envs.c
++++ b/iaxl/csrc/common/envs.c
+@@ -103,6 +103,7 @@ __attribute__((constructor(101))) void envs_init(void) {
+     envs.IAXL_CACHE_CACHEGROUP_NUM = env_int("IAXL_CACHE_CACHEGROUP_NUM", 100000);
+ 
+     envs.IAXL_DSA_GD_ENABLE = env_bool("IAXL_DSA_GD_ENABLE", 0);
++    envs.IAXL_DSA_AUTO_FALLBACK_ENABLE = env_bool("IAXL_DSA_AUTO_FALLBACK_ENABLE", 1);
+ 
+     envs.IAXL_DEBUG_LOG = env_bool("IAXL_DEBUG_LOG", 0);
+     envs.IAXL_PROFILE_MODE = env_str("IAXL_PROFILE_MODE", "disabled");
+diff --git a/iaxl/csrc/include/env.h b/iaxl/csrc/include/env.h
+index cae93cb..012e6ea 100644
+--- a/iaxl/csrc/include/env.h
++++ b/iaxl/csrc/include/env.h
+@@ -71,6 +71,7 @@ struct Envs {
+     int IAXL_CACHE_CACHEGROUP_NUM;
+ 
+     bool IAXL_DSA_GD_ENABLE;
++    bool IAXL_DSA_AUTO_FALLBACK_ENABLE;
+     const char *(*IAXL_DSA_WQS)(void);
+ 
+     bool IAXL_DEBUG_LOG;
+diff --git a/iaxl/csrc/include/kv_xfer.h b/iaxl/csrc/include/kv_xfer.h
+index 6e0e94d..3a4777f 100644
+--- a/iaxl/csrc/include/kv_xfer.h
++++ b/iaxl/csrc/include/kv_xfer.h
+@@ -4,6 +4,7 @@
+ #pragma once
+ 
+ #include <cstdint>
++#include <utility>
+ #include <vector>
+ 
+ #include <pybind11/pybind11.h>
+@@ -60,6 +61,17 @@ bool dsa_copy_chunks_batch(char *gpu_bar_base, int64_t chunk_stride, int64_t out
+ void dsa_wait_ticket(uint64_t ticket);
+ // Ops::copy_wait for the GPU backend: waits for the context's own ticket only.
+ void dsa_copy_wait(context_t ctx);
++// CUDA batch path of copy_chunks_batch; dsa_calibrate_crossover() times this same code.
++void cuda_copy_chunks_batch(char *gpu_base_ptr, int64_t chunk_stride, int64_t outer_dims,
++                            int64_t inner_size, int64_t outer_block_size, bool h2d,
++                            const std::vector<int64_t> &chunk_indices,
++                            const std::vector<char *> &cpu_ptrs, stream_t work_stream);
++// Depends only on env vars, so every rank gets the same answer.
++bool dsa_auto_fallback_enabled();
++// Returns {H2D, D2H} crossover block sizes in bytes; INT64_MAX means DSA wins at every size.
++std::pair<int64_t, int64_t> dsa_calibrate_crossover(int device_index);
++// Copies whose contiguous block size is >= the crossover of their direction use CUDA batch.
++void dsa_set_crossover(int64_t h2d_bytes, int64_t d2h_bytes);
+ #endif
+ 
+ // Per-context backend: the GPU (cuda/xpu) free functions above, or the RDMA
+diff --git a/iaxl/csrc/kv_xfer/cuda.cpp b/iaxl/csrc/kv_xfer/cuda.cpp
+index f111418..d933a5a 100644
+--- a/iaxl/csrc/kv_xfer/cuda.cpp
++++ b/iaxl/csrc/kv_xfer/cuda.cpp
+@@ -256,6 +256,7 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
+     int64_t outer_dims = x->outer_dims;
+     int64_t inner_size = x->inner_size;
+     int64_t outer_block_size = x->outer_block_size;
++    const char *direction = h2d ? "H2D" : "D2H";
+ 
+     static std::once_flag layout_noted;
+     std::call_once(layout_noted, [&] {
+@@ -267,9 +268,12 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
+ 
+     if (dsa_copy_chunks_batch(x->gpu_bar_base, chunk_stride, outer_dims, inner_size,
+                               outer_block_size, h2d, chunk_indices, cpu_ptrs, x->dsa_ticket)) {
+-        static std::once_flag dsa_noted;
+-        std::call_once(dsa_noted, [] {
+-            fprintf(stderr, "[kv_xfer] copy_chunks_batch: using Intel DSA backend\n");
++        // With a crossover, H2D and D2H may pick different backends, so log each direction once.
++        static std::once_flag dsa_h2d_noted;
++        static std::once_flag dsa_d2h_noted;
++        std::call_once(h2d ? dsa_h2d_noted : dsa_d2h_noted, [direction] {
++            fprintf(stderr, "[kv_xfer] copy_chunks_batch %s: using Intel DSA backend\n",
++                    direction);
+         });
+         return;
+     }
+@@ -282,12 +286,22 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
+ #else
+     static const char *kCudaApi = "cudaMemcpyAsync";
+ #endif
+-    static std::once_flag cuda_noted;
+-    std::call_once(cuda_noted, [] {
+-        fprintf(stderr, "[kv_xfer] copy_chunks_batch: using CUDA backend (%s)\n", kCudaApi);
++    static std::once_flag cuda_h2d_noted;
++    static std::once_flag cuda_d2h_noted;
++    std::call_once(h2d ? cuda_h2d_noted : cuda_d2h_noted, [direction] {
++        fprintf(stderr, "[kv_xfer] copy_chunks_batch %s: using CUDA backend (%s)\n", direction,
++                kCudaApi);
+     });
+ 
+-    GpuStream_t stream = x->work_stream;
++    cuda_copy_chunks_batch(gpu_base_ptr, chunk_stride, outer_dims, inner_size, outer_block_size,
++                           h2d, chunk_indices, cpu_ptrs, x->work_stream);
++}
++
++void cuda_copy_chunks_batch(char *gpu_base_ptr, int64_t chunk_stride, int64_t outer_dims,
++                            int64_t inner_size, int64_t outer_block_size, bool h2d,
++                            const std::vector<int64_t> &chunk_indices,
++                            const std::vector<char *> &cpu_ptrs, stream_t work_stream) {
++    GpuStream_t stream = static_cast<GpuStream_t>(work_stream);
+ #if USE_CUDA_MEMCPY_3D_BATCH
+ 
+     size_t num_chunks = chunk_indices.size();
+diff --git a/iaxl/csrc/kv_xfer/dsa.cpp b/iaxl/csrc/kv_xfer/dsa.cpp
+index 5d6cb61..727673c 100644
+--- a/iaxl/csrc/kv_xfer/dsa.cpp
++++ b/iaxl/csrc/kv_xfer/dsa.cpp
+@@ -1,13 +1,21 @@
+ // Copyright (C) 2026 Intel Corporation
+ // SPDX-License-Identifier: Apache-2.0
+ 
++#include <algorithm>
++#include <atomic>
++#include <chrono>
+ #include <cstdint>
+ #include <cstdlib>
+ #include <cstring>
++#include <limits>
+ #include <mutex>
++#include <random>
+ #include <unordered_map>
++#include <utility>
+ #include <vector>
+ 
++#include <cuda_runtime.h>
++
+ #include "kv_pool.h"
+ #include "kv_xfer.h"
+ #include "env.h"
+@@ -37,6 +45,18 @@ struct DsaRegion {
+ static std::mutex dsa_region_mutex;
+ static std::unordered_map<uintptr_t, DsaRegion> dsa_regions; // by KV pool base
+ 
++// Contiguous block size from which each direction uses CUDA batch; INT64_MAX = always DSA.
++static std::atomic<int64_t> dsa_h2d_crossover{INT64_MAX};
++static std::atomic<int64_t> dsa_d2h_crossover{INT64_MAX};
++
++// 128 MiB per copy, 2 warmup + 10 timed copies, keep the fastest: most stable in the 6000d test.
++static constexpr int64_t kCalibrateBytes = 128LL << 20;
++static constexpr int64_t kCalibrateFirstBlockSize = 256LL << 10;
++static constexpr int64_t kCalibrateBlockSizeStep = 128LL << 10;
++static constexpr int64_t kCalibrateLastBlockSize = 4LL << 20;
++static constexpr int kCalibrateWarmupCopies = 2;
++static constexpr int kCalibrateTimedCopies = 10;
++
+ // kv_pool hooks: called with the registry lock held, so never call back into kv_pool here.
+ static void dsa_on_register(const KVPool &p) {
+     if (!envs.IAXL_DSA_GD_ENABLE || p.device != PoolDevice::GPU)
+@@ -91,6 +111,9 @@ bool dsa_copy_chunks_batch(char *gpu_bar_base, int64_t chunk_stride, int64_t out
+ 
+     if (gpu_bar_base == nullptr) // IAXL_DSA_GD_ENABLE=0: the KV pool has no BAR mapping
+         return false;
++    const int64_t crossover = is_h2d ? dsa_h2d_crossover.load() : dsa_d2h_crossover.load();
++    if (inner_size >= crossover) // CUDA batch was measured faster at this block size
++        return false;
+ 
+     std::lock_guard<std::mutex> lock(dsa_context_mutex);
+ 
+@@ -142,4 +165,143 @@ void dsa_wait_ticket(uint64_t ticket) {
+     IAXL_CHECK(dsa_memcpy_batch_wait(ticket) == 0, "dsa_wait_ticket: DSA batch failed");
+ }
+ 
++bool dsa_auto_fallback_enabled() {
++    return envs.IAXL_DSA_AUTO_FALLBACK_ENABLE && envs.IAXL_DSA_GD_ENABLE;
++}
++
++void dsa_set_crossover(int64_t h2d_bytes, int64_t d2h_bytes) {
++    dsa_h2d_crossover.store(h2d_bytes);
++    dsa_d2h_crossover.store(d2h_bytes);
++}
++
++// CUDA reaches the GPU buffer at gpu_buffer, DSA reaches the same memory at gpu_bar_buffer.
++struct CalibrationResources {
++    int device_index;
++    char *gpu_buffer;
++    char *gpu_bar_buffer;
++    char *host_buffer;
++    cudaStream_t stream;
++    cudaEvent_t start_event;
++    cudaEvent_t stop_event;
++};
++
++static double calibrate_cuda_batch_ms(const CalibrationResources &resources, int64_t block_size,
++                                      bool h2d, const std::vector<int64_t> &chunk_indices,
++                                      const std::vector<char *> &cpu_ptrs) {
++    double best_ms = std::numeric_limits<double>::max();
++    for (int copy = 0; copy < kCalibrateWarmupCopies + kCalibrateTimedCopies; ++copy) {
++        IAXL_CHECK(cudaEventRecord(resources.start_event, resources.stream) == cudaSuccess,
++                   "dsa calibrate: cudaEventRecord failed");
++        cuda_copy_chunks_batch(resources.gpu_buffer, block_size, 1, block_size, block_size, h2d,
++                               chunk_indices, cpu_ptrs, resources.stream);
++        IAXL_CHECK(cudaEventRecord(resources.stop_event, resources.stream) == cudaSuccess,
++                   "dsa calibrate: cudaEventRecord failed");
++        IAXL_CHECK(cudaEventSynchronize(resources.stop_event) == cudaSuccess,
++                   "dsa calibrate: cudaEventSynchronize failed");
++        float elapsed_ms = 0.0f;
++        IAXL_CHECK(cudaEventElapsedTime(&elapsed_ms, resources.start_event,
++                                        resources.stop_event) == cudaSuccess,
++                   "dsa calibrate: cudaEventElapsedTime failed");
++        if (copy >= kCalibrateWarmupCopies && elapsed_ms < best_ms)
++            best_ms = elapsed_ms;
++    }
++    return best_ms;
++}
++
++static double calibrate_dsa_ms(const CalibrationResources &resources, int64_t block_size,
++                               bool h2d, const std::vector<int64_t> &chunk_indices,
++                               const std::vector<char *> &cpu_ptrs) {
++    double best_ms = std::numeric_limits<double>::max();
++    for (int copy = 0; copy < kCalibrateWarmupCopies + kCalibrateTimedCopies; ++copy) {
++        const auto start = std::chrono::steady_clock::now();
++        uint64_t ticket = 0;
++        IAXL_CHECK(dsa_copy_chunks_batch(resources.gpu_bar_buffer, block_size, 1, block_size,
++                                         block_size, h2d, chunk_indices, cpu_ptrs, ticket),
++                   "dsa calibrate: DSA batch submit failed");
++        dsa_wait_ticket(ticket);
++        const std::chrono::duration<double, std::milli> elapsed =
++            std::chrono::steady_clock::now() - start;
++        if (copy >= kCalibrateWarmupCopies && elapsed.count() < best_ms)
++            best_ms = elapsed.count();
++    }
++    return best_ms;
++}
++
++// Smallest scanned block size where CUDA batch beats DSA; INT64_MAX when DSA wins at every size.
++static int64_t calibrate_direction(const CalibrationResources &resources, bool h2d) {
++    const char *direction = h2d ? "H2D" : "D2H";
++    int measured_sizes = 0;
++    for (int64_t block_size = kCalibrateFirstBlockSize; block_size <= kCalibrateLastBlockSize;
++         block_size += kCalibrateBlockSizeStep) {
++        const int64_t block_count = kCalibrateBytes / block_size;
++        std::vector<int64_t> chunk_indices(block_count);
++        std::vector<char *> cpu_ptrs(block_count);
++        for (int64_t block_index = 0; block_index < block_count; ++block_index) {
++            chunk_indices[block_index] = block_index;
++            cpu_ptrs[block_index] = resources.host_buffer + block_index * block_size;
++        }
++        // Scattered GPU blocks like real KV; fixed seed keeps the order the same every run.
++        std::mt19937 generator(0);
++        std::shuffle(chunk_indices.begin(), chunk_indices.end(), generator);
++        const double cuda_batch_ms =
++            calibrate_cuda_batch_ms(resources, block_size, h2d, chunk_indices, cpu_ptrs);
++        const double dsa_ms = calibrate_dsa_ms(resources, block_size, h2d, chunk_indices, cpu_ptrs);
++        measured_sizes++;
++        if (cuda_batch_ms < dsa_ms) {
++            const double copied_bytes = static_cast<double>(block_count * block_size);
++            fprintf(stderr,
++                    "[kv_xfer] dsa calibrate GPU%d %s: crossover %lld KB (DSA %.1f GB/s, "
++                    "CUDA batch %.1f GB/s, %d block sizes measured)\n",
++                    resources.device_index, direction, static_cast<long long>(block_size >> 10),
++                    copied_bytes / dsa_ms / 1e6, copied_bytes / cuda_batch_ms / 1e6,
++                    measured_sizes);
++            return block_size;
++        }
++    }
++    fprintf(stderr,
++            "[kv_xfer] dsa calibrate GPU%d %s: no crossover up to %lld KB (%d block sizes "
++            "measured), all copies use DSA\n",
++            resources.device_index, direction,
++            static_cast<long long>(kCalibrateLastBlockSize >> 10), measured_sizes);
++    return INT64_MAX;
++}
++
++std::pair<int64_t, int64_t> dsa_calibrate_crossover(int device_index) {
++    CalibrationResources resources{};
++    resources.device_index = device_index;
++    IAXL_CHECK(cudaSetDevice(device_index) == cudaSuccess, "dsa calibrate: cudaSetDevice failed");
++    IAXL_CHECK(cudaMalloc(reinterpret_cast<void **>(&resources.gpu_buffer), kCalibrateBytes) ==
++                   cudaSuccess,
++               "dsa calibrate: cudaMalloc of 128 MiB failed");
++    IAXL_CHECK(cudaHostAlloc(reinterpret_cast<void **>(&resources.host_buffer), kCalibrateBytes,
++                             cudaHostAllocDefault) == cudaSuccess,
++               "dsa calibrate: cudaHostAlloc of 128 MiB failed");
++    const uint64_t gpu_address = reinterpret_cast<uint64_t>(resources.gpu_buffer);
++    void *bar_buffer = nullptr;
++    const bool mapped =
++        dsa_gd_default_register(gpu_address, kCalibrateBytes) == 0 &&
++        dsa_gd_default_gpu_bar_addr(gpu_address, kCalibrateBytes, &bar_buffer) == 0;
++    IAXL_CHECK(mapped, "dsa calibrate: GDRCopy cannot map 128 MiB, set "
++                       "IAXL_DSA_AUTO_FALLBACK_ENABLE=0 to skip calibration");
++    resources.gpu_bar_buffer = static_cast<char *>(bar_buffer);
++    IAXL_CHECK(cudaStreamCreateWithFlags(&resources.stream, cudaStreamNonBlocking) == cudaSuccess,
++               "dsa calibrate: cudaStreamCreate failed");
++    IAXL_CHECK(cudaEventCreate(&resources.start_event) == cudaSuccess,
++               "dsa calibrate: cudaEventCreate failed");
++    IAXL_CHECK(cudaEventCreate(&resources.stop_event) == cudaSuccess,
++               "dsa calibrate: cudaEventCreate failed");
++
++    const int64_t h2d_crossover = calibrate_direction(resources, true);
++    const int64_t d2h_crossover = calibrate_direction(resources, false);
++
++    cudaEventDestroy(resources.stop_event);
++    cudaEventDestroy(resources.start_event);
++    cudaStreamDestroy(resources.stream);
++    IAXL_CHECK(dsa_gd_default_unregister(gpu_address, kCalibrateBytes) == 0,
++               "dsa calibrate: mapping not found");
++    cudaFreeHost(resources.host_buffer);
++    cudaFree(resources.gpu_buffer);
++    return {h2d_crossover, d2h_crossover};
++}
++
+ } // namespace kv_xfer
+diff --git a/iaxl/csrc/torch_ext/torch_ext.cpp b/iaxl/csrc/torch_ext/torch_ext.cpp
+index 06ed356..ea81540 100644
+--- a/iaxl/csrc/torch_ext/torch_ext.cpp
++++ b/iaxl/csrc/torch_ext/torch_ext.cpp
+@@ -634,6 +634,20 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+         "Stable-sort the waiting OMP-Main tasks of level `priority` by sort_key",
+         py::arg("priority"), py::call_guard<py::gil_scoped_release>());
+ 
++#if defined(CUDA_SUPPORT) && defined(DSA_SUPPORT)
++    m.def("dsa_auto_fallback_enabled", &kv_xfer::dsa_auto_fallback_enabled,
++          "IAXL_DSA_AUTO_FALLBACK_ENABLE and IAXL_DSA_GD_ENABLE are both on");
++    // GIL released: this rank's mgmt HTTP thread must keep answering other ranks while measuring.
++    m.def("dsa_calibrate_crossover", &kv_xfer::dsa_calibrate_crossover, py::arg("device_index"),
++          "Measure DSA vs CUDA batch; returns (h2d_bytes, d2h_bytes), INT64_MAX = never fall back",
++          py::call_guard<py::gil_scoped_release>());
++    m.def("dsa_set_crossover", &kv_xfer::dsa_set_crossover, py::arg("h2d_bytes"),
++          py::arg("d2h_bytes"),
++          "Copies with contiguous block size >= the crossover use CUDA batch");
++#else
++    m.def("dsa_auto_fallback_enabled", []() { return false; });
++#endif
++
+ #ifndef CPU_SUPPORT // RDMA (remote_pool) runs on NIXL, which DEVICE=cpu builds do not link
+     m.def("rdma_init", &kv_xfer::rdma_init, py::arg("name"), py::arg("listen_port"),
+           py::call_guard<py::gil_scoped_release>());
+diff --git a/iaxl/kvstore/api.py b/iaxl/kvstore/api.py
+index 44173f4..b9398d0 100644
+--- a/iaxl/kvstore/api.py
++++ b/iaxl/kvstore/api.py
+@@ -4,6 +4,7 @@
+ import json
+ import logging
+ import threading
++import time
+ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+ from urllib.parse import urlparse, parse_qs, urlencode
+ from concurrent.futures import ThreadPoolExecutor
+@@ -190,6 +191,20 @@ class _WorkerClient:
+             return {"error": str(e), "rank": self.rank}
+ 
+ 
++# TP ranks share one host, so worker `rank` listens on 127.0.0.1 at base port + rank.
++def wait_for_worker(rank: int, path: str, deadline: float) -> dict:
++    client = _WorkerClient(rank, "127.0.0.1", envs.IAXL_API_WORKER_BASE_PORT + rank)
++    while True:
++        reply = client.get(path)
++        if "error" not in reply:
++            return reply
++        if time.monotonic() >= deadline:
++            raise RuntimeError(
++                f"worker rank {rank} did not answer GET {path} in time: {reply['error']}"
++            )
++        time.sleep(0.01)
++
++
+ def _parse_rank_targets(query_params: dict) -> Optional[List[int]]:
+     if "rank" in query_params:
+         return [int(query_params["rank"])]
+diff --git a/iaxl/kvstore/kvstore.py b/iaxl/kvstore/kvstore.py
+index c74b106..aa96b51 100644
+--- a/iaxl/kvstore/kvstore.py
++++ b/iaxl/kvstore/kvstore.py
+@@ -12,6 +12,7 @@ import numpy as np
+ from typing import Dict, List, Mapping, Optional, Set, TYPE_CHECKING, Union, cast
+ import psutil
+ from ..envs import envs
++from .. import torch_ext as _iqt
+ from ..kvflow import KVFlow, Task, get_accelerator_device
+ from ..remote_pool.remote_tensor import RemoteTensor
+ from ..utils.profiler import (
+@@ -26,6 +27,7 @@ from .api import (
+     register as mgmt_register,
+     start_mgmt_server,
+     stop_mgmt_server,
++    wait_for_worker,
+ )
+ 
+ logger = logging.getLogger(__name__)
+@@ -36,6 +38,16 @@ def _get_default_cache_size_gb() -> float:
+     return available_bytes / (10 * 1024**3)
+ 
+ 
++_INT64_MAX = 2**63 - 1
++
++
++def _format_crossover(nbytes: int) -> str:
++    # dsa_calibrate_crossover returns INT64_MAX when DSA beats CUDA batch at every block size.
++    if nbytes == _INT64_MAX:
++        return "no crossover (all copies use DSA)"
++    return f"{nbytes // 1024} KB"
++
++
+ def _abort_on_error(fn):
+     # An exception would only end the evict thread, leaving ranks diverged and has() possibly stuck.
+     @functools.wraps(fn)
+@@ -187,6 +199,10 @@ class KVStoreLocal:
+         self._mgmt_server = start_mgmt_server(
+             role=role, rank=self.rank, num_workers=self.tp_size
+         )
++        if role == "worker" and _iqt.dsa_auto_fallback_enabled():
++            first_tensor = next(iter(self.kv_caches.values()))
++            if first_tensor.is_cuda:
++                self._calibrate_dsa_crossover(first_tensor.device.index)
+         if role == "controller":
+             self._controller = cast(ControllerServer, self._mgmt_server)
+             # Workers start with an empty DDR pool: every row already in the DB is disk-only.
+@@ -466,6 +482,40 @@ class KVStoreLocal:
+             st["host_mem_used_bytes"] / gib, st["host_mem_total_bytes"] / gib,
+         )
+ 
++    def _calibrate_dsa_crossover(self, device_index: int) -> None:
++        # All TP ranks measure together like real TP copies; all use the first rank's result.
++        tp_group_first_rank = self.rank - self.rank % self.tp_size
++        wait_start = time.monotonic()
++        deadline = wait_start + envs.IAXL_API_TIMEOUT
++        for tp_rank in range(self.tp_size):
++            wait_for_worker(tp_group_first_rank + tp_rank, "/v1/health", deadline)
++        measure_start = time.monotonic()
++        h2d_crossover, d2h_crossover = _iqt.dsa_calibrate_crossover(device_index)
++        measure_end = time.monotonic()
++        if self.rank == tp_group_first_rank:
++            crossover = {"h2d": h2d_crossover, "d2h": d2h_crossover}
++            mgmt_register("GET", "/v1/dsa/crossover", lambda params, c=crossover: c)
++        else:
++            crossover = wait_for_worker(
++                tp_group_first_rank,
++                "/v1/dsa/crossover",
++                measure_end + envs.IAXL_API_TIMEOUT,
++            )
++        result_received = time.monotonic()
++        _iqt.dsa_set_crossover(crossover["h2d"], crossover["d2h"])
++        logger.info(
++            "[rank%d] DSA crossover measured by rank %d: H2D %s, D2H %s | "
++            "wait for TP ranks %.2fs, measure %.2fs, wait for rank %d result %.2fs",
++            self.rank,
++            tp_group_first_rank,
++            _format_crossover(crossover["h2d"]),
++            _format_crossover(crossover["d2h"]),
++            measure_start - wait_start,
++            measure_end - measure_start,
++            tp_group_first_rank,
++            result_received - measure_end,
++        )
++
+     def status(self) -> dict:
+         status = self.tensorzip.status()
+         status["rank"] = self.rank

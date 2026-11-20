@@ -1,0 +1,96 @@
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-63
+KVShrink QAT rank 0: indices=0,1,2,3,4,5,6,7 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0) 0000:0b:00.0(numa=0) 0000:10:00.0(numa=0) 0000:81:00.0(numa=1) 0000:86:00.0(numa=1) 0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+vLLM configuration:
+  MODEL=Qwen/Qwen3-32B
+  TP_SIZE=1
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=1
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=1
+  VLLM_CPU_OMP_THREADS_BIND=0-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-63
+  KVSHRINK_QAT_DEVICES=0,1,2,3,4,5,6,7
+  KVSHRINK_DSA_DEVICES=wq0.0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=64
+  IAXL_QAT_INSTANCE_NUM=4
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+SCRIPT_DIR: /home/pese/qiuyu/intel-accel-for-llm-1119/benchmark/tensor_xfer
+[kv_xfer] copy_chunks_batch: contiguous block size = 256.00 KB, blocks = 256
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq0.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch: using Intel DSA backend
+Direction   Fragment Method                           ms       GB/s Check
+H2D             256K CUDA Copy Batch               1.646      40.78 PASS
+H2D             256K IAXL DSA                      1.516      44.26 PASS
+D2H             256K CUDA Copy Batch               1.339      50.11 PASS
+D2H             256K IAXL DSA                      1.557      43.10 PASS
+H2D             384K CUDA Copy Batch               1.521      43.96 PASS
+H2D             384K IAXL DSA                      1.509      44.31 PASS
+D2H             384K CUDA Copy Batch               1.276      52.40 PASS
+D2H             384K IAXL DSA                      1.539      43.43 PASS
+H2D             512K CUDA Copy Batch               1.454      46.14 PASS
+H2D             512K IAXL DSA                      1.513      44.37 PASS
+D2H             512K CUDA Copy Batch               1.256      53.41 PASS
+D2H             512K IAXL DSA                      1.554      43.19 PASS
+H2D             640K CUDA Copy Batch               1.412      47.35 PASS
+H2D             640K IAXL DSA                      1.507      44.36 PASS
+D2H             640K CUDA Copy Batch               1.239      53.97 PASS
+D2H             640K IAXL DSA                      1.536      43.51 PASS
+H2D             768K CUDA Copy Batch               1.388      48.17 PASS
+H2D             768K IAXL DSA                      1.506      44.37 PASS
+D2H             768K CUDA Copy Batch               1.228      54.45 PASS
+D2H             768K IAXL DSA                      1.537      43.48 PASS
+H2D             896K CUDA Copy Batch               1.367      48.99 PASS
+H2D             896K IAXL DSA                      1.509      44.39 PASS
+D2H             896K CUDA Copy Batch               1.228      54.53 PASS
+D2H             896K IAXL DSA                      1.544      43.39 PASS
+H2D            1024K CUDA Copy Batch               1.362      49.28 PASS
+H2D            1024K IAXL DSA                      1.512      44.40 PASS
+D2H            1024K CUDA Copy Batch               1.219      55.04 PASS
+D2H            1024K IAXL DSA                      1.551      43.26 PASS
+H2D            1152K CUDA Copy Batch               1.328      49.76 PASS
+H2D            1152K IAXL DSA                      1.488      44.39 PASS
+D2H            1152K CUDA Copy Batch               1.192      55.40 PASS
+D2H            1152K IAXL DSA                      1.506      43.87 PASS
+H2D            1280K CUDA Copy Batch               1.329      50.29 PASS
+H2D            1280K IAXL DSA                      1.506      44.40 PASS
+D2H            1280K CUDA Copy Batch               1.205      55.49 PASS
+D2H            1280K IAXL DSA                      1.536      43.53 PASS
+H2D            1408K CUDA Copy Batch               1.316      50.41 PASS
+H2D            1408K IAXL DSA                      1.494      44.39 PASS
+D2H            1408K CUDA Copy Batch               1.192      55.63 PASS
+D2H            1408K IAXL DSA                      1.511      43.90 PASS
+H2D            1536K CUDA Copy Batch               1.304      50.67 PASS
+H2D            1536K IAXL DSA                      1.488      44.40 PASS
+D2H            1536K CUDA Copy Batch               1.182      55.87 PASS
+D2H            1536K IAXL DSA                      1.504      43.92 PASS
+H2D            1664K CUDA Copy Batch               1.303      51.00 PASS
+H2D            1664K IAXL DSA                      1.497      44.38 PASS
+D2H            1664K CUDA Copy Batch               1.189      55.90 PASS
+D2H            1664K IAXL DSA                      1.514      43.88 PASS
+H2D            1792K CUDA Copy Batch               1.294      51.05 PASS
+H2D            1792K IAXL DSA                      1.488      44.41 PASS
+D2H            1792K CUDA Copy Batch               1.180      55.99 PASS
+D2H            1792K IAXL DSA                      1.504      43.92 PASS
+H2D            1920K CUDA Copy Batch               1.300      51.44 PASS
+H2D            1920K IAXL DSA                      1.505      44.41 PASS
+D2H            1920K CUDA Copy Batch               1.190      56.20 PASS
+D2H            1920K IAXL DSA                      1.535      43.56 PASS
+H2D            2048K CUDA Copy Batch               1.303      51.50 PASS
+H2D            2048K IAXL DSA                      1.511      44.42 PASS
+D2H            2048K CUDA Copy Batch               1.194      56.19 PASS
+D2H            2048K IAXL DSA                      1.551      43.28 PASS
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=128 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON profile=disabled

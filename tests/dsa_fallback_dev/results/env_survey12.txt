@@ -1,0 +1,29 @@
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+15:def setup_root_logger(tag: str = "", show_pid_tid: bool = True):
+16-    root = logging.getLogger()
+17-    if not root.handlers:
+18-        handler = logging.StreamHandler()
+19-
+20-        class Formatter(logging.Formatter):
+21-            __slots__ = ("tag", "pid", "tag_prefix", "show_pid_tid")
+22-
+23-            def __init__(self, tag: str, show_pid_tid: bool):
+24-                super().__init__()
+25-                self.tag = tag
+26-                self.show_pid_tid = show_pid_tid
+27-
+28-                self.pid = os.getpid()
+29-
+30-                if show_pid_tid:
+31-                    self.tag_prefix = (
+32-                        f"({tag} pid={self.pid} tid="
+33-                        if tag
+34-                        else f"(pid={self.pid} tid="
+35-                    )
+36-                else:
+37-                    self.tag_prefix = f"({tag}) " if tag else ""
+38-
+39-            def format(self, record):
+40-                ct = self.converter(record.created)

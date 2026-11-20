@@ -1,0 +1,74 @@
+== IAXL_DSA_AUTO_FALLBACK_ENABLE=1
+KVStore calibration lines: 8
+  rank 0: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.11s, measure 0.32s, wait for result 0.00s
+  rank 1: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.06s, measure 0.24s, wait for result 0.13s
+  rank 4: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.11s, measure 0.33s, wait for result 0.00s
+  rank 5: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.10s, measure 0.33s, wait for result 0.00s
+  rank 7: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.11s, measure 0.30s, wait for result 0.03s
+  rank 2: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.02s, measure 0.33s, wait for result 0.08s
+  rank 3: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.03s, measure 0.33s, wait for result 0.08s
+  rank 6: measured by rank 0, H2D 384 KB, D2H 256 KB, wait for TP ranks 0.03s, measure 0.45s, wait for result 0.00s
+C++ calibration lines: 16
+  GPU2 H2D: crossover 256 KB (DSA 21.5 GB/s, CUDA batch 27.6 GB/s, 1 block sizes measured)
+  GPU3 H2D: crossover 256 KB (DSA 24.8 GB/s, CUDA batch 27.9 GB/s, 1 block sizes measured)
+  GPU1 H2D: crossover 256 KB (DSA 23.5 GB/s, CUDA batch 40.7 GB/s, 1 block sizes measured)
+  GPU4 H2D: crossover 256 KB (DSA 22.3 GB/s, CUDA batch 27.6 GB/s, 1 block sizes measured)
+  GPU5 H2D: crossover 256 KB (DSA 25.4 GB/s, CUDA batch 28.1 GB/s, 1 block sizes measured)
+  GPU7 H2D: crossover 256 KB (DSA 21.9 GB/s, CUDA batch 27.4 GB/s, 1 block sizes measured)
+  GPU1 D2H: crossover 256 KB (DSA 30.8 GB/s, CUDA batch 49.6 GB/s, 1 block sizes measured)
+  GPU0 H2D: crossover 384 KB (DSA 44.3 GB/s, CUDA batch 44.6 GB/s, 2 block sizes measured)
+  GPU2 D2H: crossover 256 KB (DSA 18.4 GB/s, CUDA batch 28.7 GB/s, 1 block sizes measured)
+  GPU3 D2H: crossover 256 KB (DSA 19.5 GB/s, CUDA batch 28.8 GB/s, 1 block sizes measured)
+  GPU6 H2D: crossover 512 KB (DSA 33.8 GB/s, CUDA batch 40.7 GB/s, 3 block sizes measured)
+  GPU7 D2H: crossover 256 KB (DSA 29.8 GB/s, CUDA batch 49.7 GB/s, 1 block sizes measured)
+  GPU0 D2H: crossover 256 KB (DSA 36.2 GB/s, CUDA batch 49.9 GB/s, 1 block sizes measured)
+  GPU4 D2H: crossover 256 KB (DSA 18.5 GB/s, CUDA batch 28.7 GB/s, 1 block sizes measured)
+  GPU5 D2H: crossover 256 KB (DSA 19.5 GB/s, CUDA batch 28.9 GB/s, 1 block sizes measured)
+  GPU6 D2H: crossover 256 KB (DSA 35.3 GB/s, CUDA batch 49.4 GB/s, 1 block sizes measured)
+contiguous block size lines (KB: processes): {'8.00': 8}
+backend lines (direction backend: processes): {'D2H Intel DSA': 8, 'H2D Intel DSA': 8}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  1 1 15336 0 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  1 2 15336 0 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  1 3 15337 0 " Alright, let's see. The user is asking for the value of item 17 in report 3. I need to look through the provided inventory report"
+  2 0 15333 15328 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  2 1 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  2 2 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  2 3 15337 15328 " Alright, let's tackle this question. The user is asking for the value of item 17 in report 3. I need to look through the provided"
+  3 0 15333 15328 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  3 1 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  3 2 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  3 3 15337 15328 " Alright, let's tackle this question. The user is asking for the value of item 17 in report 3. I need to look through the provided"
+== IAXL_DSA_AUTO_FALLBACK_ENABLE=0
+KVStore calibration lines: 0
+C++ calibration lines: 0
+contiguous block size lines (KB: processes): {'8.00': 8}
+backend lines (direction backend: processes): {'D2H Intel DSA': 8, 'H2D Intel DSA': 8}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  1 1 15336 0 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  1 2 15336 0 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  1 3 15337 0 " Alright, let's see. The user is asking for the value of item 17 in report 3. I need to look through the provided inventory report"
+  2 0 15333 15328 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  2 1 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  2 2 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  2 3 15337 15328 " Alright, let's see. The user is asking for the value of item 17 in report 3. I need to look through the provided inventory report"
+  3 0 15333 15328 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  3 1 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  3 2 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  3 3 15337 15328 " Alright, let's see. The user is asking for the value of item 17 in report 3. I need to look through the provided inventory report"
+text differs between =1 and =0 (not a failure): reply 7
+text differs between =1 and =0 (not a failure): reply 11
+== checks
+PASS =1: 8 ranks log the crossover
+PASS =1: all ranks use the same crossover
+PASS =0: no rank calibrates
+PASS =1: every prompt hits in round 3
+PASS =1: no Traceback
+PASS =1: every reply is non-empty printable ASCII
+PASS =0: every prompt hits in round 3
+PASS =0: no Traceback
+PASS =0: every reply is non-empty printable ASCII
