@@ -507,6 +507,9 @@ class Benchmark:
             name: tensor.index_select(BLOCK_DIM, self.index).clone()
             for name, tensor in self.kv_caches.items()
         }
+
+    # Separate from setup(): KVStore creation waits for all TP ranks, so all ranks call this together.
+    def create_store(self) -> None:
         self.kvstore = KVStore(
             model_name="kvstore_benchmark",
             kv_caches=self.kv_caches,
@@ -635,6 +638,7 @@ def run_benchmark(args: argparse.Namespace) -> bool:
     bench = Benchmark(args)
     bench.print_config()
     bench.setup()
+    bench.create_store()
     bench.warmup()
     put_time = bench.put()
     get_time = bench.get()

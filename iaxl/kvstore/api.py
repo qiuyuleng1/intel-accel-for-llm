@@ -4,6 +4,7 @@
 import json
 import logging
 import threading
+import time
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, urlencode
 from concurrent.futures import ThreadPoolExecutor
@@ -188,6 +189,20 @@ class _WorkerClient:
                 return json.loads(resp.read())
         except (urllib.error.URLError, OSError) as e:
             return {"error": str(e), "rank": self.rank}
+
+
+# TP ranks share one host, so worker `rank` listens on 127.0.0.1 at base port + rank.
+def wait_for_worker(rank: int, path: str, deadline: float) -> dict:
+    client = _WorkerClient(rank, "127.0.0.1", envs.IAXL_API_WORKER_BASE_PORT + rank)
+    while True:
+        reply = client.get(path)
+        if "error" not in reply:
+            return reply
+        if time.monotonic() >= deadline:
+            raise RuntimeError(
+                f"worker rank {rank} did not answer GET {path} in time: {reply['error']}"
+            )
+        time.sleep(0.01)
 
 
 def _parse_rank_targets(query_params: dict) -> Optional[List[int]]:
