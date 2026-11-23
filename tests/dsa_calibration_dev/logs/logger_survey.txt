@@ -1,0 +1,76 @@
+===LOGGER
+# Copyright (C) 2026 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import os
+import time
+import threading
+import logging
+
+from ..envs import envs
+
+
+level = logging.DEBUG if envs.IAXL_DEBUG else logging.INFO
+
+
+def setup_root_logger(tag: str = "", show_pid_tid: bool = True):
+    root = logging.getLogger()
+    if not root.handlers:
+        handler = logging.StreamHandler()
+
+        class Formatter(logging.Formatter):
+            __slots__ = ("tag", "pid", "tag_prefix", "show_pid_tid")
+
+            def __init__(self, tag: str, show_pid_tid: bool):
+                super().__init__()
+                self.tag = tag
+                self.show_pid_tid = show_pid_tid
+
+                self.pid = os.getpid()
+
+                if show_pid_tid:
+                    self.tag_prefix = (
+                        f"({tag} pid={self.pid} tid="
+                        if tag
+                        else f"(pid={self.pid} tid="
+                    )
+                else:
+                    self.tag_prefix = f"({tag}) " if tag else ""
+
+            def format(self, record):
+                ct = self.converter(record.created)
+
+                timestamp = time.strftime("%m-%d %H:%M:%S", ct)
+
+                if self.show_pid_tid:
+                    tid = threading.get_ident()
+
+                    return (
+                        f"{self.tag_prefix}{tid}) {record.levelname} "
+                        f"{timestamp},{int(record.msecs):03d} "
+                        f"[{record.filename}:{record.lineno}] {record.getMessage()}"
+                    )
+                else:
+                    return (
+                        f"{self.tag_prefix}{record.levelname} "
+                        f"{timestamp},{int(record.msecs):03d} "
+                        f"[{record.filename}:{record.lineno}] {record.getMessage()}"
+                    )
+
+        formatter = Formatter(tag, show_pid_tid)
+        handler.setFormatter(formatter)
+        root.addHandler(handler)
+    root.setLevel(level)
+===INIT
+# Copyright (C) 2026 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+from .kvstore import KVStore
+from .utils.hash import generate_block_hashs
+from .utils.logger import setup_root_logger
+
+__all__ = ["KVStore", "generate_block_hashs", "setup_root_logger"]
+===LOGCALLS
+iaxl/utils/affinity.py:11:logger = logging.getLogger(__name__)
+iaxl/utils/affinity.py:42:    logger.info("Bound rank %d to CPUs %s", rank, sorted(cpu_ids))
+iaxl/utils/affinity.py:58:        logger.info("Bound rank %d: %s=%s", rank, target, devices[rank])

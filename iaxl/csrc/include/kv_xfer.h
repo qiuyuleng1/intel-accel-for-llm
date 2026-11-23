@@ -4,7 +4,6 @@
 #pragma once
 
 #include <cstdint>
-#include <utility>
 #include <vector>
 
 #include <pybind11/pybind11.h>
@@ -61,17 +60,6 @@ bool dsa_copy_chunks_batch(char *gpu_bar_base, int64_t chunk_stride, int64_t out
 void dsa_wait_ticket(uint64_t ticket);
 // Ops::copy_wait for the GPU backend: waits for the context's own ticket only.
 void dsa_copy_wait(context_t ctx);
-// CUDA batch path of copy_chunks_batch; dsa_calibrate_crossover() times this same code.
-void cuda_copy_chunks_batch(char *gpu_base_ptr, int64_t chunk_stride, int64_t outer_dims,
-                            int64_t inner_size, int64_t outer_block_size, bool h2d,
-                            const std::vector<int64_t> &chunk_indices,
-                            const std::vector<char *> &cpu_ptrs, stream_t work_stream);
-// Depends only on env vars, so every rank gets the same answer.
-bool dsa_auto_fallback_enabled();
-// Returns {H2D, D2H} crossovers in bytes; INT64_MAX means DSA won at all sizes from 256 KB to 4 MB.
-std::pair<int64_t, int64_t> dsa_calibrate_crossover(int device_index);
-// Copies whose contiguous block size is >= the crossover of their direction use CUDA batch.
-void dsa_set_crossover(int64_t h2d_bytes, int64_t d2h_bytes);
 #endif
 
 // Per-context backend: the GPU (cuda/xpu) free functions above, or the RDMA

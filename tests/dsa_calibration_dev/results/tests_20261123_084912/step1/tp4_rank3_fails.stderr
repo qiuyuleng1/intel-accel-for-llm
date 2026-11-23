@@ -1,0 +1,15 @@
+Process rank3:
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/pese/qiuyu/intel-accel-for-llm-1119/tools/calibration/dsa_calibration.py", line 177, in worker
+    timer = CopyTimer(rank, barrier, deadline)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pese/qiuyu/intel-accel-for-llm-1119/tools/calibration/dsa_calibration.py", line 113, in __init__
+    self.host_buffer = torch.empty(COPY_BYTES // 2, dtype=torch.int16, pin_memory=True)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: No CUDA GPUs are available
+[iaxl] config: qat_zip=OFF iaa_zip=OFF cpu_zip=OFF qat_instances=0 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON profile=disabled
+[dsa_calibration] failed: rank3 exited with code 1

@@ -293,15 +293,7 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
                 kCudaApi);
     });
 
-    cuda_copy_chunks_batch(gpu_base_ptr, chunk_stride, outer_dims, inner_size, outer_block_size,
-                           h2d, chunk_indices, cpu_ptrs, x->work_stream);
-}
-
-void cuda_copy_chunks_batch(char *gpu_base_ptr, int64_t chunk_stride, int64_t outer_dims,
-                            int64_t inner_size, int64_t outer_block_size, bool h2d,
-                            const std::vector<int64_t> &chunk_indices,
-                            const std::vector<char *> &cpu_ptrs, stream_t work_stream) {
-    GpuStream_t stream = static_cast<GpuStream_t>(work_stream);
+    GpuStream_t stream = x->work_stream;
 #if USE_CUDA_MEMCPY_3D_BATCH
 
     size_t num_chunks = chunk_indices.size();

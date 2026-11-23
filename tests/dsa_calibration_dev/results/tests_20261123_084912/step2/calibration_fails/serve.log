@@ -1,0 +1,109 @@
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+vLLM configuration:
+  MODEL=/media/model-space/Qwen3.8-27B
+  TP_SIZE=4
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=0
+  IAXL_QAT_ZIP_ENABLE=0
+  IAXL_IAA_ZIP_ENABLE=0
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=1
+  VLLM_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-15|16-31|32-47|48-63
+  KVSHRINK_QAT_DEVICES=disabled
+  KVSHRINK_DSA_DEVICES=wq0.0|wq2.0|wq4.0|wq6.0
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=16,16,16,16
+  IAXL_QAT_INSTANCE_NUM=0
+  IAXL_IAA_INSTANCE_NUM=0
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=4
+  IAXL_USE_OMP=1
+Process rank3:
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/pese/qiuyu/intel-accel-for-llm-1119/tools/calibration/dsa_calibration.py", line 177, in worker
+    timer = CopyTimer(rank, barrier, deadline)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pese/qiuyu/intel-accel-for-llm-1119/tools/calibration/dsa_calibration.py", line 113, in __init__
+    self.host_buffer = torch.empty(COPY_BYTES // 2, dtype=torch.int16, pin_memory=True)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: No CUDA GPUs are available
+[iaxl] config: qat_zip=OFF iaa_zip=OFF cpu_zip=OFF qat_instances=0 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=OFF zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON profile=disabled
+[dsa_calibration] failed: rank3 exited with code 1
+INFO 11-23 08:53:40 [vllm_patch.py:113] Mamba align patch registered: MambaModelConfig.verify_and_update_config, VllmConfig.validate_mamba_block_size
+(APIServer pid=3896197) INFO 11-23 08:53:40 [api_utils.py:347] 
+(APIServer pid=3896197) INFO 11-23 08:53:40 [api_utils.py:347]        █     █     █▄   ▄█
+(APIServer pid=3896197) INFO 11-23 08:53:40 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0
+(APIServer pid=3896197) INFO 11-23 08:53:40 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /media/model-space/Qwen3.8-27B
+(APIServer pid=3896197) INFO 11-23 08:53:40 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=3896197) INFO 11-23 08:53:40 [api_utils.py:347] 
+(APIServer pid=3896197) INFO 11-23 08:53:40 [api_utils.py:286] non-default args: {'model_tag': '/media/model-space/Qwen3.8-27B', 'port': 8123, 'model': '/media/model-space/Qwen3.8-27B', 'trust_remote_code': True, 'max_model_len': 32765, 'tensor_parallel_size': 4, 'gpu_memory_utilization': 0.8, 'enable_prefix_caching': False, 'kv_transfer_config': KVTransferConfig(kv_connector='KVShrinkConnector', engine_id='6351c0c2-9986-411e-b21b-f0fba74540f9', kv_buffer_device='cuda', kv_buffer_size=1000000000.0, kv_role='kv_both', kv_rank=None, kv_parallel_size=1, kv_ip='127.0.0.1', kv_port=14579, kv_connector_extra_config={}, kv_connector_module_path='kvshrink.kvshrink_connector', enable_permute_local_kv=False, kv_load_failure_policy='fail')}
+(APIServer pid=3896197) INFO 11-23 08:53:40 [model.py:684] Resolved architecture: Qwen3_5ForConditionalGeneration
+(APIServer pid=3896197) INFO 11-23 08:53:40 [model.py:2021] Using max model len 32765
+(APIServer pid=3896197) Traceback (most recent call last):
+(APIServer pid=3896197)   File "/usr/local/bin/vllm", line 10, in <module>
+(APIServer pid=3896197)     sys.exit(main())
+(APIServer pid=3896197)              ^^^^^^
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/main.py", line 97, in main
+(APIServer pid=3896197)     args.dispatch_function(args)
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/serve.py", line 153, in cmd
+(APIServer pid=3896197)     uvloop.run(run_server(args))
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 96, in run
+(APIServer pid=3896197)     return __asyncio.run(
+(APIServer pid=3896197)            ^^^^^^^^^^^^^^
+(APIServer pid=3896197)   File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+(APIServer pid=3896197)     return runner.run(main)
+(APIServer pid=3896197)            ^^^^^^^^^^^^^^^^
+(APIServer pid=3896197)   File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+(APIServer pid=3896197)     return self._loop.run_until_complete(task)
+(APIServer pid=3896197)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=3896197)   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 48, in wrapper
+(APIServer pid=3896197)     return await main
+(APIServer pid=3896197)            ^^^^^^^^^^
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 176, in run_server
+(APIServer pid=3896197)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 190, in run_server_worker
+(APIServer pid=3896197)     async with build_async_engine_client(
+(APIServer pid=3896197)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=3896197)     return await anext(self.gen)
+(APIServer pid=3896197)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 58, in build_async_engine_client
+(APIServer pid=3896197)     async with build_async_engine_client_from_engine_args(
+(APIServer pid=3896197)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=3896197)     return await anext(self.gen)
+(APIServer pid=3896197)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 82, in build_async_engine_client_from_engine_args
+(APIServer pid=3896197)     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+(APIServer pid=3896197)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/vllm/engine/arg_utils.py", line 2332, in create_engine_config
+(APIServer pid=3896197)     parallel_config = ParallelConfig(
+(APIServer pid=3896197)                       ^^^^^^^^^^^^^^^
+(APIServer pid=3896197)   File "/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+(APIServer pid=3896197)     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+(APIServer pid=3896197) pydantic_core._pydantic_core.ValidationError: 1 validation error for ParallelConfig
+(APIServer pid=3896197)   Value error, World size (4) is larger than the number of available GPUs (3) in this node. If this is intentional and you are using:
+(APIServer pid=3896197) - ray, set '--distributed-executor-backend ray'.
+(APIServer pid=3896197) - multiprocessing, set '--nnodes' appropriately. [type=value_error, input_value=ArgsKwargs((), {'pipeline...'numa_bind_cpus': None}), input_type=ArgsKwargs]
+(APIServer pid=3896197)     For further information visit https://errors.pydantic.dev/2.13/v/value_error

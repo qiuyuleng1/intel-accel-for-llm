@@ -1,0 +1,247 @@
+===FILES
+iaxl/csrc:
+common
+cpu_zip
+dsa_gd
+iaa_zip
+include
+kv_pool
+kv_xfer
+kv_zip
+Makefile
+qat_zip
+test
+torch_ext
+
+iaxl/csrc/common/:
+envs.c
+parallel.cpp
+
+iaxl/csrc/cpu_zip/:
+cpu_zip.c
+
+iaxl/csrc/dsa_gd/:
+dsa_gd.c
+dsa_memcpy.c
+
+iaxl/csrc/iaa_zip/:
+iaa_zip.c
+
+iaxl/csrc/include/:
+cpu_zip.h
+dsa_gd.h
+env.h
+iaa_zip.h
+iaxl_common.h
+kv_pool.h
+kv_xfer.h
+kv_xfer_rdma.h
+kv_zip.h
+parallel.h
+profiler.h
+qat_zip.h
+task_queue.h
+
+iaxl/csrc/kv_pool/:
+mem.cpp
+pool.cpp
+record.cpp
+storage.cpp
+
+iaxl/csrc/kv_xfer/:
+cpu.cpp
+cuda.cpp
+dsa.cpp
+rdma.cpp
+xpu.cpp
+
+iaxl/csrc/kv_zip/:
+data_shuffle.h
+kv_zip.cpp
+lossy.cpp
+lossy.h
+
+iaxl/csrc/qat_zip/:
+include
+qat_zip.c
+
+iaxl/csrc/test/:
+cpu_zip_test.c
+dsa_memcpy_test.c
+iaa_zip_test.c
+kv_pool_test.cpp
+qat_zip_test.c
+record_test.cpp
+zip_compat_test.c
+zip_throughput_test.c
+
+iaxl/csrc/torch_ext/:
+context.h
+torch_ext.cpp
+xfer.cpp
+===MODULE_INIT
+17:PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+===PRINTS
+iaxl/csrc/kv_pool/pool.cpp:88:            fprintf(stderr, "kv_pool \"%s\" already registered with a different base/shape\n",
+iaxl/csrc/kv_pool/pool.cpp:114:        fprintf(stderr, "KVPool '%.*s' is not registered\n", (int)name.size(), name.data());
+iaxl/csrc/kv_pool/storage.cpp:21:            std::cerr << "\033[1;31m*** FATAL: persist_dir is not set, cannot save data\033[0m\n";
+iaxl/csrc/kv_pool/storage.cpp:25:            std::cout << "[storage] Initialized with persist_dir: " << persist_dir_ << "\n";
+iaxl/csrc/kv_pool/storage.cpp:40:            std::cerr << "\033[1;31m*** FATAL: error in creating directory " << dir_path << ": "
+iaxl/csrc/kv_pool/storage.cpp:48:            std::cerr << "\033[1;31m*** FATAL: Error opening file for writing: " << file_path
+iaxl/csrc/kv_pool/storage.cpp:56:            std::cerr << "\033[1;31m*** FATAL: Error writing file: " << file_path << ", wrote "
+iaxl/csrc/kv_pool/storage.cpp:64:            std::cout << "[storage] Saved " << size << " bytes to " << file_path << "\n";
+iaxl/csrc/kv_pool/storage.cpp:78:            std::cout << "[storage] Attempting to load from file: " << file_path << "\n";
+iaxl/csrc/kv_pool/storage.cpp:82:            std::cerr << "\033[1;31m*** FATAL: File not found: " << file_path << "\033[0m\n"
+iaxl/csrc/kv_pool/storage.cpp:89:            std::cerr << "\033[1;31m*** FATAL: Error opening file for reading: " << file_path
+iaxl/csrc/kv_pool/storage.cpp:100:            std::cerr << "\033[1;31m*** FATAL: Memory allocation failed for size: " << size
+iaxl/csrc/kv_pool/storage.cpp:109:                std::cerr << "\033[1;31m*** FATAL: Error reading file: " << file_path << ", read "
+iaxl/csrc/kv_pool/storage.cpp:117:            std::cerr << "\033[1;31m*** FATAL: Error reading file: " << file_path << "\033[0m\n"
+iaxl/csrc/kv_pool/record.cpp:28:            fprintf(stderr, "SQLite error %s:%d: %s returned %d\n", __FILE__, __LINE__, #call,     \
+iaxl/csrc/kv_pool/record.cpp:38:            fprintf(stderr, "SQLite error %s:%d: %s returned %d\n", __FILE__, __LINE__, #call,     \
+iaxl/csrc/kv_pool/record.cpp:98:                std::cerr << "[Record] Cleaned up " << deleted
+iaxl/csrc/kv_pool/mem.cpp:667:                    fprintf(stderr,
+iaxl/csrc/kv_pool/mem.cpp:719:                fprintf(stderr,
+iaxl/csrc/kv_pool/mem.cpp:731:                fprintf(stderr, "[Mem] WARNING: Over budget! %zu MB > %zu MB capacity\n",
+iaxl/csrc/kv_pool/mem.cpp:761:            std::cerr << "\033[1;31m*** FATAL: No storage backend configured, cannot persist "
+iaxl/csrc/torch_ext/xfer.cpp:74:            fprintf(stderr, "[xfer_is_complete] %s: future not ready\n", name_.c_str());
+iaxl/csrc/torch_ext/xfer.cpp:79:        fprintf(stderr, "[xfer_is_complete] %s: future=%s but event_recorded=false\n",
+iaxl/csrc/torch_ext/zip.cpp:60:                        std::cout << "[KVClip] cache miss on unzip (will retry): "
+iaxl/csrc/torch_ext/zip.cpp:212:            fprintf(stderr, "[unzip_is_complete] %s: future not ready\n", name().c_str());
+iaxl/csrc/iaa_zip/iaa_zip.c:115:    printf("[iaa_zip] %s:", tag);
+iaxl/csrc/iaa_zip/iaa_zip.c:117:        printf(" node%d=%ddev", list[i].node, list[i].devices);
+iaxl/csrc/iaa_zip/iaa_zip.c:120:    printf("%s (%d node(s), %d device(s))\n", count ? "" : " none", count, devices);
+iaxl/csrc/iaa_zip/iaa_zip.c:170:    fprintf(stderr, "[iaa_zip] warning: mlock failed (%s), DMA buffers may be reclaimed\n",
+iaxl/csrc/iaa_zip/iaa_zip.c:240:    printf("[iaa_zip] config: numa_nodes=%s (%d node(s), %d device(s)) instances/device=%d "
+iaxl/csrc/iaa_zip/iaa_zip.c:260:                    fprintf(stderr, "[iaa_zip] instance %d slot %d initialization failed\n",
+iaxl/csrc/iaa_zip/iaa_zip.c:270:    printf("[iaa_zip] ready: instances=%d slots=%d\n", g_inst_count,
+iaxl/csrc/iaa_zip/iaa_zip.c:356:        fprintf(stderr, "[iaa_zip] %s submit failed on slot %d: qpl_status=%d\n",
+iaxl/csrc/iaa_zip/iaa_zip.c:391:        fprintf(stderr, "[iaa_zip] job failed on slot %d: qpl_status=%d\n", slot, (int)status);
+iaxl/csrc/cpu_zip/cpu_zip.c:39:        printf("[cpu_zip] disabled: threads=0\n");
+iaxl/csrc/cpu_zip/cpu_zip.c:57:    printf("[cpu_zip] config: threads=%d slots=%d src_cap=%d B dst_cap=%d B depth=1\n",
+iaxl/csrc/dsa_gd/dsa_memcpy.c:218:            fprintf(stderr, "enqcmd retries exhausted\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:261:        fprintf(stderr, "no WQ configured in $" DSA_WQS_ENV "\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:278:            fprintf(stderr, "open %s failed: %s\n", path, strerror(errno));
+iaxl/csrc/dsa_gd/dsa_memcpy.c:285:            fprintf(stderr, "mmap portal %s failed: %s\n", path, strerror(errno));
+iaxl/csrc/dsa_gd/dsa_memcpy.c:298:            fprintf(stderr, "dsa_init: descriptor alloc failed\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:313:    fprintf(stderr,
+iaxl/csrc/dsa_gd/dsa_memcpy.c:337:        fprintf(stderr, "dsa_memcpy: unaligned dest=%p src=%p n=%zu (need %u-byte)\n", dest, src, n,
+iaxl/csrc/dsa_gd/dsa_memcpy.c:385:                fprintf(stderr, "enqcmd retries exhausted\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:399:            fprintf(stderr, "dsa op failed, status=0x%x\n", comp.status);
+iaxl/csrc/dsa_gd/dsa_memcpy.c:458:        fprintf(stderr,
+iaxl/csrc/dsa_gd/dsa_memcpy.c:479:            fprintf(stderr,
+iaxl/csrc/dsa_gd/dsa_memcpy.c:486:            fprintf(stderr,
+iaxl/csrc/dsa_gd/dsa_memcpy.c:535:                fprintf(stderr, "dsa batch failed, status=0x%x\n", bcomp[busy_slots[k]].status);
+iaxl/csrc/dsa_gd/dsa_memcpy.c:563:            fprintf(stderr, "dsa batch failed, ticket=%" PRIu64 " status=0x%x\n", ticket, status);
+iaxl/csrc/dsa_gd/dsa_memcpy.c:627:            fprintf(stderr, "%s: unaligned entry %zu dest=%p src=%p n=%zu (need %u-byte)\n", who,
+iaxl/csrc/dsa_gd/dsa_memcpy.c:632:            fprintf(stderr, "%s: entry %zu size %zu exceeds max_transfer_size %zu\n", who, i,
+iaxl/csrc/dsa_gd/dsa_memcpy.c:721:        fprintf(stderr, "dsa_memcpy failed\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:726:        fprintf(stderr, "verification FAILED\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:730:    printf("dsa_memcpy OK: %zu bytes copied and verified\n", n);
+iaxl/csrc/dsa_gd/dsa_memcpy.c:741:            fprintf(stderr, "batch test setup failed\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:756:            fprintf(stderr, "dsa_memcpy_batch failed\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:762:            fprintf(stderr, "batch verification FAILED\n");
+iaxl/csrc/dsa_gd/dsa_memcpy.c:767:        printf("dsa_memcpy_batch OK: %zu blocks x %zu bytes copied "
+iaxl/csrc/dsa_gd/dsa_gd.c:64:        fprintf(stderr, "gdr_open() failed (is gdrdrv loaded?)\n");
+iaxl/csrc/dsa_gd/dsa_gd.c:136:        fprintf(stderr, "gdr_pin_buffer failed rc=%d base=0x%lx size=%zu\n", rc,
+iaxl/csrc/dsa_gd/dsa_gd.c:142:        fprintf(stderr, "gdr_map failed rc=%d\n", rc);
+iaxl/csrc/dsa_gd/dsa_gd.c:148:        fprintf(stderr, "gdr_get_info_v2 failed rc=%d\n", rc);
+iaxl/csrc/dsa_gd/dsa_gd.c:229:            fprintf(stderr, "gdr_copy_to_mapping failed rc=%d\n", rc);
+iaxl/csrc/dsa_gd/dsa_gd.c:236:            fprintf(stderr, "gdr_copy_from_mapping failed rc=%d\n", rc);
+iaxl/csrc/dsa_gd/dsa_gd.c:240:        fprintf(stderr, "dsa_gd_copy: exactly one side must be CUDA\n");
+iaxl/csrc/test/zip_throughput_test.c:131:    printf("%-28s workers=%-3d best %6.2f GB/s   avg %6.2f GB/s   ratio %.3fx\n", label,
+iaxl/csrc/test/zip_throughput_test.c:179:        fprintf(stderr, "[throughput] backend init failed\n");
+iaxl/csrc/test/zip_throughput_test.c:193:        fprintf(stderr, "[throughput] source allocation failed\n");
+iaxl/csrc/test/zip_throughput_test.c:198:    printf("[throughput] qat_instances=%d iaa_instances=%d depth=%d/%d chunk=%zu B data=%d MiB "
+iaxl/csrc/test/zip_throughput_test.c:204:        printf("--- %s ---\n", pack ? "with kv_zip pack() (malloc+memcpy)" : "accelerator only");
+iaxl/csrc/test/zip_throughput_test.c:214:        printf("\n");
+iaxl/csrc/test/zip_compat_test.c:48:        fprintf(stderr, "[compat] %s FAILED: expected %d bytes, got %d\n", name, expected_len,
+iaxl/csrc/test/zip_compat_test.c:52:    printf("[compat] %s passed\n", name);
+iaxl/csrc/test/zip_compat_test.c:92:        fprintf(stderr, "[compat] backend initialization failed\n");
+iaxl/csrc/test/zip_compat_test.c:100:        fprintf(stderr, "[compat] QAT compression submission failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:105:        fprintf(stderr, "[compat] QAT compression completion failed: status=%d length=%d\n", rc,
+iaxl/csrc/test/zip_compat_test.c:110:        fprintf(stderr, "[compat] QAT compression failed\n");
+iaxl/csrc/test/zip_compat_test.c:121:        fprintf(stderr, "[compat] QAT compress -> CPU decompress rejected: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:132:        fprintf(stderr, "[compat] CPU compression failed: status=%d length=%d\n", rc, output_len);
+iaxl/csrc/test/zip_compat_test.c:143:        fprintf(stderr, "[compat] CPU compress -> QAT decompress submission failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:148:            fprintf(stderr, "[compat] CPU compress -> QAT decompress completion failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:157:        printf("[compat] QAT and CPU compressed streams are mutually compatible\n");
+iaxl/csrc/test/zip_compat_test.c:159:        fprintf(stderr, "[compat] QAT and CPU compressed streams are not mutually compatible\n");
+iaxl/csrc/test/zip_compat_test.c:164:        fprintf(stderr, "[compat] IAA compression failed: status=%d length=%d\n", rc, output_len);
+iaxl/csrc/test/zip_compat_test.c:176:        fprintf(stderr, "[compat] IAA compress -> CPU decompress failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:183:        fprintf(stderr, "[compat] IAA compress -> QAT decompress failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:192:        fprintf(stderr, "[compat] IAA unexpectedly decoded a QAT stream\n");
+iaxl/csrc/test/zip_compat_test.c:195:        printf("[compat] IAA rejects QAT streams, as kv_zip assumes\n");
+iaxl/csrc/test/zip_compat_test.c:202:        fprintf(stderr, "[compat] IAA unexpectedly decoded a 32 KB-window CPU stream\n");
+iaxl/csrc/test/zip_compat_test.c:205:        printf("[compat] IAA rejects 32 KB-window CPU streams, as kv_zip assumes\n");
+iaxl/csrc/test/zip_compat_test.c:216:        fprintf(stderr, "[compat] 4 KB-window CPU compression failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:229:        fprintf(stderr, "[compat] 4 KB CPU compress -> IAA decompress failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:245:        fprintf(stderr, "[compat] raw zlib deflate failed\n");
+iaxl/csrc/test/zip_compat_test.c:256:        fprintf(stderr, "[compat] raw zlib deflate failed\n");
+iaxl/csrc/test/zip_compat_test.c:262:        fprintf(stderr, "[compat] raw zlib -> QAT failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:268:        fprintf(stderr, "[compat] raw zlib -> IAA failed: %d\n", rc);
+iaxl/csrc/test/zip_compat_test.c:271:    printf("[compat] QAT, IAA and CPU all use raw DEFLATE and interoperate via zlib raw mode\n");
+iaxl/csrc/test/zip_compat_test.c:272:    printf("[compat] note: compatibility is one-way. IAA decodes at most a 4 KB history window, "
+iaxl/csrc/test/kv_pool_test.cpp:18:            std::fprintf(stderr, "[FAIL] %s (%s:%d)\n", (msg), __FILE__, __LINE__);                \
+iaxl/csrc/test/kv_pool_test.cpp:21:            std::printf("[ok]   %s\n", (msg));                                                     \
+iaxl/csrc/test/kv_pool_test.cpp:143:        std::printf("\nAll kv_pool checks passed.\n");
+iaxl/csrc/test/kv_pool_test.cpp:146:    std::fprintf(stderr, "\n%d kv_pool check(s) failed.\n", g_failures);
+iaxl/csrc/test/cpu_zip_test.c:22:        fprintf(stderr, "[test] invalid cpu_zip configuration\n");
+iaxl/csrc/test/cpu_zip_test.c:31:        fprintf(stderr, "[test] synchronous compression failed\n");
+iaxl/csrc/test/cpu_zip_test.c:49:        fprintf(stderr, "[test] synchronous decompression failed\n");
+iaxl/csrc/test/cpu_zip_test.c:61:        fprintf(stderr, "[test] zero-thread cpu_zip configuration failed\n");
+iaxl/csrc/test/cpu_zip_test.c:66:    printf("[test] cpu_zip round-trip passed\n");
+iaxl/csrc/test/iaa_zip_test.c:12:    printf("Usage: %s\n\n"
+iaxl/csrc/test/iaa_zip_test.c:31:        fprintf(stderr, "[test] iaa_zip_init failed\n");
+iaxl/csrc/test/iaa_zip_test.c:38:    printf("[test] slots=%d queue_depth=%d block=%d B\n", slots, depth, block);
+iaxl/csrc/test/iaa_zip_test.c:51:            fprintf(stderr, "[test] compression submit failed on slot %d\n", s);
+iaxl/csrc/test/iaa_zip_test.c:61:            fprintf(stderr, "[test] compression failed on slot %d\n", s);
+iaxl/csrc/test/iaa_zip_test.c:75:            fprintf(stderr, "[test] decompression submit failed on slot %d\n", s);
+iaxl/csrc/test/iaa_zip_test.c:85:            fprintf(stderr, "[test] decompression mismatch on slot %d\n", s);
+iaxl/csrc/test/iaa_zip_test.c:90:    printf("[test] iaa_zip round-trip passed: %d B -> %d B (ratio %.2fx)\n", block, compressed_len,
+iaxl/csrc/test/qat_zip_test.c:23:    printf("Usage: %s [data-file] [devices]\n"
+iaxl/csrc/test/qat_zip_test.c:46:        fprintf(stderr, "[test] cannot open %s\n", path);
+iaxl/csrc/test/qat_zip_test.c:54:        fprintf(stderr, "[test] %s is empty\n", path);
+iaxl/csrc/test/qat_zip_test.c:65:        fprintf(stderr, "[test] read failed\n");
+iaxl/csrc/test/qat_zip_test.c:70:    printf("[data] loaded %s (%zu bytes)\n", path, *out_size);
+iaxl/csrc/test/qat_zip_test.c:121:        fprintf(stderr, "[verify] compress failed\n");
+iaxl/csrc/test/qat_zip_test.c:135:        fprintf(stderr, "[verify] decompress failed\n");
+iaxl/csrc/test/qat_zip_test.c:143:        fprintf(stderr, "[verify] round-trip verification FAILED\n");
+iaxl/csrc/test/qat_zip_test.c:150:    printf("[verify] round-trip OK: %d -> %d -> %d bytes (ratio %.3fx)\n", block, clen, dlen,
+iaxl/csrc/test/qat_zip_test.c:207:    printf("[perf] instances=%d  iters/instance=%d  chunk=%d KB\n", inst_count, PERF_ITERS,
+iaxl/csrc/test/qat_zip_test.c:209:    printf("[perf] compress:   %.2f GB/s  (%.3f s)\n", total_gb / c_sec, c_sec);
+iaxl/csrc/test/qat_zip_test.c:210:    printf("[perf] decompress: %.2f GB/s  (%.3f s)\n", total_gb / d_sec, d_sec);
+iaxl/csrc/test/record_test.cpp:23:            std::fprintf(stderr, "[FAIL] %s (%s:%d)\n", (msg), __FILE__, __LINE__);                \
+iaxl/csrc/test/record_test.cpp:26:            std::printf("[ok]   %s\n", (msg));                                                     \
+iaxl/csrc/test/record_test.cpp:175:        std::printf("\nrecord_test: PASS\n");
+iaxl/csrc/test/record_test.cpp:178:    std::printf("\nrecord_test: FAIL (%d check(s) failed)\n", g_failures);
+iaxl/csrc/test/dsa_memcpy_test.c:62:        fprintf(stderr, "%s: copy failed\n", name);
+iaxl/csrc/test/dsa_memcpy_test.c:70:            fprintf(stderr, "%s: copy failed\n", name);
+iaxl/csrc/test/dsa_memcpy_test.c:77:    printf("  %-24s %6zu %10.3f %8.2f %8s\n", name, calls, elapsed * 1e3, gbps,
+iaxl/csrc/test/dsa_memcpy_test.c:112:    fprintf(stderr,
+iaxl/csrc/test/dsa_memcpy_test.c:155:            fprintf(stderr, "warm-up failed\n");
+iaxl/csrc/test/dsa_memcpy_test.c:160:    printf("DDR2DDR: %zu MiB as %zu x %zu KiB blocks, WQs=%s, %d iters\n", b.total >> 20, b.count,
+iaxl/csrc/test/dsa_memcpy_test.c:162:    printf("  %-24s %6s %10s %8s %8s\n", "API", "calls", "avg(ms)", "GB/s", "verify");
+iaxl/csrc/test/dsa_memcpy_test.c:171:    printf("async/sync speedup at %zu calls: %.2fx\n", calls, async_gbps / sync_gbps);
+iaxl/csrc/common/envs.c:61:        fprintf(stderr, "[iaxl] ERROR: IAXL_ZIP_LEVEL=%d is out of range; expected 1-9\n",
+iaxl/csrc/common/envs.c:94:        fprintf(stderr, "[iaxl] ERROR: IAXL_KV_COMPRESSION=1 requires at least one zip backend; "
+iaxl/csrc/common/envs.c:122:            fprintf(stderr,
+iaxl/csrc/common/envs.c:130:         printf("[iaxl] config: qat_zip=%s iaa_zip=%s cpu_zip=%s qat_instances=%d "
+iaxl/csrc/kv_xfer/cuda.cpp:26:            fprintf(stderr, "CUDA error %s:%d: %s returned %s\n", __FILE__, __LINE__, #call,       \
+iaxl/csrc/kv_xfer/cuda.cpp:263:        fprintf(stderr,
+iaxl/csrc/kv_xfer/cuda.cpp:275:            fprintf(stderr, "[kv_xfer] copy_chunks_batch %s: using Intel DSA backend\n",
+iaxl/csrc/kv_xfer/cuda.cpp:292:        fprintf(stderr, "[kv_xfer] copy_chunks_batch %s: using CUDA backend (%s)\n", direction,
+iaxl/csrc/kv_xfer/dsa.cpp:53:        fprintf(stderr,
+iaxl/csrc/kv_xfer/xpu.cpp:24:            fprintf(stderr, "SYCL error %s:%d: %s threw %s\n", __FILE__, __LINE__, #call,          \
+iaxl/csrc/kv_xfer/rdma.cpp:30:            fprintf(stderr, "NIXL error %s:%d: %s returned %s\n", __FILE__, __LINE__, #call,       \
+iaxl/csrc/kv_xfer/rdma.cpp:141:    fprintf(stderr, "[kv_xfer/rdma] pool %s: %ld blocks x %ld descs of %ld B\n",
+iaxl/csrc/kv_xfer/rdma.cpp:164:    fprintf(stderr, "[kv_xfer/rdma] agent %s listening on port %d\n", name.c_str(), listen_port);
+iaxl/csrc/kv_xfer/rdma.cpp:240:        fprintf(stderr, "[kv_xfer] copy_chunks_batch: using RDMA backend (%ld B x %ld per block)\n",
+iaxl/csrc/qat_zip/qat_zip.c:147:    fprintf(stderr, "[discovery] found %d QAT instance(s)\n", (int)total);
+iaxl/csrc/qat_zip/qat_zip.c:174:            fprintf(stderr, "  device[%d]: PCIe bus=0x%02x  accel_id=%d  NUMA=%d\n", d, bus,
+iaxl/csrc/qat_zip/qat_zip.c:284:    fprintf(stderr,
+iaxl/csrc/qat_zip/qat_zip.c:303:            fprintf(stderr,
+iaxl/csrc/qat_zip/qat_zip.c:310:            fprintf(stderr, "[select] device[%d] only provided %d instance(s) (wanted %d)\n",
+iaxl/csrc/qat_zip/qat_zip.c:314:    fprintf(stderr, "[qat_zip] init done: %d instance(s) on devices=%s  cnv_strict=%d\n",
+iaxl/csrc/include/profiler.h:213:    std::cerr << "[set_thread_name] pid=" << pid << " tid=" << tid << " name=\"" << truncated
+iaxl/csrc/include/iaxl_common.h:16:            fprintf(stderr, "IAXL check failed: %s (%s) at %s:%d\n", #condition, (message),        \
+iaxl/csrc/include/kv_pool.h:122:    std::fprintf(stderr, "Invalid KV cache label: %.*s\n", static_cast<int>(value.size()),

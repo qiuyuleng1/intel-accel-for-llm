@@ -1,0 +1,19 @@
+[2026-11-23 08:49:12 UTC] start: steps=1 2 result_dir=/home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912
+[2026-11-23 08:49:12 UTC] step 1 started
+[2026-11-23 08:49:13 UTC] calibration tp4_run1 (-e TP_SIZE=4 -e DP_SIZE=1)
+[2026-11-23 08:49:16 UTC] calibration tp4_run2 (-e TP_SIZE=4 -e DP_SIZE=1)
+[2026-11-23 08:49:20 UTC] calibration tp4_run3 (-e TP_SIZE=4 -e DP_SIZE=1)
+[2026-11-23 08:49:24 UTC] calibration tp2_dp2 (-e TP_SIZE=2 -e DP_SIZE=2)
+[2026-11-23 08:49:27 UTC] calibration tp8 (-e TP_SIZE=8 -e DP_SIZE=1)
+[2026-11-23 08:49:32 UTC] calibration tp4_rank3_fails (-e TP_SIZE=4 -e DP_SIZE=1 -e CALIBRATION_GPUS=0,1,2,99)
+[2026-11-23 08:49:35 UTC] step 1 PASS (23s)
+[2026-11-23 08:49:35 UTC] step 2 started
+[2026-11-23 08:49:35 UTC] starting serve: /media/model-space/Qwen3.8-27B TP=4 GPUs 0,1,2,3 IAXL_DSA_GD_ENABLE=1, log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912/step2/dsa_on/serve.log
+[2026-11-23 08:51:15 UTC] vLLM ready after 100s, sending requests
+[2026-11-23 08:51:26 UTC] stopping vLLM pid 3891107 (process tree: 3891107 3891279 3891280 3891306 3891307 3891308 3891309)
+[2026-11-23 08:51:31 UTC] starting serve: /media/model-space/Qwen3.8-27B TP=4 GPUs 0,1,2,3 IAXL_DSA_GD_ENABLE=0, log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912/step2/dsa_off/serve.log
+[2026-11-23 08:53:12 UTC] vLLM ready after 100s, sending requests
+[2026-11-23 08:53:22 UTC] stopping vLLM pid 3893539 (process tree: 3893539 3893625 3893626 3893656 3893657 3893658 3893659)
+[2026-11-23 08:53:28 UTC] starting serve: /media/model-space/Qwen3.8-27B TP=4 GPUs 0,1,2,99 IAXL_DSA_GD_ENABLE=1, log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912/step2/calibration_fails/serve.log
+[2026-11-23 08:53:46 UTC] step 2 FAIL (251s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912/summary.txt
+[2026-11-23 08:53:46 UTC] ALL DONE. Summary: /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912/summary.txt

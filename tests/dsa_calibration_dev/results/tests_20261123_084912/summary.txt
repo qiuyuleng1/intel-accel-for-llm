@@ -1,0 +1,23 @@
+step1 tp4_run1: PASS 3037 ms, stdout '256 256', [dsa_calibration] crossover H2D 256 KB, D2H 256 KB (0 = DSA faster up to 4096 KB), 4 workers, 3.0 s, WQs wq0.0 wq2.0 wq4.0 wq6.0 
+step1 tp4_run2: PASS 3120 ms, stdout '256 256', [dsa_calibration] crossover H2D 256 KB, D2H 256 KB (0 = DSA faster up to 4096 KB), 4 workers, 3.1 s, WQs wq0.0 wq2.0 wq4.0 wq6.0 
+step1 tp4_run3: PASS 3051 ms, stdout '256 256', [dsa_calibration] crossover H2D 256 KB, D2H 256 KB (0 = DSA faster up to 4096 KB), 4 workers, 3.0 s, WQs wq0.0 wq2.0 wq4.0 wq6.0 
+step1 tp2_dp2: PASS 3020 ms, stdout '256 256', [dsa_calibration] crossover H2D 256 KB, D2H 256 KB (0 = DSA faster up to 4096 KB), 4 workers, 3.0 s, WQs wq0.0 wq2.0 wq4.0 wq6.0 
+step1 tp8: PASS 4274 ms, stdout '256 256', [dsa_calibration] crossover H2D 256 KB, D2H 256 KB (0 = DSA faster up to 4096 KB), 8 workers, 4.2 s, WQs wq0.0 wq10.0 wq12.0 wq14.0 wq2.0 wq4.0 wq6.0 wq8.0 
+step1 tp4_rank3_fails: PASS exit 1 after 2315 ms, '[dsa_calibration] failed: rank3 exited with code 1', no leftover process
+step2 dsa_on: PASS (ready after 100s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912/step2/dsa_on/check.txt
+    PASS one calibration summary line
+    PASS summary line also in log.kvshrink-vllm
+    PASS 4 calibration workers used DSA in both directions
+    PASS H2D: 4 ranks use CUDA (block 784.0 KB, crossover 256 KB)
+    PASS D2H: 4 ranks use CUDA (block 784.0 KB, crossover 256 KB)
+    PASS every prompt hits in round 3
+    PASS every reply contains the correct value
+    PASS no Traceback
+step2 dsa_off: PASS (ready after 100s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_084912/step2/dsa_off/check.txt
+    PASS no calibration lines
+    PASS H2D: 4 ranks use CUDA
+    PASS D2H: 4 ranks use CUDA
+    PASS every prompt hits in round 3
+    PASS every reply contains the correct value
+    PASS no Traceback
+step2 calibration_fails: FAIL exit 1, vLLM lines 55, failed line in log.kvshrink-vllm '[dsa_calibration] failed: rank3 exited with code 1'

@@ -1,0 +1,47 @@
+===SEG
+iaxl/csrc/torch_ext/torch_ext.cpp:163:        "tensor holding its block. Tensors split into segments (IAXL_ZIP_SEGMENT_SIZE_KB) are\n"
+iaxl/csrc/common/envs.c:65:    envs.IAXL_ZIP_SEGMENT_SIZE_KB = env_nonnegative_int("IAXL_ZIP_SEGMENT_SIZE_KB", 0);
+iaxl/csrc/include/env.h:49:    int IAXL_ZIP_SEGMENT_SIZE_KB;
+iaxl/csrc/include/kv_zip.h:29:// (IAXL_ZIP_SEGMENT_SIZE_KB) is used as scratch and holds garbage afterwards.
+iaxl/csrc/kv_zip/kv_zip.cpp:11:// An item is one segment of a tensor: the whole tensor, or IAXL_ZIP_SEGMENT_SIZE_KB of it so that a
+iaxl/csrc/kv_zip/kv_zip.cpp:48:    uint32_t segment_size; // tensor bytes per segment, the last one also takes the remainder
+iaxl/csrc/kv_zip/kv_zip.cpp:79:static uint32_t segment_count(uint32_t orig_size, uint32_t segment_size) {
+iaxl/csrc/kv_zip/kv_zip.cpp:80:    return std::max<uint32_t>(1, orig_size / segment_size);
+iaxl/csrc/kv_zip/kv_zip.cpp:83:// IAXL_ZIP_SEGMENT_SIZE_KB in bytes; 0, or a size not below the tensor's, keeps one segment.
+iaxl/csrc/kv_zip/kv_zip.cpp:84:static uint32_t segment_size_for(uint32_t orig_size) {
+iaxl/csrc/kv_zip/kv_zip.cpp:85:    const uint64_t size = uint64_t(envs.IAXL_ZIP_SEGMENT_SIZE_KB) * 1024;
+iaxl/csrc/kv_zip/kv_zip.cpp:93:    const uint32_t segment_size = segment_size_for(size);
+iaxl/csrc/kv_zip/kv_zip.cpp:94:    const uint32_t segments = segment_count(size, segment_size);
+iaxl/csrc/kv_zip/kv_zip.cpp:95:    return {kBlockMagic, kBlockVersion, flags, size, segment_size, segments};
+iaxl/csrc/kv_zip/kv_zip.cpp:98:// Tensor bytes of segment k, which starts at k * segment_size.
+iaxl/csrc/kv_zip/kv_zip.cpp:100:    return k + 1 < h.segments ? h.segment_size : h.orig_size - k * h.segment_size;
+iaxl/csrc/kv_zip/kv_zip.cpp:281:            printf("[kv_zip] block_size=%u B segment_size=%u B segments=%u\n", h.orig_size,
+iaxl/csrc/kv_zip/kv_zip.cpp:282:                   h.segment_size, h.segments);
+iaxl/csrc/kv_zip/kv_zip.cpp:296:                table[k] = {static_cast<uint32_t>(start + size_t(k) * h.segment_size),
+iaxl/csrc/kv_zip/kv_zip.cpp:321:                   "IAXL_ZIP_SEGMENT_SIZE_KB");
+iaxl/csrc/kv_zip/kv_zip.cpp:342:                (k == last && payload) ? payload : b.data + size_t(k) * h.segment_size;
+iaxl/csrc/kv_zip/kv_zip.cpp:362:            const char *src = b.data + size_t(r.index) * b.header.segment_size;
+iaxl/csrc/kv_zip/kv_zip.cpp:397:                memcpy(b.data + size_t(r.index) * b.header.segment_size, payload,
+iaxl/csrc/kv_zip/kv_zip.cpp:422:        IAXL_CHECK(h.segment_size > 0 && h.segments == segment_count(h.orig_size, h.segment_size),
+iaxl/csrc/kv_zip/kv_zip.cpp:450:        char *dst = pool.block_ptr(block_indices[r.block]) + size_t(r.index) * h.segment_size;
+setvars.sh:123:export IAXL_ZIP_SEGMENT_SIZE_KB=${IAXL_ZIP_SEGMENT_SIZE_KB:-0}           # Compress blocks in segments of N KiB (0 = whole block)
+===TOOLS
+auto_config.sh
+disable-acs.sh
+hw_topo.py
+install_gdr_driver.sh
+setup_dsa_cnt.sh
+setup_dsa.sh
+setup_iaa.sh
+setup_kernel_cmdline.sh
+setup_qat.sh
+setup_system.sh
+===UNITTEST
+8:The zip backends are selected with the usual IAXL_*_ZIP_ENABLE variables; the CPU backend is on
+22:class TestKvZip(unittest.TestCase):
+25:    def test_roundtrip(self):
+41:        for e, o in zip(expected, outs):
+44:    def test_compressible(self):
+47:        for t, b in zip(tensors, blocks):
+48:            # IAXL_ZIP_EXPONENT_ONLY keeps half of every segment raw.
+53 tests/iaxl_unittest.py

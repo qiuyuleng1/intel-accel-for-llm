@@ -1,0 +1,157 @@
+===DIFF
+ examples/kvshrink-vllm-serve.sh                |   7 +++++++
+ iaxl/csrc/common/envs.c                        |   2 ++
+ iaxl/csrc/include/env.h                        |   2 ++
+ iaxl/csrc/kv_xfer/cuda.cpp                     |  18 ++++++++++++------
+ iaxl/csrc/kv_xfer/dsa.cpp                      |   4 ++++
+ iaxl/torch_ext.cpython-312-x86_64-linux-gnu.so | Bin 0 -> 933592 bytes
+ 6 files changed, 27 insertions(+), 6 deletions(-)
+===CONTAINERS
+tangyang-glm-rebase Up 7 minutes
+iaxl.vllm Up 3 days
+iaxl.vllm-PR70 Up 3 days
+iaxl.xfer.probe Up 3 days
+===GPU
+0, 64861 MiB, 0 %
+1, 64925 MiB, 0 %
+2, 64861 MiB, 0 %
+3, 64925 MiB, 0 %
+4, 64861 MiB, 0 %
+5, 64925 MiB, 0 %
+6, 64861 MiB, 0 %
+7, 64925 MiB, 0 %
+GPU-fd38ce1f-d1d5-4d96-fcbc-468a3d41aa69, 3880796, 64828 MiB
+GPU-74c11deb-bf69-25b4-a61b-fe520dc1d30a, 3880800, 64892 MiB
+GPU-488575a9-04af-59f5-6cfc-6c9ff32668db, 3880803, 64828 MiB
+GPU-6127217f-f726-f2cd-a084-50adb01f592c, 3880802, 64892 MiB
+GPU-877de537-b2c3-f64e-52a0-2d8edf836af7, 3880801, 64828 MiB
+GPU-e6935dff-3ad4-ae84-353e-b6fb96a1486a, 3880804, 64892 MiB
+GPU-147ae73a-d1e2-ef5b-e9f0-7c99dbd81014, 3880806, 64828 MiB
+GPU-4a151bf0-74cc-bbf1-0ba7-de3cb1eeeff8, 3880805, 64892 MiB
+===TESTS
+bench_fallback.sh
+calibrate_once.py
+e2e_check.py
+e2e_requests.py
+forced_crossover_kvstore.py
+pair_contention.sh
+results
+run_tests.sh
+stability_runs.sh
+stability_tables.py
+timeout_kvstore.py
+topology_survey.sh
+with_setvars.sh
+xfer_metrics_table.py
+# Copyright (C) 2026 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Step 4 check: read <model_dir>/fallback1 and <model_dir>/fallback0 (serve.log + outputs.json
+written by run_tests.sh) and print the calibration lines, copy backend lines, per-request
+KVShrink hits and whether the replies of IAXL_DSA_AUTO_FALLBACK_ENABLE=1 and =0 are identical."""
+
+import json
+import os
+import re
+import sys
+
+CROSSOVER_LINE = re.compile(r"\[rank(\d+)\] DSA crossover measured by rank (\d+): H2D (.+?), D2H (.+?)(?: \|.*)?$")
+CALIBRATE_LINE = re.compile(r"\[kv_xfer\] dsa calibrate GPU(\d+) (H2D|D2H): (.*)")
+BLOCK_SIZE_LINE = re.compile(r"copy_chunks_batch: contiguous block size = ([\d.]+) KB")
+BACKEND_LINE = re.compile(r"copy_chunks_batch (H2D|D2H): using (Intel DSA|CUDA) backend")
+HIT_LINE = re.compile(r"get_num_new_matched_tokens, req-(\S+), externally-cached tokens: (\d+)")
+
+
+def read_run(run_dir: str) -> dict:
+    crossover_rows = []
+    calibrate_rows = []
+    block_sizes = {}
+    backends = {}
+    hits_by_log_id = {}
+    traceback_count = 0
+    with open(os.path.join(run_dir, "serve.log"), errors="replace") as log_file:
+        for line in log_file:
+            if "Traceback" in line:
+                traceback_count += 1
+            match = CROSSOVER_LINE.search(line)
+            if match:
+                crossover_rows.append(match.groups())
+            match = CALIBRATE_LINE.search(line)
+            if match:
+                calibrate_rows.append(match.groups())
+            match = BLOCK_SIZE_LINE.search(line)
+            if match:
+                block_sizes[match.group(1)] = block_sizes.get(match.group(1), 0) + 1
+            match = BACKEND_LINE.search(line)
+            if match:
+===REQ
+# Copyright (C) 2026 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Step 4 client: send the same long prompts to a vLLM server for several rounds, one request at
+a time, temperature 0, and save each reply. Round 1 stores the KV cache through KVShrink; later
+rounds of the same prompt load it back. Standard library only, so it runs on the host."""
+
+import argparse
+import json
+import urllib.request
+
+SENTENCES_PER_PROMPT = 600
+
+
+def build_prompt(prompt_index: int) -> str:
+    lines = [f"Inventory report {prompt_index}."]
+    for item in range(SENTENCES_PER_PROMPT):
+        value = (prompt_index * 7919 + item * 104729) % 100000
+        lines.append(f"Record {prompt_index}-{item}: item {item} of report {prompt_index} has value {value}.")
+    lines.append(f"Question: what is the value of item 17 of report {prompt_index}? Answer:")
+    return " ".join(lines)
+
+
+def send(port: int, model: str, prompt: str, max_tokens: int) -> dict:
+    body = {"model": model, "prompt": prompt, "max_tokens": max_tokens, "temperature": 0}
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{port}/v1/completions",
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+===RUN
+2:# DSA auto fallback tests on 6000d: step 1 calibration, 2 forced crossovers, 3 KVStore calibration, 4 vLLM TP=8.
+3:# Usage: RESULT_DIR=<dir> bash tests/dsa_fallback_dev/run_tests.sh   (STEPS="1 2 3 4", DRY_RUN=1 prints commands)
+12:STEPS=${STEPS:-"1 2 3 4"}
+21:# vLLM step: TP size and the GPUs it uses (setvars.sh binds the first TP_SIZE GPUs nvidia-smi lists).
+26:# Same KVStore settings for every step: no compression, so only the copy path is tested.
+100:step1() {
+101:    local dir="$RESULT_DIR/step1" ok=1 enabled
+118:            summary "step1 ${name%%:*}: PASS ($enabled)"
+120:            summary "step1 ${name%%:*}: FAIL (got '$enabled', expected ENABLED ${name##*:}, see $dir/${name%%:*}.log)"
+128:        summary "step1 calibrate: PASS 3 calls, identical result: $(grep -a "^CALL 1" "$dir/calibrate.log")"
+130:        summary "step1 calibrate: FAIL $calls calls, $distinct distinct results, see $dir/calibrate.log"
+133:    summary "step1 calibrate details: $(grep -a -E "^(CALL|FREE_MIB)" "$dir/calibrate.log" | tr '\n' ';')"
+139:        summary "step1 debug log: PASS (IAXL_DEBUG_LOG=0: 0 lines, =1: 2 lines)"
+141:        summary "step1 debug log: FAIL (IAXL_DEBUG_LOG=0: $debug_off_lines lines, =1: $debug_on_lines lines)"
+147:step2() {
+148:    local dir="$RESULT_DIR/step2" ok=1 combo h2d d2h h2d_backend d2h_backend log_file
+164:            summary "step2 H2D=$h2d_backend D2H=$d2h_backend: PASS ($(grep -a "^COMPARE" "$log_file")) backends: $backend_lines"
+166:            summary "step2 H2D=$h2d_backend D2H=$d2h_backend: FAIL ($result) backends: $backend_lines, see $log_file"
+186:step3() {
+187:    local dir="$RESULT_DIR/step3" ok=1 ranks name log_file crossover_lines verify_line
+202:            summary "step3 $name: PASS ($crossover_lines crossover lines, $verify_line)"
+204:            summary "step3 $name: FAIL (exit $exit_code, $crossover_lines crossover lines, '$verify_line'), see $log_file"
+207:        summary "step3 $name crossover lines: $(grep -a -o "\[rank[0-9]*\] DSA crossover.*" "$log_file" | tr '\n' ';')"
+208:        summary "step3 $name backends: $(grep -a -o "copy_chunks_batch [A-Z0-9]*: using [A-Za-z ]* backend" "$log_file" | sort | uniq -c | tr '\n' ';')"
+216:        summary "step3 timeout: PASS ($(grep -a "^RAISED" "$log_file"))"
+218:        summary "step3 timeout: FAIL, see $log_file"
+298:step4() {
+299:    local dir="$RESULT_DIR/step4" ok=1 model model_dir fallback
+308:            summary "step4 $(basename "$model"): PASS, see $model_dir/check.txt"
+310:            summary "step4 $(basename "$model"): FAIL, see $model_dir/check.txt"
+313:        summary "$(grep -E "^(PASS|FAIL) " "$model_dir/check.txt" | sed "s|^|step4 $(basename "$model") |")"
+322:log "start: steps=$STEPS result_dir=$RESULT_DIR"
+336:for step in $STEPS; do
+337:    step_started=$(date +%s)
+338:    log "step $step started"
+339:    if "step$step"; then
+340:        log "step $step PASS ($(($(date +%s) - step_started))s)"
+342:        log "step $step FAIL ($(($(date +%s) - step_started))s), see $RESULT_DIR/summary.txt"
+343:        # Step 3's two-rank kvstore benchmark is expected to fail; the other steps build on each other.
+344:        [[ "$step" == 3 ]] || exit 1

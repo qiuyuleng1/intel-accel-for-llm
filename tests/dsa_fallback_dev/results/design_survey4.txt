@@ -1,0 +1,281 @@
+===ENVH
+// Copyright (C) 2026 Intel Corporation
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
+
+#include <stdlib.h>
+#include <strings.h>
+#ifndef __cplusplus
+#include <stdbool.h>
+#endif
+
+static inline int env_int(const char *name, int fallback) {
+    const char *v = getenv(name);
+    if (!v || !*v)
+        return fallback;
+    int x = atoi(v);
+    return x > 0 ? x : fallback;
+}
+
+static inline int env_nonnegative_int(const char *name, int fallback) {
+    const char *v = getenv(name);
+    if (!v || !*v)
+        return fallback;
+    int x = atoi(v);
+    return x >= 0 ? x : fallback;
+}
+
+static inline const char *env_str(const char *name, const char *fallback) {
+    const char *v = getenv(name);
+    return (v && *v) ? v : fallback;
+}
+
+static inline int env_bool(const char *name, int fallback) {
+    const char *v = getenv(name);
+    if (!v || !*v)
+        return fallback;
+    if (!strcasecmp(v, "true") || !strcasecmp(v, "yes") || !strcasecmp(v, "on"))
+        return 1;
+    if (!strcasecmp(v, "false") || !strcasecmp(v, "no") || !strcasecmp(v, "off"))
+        return 0;
+    return atoi(v) != 0;
+}
+
+struct Envs {
+
+    int IAXL_ZIP_SRC_CAP;
+    int IAXL_ZIP_DST_CAP;
+    int IAXL_ZIP_LEVEL;
+    int IAXL_ZIP_SEGMENT_SIZE_KB;
+
+    bool IAXL_QAT_ZIP_ENABLE;
+    bool IAXL_IAA_ZIP_ENABLE;
+    bool IAXL_CPU_ZIP_ENABLE;
+    int IAXL_QAT_INSTANCE_NUM;
+    const char *(*IAXL_QAT_DEVICES)(void);
+    int IAXL_QAT_ZIP_INSTANCES_PER_DEVICE;
+    int IAXL_QAT_ZIP_QUEUE_DEPTH;
+    int IAXL_IAA_INSTANCE_NUM;
+    const char *(*IAXL_IAA_DEVICES)(void);
+    int IAXL_IAA_ZIP_INSTANCES_PER_DEVICE;
+    int IAXL_IAA_ZIP_QUEUE_DEPTH;
+    int IAXL_CPU_ZIP_THREADS;
+    int IAXL_OMP_THREAD_NUM;
+    bool IAXL_USE_OMP;
+
+    bool IAXL_KV_COMPRESSION;
+    int IAXL_KV_LOSSY_TRUNC;
+    bool IAXL_KV_DATA_SHUFFLE;
+    bool IAXL_ZIP_EXPONENT_ONLY;
+    int IAXL_CACHE_CACHEGROUP_SIZE;
+    int IAXL_CACHE_CACHEGROUP_NUM;
+
+    bool IAXL_DSA_GD_ENABLE;
+    const char *(*IAXL_DSA_WQS)(void);
+
+    bool IAXL_DEBUG_LOG;
+    const char *IAXL_PROFILE_MODE;
+};
+
+#ifdef __cplusplus
+===ENVSC
+// Copyright (C) 2026 Intel Corporation
+// SPDX-License-Identifier: Apache-2.0
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <sched.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+#include "env.h"
+
+static const char *qat_devices_get(void) {
+    static const char *cached = NULL;
+    if (!cached)
+        cached = env_str("IAXL_QAT_DEVICES", "0");
+    return cached;
+}
+
+static const char *iaa_devices_get(void) {
+    static const char *cached = NULL;
+    if (!cached)
+        cached = env_str("IAXL_IAA_DEVICES", "auto");
+    return cached;
+}
+
+static const char *dsa_wqs_get(void) {
+    static const char *cached = NULL;
+    if (!cached)
+        cached = env_str("IAXL_DSA_WQS", "wq0.0");
+    return cached;
+}
+
+struct Envs envs = {
+    .IAXL_QAT_DEVICES = qat_devices_get,
+    .IAXL_IAA_DEVICES = iaa_devices_get,
+    .IAXL_DSA_WQS = dsa_wqs_get,
+};
+
+static int available_cpu_count(void) {
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    if (sched_getaffinity(0, sizeof(set), &set) == 0)
+        return CPU_COUNT(&set);
+    long n = sysconf(_SC_NPROCESSORS_ONLN);
+    return n > 0 ? (int)n : 1;
+}
+
+__attribute__((constructor(101))) void envs_init(void) {
+
+    envs.IAXL_ZIP_SRC_CAP = env_int("IAXL_ZIP_SRC_CAP", 256 * 1024);
+    envs.IAXL_ZIP_DST_CAP = env_int("IAXL_ZIP_DST_CAP", 256 * 1024);
+    envs.IAXL_ZIP_LEVEL = env_int("IAXL_ZIP_LEVEL", 1);
+    if (envs.IAXL_ZIP_LEVEL < 1 || envs.IAXL_ZIP_LEVEL > 9) {
+        fprintf(stderr, "[iaxl] ERROR: IAXL_ZIP_LEVEL=%d is out of range; expected 1-9\n",
+                envs.IAXL_ZIP_LEVEL);
+        abort();
+    }
+    envs.IAXL_ZIP_SEGMENT_SIZE_KB = env_nonnegative_int("IAXL_ZIP_SEGMENT_SIZE_KB", 0);
+
+    envs.IAXL_QAT_ZIP_ENABLE = env_bool("IAXL_QAT_ZIP_ENABLE", 1);
+    envs.IAXL_IAA_ZIP_ENABLE = env_bool("IAXL_IAA_ZIP_ENABLE", 0);
+    envs.IAXL_CPU_ZIP_ENABLE = env_bool("IAXL_CPU_ZIP_ENABLE", 0);
+    envs.IAXL_QAT_INSTANCE_NUM = env_nonnegative_int("IAXL_QAT_INSTANCE_NUM", 4);
+    envs.IAXL_IAA_INSTANCE_NUM = env_nonnegative_int("IAXL_IAA_INSTANCE_NUM", 4);
+
+    envs.IAXL_QAT_ZIP_INSTANCES_PER_DEVICE = env_int("IAXL_QAT_ZIP_INSTANCES_PER_DEVICE", 4);
+    envs.IAXL_QAT_ZIP_QUEUE_DEPTH = env_int("IAXL_QAT_ZIP_QUEUE_DEPTH", 4);
+    envs.IAXL_IAA_ZIP_INSTANCES_PER_DEVICE = env_int("IAXL_IAA_ZIP_INSTANCES_PER_DEVICE", 4);
+    envs.IAXL_IAA_ZIP_QUEUE_DEPTH = env_int("IAXL_IAA_ZIP_QUEUE_DEPTH", 4);
+    envs.IAXL_CPU_ZIP_THREADS = env_nonnegative_int("IAXL_CPU_ZIP_THREADS", 4);
+    if (!envs.IAXL_QAT_ZIP_ENABLE)
+        envs.IAXL_QAT_INSTANCE_NUM = 0;
+    if (!envs.IAXL_IAA_ZIP_ENABLE)
+        envs.IAXL_IAA_INSTANCE_NUM = 0;
+    if (!envs.IAXL_CPU_ZIP_ENABLE)
+        envs.IAXL_CPU_ZIP_THREADS = 0;
+    envs.IAXL_OMP_THREAD_NUM =
+        env_int("IAXL_OMP_THREAD_NUM", envs.IAXL_QAT_INSTANCE_NUM + envs.IAXL_IAA_INSTANCE_NUM +
+                                           envs.IAXL_CPU_ZIP_THREADS);
+    if (envs.IAXL_OMP_THREAD_NUM < 1)
+        envs.IAXL_OMP_THREAD_NUM = 1;
+    envs.IAXL_USE_OMP = env_bool("IAXL_USE_OMP", 1);
+
+    envs.IAXL_KV_COMPRESSION = env_bool("IAXL_KV_COMPRESSION", 1);
+    if (envs.IAXL_KV_COMPRESSION && !envs.IAXL_QAT_ZIP_ENABLE && !envs.IAXL_IAA_ZIP_ENABLE &&
+        !envs.IAXL_CPU_ZIP_ENABLE) {
+        fprintf(stderr, "[iaxl] ERROR: IAXL_KV_COMPRESSION=1 requires at least one zip backend; "
+                        "enable IAXL_QAT_ZIP_ENABLE/IAXL_IAA_ZIP_ENABLE/IAXL_CPU_ZIP_ENABLE "
+                        "or set IAXL_KV_COMPRESSION=0\n");
+        abort();
+    }
+    envs.IAXL_KV_LOSSY_TRUNC = env_int("IAXL_KV_LOSSY_TRUNC", 0);
+    envs.IAXL_KV_DATA_SHUFFLE = env_bool("IAXL_KV_DATA_SHUFFLE", 0);
+    envs.IAXL_ZIP_EXPONENT_ONLY = env_bool("IAXL_ZIP_EXPONENT_ONLY", envs.IAXL_KV_DATA_SHUFFLE);
+    envs.IAXL_CACHE_CACHEGROUP_SIZE = env_int("IAXL_CACHE_CACHEGROUP_SIZE", 100);
+    envs.IAXL_CACHE_CACHEGROUP_NUM = env_int("IAXL_CACHE_CACHEGROUP_NUM", 100000);
+
+    envs.IAXL_DSA_GD_ENABLE = env_bool("IAXL_DSA_GD_ENABLE", 0);
+
+    envs.IAXL_DEBUG_LOG = env_bool("IAXL_DEBUG_LOG", 0);
+    envs.IAXL_PROFILE_MODE = env_str("IAXL_PROFILE_MODE", "disabled");
+
+    static int printed = 0;
+    if (!printed) {
+        printed = 1;
+
+        int cpus = available_cpu_count();
+
+#ifdef _OPENMP
+
+        int omp_threads = omp_get_max_threads();
+        if (cpus < envs.IAXL_OMP_THREAD_NUM) {
+            fprintf(stderr,
+===DSAMAIN
+87:bool dsa_copy_chunks_batch(char *gpu_bar_base, int64_t chunk_stride, int64_t outer_dims,
+88-                           int64_t inner_size, int64_t outer_block_size, bool is_h2d,
+89-                           const std::vector<int64_t> &chunk_indices,
+90-                           const std::vector<char *> &cpu_ptrs, uint64_t &ticket) {
+91-
+92-    if (gpu_bar_base == nullptr) // IAXL_DSA_GD_ENABLE=0: the KV pool has no BAR mapping
+93-        return false;
+94-
+95-    std::lock_guard<std::mutex> lock(dsa_context_mutex);
+96-
+97-    if ((inner_size % 8) != 0)
+98-        return false;
+99-
+===CUDAMAIN_LOGS
+260:    static std::once_flag layout_noted;
+261:    std::call_once(layout_noted, [&] {
+270:        static std::once_flag dsa_noted;
+271:        std::call_once(dsa_noted, [] {
+272:            fprintf(stderr, "[kv_xfer] copy_chunks_batch: using Intel DSA backend\n");
+285:    static std::once_flag cuda_noted;
+286:    std::call_once(cuda_noted, [] {
+287:        fprintf(stderr, "[kv_xfer] copy_chunks_batch: using CUDA backend (%s)\n", kCudaApi);
+===DEVDIFF_CUDA
+diff --git a/iaxl/csrc/kv_xfer/cuda.cpp b/iaxl/csrc/kv_xfer/cuda.cpp
+index f111418..d933a5a 100644
+--- a/iaxl/csrc/kv_xfer/cuda.cpp
++++ b/iaxl/csrc/kv_xfer/cuda.cpp
+@@ -256,6 +256,7 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
+     int64_t outer_dims = x->outer_dims;
+     int64_t inner_size = x->inner_size;
+     int64_t outer_block_size = x->outer_block_size;
++    const char *direction = h2d ? "H2D" : "D2H";
+ 
+     static std::once_flag layout_noted;
+     std::call_once(layout_noted, [&] {
+@@ -267,9 +268,12 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
+ 
+     if (dsa_copy_chunks_batch(x->gpu_bar_base, chunk_stride, outer_dims, inner_size,
+                               outer_block_size, h2d, chunk_indices, cpu_ptrs, x->dsa_ticket)) {
+-        static std::once_flag dsa_noted;
+-        std::call_once(dsa_noted, [] {
+-            fprintf(stderr, "[kv_xfer] copy_chunks_batch: using Intel DSA backend\n");
++        // With a crossover, H2D and D2H may pick different backends, so log each direction once.
++        static std::once_flag dsa_h2d_noted;
++        static std::once_flag dsa_d2h_noted;
++        std::call_once(h2d ? dsa_h2d_noted : dsa_d2h_noted, [direction] {
++            fprintf(stderr, "[kv_xfer] copy_chunks_batch %s: using Intel DSA backend\n",
++                    direction);
+         });
+         return;
+     }
+@@ -282,12 +286,22 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
+ #else
+     static const char *kCudaApi = "cudaMemcpyAsync";
+ #endif
+-    static std::once_flag cuda_noted;
+-    std::call_once(cuda_noted, [] {
+-        fprintf(stderr, "[kv_xfer] copy_chunks_batch: using CUDA backend (%s)\n", kCudaApi);
++    static std::once_flag cuda_h2d_noted;
++    static std::once_flag cuda_d2h_noted;
++    std::call_once(h2d ? cuda_h2d_noted : cuda_d2h_noted, [direction] {
++        fprintf(stderr, "[kv_xfer] copy_chunks_batch %s: using CUDA backend (%s)\n", direction,
++                kCudaApi);
+     });
+ 
+-    GpuStream_t stream = x->work_stream;
++    cuda_copy_chunks_batch(gpu_base_ptr, chunk_stride, outer_dims, inner_size, outer_block_size,
++                           h2d, chunk_indices, cpu_ptrs, x->work_stream);
++}
++
++void cuda_copy_chunks_batch(char *gpu_base_ptr, int64_t chunk_stride, int64_t outer_dims,
++                            int64_t inner_size, int64_t outer_block_size, bool h2d,
++                            const std::vector<int64_t> &chunk_indices,
++                            const std::vector<char *> &cpu_ptrs, stream_t work_stream) {
++    GpuStream_t stream = static_cast<GpuStream_t>(work_stream);
+ #if USE_CUDA_MEMCPY_3D_BATCH
+ 
+     size_t num_chunks = chunk_indices.size();

@@ -5,7 +5,7 @@
 """Run kvstore_benchmark.py with one process per TP rank, mirroring vLLM.
 
 The main process is the scheduler: it drives every rank worker through the same
-steps (setup, create_store, warmup, PUT, GET, verify) over a pipe and prints the report.
+steps (setup, warmup, PUT, GET, verify) over a pipe and prints the report.
 Rank r is bound to its CPUs / QAT / DSA via iaxl.utils.affinity (using the
 per-rank env from setvars.sh), gets its own GPU through CUDA_VISIBLE_DEVICES
 and its own KVStore(rank=r). Timed steps start simultaneously on all ranks and
@@ -111,7 +111,6 @@ def schedule(kb, tp_size: int, conns: list) -> bool:
 
     call("setup", [0])  # rank 0 writes the model KV cache file the others reuse
     call("setup", range(1, tp_size))
-    call("create_store")
     total_blocks = call("total_blocks", [0])[0]
     total_bytes = call("total_bytes", [0])[0]
     call("warmup")

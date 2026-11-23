@@ -1,0 +1,182 @@
+===ENVS
+
+    envs.IAXL_DEBUG_LOG = env_bool("IAXL_DEBUG_LOG", 0);
+    envs.IAXL_PROFILE_MODE = env_str("IAXL_PROFILE_MODE", "disabled");
+
+    static int printed = 0;
+    if (!printed) {
+        printed = 1;
+
+        int cpus = available_cpu_count();
+
+#ifdef _OPENMP
+
+        int omp_threads = omp_get_max_threads();
+        if (cpus < envs.IAXL_OMP_THREAD_NUM) {
+            fprintf(stderr,
+                    "[iaxl] WARNING: only %d CPU(s) available to this process, "
+                "but IAXL_OMP_THREAD_NUM=%d (omp_max_threads=%d); compression "
+                "workers will be oversubscribed and throughput may degrade.\n",
+                cpus, envs.IAXL_OMP_THREAD_NUM, omp_threads);
+        }
+#endif
+
+         printf("[iaxl] config: qat_zip=%s iaa_zip=%s cpu_zip=%s qat_instances=%d "
+             "iaa_instances=%d cpu_zip_threads=%d "
+             "omp_threads=%d use_omp=%s cpus=%d "
+               "compression=%s zip_level=%d data_shuffle=%s exponent_only=%s lossy_trunc=%d "
+               "dsa_gd=%s "
+               "profile=%s\n",
+               envs.IAXL_QAT_ZIP_ENABLE ? "ON" : "OFF",
+               envs.IAXL_IAA_ZIP_ENABLE ? "ON" : "OFF",
+               envs.IAXL_CPU_ZIP_ENABLE ? "ON" : "OFF", envs.IAXL_QAT_INSTANCE_NUM,
+               envs.IAXL_IAA_INSTANCE_NUM,
+               envs.IAXL_CPU_ZIP_THREADS,
+               envs.IAXL_OMP_THREAD_NUM, envs.IAXL_USE_OMP ? "ON" : "OFF", cpus,
+               envs.IAXL_KV_COMPRESSION ? "ON" : "OFF", envs.IAXL_ZIP_LEVEL,
+               envs.IAXL_KV_DATA_SHUFFLE ? "ON" : "OFF",
+               envs.IAXL_ZIP_EXPONENT_ONLY ? "ON" : "OFF", envs.IAXL_KV_LOSSY_TRUNC,
+               envs.IAXL_DSA_GD_ENABLE ? "ON" : "OFF", envs.IAXL_PROFILE_MODE);
+===DSAINIT
+    size_t num_wq, w;
+    int ret = -1;
+
+    pthread_mutex_lock(&g_init_mutex);
+    if (g_num_wq) {
+        ret = 0;
+        goto out;
+    }
+
+    num_wq = dsa_parse_wqs();
+    if (num_wq == 0) {
+        fprintf(stderr, "no WQ configured in $" DSA_WQS_ENV "\n");
+        goto out;
+    }
+
+    g_max_xfer = dsa_read_wq_attr("max_transfer_size", DSA_MAX_XFER);
+    g_max_batch = dsa_read_wq_attr("max_batch_size", 1);
+    IAXL_CHECK(dsa_read_wq_attr("block_on_fault", 0) == 1,
+               "dsa: WQ has block_on_fault=0, run tools/setup_dsa.sh to enable it");
+
+    for (w = 0; w < num_wq; w++) {
+        char path[64];
+        int fd;
+        void *portal;
+
+        snprintf(path, sizeof(path), "/dev/dsa/%s", g_wq_name[w]);
+        fd = open(path, O_RDWR);
+        if (fd < 0) {
+            fprintf(stderr, "open %s failed: %s\n", path, strerror(errno));
+            goto rollback;
+        }
+
+        portal = mmap(NULL, DSA_PORTAL_SIZE, PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd, 0);
+        close(fd);
+        if (portal == MAP_FAILED) {
+            fprintf(stderr, "mmap portal %s failed: %s\n", path, strerror(errno));
+            goto rollback;
+        }
+
+        portals[w] = portal;
+    }
+
+    for (w = 0; w < num_wq; w++) {
+        if (posix_memalign((void **)&subs[w], 64,
+                           DSA_BATCH_DEPTH * g_max_batch * sizeof(*subs[w])) ||
+            posix_memalign((void **)&comps[w], 32,
+                           DSA_BATCH_DEPTH * g_max_batch * sizeof(*comps[w])) ||
+            posix_memalign((void **)&bcomps[w], 32, DSA_BATCH_DEPTH * sizeof(*bcomps[w]))) {
+            fprintf(stderr, "dsa_init: descriptor alloc failed\n");
+            goto rollback;
+        }
+    }
+
+    for (w = 0; w < num_wq; w++) {
+        g_wq_portal[w] = portals[w];
+        g_subs[w] = subs[w];
+        g_comps[w] = comps[w];
+        g_bcomps[w] = bcomps[w];
+    }
+    for (w = 0; w < DSA_BATCH_DEPTH; w++)
+        g_all_slots[w] = w;
+    g_num_wq = num_wq;
+
+    fprintf(stderr,
+            "dsa_init: mapped %zu WQ(s) from $" DSA_WQS_ENV " (first %s), "
+            "max_transfer_size=%zu, max_batch_size=%zu\n",
+            g_num_wq, g_wq_name[0], g_max_xfer, g_max_batch);
+
+    ret = 0;
+    goto out;
+
+===DSA_BATCH_WARN
+
+/* A batch status of DSA_COMP_BATCH_FAIL only says "some sub-descriptor failed"; the cause is here. */
+static void dsa_dump_batch_fail(const struct dsa_completion_record *comp, size_t cnt) {
+    size_t j;
+
+    for (j = 0; j < cnt; j++) {
+        if (comp[j].status == 0 || comp[j].status == DSA_COMP_SUCCESS)
+            continue;
+        fprintf(stderr,
+                "  sub-desc %zu: status=0x%x result=0x%x bytes_completed=%u fault_addr=0x%" PRIx64
+                "\n",
+                j, comp[j].status, comp[j].result, comp[j].bytes_completed, comp[j].fault_addr);
+    }
+}
+
+int dsa_memcpy_batch(void *const dest[], const void *const src[], const size_t n[], size_t count) {
+    size_t per_batch, i, nbatches, nthreads;
+    int ok = 1;
+
+    if (count == 0)
+        return 0;
+
+    if (dsa_init())
+        return -1;
+
+    nthreads = g_num_wq;
+
+    for (i = 0; i < count; i++) {
+        if (((uintptr_t)dest[i] | (uintptr_t)src[i] | (uintptr_t)n[i]) & (DSA_ALIGN - 1)) {
+            fprintf(stderr,
+                    "dsa_memcpy_batch: unaligned entry %zu "
+                    "dest=%p src=%p n=%zu (need %u-byte)\n",
+                    i, dest[i], src[i], n[i], DSA_ALIGN);
+            return -1;
+        }
+        if (n[i] > g_max_xfer) {
+            fprintf(stderr,
+                    "dsa_memcpy_batch: entry %zu size %zu exceeds "
+                    "max_transfer_size %zu\n",
+                    i, n[i], g_max_xfer);
+            return -1;
+        }
+    }
+===ZIPINIT_CALLERS
+iaxl/csrc/iaa_zip/iaa_zip.c:211:int iaa_zip_init(void) {
+iaxl/csrc/cpu_zip/cpu_zip.c:26:int cpu_zip_init(void) {
+iaxl/csrc/qat_zip/qat_zip.c:265:int qat_zip_init(void) {
+iaxl/csrc/kv_zip/kv_zip.cpp:143:static void ensure_zip_init() {
+iaxl/csrc/kv_zip/kv_zip.cpp:147:            IAXL_CHECK(qat_zip_init() == 0, "kv_zip: qat_zip_init failed");
+iaxl/csrc/kv_zip/kv_zip.cpp:152:            IAXL_CHECK(iaa_zip_init() == 0, "kv_zip: iaa_zip_init failed");
+iaxl/csrc/kv_zip/kv_zip.cpp:157:            IAXL_CHECK(cpu_zip_init() == 0, "kv_zip: cpu_zip_init failed");
+iaxl/csrc/kv_zip/kv_zip.cpp:177:        ensure_zip_init();
+===THREADNAME
+iaxl/csrc/torch_ext/context.h:218:                profiler::set_thread_name(name.c_str());
+iaxl/csrc/include/profiler.h:204:inline void set_thread_name(const char *name) {
+iaxl/csrc/include/profiler.h:213:    std::cerr << "[set_thread_name] pid=" << pid << " tid=" << tid << " name=\"" << truncated
+iaxl/csrc/include/profiler.h:226:inline void set_thread_name(const std::string &name) { set_thread_name(name.c_str()); }
+iaxl/csrc/include/profiler.h:406:#define PROFILE_SET_THREAD_NAME(name) ::profiler::set_thread_name(name)
+===CUDA263
+    int64_t outer_block_size = x->outer_block_size;
+    const char *direction = h2d ? "H2D" : "D2H";
+
+    static std::once_flag layout_noted;
+    std::call_once(layout_noted, [&] {
+        fprintf(stderr,
+                "[kv_xfer] copy_chunks_batch: contiguous block size = %.2f KB, blocks = %zu\n",
+                inner_size / 1024.0, chunk_indices.size());
+    });
+#if defined(DSA_SUPPORT)
+

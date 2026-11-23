@@ -10,6 +10,8 @@
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$SCRIPT_DIR/../setvars.sh"
 : "${MODEL:?Set MODEL in setvars.sh or the environment}"
+# After setvars.sh, whose own pipelines are not written for pipefail: a failed calibration or vLLM fails the script.
+set -o pipefail
 
 export LD_PRELOAD="$IAXL_LD_PRELOAD${LD_PRELOAD:+:$LD_PRELOAD}"
 
@@ -30,10 +32,20 @@ if [[ -n "${VLLM_SERVE_CMDLINE_ARGS:-}" ]]; then
 fi
 read -r -a extra_args <<<"${VLLM_SERVE_EXTRA_ARGS:-}"
 
-vllm serve "$MODEL" \
-    --kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}' \
-    "${parallel_args[@]}" \
-    "${block_args[@]}" \
-    "${serve_args[@]}" \
-    "${extra_args[@]}" \
-    2>&1 | tee log.kvshrink-vllm
+# The DSA calibration line goes to log.kvshrink-vllm together with the vLLM output.
+{
+    # Contiguous copy sizes from which CUDA batch beats DSA, measured on all workers at once.
+    if env_truthy "$IAXL_DSA_GD_ENABLE"; then
+        # Explicit exit: the shebang's -e is ignored when the script runs as `bash kvshrink-vllm-serve.sh`.
+        crossovers=$(python3 "$SCRIPT_DIR/../tools/calibration/dsa_calibration.py") || exit 1
+        read -r IAXL_DSA_H2D_CROSSOVER_KB IAXL_DSA_D2H_CROSSOVER_KB <<<"$crossovers"
+        export IAXL_DSA_H2D_CROSSOVER_KB IAXL_DSA_D2H_CROSSOVER_KB
+    fi
+
+    vllm serve "$MODEL" \
+        --kv-transfer-config '{"kv_connector":"KVShrinkConnector","kv_connector_module_path":"kvshrink.kvshrink_connector","kv_role":"kv_both"}' \
+        "${parallel_args[@]}" \
+        "${block_args[@]}" \
+        "${serve_args[@]}" \
+        "${extra_args[@]}"
+} 2>&1 | tee log.kvshrink-vllm
