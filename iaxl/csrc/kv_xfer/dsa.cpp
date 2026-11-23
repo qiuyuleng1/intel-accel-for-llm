@@ -227,7 +227,7 @@ static double calibrate_dsa_ms(const CalibrationResources &resources, int64_t bl
     return best_ms;
 }
 
-// Smallest scanned block size where CUDA batch beats DSA; INT64_MAX when DSA wins at every size.
+// Smallest scanned size where CUDA batch beats DSA; INT64_MAX when DSA wins from 256 KB to 4 MB.
 static int64_t calibrate_direction(const CalibrationResources &resources, bool h2d) {
     const char *direction = h2d ? "H2D" : "D2H";
     int measured_sizes = 0;
@@ -248,21 +248,24 @@ static int64_t calibrate_direction(const CalibrationResources &resources, bool h
         const double dsa_ms = calibrate_dsa_ms(resources, block_size, h2d, chunk_indices, cpu_ptrs);
         measured_sizes++;
         if (cuda_batch_ms < dsa_ms) {
-            const double copied_bytes = static_cast<double>(block_count * block_size);
-            fprintf(stderr,
-                    "[kv_xfer] dsa calibrate GPU%d %s: crossover %lld KB (DSA %.1f GB/s, "
-                    "CUDA batch %.1f GB/s, %d block sizes measured)\n",
-                    resources.device_index, direction, static_cast<long long>(block_size >> 10),
-                    copied_bytes / dsa_ms / 1e6, copied_bytes / cuda_batch_ms / 1e6,
-                    measured_sizes);
+            if (envs.IAXL_DEBUG_LOG) {
+                const double copied_bytes = static_cast<double>(block_count * block_size);
+                fprintf(stderr,
+                        "[kv_xfer] dsa calibrate GPU%d %s: crossover %lld KB (DSA %.1f GB/s, "
+                        "CUDA batch %.1f GB/s, %d block sizes measured)\n",
+                        resources.device_index, direction, static_cast<long long>(block_size >> 10),
+                        copied_bytes / dsa_ms / 1e6, copied_bytes / cuda_batch_ms / 1e6,
+                        measured_sizes);
+            }
             return block_size;
         }
     }
-    fprintf(stderr,
-            "[kv_xfer] dsa calibrate GPU%d %s: no crossover up to %lld KB (%d block sizes "
-            "measured), all copies use DSA\n",
-            resources.device_index, direction,
-            static_cast<long long>(kCalibrateLastBlockSize >> 10), measured_sizes);
+    if (envs.IAXL_DEBUG_LOG)
+        fprintf(stderr,
+                "[kv_xfer] dsa calibrate GPU%d %s: no crossover up to %lld KB (%d block sizes "
+                "measured), all copies use DSA\n",
+                resources.device_index, direction,
+                static_cast<long long>(kCalibrateLastBlockSize >> 10), measured_sizes);
     return INT64_MAX;
 }
 

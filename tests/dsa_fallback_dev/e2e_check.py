@@ -9,10 +9,7 @@ import os
 import re
 import sys
 
-CROSSOVER_LINE = re.compile(
-    r"\[rank(\d+)\] DSA crossover measured by rank (\d+): H2D (.+?), D2H (.+?) \| "
-    r"wait for TP ranks ([\d.]+)s, measure ([\d.]+)s, wait for rank \d+ result ([\d.]+)s"
-)
+CROSSOVER_LINE = re.compile(r"\[rank(\d+)\] DSA crossover measured by rank (\d+): H2D (.+?), D2H (.+?)(?: \|.*)?$")
 CALIBRATE_LINE = re.compile(r"\[kv_xfer\] dsa calibrate GPU(\d+) (H2D|D2H): (.*)")
 BLOCK_SIZE_LINE = re.compile(r"copy_chunks_batch: contiguous block size = ([\d.]+) KB")
 BACKEND_LINE = re.compile(r"copy_chunks_batch (H2D|D2H): using (Intel DSA|CUDA) backend")
@@ -66,11 +63,8 @@ def read_run(run_dir: str) -> dict:
 def print_run(name: str, run: dict) -> None:
     print(f"== {name}")
     print(f"KVStore calibration lines: {len(run['crossover_rows'])}")
-    for rank, first_rank, h2d, d2h, wait_ranks, measure, wait_result in run["crossover_rows"]:
-        print(
-            f"  rank {rank}: measured by rank {first_rank}, H2D {h2d}, D2H {d2h}, "
-            f"wait for TP ranks {wait_ranks}s, measure {measure}s, wait for result {wait_result}s"
-        )
+    for rank, first_rank, h2d, d2h in run["crossover_rows"]:
+        print(f"  rank {rank}: measured by rank {first_rank}, H2D {h2d}, D2H {d2h}")
     print(f"C++ calibration lines: {len(run['calibrate_rows'])}")
     for gpu, direction, text in run["calibrate_rows"]:
         print(f"  GPU{gpu} {direction}: {text}")
@@ -96,7 +90,10 @@ def main() -> int:
     distinct_values = set()
     for row in with_fallback["crossover_rows"]:
         distinct_values.add((row[2], row[3]))
-    checks.append(("=1: 8 ranks log the crossover", len(with_fallback["crossover_rows"]) == 8))
+    tp_size = 8
+    if len(sys.argv) > 2:
+        tp_size = int(sys.argv[2])
+    checks.append((f"=1: {tp_size} ranks log the crossover", len(with_fallback["crossover_rows"]) == tp_size))
     checks.append(("=1: all ranks use the same crossover", len(distinct_values) == 1))
     checks.append(("=0: no rank calibrates", len(without_fallback["crossover_rows"]) == 0))
     last_round = with_fallback["replies"][-1]["round"]
@@ -114,6 +111,14 @@ def main() -> int:
             if not text.strip() or not text.isascii() or not text.isprintable():
                 readable = False
         checks.append((f"{run_name}: every reply is non-empty printable ASCII", readable))
+        # e2e_requests.py asks for item 17 of report <prompt_index>; its value follows this formula.
+        correct = True
+        for reply in run["replies"]:
+            expected_value = (reply["prompt_index"] * 7919 + 17 * 104729) % 100000
+            if str(expected_value) not in reply["text"]:
+                correct = False
+        checks.append((f"{run_name}: every reply contains the correct value", correct))
+        checks.append((f"{run_name}: no C++ calibration lines (IAXL_DEBUG_LOG off)", len(run["calibrate_rows"]) == 0))
     for index in range(min(len(with_fallback["replies"]), len(without_fallback["replies"]))):
         if with_fallback["replies"][index]["text"] != without_fallback["replies"][index]["text"]:
             print(f"text differs between =1 and =0 (not a failure): reply {index}")

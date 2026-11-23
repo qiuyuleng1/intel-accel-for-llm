@@ -348,6 +348,15 @@ print(status["current_bytes"], status["capacity_bytes"],
 '
 }
 
+# H2D / D2H transfer counters of every TP rank's KVStore (management server at base port + rank).
+xfer_metrics() {
+    local query=$1 output_prefix=$2 rank
+    for ((rank = 0; rank < TP_SIZE; rank++)); do
+        curl -sf --max-time 15 "http://localhost:$((${IAXL_API_WORKER_BASE_PORT:-18800} + rank))/v1/cache/metrics$query" \
+            > "${output_prefix}_rank${rank}.json"
+    done
+}
+
 bytes_to_gb() {
     if [ "$1" = "na" ]; then
         echo "na"
@@ -646,6 +655,9 @@ for config in $CONFIGS; do
                 ddr_before=$(ddr_status)
             fi
             log_start=$(stat -c %s "$serve_log")
+            if [ "$config" = "kvshrink" ]; then
+                xfer_metrics "?enable=1&reset=1" "$run_dir/${tag}_xfer_before"
+            fi
 
             bench_serve "$input_len" "$hit_rate" "$concurrency" "$num_prompts" "$NUM_WARMUPS" "$seed" \
                 --save-result --result-dir "$run_dir" --result-filename "$tag.json" \
@@ -657,6 +669,9 @@ for config in $CONFIGS; do
                 exit 1
             fi
             log_end=$(stat -c %s "$serve_log")
+            if [ "$config" = "kvshrink" ]; then
+                xfer_metrics "" "$run_dir/${tag}_xfer_after"
+            fi
             preemptions=$(( $(vllm_counter "vllm:num_preemptions_total") - preemptions_before ))
             prefix_hits=$(( $(vllm_counter "vllm:prefix_cache_hits_total") - prefix_hits_before ))
             prefix_queries=$(( $(vllm_counter "vllm:prefix_cache_queries_total") - prefix_queries_before ))

@@ -18,6 +18,11 @@ GPU_BUSY_MIB=500
 SHAPE_784K=(2 64 784 4 128)
 INT64_MAX=9223372036854775807
 MODELS=${MODELS:-"/media/model-space/Qwen3-32B /media/model-space/Qwen3.8-27B"}
+# vLLM step: TP size and the GPUs it uses (setvars.sh binds the first TP_SIZE GPUs nvidia-smi lists).
+TP_SIZE=${TP_SIZE:-8}
+GPUS=${GPUS:-0,1,2,3,4,5,6,7}
+# 1 when the container is already up and built, so there is no start.log to watch.
+SKIP_CONTAINER_WAIT=${SKIP_CONTAINER_WAIT:-0}
 # Same KVStore settings for every step: no compression, so only the copy path is tested.
 NOZIP_ENV=(-e IAXL_KV_COMPRESSION=0 -e IAXL_QAT_ZIP_ENABLE=0 -e IAXL_IAA_ZIP_ENABLE=0 -e IAXL_CPU_ZIP_ENABLE=0)
 SERVE_RUN_DIR=""
@@ -104,6 +109,8 @@ step1() {
         timeout 120 python3 -c "import torch; from iaxl import torch_ext as t; print('ENABLED', t.dsa_auto_fallback_enabled())"
     run_in_container "$dir/calibrate.log" 300 -e TP_SIZE=1 -e IAXL_DSA_GD_ENABLE=1 "${NOZIP_ENV[@]}" "$CONTAINER" \
         $(with_setvars 300) python3 "$DEV_DIR/calibrate_once.py" --gpu 0 --calls 3
+    run_in_container "$dir/calibrate_debuglog.log" 300 -e TP_SIZE=1 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_DEBUG_LOG=1 \
+        "${NOZIP_ENV[@]}" "$CONTAINER" $(with_setvars 300) python3 "$DEV_DIR/calibrate_once.py" --gpu 0 --calls 1
     [[ "$DRY_RUN" == 1 ]] && return 0
     for name in switch_default:True switch_fallback0:False switch_gd0:False; do
         enabled=$(grep -a -o "ENABLED .*" "$dir/${name%%:*}.log")
@@ -124,6 +131,16 @@ step1() {
         ok=0
     fi
     summary "step1 calibrate details: $(grep -a -E "^(CALL|FREE_MIB)" "$dir/calibrate.log" | tr '\n' ';')"
+    # The C++ calibration lines are printed only with IAXL_DEBUG_LOG=1: 2 per call (H2D, D2H).
+    local debug_off_lines debug_on_lines
+    debug_off_lines=$(grep -a -c "\[kv_xfer\] dsa calibrate GPU" "$dir/calibrate.log")
+    debug_on_lines=$(grep -a -c "\[kv_xfer\] dsa calibrate GPU" "$dir/calibrate_debuglog.log")
+    if ((debug_off_lines == 0 && debug_on_lines == 2)); then
+        summary "step1 debug log: PASS (IAXL_DEBUG_LOG=0: 0 lines, =1: 2 lines)"
+    else
+        summary "step1 debug log: FAIL (IAXL_DEBUG_LOG=0: $debug_off_lines lines, =1: $debug_on_lines lines)"
+        ok=0
+    fi
     ((ok == 1))
 }
 
@@ -242,14 +259,14 @@ serve_one() {
     local model=$1 fallback=$2 run_dir=$3 waited_s=0
     mkdir -p "$run_dir"
     if [[ "$DRY_RUN" == 1 ]]; then
-        echo "DRY_RUN: MODEL=$model TP_SIZE=8 IAXL_DSA_AUTO_FALLBACK_ENABLE=$fallback PORT=$PORT examples/kvshrink-vllm-serve.sh > $run_dir/serve.log"
+        echo "DRY_RUN: MODEL=$model TP_SIZE=$TP_SIZE CUDA_VISIBLE_DEVICES=$GPUS IAXL_DSA_AUTO_FALLBACK_ENABLE=$fallback PORT=$PORT examples/kvshrink-vllm-serve.sh > $run_dir/serve.log"
         echo "DRY_RUN: python3 $DEV_DIR/e2e_requests.py --port $PORT --model $model --output $run_dir/outputs.json"
         return 0
     fi
-    require_gpus_free 0 1 2 3 4 5 6 7 || return 1
-    log "starting vLLM: $model TP=8 IAXL_DSA_AUTO_FALLBACK_ENABLE=$fallback, log $run_dir/serve.log"
-    docker exec -w "$REPO_DIR" -e MODEL="$model" -e TP_SIZE=8 -e PORT="$PORT" -e IAXL_DSA_GD_ENABLE=1 \
-        -e IAXL_DSA_AUTO_FALLBACK_ENABLE="$fallback" -e IAXL_DDR_POOL_SIZE_GB=16 "${NOZIP_ENV[@]}" "$CONTAINER" \
+    require_gpus_free ${GPUS//,/ } || return 1
+    log "starting vLLM: $model TP=$TP_SIZE GPUs $GPUS IAXL_DSA_AUTO_FALLBACK_ENABLE=$fallback, log $run_dir/serve.log"
+    docker exec -w "$REPO_DIR" -e MODEL="$model" -e TP_SIZE="$TP_SIZE" -e CUDA_VISIBLE_DEVICES="$GPUS" -e PORT="$PORT" \
+        -e IAXL_DSA_GD_ENABLE=1 -e IAXL_DSA_AUTO_FALLBACK_ENABLE="$fallback" -e IAXL_DDR_POOL_SIZE_GB=16 "${NOZIP_ENV[@]}" "$CONTAINER" \
         bash -c "echo \$\$ > $run_dir/serve.pid; exec bash examples/kvshrink-vllm-serve.sh" >"$run_dir/serve.log" 2>&1 &
     SERVE_EXEC_PID=$!
     SERVE_RUN_DIR=$run_dir
@@ -287,7 +304,7 @@ step4() {
             serve_one "$model" "$fallback" "$model_dir/fallback$fallback" || return 1
         done
         [[ "$DRY_RUN" == 1 ]] && continue
-        if python3 "$DEV_DIR/e2e_check.py" "$model_dir" >"$model_dir/check.txt" 2>&1; then
+        if python3 "$DEV_DIR/e2e_check.py" "$model_dir" "$TP_SIZE" >"$model_dir/check.txt" 2>&1; then
             summary "step4 $(basename "$model"): PASS, see $model_dir/check.txt"
         else
             summary "step4 $(basename "$model"): FAIL, see $model_dir/check.txt"
@@ -304,7 +321,9 @@ mkdir -p "$RESULT_DIR"
 cd "$REPO_DIR" || exit 1
 log "start: steps=$STEPS result_dir=$RESULT_DIR"
 if [[ "$DRY_RUN" != 1 ]]; then
-    wait_container_ready || exit 1
+    if [[ "$SKIP_CONTAINER_WAIT" != 1 ]]; then
+        wait_container_ready || exit 1
+    fi
     {
         echo "git: $(git rev-parse HEAD) branch $(git branch --show-current)"
         echo "image: $(docker inspect -f '{{.Config.Image}}' "$CONTAINER")"

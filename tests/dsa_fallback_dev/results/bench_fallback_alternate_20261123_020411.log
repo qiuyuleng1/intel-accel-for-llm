@@ -1,0 +1,161 @@
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=1 -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run1_dsa-fallback1_20261123_020411 (02:04:11 UTC)
+md5sum: examples/lmcache-vllm-serve.sh: No such file or directory
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/media/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3
+  input_len:concurrencies=[32768:32] output_len=128 MAX_MODEL_LEN=201128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=80
+  results -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run1_dsa-fallback1_20261123_020411
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=201128 hit_rates=[100]
+    serve pid=3691826 log=bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run1_dsa-fallback1_20261123_020411/kvshrink/serve.log
+    serve ready after 130s
+    block_size=784 kv_cache_tokens=3192811
+
+## kvshrink input_len=32768 concurrencies=[32]
+    max_concurrency for 32896 tokens per request: 97.06
+--- kvshrink_tp4_in32768_con32_hit100 prompts=320 seed=10132
+    kvshrink,4,32768,128,32,100,320,10132,784,97.06,320,83.432,3.835,490.938,126171.071,1850.646,1839.471,2984.411,51.013,51.033,61.325,0,0,0,10317440,325,324,31844,0.00,1.10,250.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+    serve stopped after 24s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run1_dsa-fallback1_20261123_020411/summary.csv
+===========================================================
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=1 exit 0 (02:09:21 UTC)
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=0 -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run2_dsa-fallback0_20261123_020411 (02:09:21 UTC)
+md5sum: examples/lmcache-vllm-serve.sh: No such file or directory
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/media/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3
+  input_len:concurrencies=[32768:32] output_len=128 MAX_MODEL_LEN=201128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=80
+  results -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run2_dsa-fallback0_20261123_020411
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=201128 hit_rates=[100]
+    serve pid=3695430 log=bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run2_dsa-fallback0_20261123_020411/kvshrink/serve.log
+    serve ready after 130s
+    block_size=784 kv_cache_tokens=3192811
+
+## kvshrink input_len=32768 concurrencies=[32]
+    max_concurrency for 32896 tokens per request: 97.06
+--- kvshrink_tp4_in32768_con32_hit100 prompts=320 seed=10132
+    kvshrink,4,32768,128,32,100,320,10132,784,97.06,320,80.724,3.964,507.41,130404.417,1820.66,1819.688,2863.381,49.13,48.599,59.11,0,0,0,10317440,325,324,31844,0.00,1.10,250.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+    serve stopped after 24s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run2_dsa-fallback0_20261123_020411/summary.csv
+===========================================================
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=0 exit 0 (02:14:27 UTC)
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=1 -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run3_dsa-fallback1_20261123_020411 (02:14:27 UTC)
+md5sum: examples/lmcache-vllm-serve.sh: No such file or directory
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/media/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3
+  input_len:concurrencies=[32768:32] output_len=128 MAX_MODEL_LEN=201128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=80
+  results -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run3_dsa-fallback1_20261123_020411
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=201128 hit_rates=[100]
+    serve pid=3699058 log=bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run3_dsa-fallback1_20261123_020411/kvshrink/serve.log
+    serve ready after 130s
+    block_size=784 kv_cache_tokens=3192811
+
+## kvshrink input_len=32768 concurrencies=[32]
+    max_concurrency for 32896 tokens per request: 97.06
+--- kvshrink_tp4_in32768_con32_hit100 prompts=320 seed=10132
+    kvshrink,4,32768,128,32,100,320,10132,784,97.06,320,83.892,3.814,488.247,125479.55,1748.33,1789.259,2960.677,52.148,51.362,61.332,0,0,0,10317440,325,324,31844,0.00,1.10,250.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+    serve stopped after 24s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run3_dsa-fallback1_20261123_020411/summary.csv
+===========================================================
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=1 exit 0 (02:19:38 UTC)
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=0 -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run4_dsa-fallback0_20261123_020411 (02:19:38 UTC)
+md5sum: examples/lmcache-vllm-serve.sh: No such file or directory
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/media/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3
+  input_len:concurrencies=[32768:32] output_len=128 MAX_MODEL_LEN=201128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=80
+  results -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run4_dsa-fallback0_20261123_020411
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=201128 hit_rates=[100]
+    serve pid=3702256 log=bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run4_dsa-fallback0_20261123_020411/kvshrink/serve.log
+    serve ready after 130s
+    block_size=784 kv_cache_tokens=3192811
+
+## kvshrink input_len=32768 concurrencies=[32]
+    max_concurrency for 32896 tokens per request: 97.06
+--- kvshrink_tp4_in32768_con32_hit100 prompts=320 seed=10132
+    kvshrink,4,32768,128,32,100,320,10132,784,97.06,320,80.748,3.963,507.26,130365.777,1850.88,1796.525,2986.982,48.904,49.106,58.881,0,0,0,10317440,325,324,31844,0.00,1.10,250.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+    serve stopped after 24s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run4_dsa-fallback0_20261123_020411/summary.csv
+===========================================================
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=0 exit 0 (02:24:44 UTC)
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=1 -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run5_dsa-fallback1_20261123_020411 (02:24:44 UTC)
+md5sum: examples/lmcache-vllm-serve.sh: No such file or directory
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/media/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3
+  input_len:concurrencies=[32768:32] output_len=128 MAX_MODEL_LEN=201128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=80
+  results -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run5_dsa-fallback1_20261123_020411
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=201128 hit_rates=[100]
+    serve pid=3705559 log=bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run5_dsa-fallback1_20261123_020411/kvshrink/serve.log
+    serve ready after 130s
+    block_size=784 kv_cache_tokens=3192811
+
+## kvshrink input_len=32768 concurrencies=[32]
+    max_concurrency for 32896 tokens per request: 97.06
+--- kvshrink_tp4_in32768_con32_hit100 prompts=320 seed=10132
+    kvshrink,4,32768,128,32,100,320,10132,784,97.06,320,82.751,3.867,494.98,127209.815,1982.583,1962.203,3183.311,49.457,48.987,60.426,0,0,0,10317440,325,324,31844,0.00,1.10,250.00,1.000,0,0,0,0,0,0,0,0.0,0.0
+    serve stopped after 24s + 15s settle
+
+===========================================================
+Done: bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run5_dsa-fallback1_20261123_020411/summary.csv
+===========================================================
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=1 exit 0 (02:29:53 UTC)
+=== IAXL_DSA_AUTO_FALLBACK_ENABLE=0 -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run6_dsa-fallback0_20261123_020411 (02:29:53 UTC)
+md5sum: examples/lmcache-vllm-serve.sh: No such file or directory
+===========================================================
+Qwen3.8-27B benchmark  configs=[kvshrink]
+  MODEL=/media/model-space/Qwen3.8-27B TP_SIZE=4 CUDA_VISIBLE_DEVICES=0,1,2,3
+  input_len:concurrencies=[32768:32] output_len=128 MAX_MODEL_LEN=201128 BLOCK_SIZE=<vLLM default>
+  num_prompts=concurrency*10 (vllm-wo-prefix: *2) warmups=5 prewarm=largest concurrency*2 at hit 100 (vllm-wo-prefix: none)
+  IAXL_DDR_POOL_TOTAL_SIZE_GB=1000 IAXL_SCRATCH_POOL_SIZE_GB=8
+  IAXL_KV_COMPRESSION=0 IAXL_QAT_ZIP_ENABLE=0 IAXL_IAA_ZIP_ENABLE=0 IAXL_CPU_ZIP_ENABLE=0 IAXL_DSA_GD_ENABLE=1
+  LMCACHE_CHUNK_SIZE=400 LMCACHE_L1_SIZE_GB=80
+  results -> bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run6_dsa-fallback0_20261123_020411
+===========================================================
+
+### kvshrink serve=examples/kvshrink-vllm-serve.sh BASELINE= MAX_MODEL_LEN=201128 hit_rates=[100]
+    serve pid=3709001 log=bench-results/Qwen3.8-27B_tp4_nozip_hit100_xfermetrics_run6_dsa-fallback0_20261123_020411/kvshrink/serve.log
+    serve ready after 130s
+    block_size=784 kv_cache_tokens=3192811
+
+## kvshrink input_len=32768 concurrencies=[32]
+    max_concurrency for 32896 tokens per request: 97.06
+--- kvshrink_tp4_in32768_con32_hit100 prompts=320 seed=10132

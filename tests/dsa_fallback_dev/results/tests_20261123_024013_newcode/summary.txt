@@ -1,0 +1,20 @@
+step1 switch_default: PASS (ENABLED True)
+step1 switch_fallback0: PASS (ENABLED False)
+step1 switch_gd0: PASS (ENABLED False)
+step1 calibrate: PASS 3 calls, identical result: CALL 1 h2d_bytes=524288 d2h_bytes=262144 seconds=0.35
+step1 calibrate details: CALL 1 h2d_bytes=524288 d2h_bytes=262144 seconds=0.35;CALL 2 h2d_bytes=524288 d2h_bytes=262144 seconds=0.35;CALL 3 h2d_bytes=524288 d2h_bytes=262144 seconds=0.35;FREE_MIB before=84569 after=84569 used_by_calls=0;
+step1 debug log: PASS (IAXL_DEBUG_LOG=0: 0 lines, =1: 2 lines)
+step4 Qwen3.8-27B: PASS, see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_fallback_dev/results/tests_20261123_024013_newcode/step4/Qwen3.8-27B/check.txt
+step4 Qwen3.8-27B PASS =1: 4 ranks log the crossover
+step4 Qwen3.8-27B PASS =1: all ranks use the same crossover
+step4 Qwen3.8-27B PASS =0: no rank calibrates
+step4 Qwen3.8-27B PASS =1: every prompt hits in round 3
+step4 Qwen3.8-27B PASS =1: no Traceback
+step4 Qwen3.8-27B PASS =1: every reply is non-empty printable ASCII
+step4 Qwen3.8-27B PASS =1: every reply contains the correct value
+step4 Qwen3.8-27B PASS =1: no C++ calibration lines (IAXL_DEBUG_LOG off)
+step4 Qwen3.8-27B PASS =0: every prompt hits in round 3
+step4 Qwen3.8-27B PASS =0: no Traceback
+step4 Qwen3.8-27B PASS =0: every reply is non-empty printable ASCII
+step4 Qwen3.8-27B PASS =0: every reply contains the correct value
+step4 Qwen3.8-27B PASS =0: no C++ calibration lines (IAXL_DEBUG_LOG off)

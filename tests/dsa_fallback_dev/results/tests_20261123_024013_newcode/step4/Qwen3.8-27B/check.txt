@@ -1,0 +1,56 @@
+== IAXL_DSA_AUTO_FALLBACK_ENABLE=1
+KVStore calibration lines: 4
+  rank 0: measured by rank 0, H2D 512 KB, D2H 256 KB
+  rank 3: measured by rank 0, H2D 512 KB, D2H 256 KB
+  rank 1: measured by rank 0, H2D 512 KB, D2H 256 KB
+  rank 2: measured by rank 0, H2D 512 KB, D2H 256 KB
+C++ calibration lines: 0
+contiguous block size lines (KB: processes): {'784.00': 4}
+backend lines (direction backend: processes): {'D2H CUDA': 4, 'H2D CUDA': 4}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 '\n\n80393'
+  1 1 15336 0 '\n\n88312'
+  1 2 15336 0 '\n\n96231'
+  1 3 15337 0 '\n\n4150'
+  2 0 15333 14896 '\n\n80393'
+  2 1 15336 14896 '\n\n88312'
+  2 2 15336 14896 '\n\n96231'
+  2 3 15337 14896 '\n\n4150'
+  3 0 15333 14896 '\n\n80393'
+  3 1 15336 14896 '\n\n88312'
+  3 2 15336 14896 '\n\n96231'
+  3 3 15337 14896 '\n\n4150'
+== IAXL_DSA_AUTO_FALLBACK_ENABLE=0
+KVStore calibration lines: 0
+C++ calibration lines: 0
+contiguous block size lines (KB: processes): {'784.00': 4}
+backend lines (direction backend: processes): {'D2H Intel DSA': 4, 'H2D Intel DSA': 4}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 '\n\n80393'
+  1 1 15336 0 '\n\n88312'
+  1 2 15336 0 '\n\n96231'
+  1 3 15337 0 '\n\n4150'
+  2 0 15333 14896 '\n\n80393'
+  2 1 15336 14896 '\n\n88312'
+  2 2 15336 14896 '\n\n96231'
+  2 3 15337 14896 '\n\n4150'
+  3 0 15333 14896 '\n\n80393'
+  3 1 15336 14896 '\n\n88312'
+  3 2 15336 14896 '\n\n96231'
+  3 3 15337 14896 '\n\n4150'
+== checks
+PASS =1: 4 ranks log the crossover
+PASS =1: all ranks use the same crossover
+PASS =0: no rank calibrates
+PASS =1: every prompt hits in round 3
+PASS =1: no Traceback
+PASS =1: every reply is non-empty printable ASCII
+PASS =1: every reply contains the correct value
+PASS =1: no C++ calibration lines (IAXL_DEBUG_LOG off)
+PASS =0: every prompt hits in round 3
+PASS =0: no Traceback
+PASS =0: every reply is non-empty printable ASCII
+PASS =0: every reply contains the correct value
+PASS =0: no C++ calibration lines (IAXL_DEBUG_LOG off)
