@@ -1,0 +1,9 @@
+step2 dsa_on: FAIL, see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/dsa_calibration_dev/results/tests_20261123_090601_qwen3-32b_tp8/step2/dsa_on/check.txt
+    PASS one calibration summary line
+    PASS summary line also in log.kvshrink-vllm
+    PASS 8 calibration workers used DSA in both directions
+    PASS H2D: 8 ranks use Intel DSA (block 8.0 KB, crossover 256 KB)
+    PASS D2H: 8 ranks use Intel DSA (block 8.0 KB, crossover 256 KB)
+    PASS every prompt hits in round 3
+    FAIL every reply contains the correct value
+    PASS no Traceback

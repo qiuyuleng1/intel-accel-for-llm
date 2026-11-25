@@ -268,7 +268,6 @@ void copy_chunks_batch(context_t ctx, const std::vector<int64_t> &chunk_indices,
 
     if (dsa_copy_chunks_batch(x->gpu_bar_base, chunk_stride, outer_dims, inner_size,
                               outer_block_size, h2d, chunk_indices, cpu_ptrs, x->dsa_ticket)) {
-        // With a crossover, H2D and D2H may pick different backends, so log each direction once.
         static std::once_flag dsa_h2d_noted;
         static std::once_flag dsa_d2h_noted;
         std::call_once(h2d ? dsa_h2d_noted : dsa_d2h_noted, [direction] {

@@ -1,0 +1,25 @@
+[iaxl] config: qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=4 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[iaxl] config: qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=4 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[iaxl] config: qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=4 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[iaxl] config: qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=4 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[iaa_zip] discovered: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] selected: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] config: numa_nodes=auto (2 node(s), 8 device(s)) instances/device=4 src_cap=4194304 B dst_cap=4194304 B queue_depth=4
+[iaa_zip] ready: instances=32 slots=128
+[iaa_zip] discovered: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] selected: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] config: numa_nodes=auto (2 node(s), 8 device(s)) instances/device=4 src_cap=4194304 B dst_cap=4194304 B queue_depth=4
+[iaa_zip] ready: instances=32 slots=128
+[iaa_zip] discovered: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] selected: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] config: numa_nodes=auto (2 node(s), 8 device(s)) instances/device=4 src_cap=4194304 B dst_cap=4194304 B queue_depth=4
+[iaa_zip] ready: instances=32 slots=128
+[iaa_zip] discovered: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] selected: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] config: numa_nodes=auto (2 node(s), 8 device(s)) instances/device=4 src_cap=4194304 B dst_cap=4194304 B queue_depth=4
+[iaa_zip] ready: instances=32 slots=128
+[zip_calibration] IAA segment sizes by decompress GB/s: 256 KB 21.1, 512 KB 20.8, 1024 KB 20.7, 128 KB 20.5, 2048 KB 20.5, 64 KB 18.5, 32 KB 16.4, 16 KB 13.2, 4 workers, 7.0 s

@@ -15,9 +15,9 @@ SERVE_READY_TIMEOUT_S=1200
 SERVE_FAIL_TIMEOUT_S=180
 PORT=${PORT:-8123}
 GPU_BUSY_MIB=500
-MODEL=/media/model-space/Qwen3.8-27B
-SERVE_TP_SIZE=4
-SERVE_GPUS=0,1,2,3
+MODEL=${SERVE_MODEL:-/media/model-space/Qwen3.8-27B}
+SERVE_TP_SIZE=${SERVE_TP_SIZE:-4}
+SERVE_GPUS=${SERVE_GPUS:-0,1,2,3}
 # No compression, so only the copy path is tested.
 NOZIP_ENV=(-e IAXL_KV_COMPRESSION=0 -e IAXL_QAT_ZIP_ENABLE=0 -e IAXL_IAA_ZIP_ENABLE=0 -e IAXL_CPU_ZIP_ENABLE=0)
 SERVE_RUN_DIR=""
@@ -257,6 +257,12 @@ step2() {
 step2c() {
     mkdir -p "$RESULT_DIR/step2"
     serve_calibration_fails
+}
+
+# Only the DSA-on vLLM case of step 2 (STEPS=2a), e.g. with SERVE_MODEL / SERVE_TP_SIZE / SERVE_GPUS.
+step2a() {
+    mkdir -p "$RESULT_DIR/step2"
+    serve_and_check dsa_on 1
 }
 
 trap stop_serve EXIT

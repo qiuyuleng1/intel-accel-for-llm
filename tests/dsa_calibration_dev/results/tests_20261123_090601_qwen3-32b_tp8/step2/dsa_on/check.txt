@@ -1,0 +1,27 @@
+calibration lines: ['[dsa_calibration] crossover H2D 256 KB, D2H 256 KB (0 = DSA faster up to 4096 KB), 8 workers, 6.8 s']
+calibration DSA backend lines (direction: workers): {'H2D': 8, 'D2H': 8}
+vLLM contiguous block sizes (KB, one per process): [8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0]
+vLLM backends (direction: one per process): {'H2D': ['Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA'], 'D2H': ['Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA', 'Intel DSA']}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  1 1 15336 0 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  1 2 15336 0 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  1 3 15337 0 " Alright, let's tackle this question. The user is asking for the value of item 17 in report 3. I need to look through the provided"
+  2 0 15333 15328 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  2 1 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  2 2 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  2 3 15337 15328 " Alright, let's see. The user is asking for the value of item 17 in report 3. I need to look through the provided inventory report"
+  3 0 15333 15328 ' Inventory report 0. Record 0-17: item 17 of report 0 has value 80393. Therefore, the'
+  3 1 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 1. I need to look through the provided inventory report"
+  3 2 15336 15328 " Alright, let's see. The user is asking for the value of item 17 in report 2. I need to look through the provided data to"
+  3 3 15337 15328 " Alright, let's see. The user is asking for the value of item 17 in report 3. I need to look through the provided inventory report"
+== checks
+PASS one calibration summary line
+PASS summary line also in log.kvshrink-vllm
+PASS 8 calibration workers used DSA in both directions
+PASS H2D: 8 ranks use Intel DSA (block 8.0 KB, crossover 256 KB)
+PASS D2H: 8 ranks use Intel DSA (block 8.0 KB, crossover 256 KB)
+PASS every prompt hits in round 3
+FAIL every reply contains the correct value
+PASS no Traceback

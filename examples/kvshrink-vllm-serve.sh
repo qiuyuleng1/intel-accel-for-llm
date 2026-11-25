@@ -10,7 +10,6 @@
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$SCRIPT_DIR/../setvars.sh"
 : "${MODEL:?Set MODEL in setvars.sh or the environment}"
-# After setvars.sh, whose own pipelines are not written for pipefail: a failed calibration or vLLM fails the script.
 set -o pipefail
 
 export LD_PRELOAD="$IAXL_LD_PRELOAD${LD_PRELOAD:+:$LD_PRELOAD}"
@@ -32,14 +31,15 @@ if [[ -n "${VLLM_SERVE_CMDLINE_ARGS:-}" ]]; then
 fi
 read -r -a extra_args <<<"${VLLM_SERVE_EXTRA_ARGS:-}"
 
-# The DSA calibration line goes to log.kvshrink-vllm together with the vLLM output.
 {
-    # Contiguous copy sizes from which CUDA batch beats DSA, measured on all workers at once.
     if env_truthy "$IAXL_DSA_GD_ENABLE"; then
-        # Explicit exit: the shebang's -e is ignored when the script runs as `bash kvshrink-vllm-serve.sh`.
         crossovers=$(python3 "$SCRIPT_DIR/../tools/calibration/dsa_calibration.py") || exit 1
         read -r IAXL_DSA_H2D_CROSSOVER_KB IAXL_DSA_D2H_CROSSOVER_KB <<<"$crossovers"
         export IAXL_DSA_H2D_CROSSOVER_KB IAXL_DSA_D2H_CROSSOVER_KB
+    fi
+    if env_truthy "$IAXL_KV_COMPRESSION" && env_truthy "$IAXL_QAT_ZIP_ENABLE" "$IAXL_IAA_ZIP_ENABLE"; then
+        IAXL_ZIP_SEGMENT_SIZE_KB=$(python3 "$SCRIPT_DIR/../tools/calibration/zip_calibration.py") || exit 1
+        export IAXL_ZIP_SEGMENT_SIZE_KB
     fi
 
     vllm serve "$MODEL" \

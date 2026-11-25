@@ -1,0 +1,53 @@
+build: PASS (2026-11-24_07:40:23)
+step1 1a_unset_64k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=unset tensor 64 KB -> [kv_zip] block_size=65536 B segment_size=65536 B segments=1, roundtrip PASS
+step1 1a_unset_784k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=unset tensor 784 KB -> [kv_zip] block_size=802816 B segment_size=802816 B segments=1, roundtrip PASS
+step1 1a_unset_2048k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=unset tensor 2048 KB -> [kv_zip] block_size=2097152 B segment_size=2097152 B segments=1, roundtrip PASS
+step1 1b_zero_784k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=0 tensor 784 KB -> [kv_zip] block_size=802816 B segment_size=802816 B segments=1, roundtrip PASS
+step1 1c_128_784k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=128 tensor 784 KB -> [kv_zip] block_size=802816 B segment_size=131072 B segments=6, roundtrip PASS
+step1 1d_256_32_64k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=256,32 tensor 64 KB -> [kv_zip] block_size=65536 B segment_size=32768 B segments=2, roundtrip PASS
+step1 1e_256_32_784k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=256,32 tensor 784 KB -> [kv_zip] block_size=802816 B segment_size=262144 B segments=3, roundtrip PASS
+step1 1f_2048_512_2048k: PASS IAXL_ZIP_SEGMENT_SIZE_KB=2048,512 tensor 2048 KB -> [kv_zip] block_size=2097152 B segment_size=2097152 B segments=1, roundtrip PASS
+step1 1g_letters: PASS 'abc' rejected (exit 134): [iaxl] ERROR: IAXL_ZIP_SEGMENT_SIZE_KB=abc must be up to 16 comma-separated non-negative integers
+step1 1g_negative: PASS '-1' rejected (exit 134): [iaxl] ERROR: IAXL_ZIP_SEGMENT_SIZE_KB=-1 must be up to 16 comma-separated non-negative integers
+step1 1g_empty_item: PASS '1,,2' rejected (exit 134): [iaxl] ERROR: IAXL_ZIP_SEGMENT_SIZE_KB=1,,2 must be up to 16 comma-separated non-negative integers
+step1 1g_17_items: PASS '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17' rejected (exit 134): [iaxl] ERROR: IAXL_ZIP_SEGMENT_SIZE_KB=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 must be up to 16 comma-separated non-negative integers
+step1 1h_compress_256_decompress_32: PASS (compressed with 256 KB segments, decompressed in a process set to 32)
+step1 iaxl_unittest: PASS (Ran 2 tests in 0.146s)
+step2 2a_qat_tp4: PASS 8287 ms, stdout '1024,512,256,2048,128,64,32,16', [zip_calibration] QAT segment sizes by decompress GB/s: 1024 KB 21.1, 512 KB 21.0, 256 KB 20.8, 2048 KB 20.7, 128 KB 20.2, 64 KB 18.4, 32 KB 15.7, 16 KB 11.0, 4 workers, 7.0 s, 4 workers with only QAT, omp_threads=4
+step2 2b_qat_iaa_tp4: PASS 7815 ms, stdout '1024,512,256,2048,128,64,32,16', [zip_calibration] QAT segment sizes by decompress GB/s: 1024 KB 21.1, 512 KB 21.0, 256 KB 20.7, 2048 KB 20.7, 128 KB 20.2, 64 KB 18.4, 32 KB 15.7, 16 KB 11.0, 4 workers, 6.6 s, 4 workers with only QAT, omp_threads=4
+step2 2c_iaa_tp4: PASS 8236 ms, stdout '256,512,1024,128,2048,64,32,16', [zip_calibration] IAA segment sizes by decompress GB/s: 256 KB 21.1, 512 KB 20.8, 1024 KB 20.7, 128 KB 20.5, 2048 KB 20.5, 64 KB 18.5, 32 KB 16.4, 16 KB 13.2, 4 workers, 7.0 s, 4 workers with only IAA, omp_threads=4
+step2 2d_qat_tp2_dp2: PASS 7717 ms, stdout '1024,512,256,2048,128,64,32,16', [zip_calibration] QAT segment sizes by decompress GB/s: 1024 KB 21.1, 512 KB 21.0, 256 KB 20.7, 2048 KB 20.7, 128 KB 20.1, 64 KB 18.1, 32 KB 15.4, 16 KB 10.8, 4 workers, 6.4 s, 4 workers with only QAT, omp_threads=4
+step2 2e_rank3_fails: FAIL exit 0 after 7561 ms, '', leftover ''
+step2 2f_mock_on_cpu: PASS generated on cpu, ratio cpu 1.3922 vs cuda 1.3919
+step2 2g_segment_sweep: PASS | 512         | 1.392x |     9.05 |      20.68 |
+step3 3a_qat: PASS (ready after 110s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/step3/3a_qat/check.txt
+    zip calibration backend: QAT, ranked KB: [1024, 512, 256, 2048, 128, 64, 32, 16]
+    vLLM [kv_zip] lines (block B, segment B, segments): [(802816, 524288, 1), (802816, 524288, 1), (802816, 524288, 1), (802816, 524288, 1)]
+    PASS one DSA calibration summary line
+    PASS zip calibration tested QAT
+    PASS zip calibration ranked 8 sizes
+    PASS zip summary line also in log.kvshrink-vllm
+    PASS vLLM segment sizes follow the calibrated list
+    PASS every prompt hits in round 3
+    PASS every reply contains the correct value
+    PASS no Traceback
+step3 3b_qat_iaa: PASS (ready after 110s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/step3/3b_qat_iaa/check.txt
+    zip calibration backend: QAT, ranked KB: [1024, 512, 256, 2048, 128, 64, 32, 16]
+    vLLM [kv_zip] lines (block B, segment B, segments): [(802816, 524288, 1), (802816, 524288, 1), (802816, 524288, 1), (802816, 524288, 1)]
+    PASS one DSA calibration summary line
+    PASS zip calibration tested QAT
+    PASS zip calibration ranked 8 sizes
+    PASS zip summary line also in log.kvshrink-vllm
+    PASS vLLM segment sizes follow the calibrated list
+    PASS every prompt hits in round 3
+    PASS every reply contains the correct value
+    PASS no Traceback
+step3 3c_cpu_zip: PASS (ready after 105s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/step3/3c_cpu_zip/check.txt
+    zip calibration backend: -, ranked KB: []
+    vLLM [kv_zip] lines (block B, segment B, segments): [(802816, 802816, 1), (802816, 802816, 1), (802816, 802816, 1), (802816, 802816, 1)]
+    PASS one DSA calibration summary line
+    PASS no zip calibration line
+    PASS vLLM segment sizes follow the calibrated list
+    PASS every prompt hits in round 3
+    PASS every reply contains the correct value
+    PASS no Traceback

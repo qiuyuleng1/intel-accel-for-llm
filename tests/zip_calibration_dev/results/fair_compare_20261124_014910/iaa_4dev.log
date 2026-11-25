@@ -1,0 +1,81 @@
+kernel.numa_balancing = 0
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-63
+vLLM configuration:
+  MODEL=/media/model-space
+  TP_SIZE=1
+  DP_SIZE=1
+  IAXL_KV_COMPRESSION=1
+  IAXL_QAT_ZIP_ENABLE=0
+  IAXL_IAA_ZIP_ENABLE=1
+  IAXL_CPU_ZIP_ENABLE=0
+  IAXL_DSA_GD_ENABLE=0
+  VLLM_CPU_OMP_THREADS_BIND=0-63
+  KVSHRINK_CPU_OMP_THREADS_BIND=0-63
+  KVSHRINK_QAT_DEVICES=disabled
+  KVSHRINK_DSA_DEVICES=disabled
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_ENABLED=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS=-1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC=1
+  KVSHRINK_VLLM_KV_ASYNC_LOAD_LAYERS_DYNAMIC_MAP=0-3:0,4-6:8,7-:16
+OpenMP configuration:
+  rank CPU counts=64
+  IAXL_QAT_INSTANCE_NUM=0
+  IAXL_IAA_INSTANCE_NUM=16
+  IAXL_CPU_ZIP_THREADS=0
+  IAXL_RESERVED_CPU_NUM=4
+  IAXL_OMP_THREAD_NUM=16
+  IAXL_USE_OMP=1
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:26,033 [affinity.py:42] Bound rank 0 to CPUs [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:26,437 [kvstore_benchmark_multi_ranks.py:64] Bound rank 0 to GPU 0 (NVIDIA RTX 6000D)
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:26,736 [flow.py:81] Cache size 32 GB
+[Record] Cleaned up 128 unpersisted records from previous run
+[iaxl] config: qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=16 cpu_zip_threads=0 omp_threads=16 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:26,737 [flow.py:89] C++ Record initialized at _data/kvcache/compressed/kvstore_benchmark_rank0/chunks.db
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:26,738 [flow.py:101] Using accelerator: cuda
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:32,642 [scratch_pool.py:38] ScratchPool: 4096 x (2, 512, 8, 128) torch.bfloat16 = 8192.00 MB pinned
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:32,643 [flow.py:133] Initialized: persist_dir=kvstore_benchmark_rank0, cache_size_gb=32.00, compression=True
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:32,643 [kvstore.py:139] KVStore initialized successfully: model_name=kvstore_benchmark, rank=0, has_only_mode=False, num_layers=4, block_dim=1, block_shape=(2, 512, 8, 128), pool_size_gb=32.00, persist_dir=kvstore_benchmark_rank0
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:32,645 [api.py:61] Worker server started on port 18800 (rank 0)
+(rank0 pid=266324 tid=138096931708608) INFO 11-24 01:49:32,648 [flow.py:164] CUDA/XPU streams created (lazy init, device=cuda)
+[kv_xfer] copy_chunks_batch: contiguous block size = 1024.00 KB, blocks = 64
+[kv_xfer] copy_chunks_batch D2H: using CUDA backend (cudaMemcpy3DBatchAsync)
+[kv_zip] block_size=2097152 B segment_size=524288 B segments=4
+[kv_xfer] copy_chunks_batch H2D: using CUDA backend (cudaMemcpy3DBatchAsync)
+================================================================================
+KVStore Benchmark
+================================================================================
+KV cache shape: [2, 128, 512, 8, 128] (one layer)
+Layers:         4
+Blocks tested:  64 (even indices, strided) x 4 layers
+Dtype:          bf16
+Data source:    mock
+Transfer size:  512.00 MiB
+
+Generating mock KV cache data...
+
+Warming up...
+[iaa_zip] discovered: node0=4dev node1=4dev (2 node(s), 8 device(s))
+[iaa_zip] selected: node0=4dev (1 node(s), 4 device(s))
+[iaa_zip] config: numa_nodes=0 (1 node(s), 4 device(s)) instances/device=4 src_cap=4194304 B dst_cap=4194304 B queue_depth=4
+[iaa_zip] ready: instances=16 slots=64
+
+Per rank (512.00 MiB each)
+------------------------------------------------------------------------------------------------------------------------
+Rank  PUT GiB/s  GET GiB/s Verify   Ratio  Zip GB/s Unzip GB/s  D2H GB/s D2H wait ms  H2D GB/s H2D wait ms
+   0     13.003     40.545   pass   1.400    15.069     73.934    18.318         2.5    51.317        10.4
+ Sum     13.003     40.545                   15.069     73.934    18.318         2.5    51.317        10.4
+
+Aggregate over 1 ranks (wall time = slowest rank)
+--------------------------------------------------------------------------------
+ PUT: 0.038 s, 6,657.40 blocks/s, 13.003 GiB/s
+ GET: 0.012 s, 20,759.11 blocks/s, 40.545 GiB/s
+Verification: passed
+Compression ratio: 1.395x (28.3%)
+Native cache size: 733.80 MiB (512 chunks in 128 groups)
+Cache hits/misses/puts: 512/0/512
+Compressed/uncompressed bytes: 733.80 MiB / 1.00 GiB
+Compress throughput:   15.069 GB/s (512.00 MiB in 35.6 ms)
+Decompress throughput: 73.934 GB/s (512.00 MiB in 7.3 ms)
+D2H xfer throughput:   18.318 GB/s (512.00 MiB in 29.3 ms, blocked 2.5 ms in xfer_wait)
+H2D xfer throughput:   51.317 GB/s (512.00 MiB in 10.5 ms, blocked 10.4 ms in xfer_wait)
+[iaxl] config: qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=16 cpu_zip_threads=0 omp_threads=16 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled

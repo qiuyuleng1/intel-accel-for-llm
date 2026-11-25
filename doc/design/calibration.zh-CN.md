@@ -4,7 +4,7 @@
 
 - 已定：需求（第 3 节）。
 - 已确认：DSA 校准的设计（第 5 节）。代码已在 feat/dsa-auto-fallback-dev 上改好（11-23，没提交、没编译、没测试）。
-- 暂缓：QAT/IAA 分段校准。用户要求先把 DSA 校准做完，第 6 节只记录需求、现状和初步想法。
+- QAT/IAA 分段校准：设计见第 6 节，11-24 代码已写在 feat/dsa-auto-fallback-dev 上（没提交、没编译、没测试）。
 
 ## 1 背景
 
@@ -160,7 +160,7 @@ examples/kvshrink-vllm-serve.sh
 - **参数和计时**，和之前的 C++ 校准代码一致：
   - 每次拷 128 MiB；GPU 上的块打乱顺序（固定随机种子，每次一样），CPU 上按顺序；
   - CUDA batch 用 CUDA event 计时（在 GPU 上打两个时间戳）；DSA 用 CPU 时钟，从提交量到等待结束；
-  - 热身 2 次，计时 10 次，取最快的一次；
+  - 热身 2 次，计时 3 次，取最快的一次（11-23 用户把计时次数从 10 改成 3；5.7 节的测试结果是 10 次时测的）；
   - 连续拷贝大小从 256 KB 开始，步长 128 KB，最大 4 MB；先测 H2D，再测 D2H。
 - **分界值和提前停**：
   - 每测完一个大小，主进程收齐所有 rank 的 GB/s，CUDA batch 和 DSA 各取平均；
@@ -264,7 +264,7 @@ examples/kvshrink-vllm-serve.sh
 
 之后的改动（用户要求）：`benchmark/tensor_xfer/tensor_xfer_benchmark.sh` 和 `benchmark/kvstore/kvstore_benchmark.sh` 都显式 `export IAXL_DSA_H2D_CROSSOVER_KB=0 IAXL_DSA_D2H_CROSSOVER_KB=0`，保证这两个 benchmark 开 DSA 时一定走 DSA。
 
-## 6 QAT/IAA 分段校准（暂缓）
+## 6 QAT/IAA 分段校准
 
 ### 6.1 现有的切分代码
 
@@ -301,15 +301,182 @@ examples/kvshrink-vllm-serve.sh
 - QAT 压缩在 128K 最快，256K–512K 的解压最快，但 128K–1024K 之间只差约 2%；
 - IAA 压缩整块最快，解压在 512K 最快。
 
-### 6.3 初步想法（还没讨论，等 DSA 做完再定）
+### 6.3 设计（11-23、11-24 讨论；11-24 代码已写，测试结果见 6.6）
 
-- **测法**：参考 `tests/iaxl_unittest.py`，用 `torch_ext.compress_tensors` / `decompress_tensors`。对每个候选大小 s，造一批正好 s 大的 CPU tensor，每个 tensor 正好一段，所以测的就是请求大小为 s 时的吞吐。一个进程里就能测完所有大小，不用改 `IAXL_ZIP_SEGMENT_SIZE_KB`。
-- **输出**：按吞吐从高到低排序的一组段大小，例如 `256,512,128,1024,64,32,16`。
+改动：`env.h` / `envs.c`（`IAXL_ZIP_SEGMENT_SIZE_KB` 读成一串数，函数 `env_nonnegative_int_list`，写错时报错退出）、`kv_zip.cpp` 的 `segment_size_for`（取第一个不大于块大小的值，0 或没有就整块一段）、`setvars.sh`（删掉手动设置）、`examples/kvshrink-vllm-serve.sh`（压缩开着且 QAT 或 IAA 开着时先校准再 export）、新文件 `tools/calibration/zip_calibration.py`（复制来的 mock 函数放在同一个文件里）。
+
+- **测法**：参考 `tests/iaxl_unittest.py`，用 `torch_ext.compress_tensors` / `decompress_tensors`。对每个候选大小 s，造一批正好 s 大的 CPU tensor，每个 tensor 正好一段，所以测的就是段大小为 s 时的吞吐。一个进程里就能测完所有大小，不用改 `IAXL_ZIP_SEGMENT_SIZE_KB`。
+- **输出**：按吞吐从高到低排序的一组段大小，例如 `256,512,128,1024,64,2048,32,16`。
 - **拆分算法**（`segment_size_for`）：按顺序找第一个 ≤ 块大小的值，作为段大小；没有就整块一段。例如排序结果是 `128,32,…`、块是 64K 时，选 32K，拆成两段，和需求 3.4 第 3 条的例子一致。
-- **要讨论的问题**：
-  - 按压缩还是解压吞吐排序；
-  - 吞吐差不多时怎么排（例如相差 5% 以内优先选大的）；
-  - 直接让 `IAXL_ZIP_SEGMENT_SIZE_KB` 接受一组值，还是新加一个变量；
-  - QAT 和 IAA 同时开时，一起测还是分开测；
-  - 候选大小要不要加上 2048；
-  - 和 DSA 校准是一个脚本还是两个。
+
+已定（11-23 用户）：
+
+| 问题 | 用户的决定 |
+|---|---|
+| 块头里的段大小 | 现有代码：每个压缩块的 `BlockHeader` 记着 `segment_size`，解压按块头来，所以每次启动段大小不同也能解压之前存的数据 |
+| 压缩和解压的段大小是否必须一致 | 必须一致（每段是一份独立的压缩数据，解压只能按压缩时的切法），所以一个选择同时决定压缩和解压速度 |
+| 按什么排序 | 只看解压吞吐，解压才影响 TTFT |
+| 测几个 rank | 和 DSA 一样，TP×DP 所有 rank 同时测 |
+| 候选大小 | 16、32、64、128、256、512、1024、2048 KB |
+| 环境变量 | `IAXL_ZIP_SEGMENT_SIZE_KB` 直接接受一串值（只写一个数时和现在一样） |
+| setvars.sh 里的手动设置 | 取消，只用校准结果；`kvstore_segment_sweep.sh` 每次运行设一个值来扫描，要保持能用 |
+| 测试数据 | 不准用随机数；把 `kvstore_benchmark.py` 的 `generate_mock_kv_cache`（约 40 行）复制到 `tools/calibration/` |
+| 吞吐接近时 | 不加"相差几 % 算一样"的规则，测出哪个最好用哪个（一次 vLLM 启动只设一次） |
+| 脚本位置 | `tools/calibration/zip_calibration.py`，和 `dsa_calibration.py` 分开 |
+| QAT 和 IAA 是否各用各的段大小 | 不分开（11-24 用户和同事讨论后定）：QAT 开着时只校准 QAT，不管 IAA 开没开，QAT 的结果同时用于 QAT 和 IAA；QAT 没开、只开 IAA 时才校准 IAA。现有代码本来就是所有后端共用一个段大小，所以 `kv_zip.cpp` 的压缩分配不用改 |
+| 只测 QAT（或只测 IAA）时的线程数 | 设成被测后端的实例数，和 vLLM 里这个后端实际分到的线程数一样 |
+| CPU 压缩 | 和 QAT 或 IAA 一起开时忽略，只测 QAT 或 IAA；只开 CPU 压缩时不校准，整块一段（和现在一样） |
+| 和 `benchmark/` 的关系 | 校准代码不准依赖 `benchmark/` 里的任何文件，防止有人改了 benchmark 影响校准。需要 benchmark 里的函数时，复制到 `tools/`，或者改成 benchmark 引用 `tools/` 里的函数；遇到这种函数要先告诉用户 |
+| mock 数据怎么拿 | 把 `kvstore_benchmark.py` 的 `generate_mock_kv_cache`、它调用的 `quantize_kv` 和 4 个常量（`SEED`、`FP8_MAX`、`INT4_QMAX`、`INT4_GROUP_SIZE`）全部复制到 `tools/calibration/`，benchmark 不动 |
+| 校准用的数据类型 | 先默认 bf16。vLLM 的 KV cache 类型由 `--kv-cache-dtype` 决定，serve 脚本和 setvars.sh 都没设，默认跟模型（bf16）；bf16 时 kv_zip 会 shuffle 并且只把高字节交给 QAT/IAA，fp8/int4 不会，所以有人通过 `VLLM_SERVE_EXTRA_ARGS` 改成 fp8 时校准结果不准 |
+| CPU 推理（`DEVICE=cpu`） | CPU 推理不支持 DSA，支持 QAT/IAA 压缩，所以也要做压缩校准。复制来的 `generate_mock_kv_cache` 改成没有 GPU 时在 CPU 上生成数据（7 处 `"cuda"` 换成按 `torch.cuda.is_available()` 选的设备）；`examples/recipes/vllm-cpu/setvars.pre.sh` 不动（用户没说要删里面注释掉的 `IAXL_ZIP_SEGMENT_SIZE_KB=1024`，我删了，11-24 已恢复） |
+| `doc/design/kv-zip.md` | "Segments" 一段按新做法更新 |
+
+列说明：
+- **问题**：讨论中要定的点。
+- **用户的决定**：用户的回复，以后按这一列执行。
+
+### 6.4 QAT 和 IAA 公平比较（11-24 实测，6000d）
+
+起因：用户原来的 sweep 里两边都是 4 个实例，但 QAT 只有设备 0 在干活，IAA 的 4 个实例分在两个 NUMA 节点上，QPL 把任务分给了全部 8 个 IAA 设备，两边用的设备数不一样。
+
+做法：`tests/zip_calibration_dev/fair_compare.sh`，单 rank，段大小 512 KB，块 2048 KiB，4 层，mock 数据。每次运行期间统计每个设备实际处理了多少：QAT 读跑前、跑后两次 `/sys/kernel/debug/qat_4xxx_*/fw_counters` 的固件请求数，取差；IAA 用 `sudo perf stat` 读 `iaxN/event_category=1,event=0x2/`（不跑东西时为 0）。结果目录 `tests/zip_calibration_dev/results/fair_compare_20261124_014910`。
+
+| 运行 | 实际干活的设备（计数器实测） | 实例数 | OMP 线程数 | 压缩率 | 压缩 GB/s | 解压 GB/s |
+|---|---|---|---|---|---|---|
+| QAT 4 设备 | QAT 0、1、2、3（NUMA 0），各约 1000 个请求 | 16 | 16 | 1.392 | 30.25 | 67.16 |
+| IAA 4 设备 | iax1、3、5、7（NUMA 0），各约 75.5 万计数 | 16 | 16 | 1.395 | 15.07 | 73.93 |
+| IAA，sweep 的配置（`auto`） | 8 个 IAA 全用 | 4 | 4 | 1.395 | 11.26 | 21.51 |
+| QAT，sweep 的配置 | 只有 QAT 0（4096 个请求），另外 7 个为 0 | 4 | 4 | 1.392 | 9.11 | 20.68 |
+
+列说明：
+- **运行**：前两行是 4 设备对 4 设备的公平比较，后两行重现用户原来 sweep 的配置。
+- **实际干活的设备**：运行期间计数器不为 0 的设备。
+- **实例数、OMP 线程数**：日志里 `[iaxl] config` 行的 `qat_instances` / `iaa_instances` 和 `omp_threads`。
+- **压缩率、压缩 GB/s、解压 GB/s**：kvstore benchmark 的输出，每个数只测一次（512 MiB，用时 7–60 毫秒），单次波动可能不小。
+
+推测（没验证）：从 sweep 的配置到 4 设备，设备数和实例数、线程数是同时变的；IAA 用 8 个设备时解压反而只有 21.5，所以吞吐更可能受实例数和线程数限制，而不是设备数。
+
+### 6.5 测试计划（11-24 记录，结果见 6.6）
+
+先在容器 iaxl.vllm 里重新编译（`env.h`、`envs.c`、`kv_zip.cpp` 改了）。脚本和日志放在 `tests/zip_calibration_dev/`，每一步在 tmux 里跑。
+
+**测试 1：段大小怎么选、环境变量怎么读**（不起 vLLM，只用 `torch_ext.compress_tensors` / `decompress_tensors`）
+
+| 编号 | `IAXL_ZIP_SEGMENT_SIZE_KB` | 每个 tensor 大小 | 期望的段大小 / 段数 |
+|---|---|---|---|
+| 1a | 不设 | 64 KB、784 KB、2048 KB | 整块 1 段 |
+| 1b | `0` | 784 KB | 整块 1 段 |
+| 1c | `128`（只写一个数） | 784 KB | 128 KB，6 段（最后一段 144 KB） |
+| 1d | `256,32` | 64 KB | 32 KB，2 段 |
+| 1e | `256,32` | 784 KB | 256 KB，3 段 |
+| 1f | `2048,512` | 2048 KB | 2048 KB，1 段 |
+| 1g | `abc`、`-1`、`1,,2`、17 个数 | 任意 | 报错退出，提示格式不对 |
+| 1h | 用 `256` 压缩并存文件，换一个进程用 `32` 解压 | 784 KB | 解压结果和原数据完全一样（解压按块头，不看当前变量） |
+
+列说明：
+- **编号**：测试步骤。
+- **`IAXL_ZIP_SEGMENT_SIZE_KB`**：这一步设的值。
+- **每个 tensor 大小**：压缩的单个 tensor 字节数。
+- **期望的段大小 / 段数**：`[kv_zip] block_size=... segment_size=... segments=...` 日志里应该看到的值。
+
+每一步都检查解压后和原数据逐字节相同；每种设置单独起一个进程（环境变量在库加载时读一次）。另外跑一次现有的 `tests/iaxl_unittest.py`。
+
+**测试 2：校准脚本单独跑**（不起 vLLM）
+
+| 编号 | 配置 | 验证什么 | 通过标准 |
+|---|---|---|---|
+| 2a | TP=4，只开 QAT | 脚本能跑通，输出格式对 | 退出码 0；标准输出一行、8 个段大小；总结一行写 QAT；测量程序只初始化 QAT，线程数等于 QAT 实例数；给出用时 |
+| 2b | TP=4，QAT 和 IAA 都开 | 两个都开时只测 QAT | 总结写 QAT；测量程序里没有 `[iaa_zip]` 初始化 |
+| 2c | TP=4，只开 IAA | 只开 IAA 时测 IAA | 总结写 IAA；线程数等于 IAA 实例数 |
+| 2d | TP=2，DP=2 | 进程数是 TP×DP | 4 个测量程序，退出码 0 |
+| 2e | rank 3 用不存在的 GPU 99 | 出错不卡住 | 几秒内退出，退出码非 0，没有残留进程 |
+| 2f | 看不到 GPU 的进程里直接调 `generate_mock_kv_cache` | CPU 推理时能生成数据 | 在 CPU 上生成成功；压缩率和 GPU 生成的数据接近 |
+| 2g | `kvstore_segment_sweep.sh --backends qat --sizes 512` | 原来的扫描脚本还能用（只设一个数） | 出结果，512 那一行不是 failed |
+
+列说明：
+- **编号**：测试步骤。
+- **配置**：这一步的并行设置和开的后端。
+- **验证什么**：要确认的行为。
+- **通过标准**：怎样算通过。
+
+**测试 3：serve 脚本 + vLLM 端到端**（Qwen3.8-27B，TP=4，GPU 0–3，块 784 KB）
+
+- 3a：压缩开、只开 QAT、DSA 开。`log.kvshrink-vllm` 里有 DSA 和压缩两行校准总结；vLLM 的 `[kv_zip] block_size=... segment_size=...` 和规则对得上（校准列表里第一个不大于 784 KB 的值）；3 轮请求回答都对，第 2、3 轮命中，没有 Traceback。
+- 3b：QAT 和 IAA 都开。压缩校准总结写 QAT，其余同 3a。
+- 3c：只开 CPU 压缩。没有压缩校准那一行，vLLM 日志里整块一段，回答正确。
+
+用时（推算）：编译约 3 分钟；测试 1 约 2 分钟；测试 2 约 3 分钟；测试 3 主要是三次加载模型，约 15 分钟。
+
+不包含：CPU 推理（`DEVICE=cpu`）端到端（这台机器上没有 CPU 版容器）；TTFT 性能对比。
+
+### 6.6 测试结果（11-24 07:40–07:53 UTC，6000d）
+
+结果目录 `tests/zip_calibration_dev/results/tests_20261124_073957`，`summary.txt` 每一步一行 PASS/FAIL。编译通过。2e 以外全部通过；2e 失败是测试脚本设计错了，不是校准代码的问题（见下面测试 2）。
+
+**测试 1**：全部通过。
+
+| 编号 | `IAXL_ZIP_SEGMENT_SIZE_KB` | tensor 大小 | 日志里的段大小 | 日志里的段数 |
+|---|---|---|---|---|
+| 1a | 不设 | 64 KB | 64 KB | 1 |
+| 1a | 不设 | 784 KB | 784 KB | 1 |
+| 1a | 不设 | 2048 KB | 2048 KB | 1 |
+| 1b | `0` | 784 KB | 784 KB | 1 |
+| 1c | `128` | 784 KB | 128 KB | 6 |
+| 1d | `256,32` | 64 KB | 32 KB | 2 |
+| 1e | `256,32` | 784 KB | 256 KB | 3 |
+| 1f | `2048,512` | 2048 KB | 2048 KB | 1 |
+
+列说明：
+- **编号**、**`IAXL_ZIP_SEGMENT_SIZE_KB`**、**tensor 大小**：同 6.5。
+- **日志里的段大小 / 段数**：`[kv_zip] block_size=... segment_size=... segments=...` 这一行的实测值，全部和 6.5 的期望一样。每一行解压后都和原数据逐字节相同。
+
+- 1g：`abc`、`-1`、`1,,2`、17 个数，4 种都报错退出（退出码 134，即 abort），提示 `[iaxl] ERROR: IAXL_ZIP_SEGMENT_SIZE_KB=abc must be up to 16 comma-separated non-negative integers`。
+- 1h：用 256 KB 压缩存文件，另一个进程设成 32 解压，结果和原数据相同。
+- `tests/iaxl_unittest.py`：2 个测试通过。
+
+**测试 2**：2e 以外通过。
+
+| 段大小 KB | 2a 只开 QAT，TP=4 | 2b QAT 和 IAA 都开，TP=4 | 2c 只开 IAA，TP=4 | 2d 只开 QAT，TP=2 DP=2 |
+|---|---|---|---|---|
+| 16 | 11.0 | 11.0 | 13.2 | 10.8 |
+| 32 | 15.7 | 15.7 | 16.4 | 15.4 |
+| 64 | 18.4 | 18.4 | 18.5 | 18.1 |
+| 128 | 20.2 | 20.2 | 20.5 | 20.1 |
+| 256 | 20.8 | 20.7 | 21.1 | 20.7 |
+| 512 | 21.0 | 21.0 | 20.8 | 21.0 |
+| 1024 | 21.1 | 21.1 | 20.7 | 21.1 |
+| 2048 | 20.7 | 20.7 | 20.5 | 20.7 |
+| 输出的排序 | 1024,512,256,2048,128,64,32,16 | 1024,512,256,2048,128,64,32,16 | 256,512,1024,128,2048,64,32,16 | 1024,512,256,2048,128,64,32,16 |
+| 被测后端 | QAT | QAT | IAA | QAT |
+| 校准用时 s | 7.0 | 6.6 | 7.0 | 6.4 |
+
+列说明：
+- **段大小 KB**：候选段大小。
+- **2a–2d 各列**：一次校准运行。数字是解压 GB/s：每个 rank 解压 3 次取最快，4 个 rank 取平均（见 6.3）。每列只跑了一次。
+- **输出的排序**：校准脚本标准输出那一行，就是 serve 脚本 export 的 `IAXL_ZIP_SEGMENT_SIZE_KB`。
+- **被测后端**：总结行写的后端。每个测量程序只初始化了这个后端（另一个后端的初始化行为 0 行），线程数等于它的实例数（4），CPU 压缩关。
+- **校准用时**：总结行里的用时，从脚本开始到测完；加上 Python 启动，整个命令 7.7–8.3 s。
+
+- 2e：**失败，是测试脚本设计错了**。测试让 rank 3 用不存在的 GPU 99，想让它出错。但压缩校准不需要 GPU：rank 3 看不到 GPU 时，按 6.3 的决定在 CPU 上生成 mock 数据，正常测完，退出码 0，输出和 2a 一样。这个测试是照着 DSA 校准写的（DSA 校准必须用 GPU），对压缩校准不成立。要换一种让 rank 3 出错的方法，重跑。
+- 2f：看不到 GPU 时在 CPU 上生成 mock 数据成功；CPU 数据压缩率 1.3922，GPU 数据 1.3919。
+- 2g：`kvstore_segment_sweep.sh --backends qat --sizes 512` 正常出结果：压缩率 1.392，压缩 9.05 GB/s，解压 20.68 GB/s。
+
+**测试 3**：Qwen3.8-27B，TP=4，GPU 0–3，三次都通过，模型 105–110 s 就绪。
+
+| 运行 | 开的压缩后端 | DSA 校准总结 | 压缩校准 | vLLM 的块大小 | vLLM 的段大小 | 段数 |
+|---|---|---|---|---|---|---|
+| 3a | QAT | H2D 256 KB，D2H 256 KB，4.2 s | QAT，1024,512,256,2048,128,64,32,16，6.2 s | 784 KB | 512 KB | 1 |
+| 3b | QAT 和 IAA | H2D 256 KB，D2H 256 KB，3.6 s | QAT，1024,512,256,2048,128,64,32,16，6.2 s | 784 KB | 512 KB | 1 |
+| 3c | 只开 CPU | H2D 256 KB，D2H 256 KB，3.6 s | 没有这一行（不校准） | 784 KB | 784 KB | 1 |
+
+列说明：
+- **运行**：一次 vLLM 启动和 3 轮请求。
+- **开的压缩后端**：`IAXL_QAT_ZIP_ENABLE` / `IAXL_IAA_ZIP_ENABLE` / `IAXL_CPU_ZIP_ENABLE` 里开着的。
+- **DSA 校准总结**：`log.kvshrink-vllm` 里 `[dsa_calibration]` 那一行。
+- **压缩校准**：`log.kvshrink-vllm` 里 `[zip_calibration]` 那一行的被测后端、排序、用时。
+- **vLLM 的块大小 / 段大小 / 段数**：vLLM 里 4 个 rank 打的 `[kv_zip]` 那一行，4 个 rank 一样。
+
+每次运行的请求：4 个 prompt，各 15,333–15,337 个 token，按顺序发 3 轮，temperature 0。三次运行的每个请求结果都一样：第 1 轮命中 0；第 2、3 轮每个请求命中 14,896 个 token（vLLM 日志 `externally-cached tokens`，即从 KVShrink 读回并解压）；3 轮回答都一样且正确（80393、88312、96231、4150）；没有 Traceback。
+
+看到的一点：3a、3b 选的是 512 KB（排序里第一个不大于 784 KB 的值），但段数按"块大小 / 段大小，向下取整"算（6.1，原有代码），784 / 512 = 1，所以实际是整块 784 KB 一段，没有切开，而校准没测过 784 KB 这个段大小。推测（没验证）：校准里 128–2048 KB 的解压吞吐在 20.1–21.1 GB/s 之间，最多差 5%，影响应该很小。

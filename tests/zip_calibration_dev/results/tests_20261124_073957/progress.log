@@ -1,0 +1,27 @@
+[2026-11-24 07:39:57 UTC] start: steps=build result_dir=/home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957
+[2026-11-24 07:39:58 UTC] step build started
+[2026-11-24 07:39:58 UTC] building in iaxl.vllm
+[2026-11-24 07:40:24 UTC] step build PASS (26s)
+[2026-11-24 07:40:24 UTC] ALL DONE. Summary: /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/summary.txt
+[2026-11-24 07:45:07 UTC] start: steps=1 2 3 result_dir=/home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957
+[2026-11-24 07:45:08 UTC] step 1 started
+[2026-11-24 07:45:50 UTC] step 1 PASS (42s)
+[2026-11-24 07:45:50 UTC] step 2 started
+[2026-11-24 07:45:51 UTC] zip calibration 2a_qat_tp4 (-e TP_SIZE=4 -e DP_SIZE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-24 07:45:59 UTC] zip calibration 2b_qat_iaa_tp4 (-e TP_SIZE=4 -e DP_SIZE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=1)
+[2026-11-24 07:46:08 UTC] zip calibration 2c_iaa_tp4 (-e TP_SIZE=4 -e DP_SIZE=1 -e IAXL_QAT_ZIP_ENABLE=0 -e IAXL_IAA_ZIP_ENABLE=1)
+[2026-11-24 07:46:16 UTC] zip calibration 2d_qat_tp2_dp2 (-e TP_SIZE=2 -e DP_SIZE=2 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-24 07:46:24 UTC] zip calibration 2e_rank3_fails (-e TP_SIZE=4 -e DP_SIZE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0 -e CALIBRATION_GPUS=0,1,2,99)
+[2026-11-24 07:47:08 UTC] step 2 FAIL (78s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/summary.txt
+[2026-11-24 07:47:08 UTC] step 3 started
+[2026-11-24 07:47:08 UTC] starting serve 3a_qat (-e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0 -e IAXL_CPU_ZIP_ENABLE=0), log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/step3/3a_qat/serve.log
+[2026-11-24 07:48:59 UTC] vLLM ready after 110s, sending requests
+[2026-11-24 07:49:09 UTC] stopping vLLM pid 494170
+[2026-11-24 07:49:15 UTC] starting serve 3b_qat_iaa (-e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=1 -e IAXL_CPU_ZIP_ENABLE=0), log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/step3/3b_qat_iaa/serve.log
+[2026-11-24 07:51:05 UTC] vLLM ready after 110s, sending requests
+[2026-11-24 07:51:16 UTC] stopping vLLM pid 500907
+[2026-11-24 07:51:22 UTC] starting serve 3c_cpu_zip (-e IAXL_QAT_ZIP_ENABLE=0 -e IAXL_IAA_ZIP_ENABLE=0 -e IAXL_CPU_ZIP_ENABLE=1), log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/step3/3c_cpu_zip/serve.log
+[2026-11-24 07:53:07 UTC] vLLM ready after 105s, sending requests
+[2026-11-24 07:53:19 UTC] stopping vLLM pid 503657
+[2026-11-24 07:53:24 UTC] step 3 PASS (376s)
+[2026-11-24 07:53:24 UTC] ALL DONE. Summary: /home/pese/qiuyu/intel-accel-for-llm-1119/tests/zip_calibration_dev/results/tests_20261124_073957/summary.txt

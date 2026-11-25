@@ -1,0 +1,89 @@
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=6,7
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[0] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[1] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[2] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[3] on device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+[select] instance[4] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[5] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[6] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[7] on device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[qat_zip] init done: 8 instance(s) on devices=6,7  cnv_strict=0
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=4,5
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=2,3
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=OFF profile=disabled
+[kv_zip] block_size=16384 B segment_size=16384 B segments=1
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=0,1
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[0] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[select] instance[1] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[select] instance[2] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[select] instance[3] on device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[4] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[select] instance[0] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[5] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[select] instance[1] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[6] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[select] instance[2] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[7] on device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+[qat_zip] init done: 8 instance(s) on devices=4,5  cnv_strict=0
+[select] instance[3] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[4] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[0] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[5] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[1] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[6] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[2] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[7] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[qat_zip] init done: 8 instance(s) on devices=0,1  cnv_strict=0
+[select] instance[3] on device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+[select] instance[4] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[select] instance[5] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[select] instance[6] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[select] instance[7] on device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+[qat_zip] init done: 8 instance(s) on devices=2,3  cnv_strict=0
+ADF_UIO_PROXY err: icp_adf_userProcessToStart: Error reading /dev/qat_dev_processes file
+ADF_UIO_PROXY err: icp_adf_userProcessToStart: Error reading /dev/qat_dev_processes file
+ADF_UIO_PROXY err: icp_adf_userProcessToStart: Error reading /dev/qat_dev_processes file
+ADF_UIO_PROXY err: icp_adf_userProcessToStart: Error reading /dev/qat_dev_processes file
+[zip_calibration] QAT segment sizes by decompress GB/s: 1024 KB 21.1, 512 KB 21.0, 256 KB 20.7, 2048 KB 20.7, 128 KB 20.1, 64 KB 18.1, 32 KB 15.4, 16 KB 10.9, 4 workers, 6.3 s

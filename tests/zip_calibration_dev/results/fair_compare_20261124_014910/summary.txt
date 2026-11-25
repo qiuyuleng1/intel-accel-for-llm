@@ -1,0 +1,105 @@
+== qat_4dev (qat, -e KVSHRINK_QAT_DEVICES=0,1,2,3 -e IAXL_QAT_DEVICES=0,1,2,3 -e IAXL_QAT_INSTANCE_NUM=16) exit 0
+qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=16 iaa_instances=0 cpu_zip_threads=0 omp_threads=16
+Verification: passed
+Compression ratio: 1.392x (28.2%)
+Compress throughput:   30.252 GB/s (512.00 MiB in 17.7 ms)
+Decompress throughput: 67.164 GB/s (512.00 MiB in 8.0 ms)
+Bound rank 0: IAXL_QAT_DEVICES=0,1,2,3
+init done: 16 instance(s) on devices=0,1,2,3  cnv_strict=0
+QAT firmware requests during the run (device: delta):
+  qat_4xxx_0000:01:00.0 1004
+  qat_4xxx_0000:06:00.0 1026
+  qat_4xxx_0000:0b:00.0 1026
+  qat_4xxx_0000:10:00.0 1040
+  qat_4xxx_0000:81:00.0 0
+  qat_4xxx_0000:86:00.0 0
+  qat_4xxx_0000:8b:00.0 0
+  qat_4xxx_0000:90:00.0 0
+IAA perf iaxN/event_category=1,event=0x2 during the run (device: count):
+  iax1 0
+  iax3 0
+  iax5 0
+  iax7 0
+  iax9 0
+  iax11 0
+  iax13 0
+  iax15 0
+== iaa_4dev (iaa, -e IAXL_IAA_DEVICES=0 -e IAXL_IAA_INSTANCE_NUM=16) exit 0
+qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=16 cpu_zip_threads=0 omp_threads=16
+Verification: passed
+Compression ratio: 1.395x (28.3%)
+Compress throughput:   15.069 GB/s (512.00 MiB in 35.6 ms)
+Decompress throughput: 73.934 GB/s (512.00 MiB in 7.3 ms)
+config: numa_nodes=0 (1 node(s), 4 device(s)) instances/device=4 src_cap=4194304 B dst_cap=4194304 B queue_depth=4
+ready: instances=16 slots=64
+QAT firmware requests during the run (device: delta):
+  qat_4xxx_0000:01:00.0 0
+  qat_4xxx_0000:06:00.0 0
+  qat_4xxx_0000:0b:00.0 0
+  qat_4xxx_0000:10:00.0 0
+  qat_4xxx_0000:81:00.0 0
+  qat_4xxx_0000:86:00.0 0
+  qat_4xxx_0000:8b:00.0 0
+  qat_4xxx_0000:90:00.0 0
+IAA perf iaxN/event_category=1,event=0x2 during the run (device: count):
+  iax1 758490
+  iax3 757304
+  iax5 755058
+  iax7 753036
+  iax9 0
+  iax11 0
+  iax13 0
+  iax15 0
+== iaa_sweep_config (iaa, ) exit 0
+qat_zip=OFF iaa_zip=ON cpu_zip=OFF qat_instances=0 iaa_instances=4 cpu_zip_threads=0 omp_threads=4
+Verification: passed
+Compression ratio: 1.395x (28.3%)
+Compress throughput:   11.258 GB/s (512.00 MiB in 47.7 ms)
+Decompress throughput: 21.508 GB/s (512.00 MiB in 25.0 ms)
+config: numa_nodes=auto (2 node(s), 8 device(s)) instances/device=4 src_cap=4194304 B dst_cap=4194304 B queue_depth=4
+ready: instances=32 slots=128
+QAT firmware requests during the run (device: delta):
+  qat_4xxx_0000:01:00.0 0
+  qat_4xxx_0000:06:00.0 0
+  qat_4xxx_0000:0b:00.0 0
+  qat_4xxx_0000:10:00.0 0
+  qat_4xxx_0000:81:00.0 0
+  qat_4xxx_0000:86:00.0 0
+  qat_4xxx_0000:8b:00.0 0
+  qat_4xxx_0000:90:00.0 0
+IAA perf iaxN/event_category=1,event=0x2 during the run (device: count):
+  iax1 349580
+  iax3 348850
+  iax5 349842
+  iax7 348276
+  iax9 406824
+  iax11 406840
+  iax13 406974
+  iax15 406702
+== qat_sweep_config (qat, ) exit 0
+qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4
+Verification: passed
+Compression ratio: 1.392x (28.2%)
+Compress throughput:   9.105 GB/s (512.00 MiB in 59.0 ms)
+Decompress throughput: 20.681 GB/s (512.00 MiB in 26.0 ms)
+Bound rank 0: IAXL_QAT_DEVICES=0,1,2,3,4,5,6,7
+init done: 32 instance(s) on devices=0,1,2,3,4,5,6,7  cnv_strict=0
+QAT firmware requests during the run (device: delta):
+  qat_4xxx_0000:01:00.0 4096
+  qat_4xxx_0000:06:00.0 0
+  qat_4xxx_0000:0b:00.0 0
+  qat_4xxx_0000:10:00.0 0
+  qat_4xxx_0000:81:00.0 0
+  qat_4xxx_0000:86:00.0 0
+  qat_4xxx_0000:8b:00.0 0
+  qat_4xxx_0000:90:00.0 0
+IAA perf iaxN/event_category=1,event=0x2 during the run (device: count):
+  iax1 0
+  iax3 0
+  iax5 0
+  iax7 0
+  iax9 0
+  iax11 0
+  iax13 0
+  iax15 0
+ALL DONE
