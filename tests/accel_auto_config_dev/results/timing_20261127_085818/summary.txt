@@ -1,0 +1,108 @@
+== TP=4
+[accel_auto_config] DSA crossover H2D 128 KB, D2H 128 KB (0 = DSA faster up to 4096 KB), 4 workers, 2.9 s
+[accel_auto_config] QAT segment sizes by decompress GB/s: 1024 KB 19.6, 512 KB 19.3, 256 KB 18.9, 128 KB 18.0, 64 KB 16.7, 32 KB 14.0, 0.4 s
+[accel_auto_config] done in 4.2 s
+[timing-wall] python exit 0 wall_ms 4568
+DSA workers: 4, measurements per worker: [12, 12, 12, 12]
+| step (ms) | dsa_rank0 | dsa_rank1 | dsa_rank2 | dsa_rank3 | max |
+|---|---|---|---|---|---|
+| fork (main fork -> worker running) | 11 | 18 | 23 | 28 | 28 |
+| import iaxl.utils.affinity | 26 | 24 | 27 | 26 | 27 |
+| bind CPU and DSA | 0 | 0 | 0 | 0 | 0 |
+| pinned 32 MiB host alloc (first CUDA call: CUDA init) | 2120 | 2112 | 2107 | 2101 | 2120 |
+| 32 MiB GPU alloc + stream | 9 | 10 | 8 | 10 | 10 |
+| wait for first block size | 0 | 0 | 0 | 0 | 0 |
+| build CUDA batch operations (sum) | 7 | 8 | 7 | 8 | 8 |
+| CUDA batch copies (sum) | 197 | 197 | 197 | 198 | 198 |
+| SliceCopier register (sum) | 4 | 4 | 4 | 4 | 4 |
+| DSA copies (sum) | 213 | 213 | 213 | 214 | 214 |
+| SliceCopier close (sum) | 3 | 2 | 3 | 3 | 3 |
+|   of which start_together waits (sum) | 246 | 246 | 245 | 246 | 246 |
+| wait for next block size (sum) | 3 | 4 | 3 | 3 | 4 |
+| last measure -> worker done | 0 | 0 | 0 | 0 | 0 |
+| worker total (fork -> done) | 2594 | 2594 | 2594 | 2594 | 2594 |
+
+main process (ms from script start):
+  start: 1
+  import_torch: 937
+  fork_dsa_workers: 939
+  dsa_workers_joined: 3842
+  fork_qat_worker: 3843
+  qat_worker_joined: 4221
+  done: 4221
+  3143: result 4096 KB cuda_batch 110.4 dsa 88.6 GB/s summed
+  3178: result 2048 KB cuda_batch 109.0 dsa 88.2 GB/s summed
+  3214: result 1024 KB cuda_batch 109.9 dsa 88.3 GB/s summed
+  3249: result 512 KB cuda_batch 107.8 dsa 88.1 GB/s summed
+  3285: result 256 KB cuda_batch 106.3 dsa 88.1 GB/s summed
+  3323: result 128 KB cuda_batch 108.1 dsa 88.0 GB/s summed
+  3357: result 4096 KB cuda_batch 115.0 dsa 92.5 GB/s summed
+  3392: result 2048 KB cuda_batch 115.3 dsa 92.5 GB/s summed
+  3426: result 1024 KB cuda_batch 115.0 dsa 92.9 GB/s summed
+  3461: result 512 KB cuda_batch 114.9 dsa 92.0 GB/s summed
+  3496: result 256 KB cuda_batch 114.6 dsa 92.4 GB/s summed
+  3533: result 128 KB cuda_batch 113.1 dsa 91.8 GB/s summed
+QAT worker (ms from script start):
+  3849: step forked
+  3875: step import_and_bind
+  3926: step mock_data_on_cpu
+  4091: step segment_32KB
+  4098: step segment_64KB
+  4103: step segment_128KB
+  4109: step segment_256KB
+  4120: step segment_512KB
+  4140: step segment_1024KB
+== TP=8
+[accel_auto_config] DSA crossover H2D 128 KB, D2H 128 KB (0 = DSA faster up to 4096 KB), 8 workers, 5.3 s
+[accel_auto_config] QAT segment sizes by decompress GB/s: 1024 KB 19.6, 512 KB 19.5, 256 KB 19.2, 128 KB 18.3, 64 KB 17.0, 32 KB 14.1, 0.3 s
+[accel_auto_config] done in 6.5 s
+[timing-wall] python exit 0 wall_ms 6873
+DSA workers: 8, measurements per worker: [12, 12, 12, 12, 12, 12, 12, 12]
+| step (ms) | dsa_rank0 | dsa_rank1 | dsa_rank2 | dsa_rank3 | dsa_rank4 | dsa_rank5 | dsa_rank6 | dsa_rank7 | max |
+|---|---|---|---|---|---|---|---|---|---|
+| fork (main fork -> worker running) | 7 | 11 | 15 | 19 | 22 | 26 | 30 | 33 | 33 |
+| import iaxl.utils.affinity | 25 | 24 | 28 | 26 | 26 | 24 | 26 | 24 | 28 |
+| bind CPU and DSA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| pinned 32 MiB host alloc (first CUDA call: CUDA init) | 4134 | 4026 | 4124 | 4121 | 4112 | 4116 | 4112 | 4106 | 4134 |
+| 32 MiB GPU alloc + stream | 18 | 52 | 14 | 18 | 10 | 17 | 16 | 17 | 52 |
+| wait for first block size | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| build CUDA batch operations (sum) | 8 | 7 | 7 | 8 | 8 | 7 | 8 | 8 | 8 |
+| CUDA batch copies (sum) | 200 | 269 | 203 | 199 | 212 | 199 | 199 | 202 | 269 |
+| SliceCopier register (sum) | 9 | 8 | 8 | 8 | 8 | 8 | 9 | 8 | 9 |
+| DSA copies (sum) | 216 | 217 | 218 | 218 | 217 | 217 | 217 | 218 | 218 |
+| SliceCopier close (sum) | 4 | 3 | 5 | 5 | 4 | 4 | 5 | 4 | 5 |
+|   of which start_together waits (sum) | 250 | 322 | 255 | 251 | 264 | 252 | 249 | 253 | 322 |
+| wait for next block size (sum) | 5 | 7 | 5 | 5 | 7 | 7 | 5 | 5 | 7 |
+| last measure -> worker done | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| worker total (fork -> done) | 4626 | 4626 | 4626 | 4626 | 4626 | 4626 | 4626 | 4626 | 4626 |
+
+main process (ms from script start):
+  start: 1
+  import_torch: 909
+  fork_dsa_workers: 910
+  dsa_workers_joined: 6165
+  fork_qat_worker: 6166
+  qat_worker_joined: 6501
+  done: 6501
+  5134: result 4096 KB cuda_batch 219.8 dsa 176.4 GB/s summed
+  5172: result 2048 KB cuda_batch 220.7 dsa 176.4 GB/s summed
+  5208: result 1024 KB cuda_batch 216.9 dsa 176.7 GB/s summed
+  5245: result 512 KB cuda_batch 216.0 dsa 176.8 GB/s summed
+  5282: result 256 KB cuda_batch 213.3 dsa 176.7 GB/s summed
+  5320: result 128 KB cuda_batch 214.9 dsa 176.3 GB/s summed
+  5356: result 4096 KB cuda_batch 230.3 dsa 185.0 GB/s summed
+  5391: result 2048 KB cuda_batch 230.5 dsa 184.9 GB/s summed
+  5427: result 1024 KB cuda_batch 230.0 dsa 184.5 GB/s summed
+  5463: result 512 KB cuda_batch 229.7 dsa 184.3 GB/s summed
+  5499: result 256 KB cuda_batch 229.4 dsa 184.1 GB/s summed
+  5536: result 128 KB cuda_batch 225.8 dsa 183.8 GB/s summed
+QAT worker (ms from script start):
+  6173: step forked
+  6199: step import_and_bind
+  6251: step mock_data_on_cpu
+  6403: step segment_32KB
+  6410: step segment_64KB
+  6415: step segment_128KB
+  6420: step segment_256KB
+  6432: step segment_512KB
+  6451: step segment_1024KB

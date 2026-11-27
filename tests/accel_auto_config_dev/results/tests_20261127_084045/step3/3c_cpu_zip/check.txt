@@ -1,0 +1,32 @@
+accel_auto_config done in: 3.6 s
+DSA summaries (H2D KB, D2H KB): [(128, 128)]
+QAT ranked KB: []
+printed by setvars.sh: {'IAXL_DSA_H2D_CROSSOVER_KB': '128', 'IAXL_DSA_D2H_CROSSOVER_KB': '128', 'IAXL_ZIP_SEGMENT_SIZE_KB': 'unset'}
+vLLM [kv_zip] lines (block B, segment B, segments): [(802816, 802816, 1), (802816, 802816, 1), (802816, 802816, 1), (802816, 802816, 1)]
+vLLM contiguous block sizes (KB, one per process): [784.0, 784.0, 784.0, 784.0]
+vLLM backends (direction: one per process): {'H2D': ['CUDA', 'CUDA', 'CUDA', 'CUDA'], 'D2H': ['CUDA', 'CUDA', 'CUDA', 'CUDA']}
+Traceback lines: 0
+round prompt prompt_tokens hit_tokens text
+  1 0 15333 0 '\n\n80393'
+  1 1 15336 0 '\n\n88312'
+  1 2 15336 0 '\n\n96231'
+  1 3 15337 0 '\n\n4150'
+  2 0 15333 14896 '\n\n80393'
+  2 1 15336 14896 '\n\n88312'
+  2 2 15336 14896 '\n\n96231'
+  2 3 15337 14896 '\n\n4150'
+  3 0 15333 14896 '\n\n80393'
+  3 1 15336 14896 '\n\n88312'
+  3 2 15336 14896 '\n\n96231'
+  3 3 15337 14896 '\n\n4150'
+== checks
+PASS one DSA summary line before vLLM
+PASS printed crossovers match the DSA summary
+PASS no QAT summary line
+PASS printed IAXL_ZIP_SEGMENT_SIZE_KB=unset
+PASS vLLM segment sizes follow IAXL_ZIP_SEGMENT_SIZE_KB
+PASS H2D: 4 ranks use CUDA (block 784.0 KB, crossover 128 KB)
+PASS D2H: 4 ranks use CUDA (block 784.0 KB, crossover 128 KB)
+PASS every prompt hits in round 3
+PASS every reply contains the correct value
+PASS no Traceback

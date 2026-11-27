@@ -1,0 +1,9 @@
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink QAT rank 0: indices=0,1 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0)
+KVShrink QAT rank 1: indices=2,3 devices=0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 2: indices=4,5 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1)
+KVShrink QAT rank 3: indices=6,7 devices=0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+[accel_auto_config] failed: rank3: DSA work queue wq99.0 of KVSHRINK_DSA_DEVICES does not exist

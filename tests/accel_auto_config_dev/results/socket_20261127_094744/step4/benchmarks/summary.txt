@@ -1,0 +1,6 @@
+step2 2a_kvstore: PASS both calibrations ran, then 'Verification: passed'
+    [accel_auto_config] DSA crossover H2D 384 KB, D2H 128 KB (0 = DSA faster up to 4096 KB), 1 of 1 workers (socket 0), 1.2 s
+    [accel_auto_config] QAT segment sizes by decompress GB/s: 1024 KB 19.4, 512 KB 19.3, 256 KB 18.8, 128 KB 18.1, 64 KB 16.5, 32 KB 13.9, 0.6 s
+    Compression ratio: 1.387x (27.9%)|Compress throughput:   9.851 GB/s (512.00 MiB in 54.5 ms)|Decompress throughput: 16.332 GB/s (512.00 MiB in 32.9 ms)
+step2 2b_sweep: PASS | 512         | 1.392x |     9.08 |      20.75 |
+step2 2c_tensor_xfer: PASS exit 0, no DSA calibration (crossovers preset to 0), QAT calibration lines: 1

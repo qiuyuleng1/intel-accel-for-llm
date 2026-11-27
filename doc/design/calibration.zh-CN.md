@@ -480,3 +480,140 @@ examples/kvshrink-vllm-serve.sh
 每次运行的请求：4 个 prompt，各 15,333–15,337 个 token，按顺序发 3 轮，temperature 0。三次运行的每个请求结果都一样：第 1 轮命中 0；第 2、3 轮每个请求命中 14,896 个 token（vLLM 日志 `externally-cached tokens`，即从 KVShrink 读回并解压）；3 轮回答都一样且正确（80393、88312、96231、4150）；没有 Traceback。
 
 看到的一点：3a、3b 选的是 512 KB（排序里第一个不大于 784 KB 的值），但段数按"块大小 / 段大小，向下取整"算（6.1，原有代码），784 / 512 = 1，所以实际是整块 784 KB 一段，没有切开，而校准没测过 784 KB 这个段大小。推测（没验证）：校准里 128–2048 KB 的解压吞吐在 20.1–21.1 GB/s 之间，最多差 5%，影响应该很小。
+
+## 7 合并成 accel_auto_config，挪进 setvars.sh（11-27）
+
+### 7.1 改动（用户 11-27 定）
+
+- `tools/calibration/` 删掉，DSA 和 QAT 合并成 `tools/accel_auto_config.py`；`tools/auto_config.sh` 新函数 `accel_auto_config` 调用它并 export 结果。
+- 只在容器里跑：`setvars.sh` 末尾给 `docker run` 加 `-e IAXL_IN_CONTAINER=1`；`accel_auto_config` 看不到 `IAXL_IN_CONTAINER` 就直接返回（宿主机上 `start.sh` source setvars.sh 时不跑）。
+- `setvars.sh`：printf 挪到 `# ---- docker (used by start.sh)` 前面，前一行调用 `accel_auto_config`（这时 `IAXL_ZIP_SRC_CAP`、`IAXL_QAT_INSTANCE_NUM`、`IAXL_LD_PRELOAD` 都已设好）；printf 多打印 `IAXL_DSA_H2D_CROSSOVER_KB`、`IAXL_DSA_D2H_CROSSOVER_KB`、`IAXL_ZIP_SEGMENT_SIZE_KB`（没设时打印 `unset`）。
+- 已经设了值的变量不测（benchmark 预设的值不被覆盖）。
+- `examples/kvshrink-vllm-serve.sh` 恢复成 main 的样子，`source setvars.sh` 后面加 `|| exit 1`；`kvstore_benchmark.sh` 不再预设分界值（测的是校准后的配置）；`tensor_xfer_benchmark.sh` 的预设拆成两行。
+- DSA：块大小 128–4096 KB、步长 128 KB（`DSA_MIN_BLOCK_KB`、`DSA_MAX_BLOCK_KB`、`DSA_BLOCK_STEP_KB`），每次拷贝 32 MiB；先测 4096 KB，DSA 还更快就输出 0，否则在 32 个候选里二分 5 轮，每个方向测 6 次。仍是 TP×DP 个进程同时测。
+- QAT：段大小 32–1024 KB，每个大小 50 段，压缩一次、解压热身 2 次 + 计时 3 次；单进程，绑定方式同 rank 0；mock 数据固定在 CPU 上生成（50 MiB）。只开 IAA 时不测，设成 `IAXL_ZIP_SRC_CAP` 的一半（默认 2048）；只开 CPU 压缩时不设。
+- PyTorch 只在主进程加载一次，DSA 各 rank 进程和 QAT 进程都从主进程 fork 出来。
+
+### 7.2 测试结果（11-27 08:40–08:48 UTC，6000d）
+
+结果目录 `tests/accel_auto_config_dev/results/tests_20261127_084045`，脚本 `tests/accel_auto_config_dev/run_tests.sh`。容器 `iaxl.vllm` 是改代码前起的，没有 `IAXL_IN_CONTAINER`，测试用 `docker exec -e IAXL_IN_CONTAINER=1` 带上。除 3b 外全部通过；3b 见下面。
+
+| 运行 | rank 数 | DSA 分界值 H2D / D2H | DSA 用时 s | QAT 排序 | QAT 用时 s | `accel_auto_config` 总用时 s | `source setvars.sh` 总用时 s |
+|---|---|---|---|---|---|---|---|
+| 1b 第 1 次 | 4 | 128 / 128 KB | 3.5 | 512,1024,256,128,64,32 | 0.3 | 4.8 | 5.7 |
+| 1b 第 2 次 | 4 | 128 / 128 KB | 2.9 | 512,1024,256,128,64,32 | 0.3 | 4.1 | 5.0 |
+| 1b 第 3 次 | 4 | 128 / 128 KB | 2.9 | 1024,512,256,128,64,32 | 0.3 | 4.1 | 5.0 |
+| 1d | 8 | 128 / 128 KB | 5.4 | 1024,512,256,128,64,32 | 0.3 | 6.6 | 7.5 |
+| 1e（DSA 关） | 4 | 不测 | — | 512,256,1024,128,64,32 | — | 1.2 | — |
+| 2a（kvstore_benchmark.sh） | 1 | 384 / 128 KB | 1.1 | 512,1024,256,128,64,32 | 0.6 | — | — |
+
+列说明：
+- **运行**：测试编号；1b 同一配置连跑 3 次。
+- **rank 数**：TP×DP，即 DSA 同时测的进程数。
+- **DSA 分界值**：输出的 `IAXL_DSA_H2D_CROSSOVER_KB` / `IAXL_DSA_D2H_CROSSOVER_KB`。
+- **DSA 用时、QAT 用时**：各自总结行里的秒数（从开始 fork 子进程到结果出来）。
+- **QAT 排序**：输出的 `IAXL_ZIP_SEGMENT_SIZE_KB`；1024 和 512 的解压速度只差约 1%（19.2–19.7 GB/s），所以前两位会换。
+- **`accel_auto_config` 总用时**：`[accel_auto_config] done in` 那一行，含主进程加载 PyTorch。
+- **`source setvars.sh` 总用时**：从 source 开始到结束，含 setvars.sh 自己的检测。
+
+其余测试：1a 不在容器里时不测、三个变量 `unset`、`DOCKER_RUN_ARGS` 有 `-e IAXL_IN_CONTAINER=1`；1f 只开 IAA 时 `IAXL_ZIP_SEGMENT_SIZE_KB=2048`、0.0 s；1g 预设的 0、0、512 保留；1h rank 3 用不存在的 GPU 时 setvars.sh 在 4.0 s 后返回 1、没有残留进程，`bash examples/kvshrink-vllm-serve.sh` 在启动 vLLM 前退出（退出码 1）；1i fork 出的子进程各自只看到自己的 GPU（UUID 和 nvidia-smi 一致）；2b 扫描脚本 512 那一行正常；2c tensor_xfer 没有 DSA 校准（预设 0）。
+
+vLLM 端到端（Qwen3.8-27B，TP=4，块 784 KB，4 个 prompt 各约 15,300 token，3 轮）：
+
+| 运行 | 压缩后端 | `IAXL_ZIP_SEGMENT_SIZE_KB` | vLLM 段大小 / 段数 | H2D / D2H 拷贝 | 结果 |
+|---|---|---|---|---|---|
+| 3a | QAT | 512,1024,256,128,64,32 | 512 KB / 1 | 4 个 rank 都用 CUDA batch（784 ≥ 128） | 全部通过 |
+| 3b | 只开 IAA | 2048 | 784 KB / 1 | 同上 | 回答、命中都对；停 vLLM 时有一个 Traceback |
+| 3c | 只开 CPU | unset | 784 KB / 1 | 同上 | 全部通过 |
+
+列说明：
+- **运行**：一次 vLLM 启动和 3 轮请求。
+- **压缩后端**：开着的压缩后端。
+- **`IAXL_ZIP_SEGMENT_SIZE_KB`**：setvars.sh printf 打印的值。
+- **vLLM 段大小 / 段数**：vLLM 4 个 rank 的 `[kv_zip]` 行，4 个 rank 一样。
+- **H2D / D2H 拷贝**：vLLM 里 `copy_chunks_batch` 选的拷贝方式。
+- **结果**：`e2e_check.py` 的检查。三次运行每个请求第 2、3 轮都命中，回答都正确。
+
+3b 的 Traceback：出现在 08:46:32，`serve.log` 第 395 行 `API server: shutdown triggered` 之后，也就是测试脚本发 SIGTERM 停 vLLM 时；vLLM 强杀 EngineCore 后，API server 报 `EngineDeadError`。在这之前没有 ERROR，12 个请求都已正确返回。推测（没验证）是 vLLM 关闭时的时序问题，和校准无关。
+
+### 7.3 没解决的
+
+- 用户要求 DSA + QAT 总共不超过 3 秒：TP=4 实测 4.1–4.8 s，TP=8 6.6 s，没达到。QAT 只占 0.3 s；DSA 用时随 rank 数增加（1 个 rank 1.1 s，4 个 2.9–3.5 s，8 个 5.4 s），时间花在哪一步还没拆开测。
+
+### 7.4 分步用时（11-27 08:58 UTC，6000d）
+
+做法：`tests/accel_auto_config_dev/accel_auto_config_timed.py` 是 `tools/accel_auto_config.py` 的副本，只多了时间戳；`run_timing.sh` 在容器里 TP=4（GPU 0–3）、TP=8（GPU 0–7）各跑一次，`timing_report.py` 汇总。结果目录 `tests/accel_auto_config_dev/results/timing_20261127_085818`。
+
+| 步骤 | TP=4 用时 ms | TP=8 用时 ms |
+|---|---|---|
+| 主进程加载 PyTorch | 936 | 908 |
+| fork 出 DSA 进程 + 加载 `iaxl.utils.affinity` + 绑定 | 55 | 61 |
+| 每个 DSA 进程第一次用 GPU：初始化 CUDA + 分配 32 MiB 锁页内存 | 2120 | 4134 |
+| 分配 32 MiB GPU 内存 + stream | 10 | 52 |
+| 12 次测量（CUDA batch 拷贝 + DSA 拷贝 + 注册/注销 SliceCopier） | 约 430 | 约 450 |
+| 　其中各 rank 在 `start_together` 里等待的时间 | 246 | 322 |
+| DSA 进程退出、主进程 join | 309 | 629 |
+| QAT 进程（造数据 51 ms，第一个段大小含加载 iaxl 和 QAT 初始化 165 ms） | 378 | 335 |
+| `[accel_auto_config] done in` 总计 | 4200 | 6500 |
+
+列说明：
+- **步骤**：一次 `accel_auto_config.py` 运行里的先后几步。
+- **TP=4 / TP=8 用时**：DSA 各进程那几行取所有 rank 里最大的值（各 rank 同时进行）；其余是主进程或 QAT 进程的时间。
+
+结论（实测）：
+- 时间大头是"每个 DSA 进程第一次用 GPU"：TP=4 时 2.1 s，TP=8 时 4.1 s。单个进程单独初始化 CUDA 实测 0.6 s（11-27，GPU 0），同时初始化的进程越多越慢。
+- 12 次测量一共约 0.43 s（每次约 35 ms），二分还是从小到大测，影响不超过这个量级。
+- 这台机器 8 张 GPU 的 persistence mode 都是 Disabled（`nvidia-smi --query-gpu=persistence_mode`），也没有 `nvidia-persistenced` 进程。推测（没验证）：没有进程占着 GPU 时驱动会释放 GPU 状态，下一个进程初始化 CUDA 时要重新初始化 GPU，多个进程同时初始化会互相等。
+
+### 7.5 DSA 只测 rank 0 所在 socket，CPU 和 DSA 按 `CUDA_VISIBLE_DEVICES` 分配（11-27）
+
+改动（用户 11-27 定）：
+- `tools/accel_auto_config.py`：fork 之前用 NVML 查每个 rank 的 GPU 在哪个 socket（rank r 用 `CUDA_VISIBLE_DEVICES` 第 r 项），按 `KVSHRINK_DSA_DEVICES` 查它的 DSA 在哪个 socket；有 rank 不一致就报错退出；只 fork 和 rank 0 同 socket 的 rank 去测。总结行写成 `4 of 8 workers (socket 0)`。
+- `tools/auto_config.sh`：`gpu_rows` 多一个参数 `rank_gpus`（nvidia-smi 编号或 UUID，逗号分隔），给了就让 rank r 用第 r 项，没给就是全部 GPU、按 nvidia-smi 顺序（和以前一样）。`cpu_auto_detect`、`dsa_auto_detect` 多一个同名参数，原样传给 `gpu_rows`。
+- `setvars.sh` 调用 `cpu_auto_detect`、`dsa_auto_detect` 时把 `"${CUDA_VISIBLE_DEVICES:-}"` 作为第二个参数。recipe `qat-standalone` 的 `setvars.pre.sh` 只传一个参数，仍按全部 GPU 算，再取它那张 GPU 的那一项（这个 recipe 里 `CUDA_VISIBLE_DEVICES` 指的是容器用哪一张 GPU，所以 `gpu_rows` 不能自己读这个变量）。
+
+测试：脚本 `tests/accel_auto_config_dev/run_socket_tests.sh`，结果目录 `tests/accel_auto_config_dev/results/socket_20261127_094744`（09:47–09:54 UTC，6000d，每个用例跑 1 次）。
+
+步骤 1，`setvars.sh` 分出的 CPU 和 DSA（容器里只 source、不校准，TP=4，全部通过）：
+
+| 用例 | `CUDA_VISIBLE_DEVICES` | 分到的 CPU | 分到的 DSA 工作队列 | CPU 所在 socket | DSA 所在 socket |
+|---|---|---|---|---|---|
+| 1a | 不设 | 0-15, 16-31, 32-47, 48-63 | wq0.0, wq2.0, wq4.0, wq6.0 | 0 0 0 0 | 0 0 0 0 |
+| 1b | 0,2,4,6 | 0-31, 32-63, 64-95, 96-127 | wq0.0, wq2.0, wq8.0, wq10.0 | 0 0 1 1 | 0 0 1 1 |
+| 1c | 4,5,6,7 | 64-79, 80-95, 96-111, 112-127 | wq8.0, wq10.0, wq12.0, wq14.0 | 1 1 1 1 | 1 1 1 1 |
+| 1d | GPU 4–7 的 UUID | 同 1c | 同 1c | 1 1 1 1 | 1 1 1 1 |
+| 1e | 0,1,2,99 | setvars.sh 返回 1：`TP_SIZE=4 requires 4 GPUs, but only 3 were found among 0,1,2,99` | | | |
+
+列说明：
+- **分到的 CPU**：`VLLM_CPU_OMP_THREADS_BIND`，按 rank 0、1、2、3 顺序（原值用竖线分隔）。
+- **分到的 DSA 工作队列**：`KVSHRINK_DSA_DEVICES`，顺序同上。
+- **CPU 所在 socket、DSA 所在 socket**：`binding_sockets.py` 查 sysfs 得到的每个 rank 的 socket，顺序同上。
+- 1b 每个 rank 32 个 CPU：每个 NUMA 节点只有 2 个 rank，`cpu_auto_detect` 把节点的 CPU 平分给它们。
+
+步骤 2，容器里 `source setvars.sh` 并校准（全部通过）：
+
+| 用例 | `CUDA_VISIBLE_DEVICES` | `source setvars.sh` 用时 ms | `accel_auto_config` 用时 s | DSA 用时 s | 测了几个 rank | 用到的 DSA 工作队列 | 分界值 H2D / D2H |
+|---|---|---|---|---|---|---|---|
+| 2a TP=4 | 0,1,2,3 | 4475 | 3.6 | 2.4 | 4 of 4 workers (socket 0) | wq0.0 wq2.0 wq4.0 wq6.0 | 128 / 128 KB |
+| 2b TP=8 | 0–7 | 5227 | 4.3 | 3.1 | 4 of 8 workers (socket 0) | wq0.0 wq2.0 wq4.0 wq6.0 | 128 / 128 KB |
+| 2c TP=4 | 0,2,4,6 | 3909 | 3.1 | 1.8 | 2 of 4 workers (socket 0) | wq0.0 wq2.0 | 384 / 128 KB |
+| 2d TP=4 | 4,5,6,7 | 5697 | 4.8 | 3.5 | 4 of 4 workers (socket 1) | wq8.0 wq10.0 wq12.0 wq14.0 | 128 / 128 KB |
+
+列说明：
+- **`accel_auto_config` 用时**：`[accel_auto_config] done in` 那一行，含加载 PyTorch、DSA、QAT。
+- **DSA 用时**：DSA 总结行里的秒数。
+- **测了几个 rank**：DSA 总结行原文，N 个 rank 里和 rank 0 同 socket、真正去测的个数。
+- **用到的 DSA 工作队列**：测量进程实际打开的工作队列。
+- TP=8 从 7.2 的 6.6 s 降到 4.3 s（各 1 次）。
+
+出错用例（都返回 1，没有残留进程）：
+- 2e，GPU 4–7 但 `KVSHRINK_DSA_DEVICES=wq0.0|wq2.0|wq4.0|wq6.0`：`rank0: GPU 4 is on socket 1 but DSA wq0.0 is on socket 0; fix KVSHRINK_DSA_DEVICES`，没有 fork 测量进程。
+- 2f，rank 3 的 CPU 设成不存在的 9000-9015：`dsa_rank3 exited with code 1`。
+- 2g，rank 3 的 DSA 设成不存在的 wq99.0：`rank3: DSA work queue wq99.0 of KVSHRINK_DSA_DEVICES does not exist`。
+
+步骤 3，宿主机上 `IAXL_RECIPE=qat-standalone`，`CUDA_VISIBLE_DEVICES=2` 和 `5`：两次都在 recipe 检查 QAT 时退出（`QAT PF 0000:01:00.0 has no VF -3 bound to vfio-pci`）。这个 recipe 要求宿主机的 QAT 物理设备先建好虚拟设备并绑到 `vfio-pci`，这台机器 `sriov_numvfs=0`，环境不支持，和这次改动无关。退出之前 recipe 已按全部 8 张 GPU 算出 CPU 和 DSA，日志里 rank 2 是 CPU 32-47、wq4.0，rank 5 是 CPU 80-95、wq10.0，和改之前一样（实测）；最终取出的值因为中途退出没打印（推算同上）。
+
+步骤 4：
+- `run_tests.sh` 的三个 benchmark 全部通过；kvstore（1 个 rank）`1 of 1 workers (socket 0)`，分界值 384 / 128 KB，DSA 1.2 s。
+- vLLM 端到端（Qwen3.8-27B，TP=4，块 784 KB，3 轮）：4a GPU 0–3、4b GPU 4–7。两次都是 CPU 和 DSA 落在 GPU 所在 socket（4a socket 0：0-15…48-63、wq0.0–wq6.0；4b socket 1：64-79…112-127、wq8.0–wq14.0），分界值 128 / 128 KB，段大小 512 KB，第 3 轮全部命中，回答全对。`accel_auto_config` 用时 4a 4.8 s、4b 4.4 s。4a 有一个 Traceback，出现在 09:51:25 测试脚本发 SIGTERM 停 vLLM 之后（`serve.log` 第 503 行 `shutdown triggered` 之后），是 API server 报 `EngineDeadError`，和 7.2 的 3b 一样，按用户 11-27 的决定不管。
+

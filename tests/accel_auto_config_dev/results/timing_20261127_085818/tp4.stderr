@@ -1,0 +1,445 @@
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink QAT rank 0: indices=0,1 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0)
+KVShrink QAT rank 1: indices=2,3 devices=0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 2: indices=4,5 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1)
+KVShrink QAT rank 3: indices=6,7 devices=0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+[timing]   0.0008 main step start
+[timing]   0.9373 main step import_torch
+[timing]   0.9388 main step fork_dsa_workers
+[timing]   0.9497 dsa_rank0 step forked
+[timing]   0.9572 dsa_rank1 step forked
+[timing]   0.9621 dsa_rank2 step forked
+[timing]   0.9663 dsa_rank3 step forked
+[timing]   0.9753 dsa_rank0 step import_iaxl_affinity
+[timing]   0.9755 dsa_rank0 step bind_cpu_and_dsa
+[timing]   0.9813 dsa_rank1 step import_iaxl_affinity
+[timing]   0.9815 dsa_rank1 step bind_cpu_and_dsa
+[timing]   0.9895 dsa_rank2 step import_iaxl_affinity
+[timing]   0.9896 dsa_rank2 step bind_cpu_and_dsa
+[timing]   0.9920 dsa_rank3 step import_iaxl_affinity
+[timing]   0.9921 dsa_rank3 step bind_cpu_and_dsa
+[timing]   3.0930 dsa_rank3 step pinned_host_alloc_with_cuda_init
+[timing]   3.0938 dsa_rank1 step pinned_host_alloc_with_cuda_init
+[timing]   3.0958 dsa_rank0 step pinned_host_alloc_with_cuda_init
+[timing]   3.0964 dsa_rank2 step pinned_host_alloc_with_cuda_init
+[timing]   3.1027 dsa_rank3 step gpu_alloc_and_stream
+[timing]   3.1028 dsa_rank3 measure_start H2D 4096
+[timing]   3.1037 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.1041 dsa_rank1 step gpu_alloc_and_stream
+[timing]   3.1043 dsa_rank1 measure_start H2D 4096
+[timing]   3.1045 dsa_rank0 step gpu_alloc_and_stream
+[timing]   3.1046 dsa_rank0 measure_start H2D 4096
+[timing]   3.1046 dsa_rank2 step gpu_alloc_and_stream
+[timing]   3.1047 dsa_rank2 measure_start H2D 4096
+[timing]   3.1051 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.1053 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.1054 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.1222 dsa_rank1 measure cuda_batch_copies
+[timing]   3.1222 dsa_rank0 measure cuda_batch_copies
+[timing]   3.1222 dsa_rank3 measure cuda_batch_copies
+[timing]   3.1222 dsa_rank2 measure cuda_batch_copies
+[timing]   3.1228 dsa_rank2 measure slice_copier_register
+[timing]   3.1229 dsa_rank0 measure slice_copier_register
+[timing]   3.1229 dsa_rank3 measure slice_copier_register
+[timing]   3.1230 dsa_rank1 measure slice_copier_register
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq4.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq0.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq2.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq6.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+[timing]   3.1415 dsa_rank1 measure dsa_copies
+[timing]   3.1415 dsa_rank0 measure dsa_copies
+[timing]   3.1416 dsa_rank2 measure dsa_copies
+[timing]   3.1416 dsa_rank3 measure dsa_copies
+[timing]   3.1418 dsa_rank1 measure slice_copier_close
+[timing]   3.1418 dsa_rank1 wait 0.0207 start_together_total 4096 KB H2D
+[timing]   3.1418 dsa_rank0 measure slice_copier_close
+[timing]   3.1418 dsa_rank0 wait 0.0208 start_together_total 4096 KB H2D
+[timing]   3.1419 dsa_rank2 measure slice_copier_close
+[timing]   3.1419 dsa_rank2 wait 0.0212 start_together_total 4096 KB H2D
+[timing]   3.1419 dsa_rank3 measure slice_copier_close
+[timing]   3.1419 dsa_rank3 wait 0.0221 start_together_total 4096 KB H2D
+[timing]   3.1427 main result 4096 KB cuda_batch 110.4 dsa 88.6 GB/s summed
+[timing]   3.1428 dsa_rank2 measure_start H2D 2048
+[timing]   3.1429 dsa_rank0 measure_start H2D 2048
+[timing]   3.1429 dsa_rank3 measure_start H2D 2048
+[timing]   3.1430 dsa_rank1 measure_start H2D 2048
+[timing]   3.1430 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.1431 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.1431 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.1432 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.1596 dsa_rank3 measure cuda_batch_copies
+[timing]   3.1596 dsa_rank2 measure cuda_batch_copies
+[timing]   3.1596 dsa_rank0 measure cuda_batch_copies
+[timing]   3.1596 dsa_rank1 measure cuda_batch_copies
+[timing]   3.1599 dsa_rank3 measure slice_copier_register
+[timing]   3.1599 dsa_rank2 measure slice_copier_register
+[timing]   3.1600 dsa_rank1 measure slice_copier_register
+[timing]   3.1600 dsa_rank0 measure slice_copier_register
+[timing]   3.1778 dsa_rank1 measure dsa_copies
+[timing]   3.1778 dsa_rank0 measure dsa_copies
+[timing]   3.1778 dsa_rank3 measure dsa_copies
+[timing]   3.1778 dsa_rank2 measure dsa_copies
+[timing]   3.1780 dsa_rank1 measure slice_copier_close
+[timing]   3.1780 dsa_rank1 wait 0.0203 start_together_total 2048 KB H2D
+[timing]   3.1780 dsa_rank0 measure slice_copier_close
+[timing]   3.1781 dsa_rank0 wait 0.0204 start_together_total 2048 KB H2D
+[timing]   3.1781 dsa_rank2 measure slice_copier_close
+[timing]   3.1781 dsa_rank2 wait 0.0205 start_together_total 2048 KB H2D
+[timing]   3.1781 dsa_rank3 measure slice_copier_close
+[timing]   3.1781 dsa_rank3 wait 0.0205 start_together_total 2048 KB H2D
+[timing]   3.1782 main result 2048 KB cuda_batch 109.0 dsa 88.2 GB/s summed
+[timing]   3.1782 dsa_rank0 measure_start H2D 1024
+[timing]   3.1783 dsa_rank1 measure_start H2D 1024
+[timing]   3.1783 dsa_rank2 measure_start H2D 1024
+[timing]   3.1783 dsa_rank3 measure_start H2D 1024
+[timing]   3.1785 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.1785 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.1785 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.1786 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.1951 dsa_rank0 measure cuda_batch_copies
+[timing]   3.1951 dsa_rank1 measure cuda_batch_copies
+[timing]   3.1951 dsa_rank3 measure cuda_batch_copies
+[timing]   3.1951 dsa_rank2 measure cuda_batch_copies
+[timing]   3.1953 dsa_rank0 measure slice_copier_register
+[timing]   3.1954 dsa_rank1 measure slice_copier_register
+[timing]   3.1954 dsa_rank3 measure slice_copier_register
+[timing]   3.1955 dsa_rank2 measure slice_copier_register
+[timing]   3.2132 dsa_rank1 measure dsa_copies
+[timing]   3.2132 dsa_rank0 measure dsa_copies
+[timing]   3.2133 dsa_rank2 measure dsa_copies
+[timing]   3.2133 dsa_rank3 measure dsa_copies
+[timing]   3.2134 dsa_rank1 measure slice_copier_close
+[timing]   3.2134 dsa_rank1 wait 0.0205 start_together_total 1024 KB H2D
+[timing]   3.2135 dsa_rank0 measure slice_copier_close
+[timing]   3.2135 dsa_rank0 wait 0.0206 start_together_total 1024 KB H2D
+[timing]   3.2135 dsa_rank2 measure slice_copier_close
+[timing]   3.2135 dsa_rank2 wait 0.0204 start_together_total 1024 KB H2D
+[timing]   3.2135 dsa_rank3 measure slice_copier_close
+[timing]   3.2135 dsa_rank3 wait 0.0204 start_together_total 1024 KB H2D
+[timing]   3.2136 main result 1024 KB cuda_batch 109.9 dsa 88.3 GB/s summed
+[timing]   3.2136 dsa_rank3 measure_start H2D 512
+[timing]   3.2137 dsa_rank1 measure_start H2D 512
+[timing]   3.2137 dsa_rank2 measure_start H2D 512
+[timing]   3.2137 dsa_rank0 measure_start H2D 512
+[timing]   3.2141 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.2142 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.2142 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.2142 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.2307 dsa_rank3 measure cuda_batch_copies
+[timing]   3.2307 dsa_rank2 measure cuda_batch_copies
+[timing]   3.2307 dsa_rank1 measure cuda_batch_copies
+[timing]   3.2307 dsa_rank0 measure cuda_batch_copies
+[timing]   3.2309 dsa_rank2 measure slice_copier_register
+[timing]   3.2310 dsa_rank3 measure slice_copier_register
+[timing]   3.2310 dsa_rank1 measure slice_copier_register
+[timing]   3.2311 dsa_rank0 measure slice_copier_register
+[timing]   3.2489 dsa_rank0 measure dsa_copies
+[timing]   3.2489 dsa_rank1 measure dsa_copies
+[timing]   3.2489 dsa_rank3 measure dsa_copies
+[timing]   3.2489 dsa_rank2 measure dsa_copies
+[timing]   3.2491 dsa_rank1 measure slice_copier_close
+[timing]   3.2491 dsa_rank1 wait 0.0204 start_together_total 512 KB H2D
+[timing]   3.2491 dsa_rank0 measure slice_copier_close
+[timing]   3.2491 dsa_rank0 wait 0.0203 start_together_total 512 KB H2D
+[timing]   3.2491 dsa_rank2 measure slice_copier_close
+[timing]   3.2491 dsa_rank2 wait 0.0204 start_together_total 512 KB H2D
+[timing]   3.2491 dsa_rank3 measure slice_copier_close
+[timing]   3.2492 dsa_rank3 wait 0.0203 start_together_total 512 KB H2D
+[timing]   3.2492 main result 512 KB cuda_batch 107.8 dsa 88.1 GB/s summed
+[timing]   3.2493 dsa_rank3 measure_start H2D 256
+[timing]   3.2493 dsa_rank1 measure_start H2D 256
+[timing]   3.2493 dsa_rank0 measure_start H2D 256
+[timing]   3.2493 dsa_rank2 measure_start H2D 256
+[timing]   3.2501 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.2501 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.2501 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.2501 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.2669 dsa_rank3 measure cuda_batch_copies
+[timing]   3.2669 dsa_rank2 measure cuda_batch_copies
+[timing]   3.2670 dsa_rank0 measure cuda_batch_copies
+[timing]   3.2670 dsa_rank1 measure cuda_batch_copies
+[timing]   3.2671 dsa_rank3 measure slice_copier_register
+[timing]   3.2671 dsa_rank2 measure slice_copier_register
+[timing]   3.2672 dsa_rank1 measure slice_copier_register
+[timing]   3.2673 dsa_rank0 measure slice_copier_register
+[timing]   3.2851 dsa_rank1 measure dsa_copies
+[timing]   3.2851 dsa_rank0 measure dsa_copies
+[timing]   3.2851 dsa_rank3 measure dsa_copies
+[timing]   3.2851 dsa_rank2 measure dsa_copies
+[timing]   3.2852 dsa_rank1 measure slice_copier_close
+[timing]   3.2852 dsa_rank1 wait 0.0204 start_together_total 256 KB H2D
+[timing]   3.2853 dsa_rank0 measure slice_copier_close
+[timing]   3.2853 dsa_rank0 wait 0.0203 start_together_total 256 KB H2D
+[timing]   3.2853 dsa_rank3 measure slice_copier_close
+[timing]   3.2853 dsa_rank3 wait 0.0207 start_together_total 256 KB H2D
+[timing]   3.2853 dsa_rank2 measure slice_copier_close
+[timing]   3.2853 dsa_rank2 wait 0.0206 start_together_total 256 KB H2D
+[timing]   3.2854 main result 256 KB cuda_batch 106.3 dsa 88.1 GB/s summed
+[timing]   3.2855 dsa_rank3 measure_start H2D 128
+[timing]   3.2855 dsa_rank1 measure_start H2D 128
+[timing]   3.2855 dsa_rank0 measure_start H2D 128
+[timing]   3.2856 dsa_rank2 measure_start H2D 128
+[timing]   3.2870 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.2870 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.2870 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.2870 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.3040 dsa_rank3 measure cuda_batch_copies
+[timing]   3.3040 dsa_rank2 measure cuda_batch_copies
+[timing]   3.3040 dsa_rank0 measure cuda_batch_copies
+[timing]   3.3040 dsa_rank1 measure cuda_batch_copies
+[timing]   3.3042 dsa_rank3 measure slice_copier_register
+[timing]   3.3043 dsa_rank2 measure slice_copier_register
+[timing]   3.3043 dsa_rank0 measure slice_copier_register
+[timing]   3.3044 dsa_rank1 measure slice_copier_register
+[timing]   3.3222 dsa_rank0 measure dsa_copies
+[timing]   3.3222 dsa_rank1 measure dsa_copies
+[timing]   3.3222 dsa_rank3 measure dsa_copies
+[timing]   3.3222 dsa_rank2 measure dsa_copies
+[timing]   3.3224 dsa_rank0 measure slice_copier_close
+[timing]   3.3224 dsa_rank0 wait 0.0208 start_together_total 128 KB H2D
+[timing]   3.3224 dsa_rank1 measure slice_copier_close
+[timing]   3.3224 dsa_rank1 wait 0.0208 start_together_total 128 KB H2D
+[timing]   3.3225 dsa_rank3 measure slice_copier_close
+[timing]   3.3225 dsa_rank3 wait 0.0205 start_together_total 128 KB H2D
+[timing]   3.3225 dsa_rank2 measure slice_copier_close
+[timing]   3.3225 dsa_rank2 wait 0.0204 start_together_total 128 KB H2D
+[timing]   3.3226 main result 128 KB cuda_batch 108.1 dsa 88.0 GB/s summed
+[timing]   3.3227 dsa_rank0 measure_start D2H 4096
+[timing]   3.3227 dsa_rank3 measure_start D2H 4096
+[timing]   3.3227 dsa_rank1 measure_start D2H 4096
+[timing]   3.3228 dsa_rank2 measure_start D2H 4096
+[timing]   3.3228 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.3228 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.3229 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.3229 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.3390 dsa_rank3 measure cuda_batch_copies
+[timing]   3.3390 dsa_rank1 measure cuda_batch_copies
+[timing]   3.3390 dsa_rank0 measure cuda_batch_copies
+[timing]   3.3390 dsa_rank2 measure cuda_batch_copies
+[timing]   3.3393 dsa_rank3 measure slice_copier_register
+[timing]   3.3394 dsa_rank2 measure slice_copier_register
+[timing]   3.3394 dsa_rank0 measure slice_copier_register
+[timing]   3.3394 dsa_rank1 measure slice_copier_register
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[timing]   3.3569 dsa_rank1 measure dsa_copies
+[timing]   3.3569 dsa_rank0 measure dsa_copies
+[timing]   3.3569 dsa_rank2 measure dsa_copies
+[timing]   3.3569 dsa_rank3 measure dsa_copies
+[timing]   3.3571 dsa_rank1 measure slice_copier_close
+[timing]   3.3571 dsa_rank1 wait 0.0204 start_together_total 4096 KB D2H
+[timing]   3.3572 dsa_rank0 measure slice_copier_close
+[timing]   3.3572 dsa_rank0 wait 0.0205 start_together_total 4096 KB D2H
+[timing]   3.3572 dsa_rank3 measure slice_copier_close
+[timing]   3.3572 dsa_rank3 wait 0.0204 start_together_total 4096 KB D2H
+[timing]   3.3572 dsa_rank2 measure slice_copier_close
+[timing]   3.3572 dsa_rank2 wait 0.0203 start_together_total 4096 KB D2H
+[timing]   3.3573 main result 4096 KB cuda_batch 115.0 dsa 92.5 GB/s summed
+[timing]   3.3573 dsa_rank0 measure_start D2H 2048
+[timing]   3.3573 dsa_rank2 measure_start D2H 2048
+[timing]   3.3573 dsa_rank1 measure_start D2H 2048
+[timing]   3.3574 dsa_rank3 measure_start D2H 2048
+[timing]   3.3575 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.3575 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.3575 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.3575 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.3736 dsa_rank3 measure cuda_batch_copies
+[timing]   3.3736 dsa_rank1 measure cuda_batch_copies
+[timing]   3.3736 dsa_rank0 measure cuda_batch_copies
+[timing]   3.3736 dsa_rank2 measure cuda_batch_copies
+[timing]   3.3738 dsa_rank1 measure slice_copier_register
+[timing]   3.3738 dsa_rank3 measure slice_copier_register
+[timing]   3.3739 dsa_rank0 measure slice_copier_register
+[timing]   3.3739 dsa_rank2 measure slice_copier_register
+[timing]   3.3914 dsa_rank0 measure dsa_copies
+[timing]   3.3914 dsa_rank1 measure dsa_copies
+[timing]   3.3915 dsa_rank3 measure dsa_copies
+[timing]   3.3915 dsa_rank2 measure dsa_copies
+[timing]   3.3916 dsa_rank1 measure slice_copier_close
+[timing]   3.3916 dsa_rank1 wait 0.0205 start_together_total 2048 KB D2H
+[timing]   3.3917 dsa_rank0 measure slice_copier_close
+[timing]   3.3917 dsa_rank0 wait 0.0204 start_together_total 2048 KB D2H
+[timing]   3.3917 dsa_rank3 measure slice_copier_close
+[timing]   3.3917 dsa_rank3 wait 0.0203 start_together_total 2048 KB D2H
+[timing]   3.3917 dsa_rank2 measure slice_copier_close
+[timing]   3.3917 dsa_rank2 wait 0.0203 start_together_total 2048 KB D2H
+[timing]   3.3918 main result 2048 KB cuda_batch 115.3 dsa 92.5 GB/s summed
+[timing]   3.3918 dsa_rank0 measure_start D2H 1024
+[timing]   3.3918 dsa_rank2 measure_start D2H 1024
+[timing]   3.3918 dsa_rank1 measure_start D2H 1024
+[timing]   3.3919 dsa_rank3 measure_start D2H 1024
+[timing]   3.3920 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.3921 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.3921 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.3921 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.4081 dsa_rank0 measure cuda_batch_copies
+[timing]   3.4081 dsa_rank3 measure cuda_batch_copies
+[timing]   3.4081 dsa_rank1 measure cuda_batch_copies
+[timing]   3.4081 dsa_rank2 measure cuda_batch_copies
+[timing]   3.4083 dsa_rank0 measure slice_copier_register
+[timing]   3.4084 dsa_rank1 measure slice_copier_register
+[timing]   3.4084 dsa_rank3 measure slice_copier_register
+[timing]   3.4085 dsa_rank2 measure slice_copier_register
+[timing]   3.4259 dsa_rank1 measure dsa_copies
+[timing]   3.4259 dsa_rank0 measure dsa_copies
+[timing]   3.4259 dsa_rank3 measure dsa_copies
+[timing]   3.4259 dsa_rank2 measure dsa_copies
+[timing]   3.4261 dsa_rank1 measure slice_copier_close
+[timing]   3.4261 dsa_rank1 wait 0.0204 start_together_total 1024 KB D2H
+[timing]   3.4261 dsa_rank0 measure slice_copier_close
+[timing]   3.4261 dsa_rank0 wait 0.0204 start_together_total 1024 KB D2H
+[timing]   3.4261 dsa_rank3 measure slice_copier_close
+[timing]   3.4261 dsa_rank3 wait 0.0203 start_together_total 1024 KB D2H
+[timing]   3.4261 dsa_rank2 measure slice_copier_close
+[timing]   3.4262 dsa_rank2 wait 0.0202 start_together_total 1024 KB D2H
+[timing]   3.4262 main result 1024 KB cuda_batch 115.0 dsa 92.9 GB/s summed
+[timing]   3.4263 dsa_rank0 measure_start D2H 512
+[timing]   3.4263 dsa_rank2 measure_start D2H 512
+[timing]   3.4263 dsa_rank1 measure_start D2H 512
+[timing]   3.4263 dsa_rank3 measure_start D2H 512
+[timing]   3.4266 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.4267 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.4267 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.4267 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.4427 dsa_rank3 measure cuda_batch_copies
+[timing]   3.4427 dsa_rank1 measure cuda_batch_copies
+[timing]   3.4427 dsa_rank0 measure cuda_batch_copies
+[timing]   3.4427 dsa_rank2 measure cuda_batch_copies
+[timing]   3.4430 dsa_rank1 measure slice_copier_register
+[timing]   3.4430 dsa_rank0 measure slice_copier_register
+[timing]   3.4430 dsa_rank3 measure slice_copier_register
+[timing]   3.4431 dsa_rank2 measure slice_copier_register
+[timing]   3.4606 dsa_rank0 measure dsa_copies
+[timing]   3.4606 dsa_rank1 measure dsa_copies
+[timing]   3.4606 dsa_rank2 measure dsa_copies
+[timing]   3.4606 dsa_rank3 measure dsa_copies
+[timing]   3.4608 dsa_rank0 measure slice_copier_close
+[timing]   3.4608 dsa_rank0 wait 0.0205 start_together_total 512 KB D2H
+[timing]   3.4608 dsa_rank1 measure slice_copier_close
+[timing]   3.4608 dsa_rank1 wait 0.0205 start_together_total 512 KB D2H
+[timing]   3.4608 dsa_rank3 measure slice_copier_close
+[timing]   3.4608 dsa_rank3 wait 0.0203 start_together_total 512 KB D2H
+[timing]   3.4608 dsa_rank2 measure slice_copier_close
+[timing]   3.4608 dsa_rank2 wait 0.0202 start_together_total 512 KB D2H
+[timing]   3.4609 main result 512 KB cuda_batch 114.9 dsa 92.0 GB/s summed
+[timing]   3.4610 dsa_rank1 measure_start D2H 256
+[timing]   3.4610 dsa_rank0 measure_start D2H 256
+[timing]   3.4610 dsa_rank3 measure_start D2H 256
+[timing]   3.4611 dsa_rank2 measure_start D2H 256
+[timing]   3.4617 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.4617 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.4618 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.4618 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.4779 dsa_rank3 measure cuda_batch_copies
+[timing]   3.4779 dsa_rank2 measure cuda_batch_copies
+[timing]   3.4779 dsa_rank0 measure cuda_batch_copies
+[timing]   3.4779 dsa_rank1 measure cuda_batch_copies
+[timing]   3.4781 dsa_rank3 measure slice_copier_register
+[timing]   3.4781 dsa_rank0 measure slice_copier_register
+[timing]   3.4782 dsa_rank2 measure slice_copier_register
+[timing]   3.4782 dsa_rank1 measure slice_copier_register
+[timing]   3.4957 dsa_rank1 measure dsa_copies
+[timing]   3.4957 dsa_rank0 measure dsa_copies
+[timing]   3.4957 dsa_rank2 measure dsa_copies
+[timing]   3.4957 dsa_rank3 measure dsa_copies
+[timing]   3.4959 dsa_rank1 measure slice_copier_close
+[timing]   3.4959 dsa_rank1 wait 0.0205 start_together_total 256 KB D2H
+[timing]   3.4959 dsa_rank0 measure slice_copier_close
+[timing]   3.4959 dsa_rank0 wait 0.0205 start_together_total 256 KB D2H
+[timing]   3.4960 dsa_rank3 measure slice_copier_close
+[timing]   3.4960 dsa_rank3 wait 0.0204 start_together_total 256 KB D2H
+[timing]   3.4960 dsa_rank2 measure slice_copier_close
+[timing]   3.4960 dsa_rank2 wait 0.0203 start_together_total 256 KB D2H
+[timing]   3.4961 main result 256 KB cuda_batch 114.6 dsa 92.4 GB/s summed
+[timing]   3.4961 dsa_rank3 measure_start D2H 128
+[timing]   3.4961 dsa_rank2 measure_start D2H 128
+[timing]   3.4962 dsa_rank1 measure_start D2H 128
+[timing]   3.4962 dsa_rank0 measure_start D2H 128
+[timing]   3.4978 dsa_rank2 measure build_cuda_batch_operations
+[timing]   3.4980 dsa_rank3 measure build_cuda_batch_operations
+[timing]   3.4980 dsa_rank0 measure build_cuda_batch_operations
+[timing]   3.4980 dsa_rank1 measure build_cuda_batch_operations
+[timing]   3.5142 dsa_rank0 measure cuda_batch_copies
+[timing]   3.5142 dsa_rank1 measure cuda_batch_copies
+[timing]   3.5142 dsa_rank3 measure cuda_batch_copies
+[timing]   3.5142 dsa_rank2 measure cuda_batch_copies
+[timing]   3.5145 dsa_rank1 measure slice_copier_register
+[timing]   3.5146 dsa_rank0 measure slice_copier_register
+[timing]   3.5146 dsa_rank2 measure slice_copier_register
+[timing]   3.5147 dsa_rank3 measure slice_copier_register
+[timing]   3.5322 dsa_rank1 measure dsa_copies
+[timing]   3.5322 dsa_rank0 measure dsa_copies
+[timing]   3.5322 dsa_rank3 measure dsa_copies
+[timing]   3.5322 dsa_rank2 measure dsa_copies
+[timing]   3.5324 dsa_rank1 measure slice_copier_close
+[timing]   3.5324 dsa_rank1 wait 0.0205 start_together_total 128 KB D2H
+[timing]   3.5324 dsa_rank0 measure slice_copier_close
+[timing]   3.5324 dsa_rank0 wait 0.0204 start_together_total 128 KB D2H
+[timing]   3.5324 dsa_rank3 measure slice_copier_close
+[timing]   3.5325 dsa_rank3 wait 0.0202 start_together_total 128 KB D2H
+[timing]   3.5325 dsa_rank2 measure slice_copier_close
+[timing]   3.5325 dsa_rank2 wait 0.0204 start_together_total 128 KB D2H
+[timing]   3.5326 main result 128 KB cuda_batch 113.1 dsa 91.8 GB/s summed
+[timing]   3.5326 dsa_rank0 step worker_done
+[timing]   3.5327 dsa_rank3 step worker_done
+[timing]   3.5327 dsa_rank2 step worker_done
+[timing]   3.5327 dsa_rank1 step worker_done
+[timing]   3.8419 main step dsa_workers_joined
+[accel_auto_config] DSA crossover H2D 128 KB, D2H 128 KB (0 = DSA faster up to 4096 KB), 4 workers, 2.9 s
+[timing]   3.8429 main step fork_qat_worker
+[timing]   3.8487 qat step forked
+[timing]   3.8750 qat step import_and_bind
+[timing]   3.9259 qat step mock_data_on_cpu
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON profile=disabled
+[kv_zip] block_size=32768 B segment_size=32768 B segments=1
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=0,1
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[0] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[1] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[2] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[3] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[4] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[5] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[6] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[select] instance[7] on device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+[qat_zip] init done: 8 instance(s) on devices=0,1  cnv_strict=0
+[timing]   4.0909 qat step segment_32KB
+[timing]   4.0976 qat step segment_64KB
+[timing]   4.1033 qat step segment_128KB
+[timing]   4.1089 qat step segment_256KB
+[timing]   4.1204 qat step segment_512KB
+[timing]   4.1401 qat step segment_1024KB
+[timing]   4.2208 main step qat_worker_joined
+[accel_auto_config] QAT segment sizes by decompress GB/s: 1024 KB 19.6, 512 KB 19.3, 256 KB 18.9, 128 KB 18.0, 64 KB 16.7, 32 KB 14.0, 0.4 s
+[timing]   4.2210 main step done
+[accel_auto_config] done in 4.2 s
+[timing-wall] python exit 0 wall_ms 4568

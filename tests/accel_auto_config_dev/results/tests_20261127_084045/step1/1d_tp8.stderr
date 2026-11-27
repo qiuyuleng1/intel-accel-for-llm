@@ -1,0 +1,84 @@
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-15
+KVShrink CPU rank 1: GPU=1 PCI=00000000:3A:00.0 NUMA=0 CPUs=16-31
+KVShrink CPU rank 2: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-47
+KVShrink CPU rank 3: GPU=3 PCI=00000000:49:00.0 NUMA=0 CPUs=48-63
+KVShrink CPU rank 4: GPU=4 PCI=00000000:B8:00.0 NUMA=1 CPUs=64-79
+KVShrink CPU rank 5: GPU=5 PCI=00000000:B9:00.0 NUMA=1 CPUs=80-95
+KVShrink CPU rank 6: GPU=6 PCI=00000000:C8:00.0 NUMA=1 CPUs=96-111
+KVShrink CPU rank 7: GPU=7 PCI=00000000:C9:00.0 NUMA=1 CPUs=112-127
+KVShrink QAT rank 0: indices=0 devices=0000:01:00.0(numa=0)
+KVShrink QAT rank 1: indices=1 devices=0000:06:00.0(numa=0)
+KVShrink QAT rank 2: indices=2 devices=0000:0b:00.0(numa=0)
+KVShrink QAT rank 3: indices=3 devices=0000:10:00.0(numa=0)
+KVShrink QAT rank 4: indices=4 devices=0000:81:00.0(numa=1)
+KVShrink QAT rank 5: indices=5 devices=0000:86:00.0(numa=1)
+KVShrink QAT rank 6: indices=6 devices=0000:8b:00.0(numa=1)
+KVShrink QAT rank 7: indices=7 devices=0000:90:00.0(numa=1)
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=1 pci=00000000:3A:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 2: DSA=dsa4 WQ=wq4.0
+KVShrink GPU rank 3: index=3 pci=00000000:49:00.0 numa=0
+KVShrink GPU rank 3: DSA=dsa6 WQ=wq6.0
+KVShrink GPU rank 4: index=4 pci=00000000:B8:00.0 numa=1
+KVShrink GPU rank 4: DSA=dsa8 WQ=wq8.0
+KVShrink GPU rank 5: index=5 pci=00000000:B9:00.0 numa=1
+KVShrink GPU rank 5: DSA=dsa10 WQ=wq10.0
+KVShrink GPU rank 6: index=6 pci=00000000:C8:00.0 numa=1
+KVShrink GPU rank 6: DSA=dsa12 WQ=wq12.0
+KVShrink GPU rank 7: index=7 pci=00000000:C9:00.0 numa=1
+KVShrink GPU rank 7: DSA=dsa14 WQ=wq14.0
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+[kv_xfer] copy_chunks_batch: contiguous block size = 4096.00 KB, blocks = 8
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq4.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq0.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq6.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq2.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq12.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq10.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq14.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+dsa_init: mapped 1 WQ(s) from $IAXL_DSA_WQS (first wq8.0), max_transfer_size=2147483648, max_batch_size=1024
+[kv_xfer] copy_chunks_batch H2D: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[kv_xfer] copy_chunks_batch D2H: using Intel DSA backend
+[accel_auto_config] DSA crossover H2D 128 KB, D2H 128 KB (0 = DSA faster up to 4096 KB), 8 workers, 5.4 s
+[iaxl] config: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4 use_omp=ON cpus=256 compression=ON zip_level=1 data_shuffle=ON exponent_only=ON lossy_trunc=0 dsa_gd=ON profile=disabled
+[kv_zip] block_size=32768 B segment_size=32768 B segments=1
+[config] instances/device=4  src_cap=4194304 B  dst_cap=4194304 B  queue_depth=4  devices=0
+[discovery] found 64 QAT instance(s)
+  device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+  device[1]: PCIe bus=0x06  accel_id=1  NUMA=0
+  device[2]: PCIe bus=0x0b  accel_id=2  NUMA=0
+  device[3]: PCIe bus=0x10  accel_id=3  NUMA=0
+  device[4]: PCIe bus=0x81  accel_id=4  NUMA=1
+  device[5]: PCIe bus=0x86  accel_id=5  NUMA=1
+  device[6]: PCIe bus=0x8b  accel_id=6  NUMA=1
+  device[7]: PCIe bus=0x90  accel_id=7  NUMA=1
+[select] instance[0] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[1] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[2] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[select] instance[3] on device[0]: PCIe bus=0x01  accel_id=0  NUMA=0
+[qat_zip] init done: 4 instance(s) on devices=0  cnv_strict=0
+[accel_auto_config] QAT segment sizes by decompress GB/s: 1024 KB 19.6, 512 KB 19.5, 256 KB 19.1, 128 KB 18.3, 64 KB 16.8, 32 KB 14.0, 0.3 s
+[accel_auto_config] done in 6.6 s

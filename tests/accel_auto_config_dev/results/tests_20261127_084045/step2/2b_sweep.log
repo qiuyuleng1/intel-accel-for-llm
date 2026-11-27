@@ -1,0 +1,9 @@
+Block 2048 KiB, 4 layers, data mock, 1 run(s) per size
+  qat segment 512 KiB ...  qat segment 0 KiB ...                                        qat: qat_zip=ON iaa_zip=OFF cpu_zip=OFF qat_instances=4 iaa_instances=0 cpu_zip_threads=0 omp_threads=4
+
+QAT
+| Segment KiB | Ratio  | Zip GB/s | Unzip GB/s |
+|-------------|--------|----------|------------|
+| 512         | 1.392x |     8.99 |      20.74 |
+| 0 (2048)    | 1.388x |     9.12 |      18.61 |
+

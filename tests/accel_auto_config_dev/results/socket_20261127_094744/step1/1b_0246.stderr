@@ -1,0 +1,16 @@
+KVShrink CPU rank 0: GPU=0 PCI=00000000:38:00.0 NUMA=0 CPUs=0-31
+KVShrink CPU rank 1: GPU=2 PCI=00000000:48:00.0 NUMA=0 CPUs=32-63
+KVShrink CPU rank 2: GPU=4 PCI=00000000:B8:00.0 NUMA=1 CPUs=64-95
+KVShrink CPU rank 3: GPU=6 PCI=00000000:C8:00.0 NUMA=1 CPUs=96-127
+KVShrink QAT rank 0: indices=0,1 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0)
+KVShrink QAT rank 1: indices=2,3 devices=0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 2: indices=4,5 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1)
+KVShrink QAT rank 3: indices=6,7 devices=0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+KVShrink GPU rank 0: index=0 pci=00000000:38:00.0 numa=0
+KVShrink GPU rank 0: DSA=dsa0 WQ=wq0.0
+KVShrink GPU rank 1: index=2 pci=00000000:48:00.0 numa=0
+KVShrink GPU rank 1: DSA=dsa2 WQ=wq2.0
+KVShrink GPU rank 2: index=4 pci=00000000:B8:00.0 numa=1
+KVShrink GPU rank 2: DSA=dsa8 WQ=wq8.0
+KVShrink GPU rank 3: index=6 pci=00000000:C8:00.0 numa=1
+KVShrink GPU rank 3: DSA=dsa10 WQ=wq10.0

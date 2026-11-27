@@ -1,0 +1,10 @@
+WARNING: no usable NVIDIA GPU detected, splitting CPUs evenly across 4 ranks
+KVShrink CPU rank 0: GPU=none CPUs=0-31
+KVShrink CPU rank 1: GPU=none CPUs=32-63
+KVShrink CPU rank 2: GPU=none CPUs=64-95
+KVShrink CPU rank 3: GPU=none CPUs=96-127
+KVShrink QAT rank 0: indices=0,1 devices=0000:01:00.0(numa=0) 0000:06:00.0(numa=0)
+KVShrink QAT rank 1: indices=2,3 devices=0000:0b:00.0(numa=0) 0000:10:00.0(numa=0)
+KVShrink QAT rank 2: indices=4,5 devices=0000:81:00.0(numa=1) 0000:86:00.0(numa=1)
+KVShrink QAT rank 3: indices=6,7 devices=0000:8b:00.0(numa=1) 0000:90:00.0(numa=1)
+ERROR: TP_SIZE=4 requires 4 GPUs, but only 3 were found among 0,1,2,99

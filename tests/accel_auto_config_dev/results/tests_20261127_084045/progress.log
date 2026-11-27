@@ -1,0 +1,29 @@
+[2026-11-27 08:40:45 UTC] start: steps=1 2 3 result_dir=/home/pese/qiuyu/intel-accel-for-llm-1119/tests/accel_auto_config_dev/results/tests_20261127_084045
+[2026-11-27 08:40:45 UTC] step 1 started
+[2026-11-27 08:40:45 UTC] setvars probe 1a_no_in_container (-e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-27 08:40:46 UTC] setvars probe 1b_tp4_run1 (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-27 08:40:52 UTC] setvars probe 1b_tp4_run2 (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-27 08:40:57 UTC] setvars probe 1b_tp4_run3 (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-27 08:41:02 UTC] setvars probe 1d_tp8 (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=8 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-27 08:41:10 UTC] setvars probe 1e_dsa_off (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=0 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-27 08:41:12 UTC] setvars probe 1f_iaa_only (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=0 -e IAXL_QAT_ZIP_ENABLE=0 -e IAXL_IAA_ZIP_ENABLE=1)
+[2026-11-27 08:41:12 UTC] setvars probe 1g_preset (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,3 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0 -e IAXL_DSA_H2D_CROSSOVER_KB=0 -e IAXL_DSA_D2H_CROSSOVER_KB=0 -e IAXL_ZIP_SEGMENT_SIZE_KB=512)
+[2026-11-27 08:41:13 UTC] setvars probe 1h_rank3_fails (-e IAXL_IN_CONTAINER=1 -e TP_SIZE=4 -e DP_SIZE=1 -e CUDA_VISIBLE_DEVICES=0,1,2,99 -e IAXL_KV_COMPRESSION=1 -e IAXL_CPU_ZIP_ENABLE=0 -e IAXL_DSA_GD_ENABLE=1 -e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0)
+[2026-11-27 08:41:25 UTC] step 1 PASS (40s)
+[2026-11-27 08:41:25 UTC] step 2 started
+[2026-11-27 08:41:25 UTC] kvstore_benchmark.sh --qat --dsa
+[2026-11-27 08:41:41 UTC] kvstore_segment_sweep.sh --backends qat --sizes 512
+[2026-11-27 08:42:09 UTC] tensor_xfer_benchmark.sh --ranks 2
+[2026-11-27 08:42:39 UTC] step 2 PASS (74s)
+[2026-11-27 08:42:39 UTC] step 3 started
+[2026-11-27 08:42:40 UTC] starting serve 3a_qat (-e IAXL_QAT_ZIP_ENABLE=1 -e IAXL_IAA_ZIP_ENABLE=0 -e IAXL_CPU_ZIP_ENABLE=0), log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/accel_auto_config_dev/results/tests_20261127_084045/step3/3a_qat/serve.log
+[2026-11-27 08:44:25 UTC] vLLM ready after 105s, sending requests
+[2026-11-27 08:44:36 UTC] stopping vLLM pid 2439243
+[2026-11-27 08:44:41 UTC] starting serve 3b_iaa_only (-e IAXL_QAT_ZIP_ENABLE=0 -e IAXL_IAA_ZIP_ENABLE=1 -e IAXL_CPU_ZIP_ENABLE=0), log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/accel_auto_config_dev/results/tests_20261127_084045/step3/3b_iaa_only/serve.log
+[2026-11-27 08:46:21 UTC] vLLM ready after 100s, sending requests
+[2026-11-27 08:46:32 UTC] stopping vLLM pid 2441658
+[2026-11-27 08:46:38 UTC] starting serve 3c_cpu_zip (-e IAXL_QAT_ZIP_ENABLE=0 -e IAXL_IAA_ZIP_ENABLE=0 -e IAXL_CPU_ZIP_ENABLE=1), log /home/pese/qiuyu/intel-accel-for-llm-1119/tests/accel_auto_config_dev/results/tests_20261127_084045/step3/3c_cpu_zip/serve.log
+[2026-11-27 08:48:23 UTC] vLLM ready after 105s, sending requests
+[2026-11-27 08:48:34 UTC] stopping vLLM pid 2444079
+[2026-11-27 08:48:40 UTC] step 3 FAIL (361s), see /home/pese/qiuyu/intel-accel-for-llm-1119/tests/accel_auto_config_dev/results/tests_20261127_084045/summary.txt
+[2026-11-27 08:48:40 UTC] ALL DONE. Summary: /home/pese/qiuyu/intel-accel-for-llm-1119/tests/accel_auto_config_dev/results/tests_20261127_084045/summary.txt

@@ -1,0 +1,9 @@
+kernel.numa_balancing = 0
+PROBE setvars_status=1
+PROBE setvars_ms=418
+PROBE IAXL_DSA_H2D_CROSSOVER_KB=<unset>
+PROBE IAXL_DSA_D2H_CROSSOVER_KB=<unset>
+PROBE IAXL_ZIP_SEGMENT_SIZE_KB=<unset>
+PROBE VLLM_CPU_OMP_THREADS_BIND=0-31|32-63|64-95|96-127
+PROBE KVSHRINK_DSA_DEVICES=<unset>
+PROBE docker_run_args_has_in_container=no
